@@ -1,0 +1,26 @@
+{
+  "name": "graph-explorer-subgraph",
+  "version": "0.1.0",
+  "repository": "https://github.com/graphprotocol/explorer-dapp",
+  "license": "MIT",
+  "scripts": {
+    "build-contract": "solc contracts/gns.sol --abi -o abis --overwrite && solc contracts/gns.sol --bin -o bin --overwrite",
+    "create": "graph create graphprotocol/explorer-dapp --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create davekaj/explorer-dapp --node http://127.0.0.1:8020",
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy graphprotocol/explorer-dapp --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-local": "graph deploy davekaj/explorer-dapp --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.12.0",
+    "@graphprotocol/graph-ts": "^0.12.0"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "truffle": "^5.0.4",
+    "truffle-contract": "^4.0.5",
+    "truffle-hdwallet-provider": "^1.0.4"
+  }
+}

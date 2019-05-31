@@ -1,0 +1,9 @@
+type User @entity {
+    id: ID!
+}
+
+type Domain @entity {
+    id: ID!             # Domain Hash
+    name: String!       # Domain name
+    owner: Bytes!       # Domain owner
+}

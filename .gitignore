@@ -1,0 +1,7 @@
+# Ignore truffle stuff
+build/
+
+dist/
+node_modules/
+src/types/
+.DS_STORE

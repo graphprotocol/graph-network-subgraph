@@ -1,5 +1,0 @@
-# Ignore zeppelin contracts
-node_modules/
-
-# Ignore truffle stuff
-build/
