@@ -1,8 +1,26 @@
+/*
+* This is for quick testing and iterations, rather than writing actual tests
+* Writing actual tests will come later
+*
+* */
+
 /* global it artifacts describe contract before */
 
 // node modules
 const Web3 = require('web3')
-const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'))
+
+const options = {
+  defaultBlock: 'latest',
+  defaultGas: 1,
+  defaultGasPrice: 0,
+  transactionBlockTimeout: 50,
+  transactionConfirmationBlocks: 0,
+  transactionPollingTimeout: 480
+}
+
+const web3 = new Web3('http://localhost:8545', null, options);
+
+// const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'))
 
 // local modules
 const abis = require('./contract-abis') // NOTE - must run from inside of this folder for this to work..... TODO - fix that
@@ -21,7 +39,6 @@ let graphTokenAddress // Ends up being '0xD478930d26717C3DD59428bcB80D62780d7E30
 let gns
 let gnsAddress
 
-const graphTokenBytecode = JSON.parse(require('fs').readFileSync('../build/contracts/GraphToken.json').toString()).bytecode
 const gnsBytecode = JSON.parse(require('fs').readFileSync('../build/contracts/GNS.json').toString()).bytecode
 
 for (let i = 1; i < 101; i++) {
@@ -38,19 +55,8 @@ async function deploy () {
   accounts = await web3.eth.getAccounts()
   deployer = accounts[0]
   governor = accounts[1]
-  graphToken = new web3.eth.Contract(abis.graphToken())
+  console.log("yo")
   try {
-    let deployedGT = await graphToken.deploy({
-      data: graphTokenBytecode,
-      arguments: [governor, 1000000]
-    }).send({
-      from: deployer,
-      gasPrice: '10000',
-      gas: 6700000
-    })
-    graphTokenAddress = deployedGT.options.address
-    console.log('***** Graph Token Deployed')
-
     gns = new web3.eth.Contract(abis.gns())
     let deployedGNS = await gns.deploy({
       data: gnsBytecode,
@@ -61,7 +67,7 @@ async function deploy () {
       gas: 6700000
     })
     gnsAddress = deployedGNS.options.address
-    // console.log(gnsAddress)
+    console.log(gnsAddress)
     console.log('***** GNS Deployed')
     return true
   } catch (err) {
@@ -70,18 +76,6 @@ async function deploy () {
   }
 }
 
-async function manyTransfers () {
-  try {
-    for (let i = 0; i < 50; i++) {
-      await graphToken.methods.transfer(fakeAccounts[i], 10).send({ from: governor })
-    }
-    console.log('***** Transfers Complete')
-    return true
-  } catch (err) {
-    console.log(err)
-    return false
-  }
-}
 
 /*
   NOTE!
@@ -110,8 +104,8 @@ function manyDomainsRegistered () {
 async function start () {
   let deploySuccessful = await deploy()
   if (deploySuccessful) {
-    manyTransfers()
     // manyDomainsRegistered()
+    console.log("it worked")
   }
 }
 
