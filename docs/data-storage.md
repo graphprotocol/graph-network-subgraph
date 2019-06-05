@@ -32,13 +32,88 @@ photo: string
 
 *Subgraph only data*
 ```
-subgraphs: [Relational] @accountID
+subgraphs: [Subgraph!] @derivedFrom(field: accountID)
 totalSubgraphs: Int!
-organizations: [Relational]
+organizations: [Organization!] @derivedFrom(field: accountID)
 ```
 
 ### Organization Schema
 
+*Data on Ethereum*
+```
+id: string
+accessToken?: string
+```
+
+_note - stored in the organizations mapping_
+
+*IPFS Metadata* 
+```
+name: string
+displayName: string
+photo: string
+```
+
+*Subgraph only Data*
+```
+subgraphs: [Relational] @accountID
+totalSubgraphs: Int!
+```
 
 ### Subgraph Schema
 
+*Data on Ethereum*
+```
+  id: number
+  subgraphId: string
+```
+
+_note - the account owner who made it, the subgraphID, and subdomains are linked_
+
+*IPFS Metadata* 
+```
+  namespace: string (what is this)
+  name: string
+  displayName: string
+  image: string
+  featured: boolean
+  draft: boolean
+  subtitle?: string
+  description?: string
+  accountID : string
+  accountName: string
+```
+*Subgraph only Data*
+```
+  createdAt: string (when the name was stored)
+  deployedAt?: string (when a subgraph is deployed to the GNS)
+  status?: string - (subgraph would know this)
+  owner: Account
+  subdomainStuff: MULTIPLE
+```
+
+
+### Unsure, not V1 Schemas 
+
+```
+SubgraphVersions (versions seem very  different for stats compared to the normal subgraph
+  id: string
+  createdAt: string
+  description: string
+  repository: string
+  deployment: string
+  status: string
+  endpoints: SubgraphVersionEndpoints
+  entityCount: string
+  ethereumNetwork: string
+  exampleQuery: string
+  processedEthereumBlocks?: string
+  totalEthereumBlocks?: string
+
+SavedQuery
+  id?: string
+  subgraphId: string
+  versionId?: string
+  name: string
+  query: string
+```
