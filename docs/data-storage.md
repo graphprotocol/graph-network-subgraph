@@ -18,7 +18,6 @@ Their schemas are split up below to show how they are stored:
 *Data on Ethereum*
 ```
 id: string
-accessToken?: string
 ```
 _note - stored in an ethereum mapping, and in the organizations mapping_
 
@@ -28,6 +27,7 @@ name: string
 displayName: string
 role: (admin or member)
 photo: string
+accessToken?: string (note - will have to be encrypted. tbd if it will be stored on IPFS or Ethereum. IPFS for now as we are not encrypting it in V1)
 ```
 
 *Subgraph only data*
@@ -42,7 +42,6 @@ organizations: [Organization!] @derivedFrom(field: accountID)
 *Data on Ethereum*
 ```
 id: string
-accessToken?: string
 ```
 
 _note - stored in the organizations mapping_
@@ -52,6 +51,7 @@ _note - stored in the organizations mapping_
 name: string
 displayName: string
 photo: string
+accessToken?: string (note - will have to be encrypted. tbd if it will be stored on IPFS or Ethereum. IPFS for now as we are not encrypting it in V1)
 ```
 
 *Subgraph only Data*
@@ -64,7 +64,6 @@ totalSubgraphs: Int!
 
 *Data on Ethereum*
 ```
-  id: number
   subgraphId: string
 ```
 

@@ -53,7 +53,8 @@ contract GNS is Governed {
         bytes32 indexed domainHash,
         bytes32 indexed subdomainHash,
         bytes32 indexed subdomainSubgraphId,
-        string subdomainName
+        string subdomainName,
+        bytes32 ipfsHash
     );
     event SubgraphIdChanged(
         bytes32 indexed domainHash,
@@ -61,6 +62,9 @@ contract GNS is Governed {
         bytes32 indexed subdomainSubgraphId
     );
     event SubgraphIdDeleted(bytes32 indexed domainHash, bytes32 indexed subdomainHash);
+
+    event AccountMetadataChanged(address indexed account, bytes32 indexed ipfsHash);
+    event SubgraphMetadataChanged(bytes32 indexed domainHash, bytes32 indexed subdomainHash, bytes32 indexed ipfsHash);
 
     /* Structs */
     struct Domain {
@@ -79,6 +83,11 @@ contract GNS is Governed {
 
     modifier onlyDomainOwner (bytes32 _domainHash) {
         require(msg.sender == gnsDomains[_domainHash].owner);
+        _;
+    }
+
+    modifier onlyOwner (address owner) {
+        require(msg.sender == owner);
         _;
     }
     /*
@@ -103,7 +112,7 @@ contract GNS is Governed {
 
     /*
      * @notice Register a subgraphId to a subdomain
-     * @notice To only register to the top level domain, pass _subdomainName as a blank string
+     * @notice To only register to the top level domain, pass _subdomainName as a blank string (which is c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 when hashed)
      * @dev Only the domain owner may do this
      *
      * @param _domainHash <bytes32> - Hash of the domain name
@@ -156,4 +165,28 @@ contract GNS is Governed {
         gnsDomains[_domainHash].owner = _newOwner;
         emit DomainTransferred(_domainHash, _newOwner);
     }
+
+    /*
+     * @notice Change or initalize the Account Metadata, which is stored in a schema on IPFS
+     * @dev Only the msg.sender can do this
+     *
+     * @param _ipfsHash <bytes32> - Hash of the IPFS file that stores the account metadata
+     * @param _account <address> - msg.sender
+     */
+    function changeAccountMetadata (bytes32 _ipfsHash, address _account) external onlyOwner(_account) {
+        emit AccountMetadataChanged(_account, _ipfsHash);
+    }
+
+    /*
+    * @notice Change or initalize the Account Metadata, which is stored in a schema on IPFS
+    * @dev Only the msg.sender can do this
+    *
+    * @param _ipfsHash <bytes32> - Hash of the IPFS file that stores the subgraph metadata
+    * @param _domainHash <bytes32> - Hash of the domain name
+    * @param _subdomainHash <bytes32> - Hash of the name of the subdomain
+    */
+    function changeSubgraphMetadata (bytes32 _ipfsHash, bytes32 _domainHash, bytes32 _subdomainHash) external onlyDomainOwner(_account) {
+        emit SubgraphMetadataChanged(_domainHash, _subdomainHash, _ipfsHash);
+    }
+
 }
