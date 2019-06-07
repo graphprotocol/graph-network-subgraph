@@ -106,7 +106,7 @@ contract GNS is Governed {
      * @notice Get the owner of an existing domain
      * @param _topLevelDomainHash <bytes32> - Hash of the domain name
      */
-    function getDomainOwner (bytes32 _topLevelDomainHash) external returns (address owner) {
+    function getDomainOwner (bytes32 _topLevelDomainHash) external view returns (address owner) {
         return gnsDomains[_topLevelDomainHash].owner;
     }
 
@@ -122,9 +122,10 @@ contract GNS is Governed {
     function addSubgraphToDomain (
         bytes32 _topLevelDomainHash,
         string calldata _subdomainName,
-        bytes32 _subgraphId
+        bytes32 _subgraphId,
+        bytes32 _ipfsHash
     ) external onlyDomainOwner(_topLevelDomainHash) {
-        emit SubgraphIdAdded(_topLevelDomainHash, keccak256(abi.encodePacked(_subdomainName)), _subgraphId, _subdomainName, ipfsHash); // 2nd field will automatically be hashed by EVM
+        emit SubgraphIdAdded(_topLevelDomainHash, keccak256(abi.encodePacked(_subdomainName)), _subgraphId, _subdomainName, _ipfsHash); // 2nd field will automatically be hashed by EVM
     }
 
     /*
@@ -185,7 +186,7 @@ contract GNS is Governed {
     * @param _topLevelDomainHash <bytes32> - Hash of the domain name
     * @param _subdomainHash <bytes32> - Hash of the name of the subdomain
     */
-    function changeSubgraphMetadata (bytes32 _ipfsHash, bytes32 _topLevelDomainHash, bytes32 _subdomainHash) external onlyDomainOwner(_account) {
+    function changeSubgraphMetadata (bytes32 _ipfsHash, bytes32 _topLevelDomainHash, bytes32 _subdomainHash) external onlyDomainOwner(_topLevelDomainHash) {
         emit SubgraphMetadataChanged(_topLevelDomainHash, _subdomainHash, _ipfsHash);
     }
 
