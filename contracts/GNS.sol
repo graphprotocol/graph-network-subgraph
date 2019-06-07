@@ -59,7 +59,7 @@ contract GNS is Governed {
     event SubgraphIdChanged(
         bytes32 indexed topLevelDomainHash,
         bytes32 indexed subdomainHash,
-        bytes32 indexed subdomainSubgraphId
+        bytes32 indexed subgraphId
     );
     event SubgraphIdDeleted(bytes32 indexed topLevelDomainHash, bytes32 indexed subdomainHash);
 
@@ -117,7 +117,7 @@ contract GNS is Governed {
      *
      * @param _topLevelDomainHash <bytes32> - Hash of the domain name
      * @param _subdomainName <string> - Name of the Subdomain
-     * @param _subdomainSubgraphId <bytes32> - IPLD SubgraphId of the subdomain
+     * @param _subgraphId <bytes32> - IPLD SubgraphId of the subdomain
      */
     function addSubgraphToDomain (
         bytes32 _topLevelDomainHash,
@@ -133,14 +133,14 @@ contract GNS is Governed {
      *
      * @param _topLevelDomainHash <bytes32> - Hash of the domain name
      * @param _subdomainHash <bytes32> - Hash of the Name of the subdomain
-     * @param _subdomainSubgraphId <bytes32> - IPLD SubgraphId of the subdomain
+     * @param _subgraphId <bytes32> - IPLD SubgraphId of the subdomain
      */
     function changeDomainSubgraphId (
         bytes32 _topLevelDomainHash,
         bytes32 _subdomainHash,
-        bytes32 _domainSubgraphId
+        bytes32 _subgraphId
     ) external onlyDomainOwner(_topLevelDomainHash) {
-        emit SubgraphIdChanged(_topLevelDomainHash, _subdomainHash, _subdomainSubgraphId);
+        emit SubgraphIdChanged(_topLevelDomainHash, _subdomainHash, _subgraphId);
     }
 
     /*
