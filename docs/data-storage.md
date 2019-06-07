@@ -25,7 +25,7 @@ _note - stored in an ethereum mapping, and in the organizations mapping_
 ```
 name: string
 displayName: string
-role: (admin or member)
+role: (admin or member) (NOTE - NOTE IN V1)
 photo: string
 accessToken?: string (note - will have to be encrypted. tbd if it will be stored on IPFS or Ethereum. IPFS for now as we are not encrypting it in V1)
 ```
@@ -34,7 +34,7 @@ accessToken?: string (note - will have to be encrypted. tbd if it will be stored
 ```
 subgraphs: [Subgraph!] @derivedFrom(field: accountID)
 totalSubgraphs: Int!
-organizations: [Organization!] @derivedFrom(field: accountID)
+organizations: [Organization!] @derivedFrom(field: accountID) (NOTE - NOT IN V1)
 ```
 
 ### Organization Schema
@@ -71,7 +71,7 @@ _note - the account owner who made it, the subgraphID, and subdomains are linked
 
 *IPFS Metadata* 
 ```
-  namespace: string (what is this)
+  namespace: string (what is this, not in v1 until I know)
   name: string
   displayName: string
   image: string
