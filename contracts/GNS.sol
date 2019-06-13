@@ -86,10 +86,6 @@ contract GNS is Governed {
         _;
     }
 
-    modifier onlyOwner (address owner) {
-        require(msg.sender == owner);
-        _;
-    }
     /*
      * @notice Register a Domain to an owner
      * @dev Only registrar may do this
@@ -174,8 +170,8 @@ contract GNS is Governed {
      * @param _ipfsHash <bytes32> - Hash of the IPFS file that stores the account metadata
      * @param _account <address> - msg.sender
      */
-    function changeAccountMetadata (bytes32 _ipfsHash, address _account) external onlyOwner(_account) {
-        emit AccountMetadataChanged(_account, _ipfsHash);
+    function changeAccountMetadata (bytes32 _ipfsHash) external {
+        emit AccountMetadataChanged(msg.sender, _ipfsHash);
     }
 
     /*
