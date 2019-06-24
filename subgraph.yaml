@@ -8,18 +8,30 @@ dataSources:
     name: GNS
     network: ganache
     source:
-      address: ""
+      address: "0xCfEB869F69431e42cdB54A4F4f105C19C080A601"
       abi: GNS
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.1
+      apiVersion: 0.0.2
       language: wasm/assemblyscript
       entities:
         - TODO
       abis:
         - name: GNS
-          file: ../build/contracts/GNS.json
+          file: ./build/contracts/GNS.json
       eventHandlers:
-        - event: DomainAdded(string,address,string)
+        - event: DomainAdded(bytes32,address,string)
           handler: handleDomainAdded
+        - event: DomainTransferred(bytes32,address)
+          handler: handleDomainTransferred
+        - event: SubgraphIdAdded(bytes32,bytes32,bytes32,string,bytes32)
+          handler: handleSubgraphIdAdded
+        - event: SubgraphIdChanged(bytes32,bytes32,bytes32)
+          handler: handleSubgraphIdChanged
+        - event: SubgraphIdDeleted(bytes32,bytes32)
+          handler: handleSubgraphIdDeleted
+        - event: AccountMetadataChanged(address,bytes32)
+          handler: handleAccountMetadataChanged
+        - event: SubgraphMetadataChanged(bytes32,bytes32,bytes32)
+          handler: handleSubgraphMetadataChanged
       file: ./src/mappings/gns.ts

@@ -1,7 +1,7 @@
 # Ignore truffle stuff
 build/
 
-dist/
+generated/
 node_modules/
 src/types/
 .DS_STORE

@@ -121,7 +121,7 @@ contract GNS is Governed {
         bytes32 _subgraphId,
         bytes32 _ipfsHash
     ) external onlyDomainOwner(_topLevelDomainHash) {
-        emit SubgraphIdAdded(_topLevelDomainHash, keccak256(abi.encodePacked(_subdomainName)), _subgraphId, _subdomainName, _ipfsHash); // 2nd field will automatically be hashed by EVM
+        emit SubgraphIdAdded(_topLevelDomainHash, keccak256(abi.encodePacked(_subdomainName)), _subgraphId, _subdomainName, _ipfsHash);
     }
 
     /*
