@@ -8,7 +8,7 @@ dataSources:
     name: GNS
     network: ganache
     source:
-      address: "0xCfEB869F69431e42cdB54A4F4f105C19C080A601"
+      address: "0x1b2fd7988f44c53844fc0f8da21cafa21bbb571a"
       abi: GNS
     mapping:
       kind: ethereum/events

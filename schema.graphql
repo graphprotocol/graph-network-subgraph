@@ -5,8 +5,8 @@ type Account @entity {
 
 type Domain @entity {
     id: ID!             # Domain Hash
-    name: String!       # Domain name, can be a tld or subdomain
-    owner: Bytes!       # Domain owner
+    name: String       # Domain name, can be a tld or subdomain
+    owner: Bytes       # Domain owner
     parentDomain: Bytes # If it is a tld, parent domain is null
     subgraphID: Bytes   # If it is not set yet, it is null
     metadataHash: Bytes
