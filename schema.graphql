@@ -1,6 +1,13 @@
 type Account @entity {
+    # From GNS.sol
     id: ID!
     metadataHash: Bytes
+
+    # From GraphToken.sol
+    balance: BigInt!
+    # approvals: [Bytes!]!
+    # allowances: [BigInt!]!
+
 }
 
 type Domain @entity {
@@ -13,3 +20,7 @@ type Domain @entity {
 
 }
 
+type GraphToken @entity {
+    id: ID!                 # Just the value 1
+    total: BigInt!
+}

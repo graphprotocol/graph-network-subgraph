@@ -15,7 +15,8 @@ dataSources:
       apiVersion: 0.0.2
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Account
+        - Domain
       abis:
         - name: GNS
           file: ./build/contracts/GNS.json
@@ -35,3 +36,24 @@ dataSources:
         - event: SubgraphMetadataChanged(bytes32,bytes32,bytes32)
           handler: handleSubgraphMetadataChanged
       file: ./src/mappings/gns.ts
+  - kind: ethereum/contract
+    name: GraphToken
+    network: ganache
+    source:
+      address: "0x1b2fd7988f44c53844fc0f8da21cafa21bbb571a"
+      abi: GraphToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      entities:
+        - TODO
+      abis:
+        - name: GraphToken
+          file: ./build/contracts/GraphToken.json
+      eventHandlers:
+        - event: Transfer(address,address,uint256)
+          handler: handleTransfer
+        - event: Approval(address,address,uint256)
+          handler: handleApproval
+      file: ./src/mappings/graphtoken.ts
