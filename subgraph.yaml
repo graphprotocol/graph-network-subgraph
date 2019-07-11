@@ -19,7 +19,7 @@ dataSources:
         - Domain
       abis:
         - name: GNS
-          file: ./build/contracts/GNS.json
+          file: ./abis/GNS.json
       eventHandlers:
         - event: DomainAdded(bytes32,address,string)
           handler: handleDomainAdded
@@ -40,7 +40,29 @@ dataSources:
     name: GraphToken
     network: ganache
     source:
-      address: "0x1b2fd7988f44c53844fc0f8da21cafa21bbb571a"
+      address: "0x1b2fd7988f44c53844fc0f8da21cafa21bbb571a" # note, fake for now
+      abi: GraphToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      entities:
+        - Account
+        - GraphToken
+      abis:
+        - name: GraphToken
+          file: ./abis/GraphToken.json
+      eventHandlers:
+        - event: Transfer(address,address,uint256)
+          handler: handleTransfer
+        - event: Approval(address,address,uint256)
+          handler: handleApproval
+      file: ./src/mappings/graphtoken.ts
+  - kind: ethereum/contract
+    name: Staking
+    network: ganache
+    source:
+      address: "0x1b2fd7988f44c53844fc0f8da21cafa21bbb571a" # note, fake for now
       abi: GraphToken
     mapping:
       kind: ethereum/events
@@ -50,10 +72,20 @@ dataSources:
         - TODO
       abis:
         - name: GraphToken
-          file: ./build/contracts/GraphToken.json
+          file: ./abis/Staking.json
       eventHandlers:
-        - event: Transfer(address,address,uint256)
-          handler: handleTransfer
-        - event: Approval(address,address,uint256)
-          handler: handleApproval
-      file: ./src/mappings/graphtoken.ts
+        - event: CurationNodeStaked(address,uint256)
+          handler: handleCurationNodeStaked
+        - event: CurationNodeLogout(address)
+          handler: handleCurationNodeLogout
+        - event: IndexingNodeStaked(address,uint256)
+          handler: handleIndexingNodeStaked
+        - event: IndexingNodeLogout(address)
+          handler: handleIndexingNodeLogout
+        - event: DisputeCreated(bytes32,address,address,bytes32,bytes)
+          handler: handleDisputeCreated
+        - event: DisputeAccepted(bytes32,bytes32,address,uint256)
+          handler: handleDisputeAccepted
+        - event: DisputeRejected(bytes32,bytes32,address,uint256)
+          handler: handleDisputeRejected
+      file: ./src/mappings/staking.ts
