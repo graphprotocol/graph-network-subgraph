@@ -1,3 +1,5 @@
+
+
 type Account @entity {
     # From GNS.sol
     id: ID!
@@ -7,6 +9,8 @@ type Account @entity {
     balance: BigInt!
     # approvals: [Bytes!]!
     # allowances: [BigInt!]!
+    curating: [Curator!]! @derivedFrom(field: "user")
+    indexing: [IndexNode!]! @derivedFrom(field: "user")
 
 }
 
@@ -23,4 +27,82 @@ type Domain @entity {
 type GraphToken @entity {
     id: ID!                 # Just the value 1
     total: BigInt!
+}
+
+# subgraph, curator, indexer DISPUTES, lockout period
+
+type IndexNode @entity {
+    id: ID! # eth address of index node + subgraph ID
+    user: Bytes! # Eth addrress - for searching and filtering
+    subgraphID: Bytes! # SubgraphID - for searching and filtering
+    tokensStaked: BigInt! # If this is 0, it means they have logged out
+
+    # By knowing the thawing time, we can derive the time they can withdraw
+    logoutStartTime: Int! # frrom IndexingNodeLogout
+
+    feesAccured: BigInt!
+
+}
+
+# we probably need shares, unreralized gains, fees accrued
+# unrealized is derived from the total share of the pool, and the users shares, minus what they have deposited , and fees might be involved here
+
+type Curator @entity {
+    id: ID! # eth address of curator + subgraph ID
+    user: Bytes! # Eth addrress - for searching and filtering
+    subgraphID: Bytes! # SubgraphID - for searching and filtering
+    tokensStaked: BigInt!
+}
+
+type Subgraph @entity {
+    # might get from gns
+    id: ID!
+
+    # from staking
+    reserveRatio: BigInt!
+    totalCurationStake: BigInt!
+    totalCurationShares: BigInt!
+    totalIndexingStake: BigInt!
+    totalIndexers: BigInt!
+
+}
+
+# Not in use
+
+#type Dispute @entity {
+#    id: ID! # dispute ID
+#    subgraphID: Bytes!
+#    indexingNode: Bytes!
+#    fisherman: Bytes!
+#    attestation: Bytes!
+#    status: DisputeStatus!
+#}
+#
+#enum DisputeStatus {
+#    Created,
+#    Accepted,
+#    Rejected
+#}
+
+type Transactions @entity {
+    id: ID! # tx hash (plus log index)
+    timestamp: Int!
+    block: Int!
+    type: TransactionType!
+
+    # might have to add specifics here of each type, but i think i can probably actually pass on that. this info might be enough
+
+}
+
+enum TransactionType {
+    CurateStake,
+    CurateUnstake,
+    IndexingStake,
+    IndexingUnstake,
+    RegisterGNS,
+    UpdateGNS,
+    DeploySubgraphToGNS,
+
+    # otherrs to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
+    # Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
 }
