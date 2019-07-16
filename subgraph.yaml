@@ -63,7 +63,7 @@ dataSources:
     network: ganache
     source:
       address: "0x1b2fd7988f44c53844fc0f8da21cafa21bbb571a" # note, fake for now
-      abi: GraphToken
+      abi: Staking
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.2
@@ -71,7 +71,7 @@ dataSources:
       entities:
         - TODO
       abis:
-        - name: GraphToken
+        - name: Staking
           file: ./abis/Staking.json
       eventHandlers:
         - event: CurationNodeStaked(address,uint256)

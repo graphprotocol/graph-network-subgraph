@@ -29,8 +29,6 @@ type GraphToken @entity {
     total: BigInt!
 }
 
-# subgraph, curator, indexer DISPUTES, lockout period
-
 type IndexNode @entity {
     id: ID! # eth address of index node + subgraph ID
     user: Bytes! # Eth addrress - for searching and filtering
@@ -41,7 +39,6 @@ type IndexNode @entity {
     logoutStartTime: Int! # frrom IndexingNodeLogout
 
     feesAccured: BigInt!
-
 }
 
 # we probably need shares, unreralized gains, fees accrued
@@ -84,16 +81,18 @@ type Subgraph @entity {
 #    Rejected
 #}
 
+# might have to add specifics here of each type, but i think i can probably
+# actually pass on that. this info might be enough
 type Transactions @entity {
     id: ID! # tx hash (plus log index)
     timestamp: Int!
     block: Int!
     type: TransactionType!
-
-    # might have to add specifics here of each type, but i think i can probably actually pass on that. this info might be enough
-
 }
 
+
+# others to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
+# Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
 enum TransactionType {
     CurateStake,
     CurateUnstake,
@@ -102,7 +101,4 @@ enum TransactionType {
     RegisterGNS,
     UpdateGNS,
     DeploySubgraphToGNS,
-
-    # otherrs to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
-    # Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
 }
