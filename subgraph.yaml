@@ -74,14 +74,16 @@ dataSources:
         - name: Staking
           file: ./abis/Staking.json
       eventHandlers:
-        - event: CurationNodeStaked(address,uint256)
+        - event: CurationNodeStaked(address,uint256,bytes32,uint256,uint256)
           handler: handleCurationNodeStaked
-        - event: CurationNodeLogout(address)
+        - event: CurationNodeLogout(address,bytes32,uint256,uint256)
           handler: handleCurationNodeLogout
-        - event: IndexingNodeStaked(address,uint256)
+        - event: IndexingNodeStaked(address,uint256,bytes32)
           handler: handleIndexingNodeStaked
-        - event: IndexingNodeLogout(address)
-          handler: handleIndexingNodeLogout
+        - event: IndexingNodeBeginLogout(address,bytes32)
+          handler: handleIndexingNodeBeginLogout
+        - event: IndexingNodeFinalizeLogout(address,bytes32)
+          handler: handleIndexingNodeFinalizeLogout
         - event: DisputeCreated(bytes32,address,address,bytes32,bytes)
           handler: handleDisputeCreated
         - event: DisputeAccepted(bytes32,bytes32,address,uint256)
