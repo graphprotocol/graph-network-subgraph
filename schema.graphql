@@ -38,7 +38,7 @@ type IndexNode @entity {
     # By knowing the thawing time, we can derive the time they can withdraw
     logoutStartTime: Int! # frrom IndexingNodeLogout
 
-    feesAccured: BigInt!
+    feesAccured: BigInt # not clear how this will work yet, in the smart contract
 }
 
 # we probably need shares, unreralized gains, fees accrued
@@ -49,6 +49,7 @@ type Curator @entity {
     user: Bytes! # Eth addrress - for searching and filtering
     subgraphID: Bytes! # SubgraphID - for searching and filtering
     tokensStaked: BigInt!
+    shares: BigInt!
 }
 
 type Subgraph @entity {
@@ -60,7 +61,7 @@ type Subgraph @entity {
     totalCurationStake: BigInt!
     totalCurationShares: BigInt!
     totalIndexingStake: BigInt!
-    totalIndexers: BigInt!
+    totalIndexers: Int!
 
 }
 
