@@ -369,15 +369,15 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.8+commit.23d335f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"}],\"name\":\"getDomainOwner\",\"outputs\":[{\"name\":\"owner\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"transferDomainOwnership\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subdomainName\",\"type\":\"string\"},{\"name\":\"_subgraphId\",\"type\":\"bytes32\"},{\"name\":\"_ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"addSubgraphToDomain\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_ipfsHash\",\"type\":\"bytes32\"},{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subdomainHash\",\"type\":\"bytes32\"}],\"name\":\"changeSubgraphMetadata\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subdomainHash\",\"type\":\"bytes32\"}],\"name\":\"deleteSubdomain\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_newGovernor\",\"type\":\"address\"}],\"name\":\"transferGovernance\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subdomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subgraphId\",\"type\":\"bytes32\"}],\"name\":\"changeDomainSubgraphId\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"changeAccountMetadata\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_domainName\",\"type\":\"string\"},{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"registerDomain\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_governor\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"domainName\",\"type\":\"string\"}],\"name\":\"DomainAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"DomainTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subdomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subgraphId\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"subdomainName\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"SubgraphIdAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subdomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subgraphId\",\"type\":\"bytes32\"}],\"name\":\"SubgraphIdChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subdomainHash\",\"type\":\"bytes32\"}],\"name\":\"SubgraphIdDeleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"AccountMetadataChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subdomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"SubgraphMetadataChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"_to\",\"type\":\"address\"}],\"name\":\"GovernanceTransferred\",\"type\":\"event\"}],\"devdoc\":{\"methods\":{\"transferGovernance(address)\":{\"details\":\"The current `governor` can assign a new `governor`\",\"params\":{\"_newGovernor\":\"<address> Address of new `governor`\"}}}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/davidkajpust/coding-no-icloud-backup/thegraph/explorer-dapp/contracts/GNS.sol\":\"GNS\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/davidkajpust/coding-no-icloud-backup/thegraph/explorer-dapp/contracts/GNS.sol\":{\"keccak256\":\"0x015a2b4fd3ae59d2c45656f0fa19c616dd4d77c39599f42ba4e6a019f355b427\",\"urls\":[\"bzzr://eb757fd7647ac153ee116a09a8eb1266bc40a00f98266ca9beefe226c45c318c\"]},\"/Users/davidkajpust/coding-no-icloud-backup/thegraph/explorer-dapp/contracts/Governed.sol\":{\"keccak256\":\"0x83154fddfde3562ecd323464378b72bfa23f95613e3c96b0f33d16912e82d559\",\"urls\":[\"bzzr://26da7d76dd8a10f2fd26d10d33a4ade4fbbc5377a3db90e1fc70205588d5d509\"]}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b50604051602080610bf28339810180604052602081101561003057600080fd5b810190808051906020019092919050505080806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505050610b5f806100936000396000f3fe608060405234801561001057600080fd5b506004361061009e5760003560e01c8063666542e111610066578063666542e114610282578063d38bfff4146102ba578063d899b2ab14610316578063e3f9ab7014610358578063f52433cb146103865761009e565b80630c340a24146100a357806311d4c3a2146100ed5780631dc9a3b91461015b5780633a46d5a5146101a957806344ea0dbe14610240575b600080fd5b6100ab61041f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6101196004803603602081101561010357600080fd5b8101908080359060200190929190505050610444565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6101a76004803603604081101561017157600080fd5b8101908080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610484565b005b61023e600480360360808110156101bf57600080fd5b8101908080359060200190929190803590602001906401000000008111156101e657600080fd5b8201836020820111156101f857600080fd5b8035906020019184600183028401116401000000008311171561021a57600080fd5b90919293919293908035906020019092919080359060200190929190505050610591565b005b6102806004803603606081101561025657600080fd5b810190808035906020019092919080359060200190929190803590602001909291905050506106a5565b005b6102b86004803603604081101561029857600080fd5b810190808035906020019092919080359060200190929190505050610749565b005b6102fc600480360360208110156102d057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506107eb565b604051808215151515815260200191505060405180910390f35b6103566004803603606081101561032c57600080fd5b8101908080359060200190929190803590602001909291908035906020019092919050505061088f565b005b6103846004803603602081101561036e57600080fd5b8101908080359060200190929190505050610933565b005b61041d6004803603604081101561039c57600080fd5b81019080803590602001906401000000008111156103b957600080fd5b8201836020820111156103cb57600080fd5b803590602001918460018302840111640100000000831117156103ed57600080fd5b9091929391929390803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061097a565b005b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60006001600083815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050919050565b816001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146104f357600080fd5b816001600085815260200190815260200160002060000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055508173ffffffffffffffffffffffffffffffffffffffff16837f526d3ede5b34aceac4e5820c0e9730fc09a7c9135c20ff6ac2522628413eb38360405160405180910390a3505050565b846001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461060057600080fd5b82858560405160200180838380828437808301925050509250505060405160208183030381529060405280519060200120877fa821a49fe7ab545d8d48ff1463851de2f142c94a27e14ead9e54ef0ce61888df88888760405180806020018381526020018281038252858582818152602001925080828437600081840152601f19601f82011690508083019250505094505050505060405180910390a4505050505050565b816001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461071457600080fd5b8382847f895b09e07955848caaf9ed757e10d71d4109a288954e450700b21863b9fd74eb60405160405180910390a450505050565b816001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146107b857600080fd5b81837f08ce5acb4b8c03f4150b9935bfe9ae6b176a007658a955d70ba1bc5eb0eb558660405160405180910390a3505050565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461084657600080fd5b816000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060019050919050565b826001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146108fe57600080fd5b8183857f43d09e217ddeaf2a830cadb8ccfd10d5794fd962699cfe425bdeed3f5467d47360405160405180910390a450505050565b803373ffffffffffffffffffffffffffffffffffffffff167fc4df041d25ce185716aff03205e2861e0ca951e1f2eaae5b77fb57996481996460405160405180910390a350565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146109d357600080fd5b60405180602001604052808273ffffffffffffffffffffffffffffffffffffffff1681525060016000858560405160200180838380828437808301925050509250505060405160208183030381529060405280519060200120815260200190815260200160002060008201518160000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055509050508073ffffffffffffffffffffffffffffffffffffffff168383604051602001808383808284378083019250505092505050604051602081830303815290604052805190602001207fed90ece6faf918d7ecf69f4ec4db7f96b3eb8ac536b7bdc46e507523eab90905858560405180806020018281038252848482818152602001925080828437600081840152601f19601f820116905080830192505050935050505060405180910390a350505056fea165627a7a72305820319071b5c1719a18ca0351813b54b051312175cff274b6c959d581830cfb05060029",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061009e5760003560e01c8063666542e111610066578063666542e114610282578063d38bfff4146102ba578063d899b2ab14610316578063e3f9ab7014610358578063f52433cb146103865761009e565b80630c340a24146100a357806311d4c3a2146100ed5780631dc9a3b91461015b5780633a46d5a5146101a957806344ea0dbe14610240575b600080fd5b6100ab61041f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6101196004803603602081101561010357600080fd5b8101908080359060200190929190505050610444565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6101a76004803603604081101561017157600080fd5b8101908080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610484565b005b61023e600480360360808110156101bf57600080fd5b8101908080359060200190929190803590602001906401000000008111156101e657600080fd5b8201836020820111156101f857600080fd5b8035906020019184600183028401116401000000008311171561021a57600080fd5b90919293919293908035906020019092919080359060200190929190505050610591565b005b6102806004803603606081101561025657600080fd5b810190808035906020019092919080359060200190929190803590602001909291905050506106a5565b005b6102b86004803603604081101561029857600080fd5b810190808035906020019092919080359060200190929190505050610749565b005b6102fc600480360360208110156102d057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506107eb565b604051808215151515815260200191505060405180910390f35b6103566004803603606081101561032c57600080fd5b8101908080359060200190929190803590602001909291908035906020019092919050505061088f565b005b6103846004803603602081101561036e57600080fd5b8101908080359060200190929190505050610933565b005b61041d6004803603604081101561039c57600080fd5b81019080803590602001906401000000008111156103b957600080fd5b8201836020820111156103cb57600080fd5b803590602001918460018302840111640100000000831117156103ed57600080fd5b9091929391929390803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061097a565b005b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60006001600083815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050919050565b816001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146104f357600080fd5b816001600085815260200190815260200160002060000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055508173ffffffffffffffffffffffffffffffffffffffff16837f526d3ede5b34aceac4e5820c0e9730fc09a7c9135c20ff6ac2522628413eb38360405160405180910390a3505050565b846001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461060057600080fd5b82858560405160200180838380828437808301925050509250505060405160208183030381529060405280519060200120877fa821a49fe7ab545d8d48ff1463851de2f142c94a27e14ead9e54ef0ce61888df88888760405180806020018381526020018281038252858582818152602001925080828437600081840152601f19601f82011690508083019250505094505050505060405180910390a4505050505050565b816001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461071457600080fd5b8382847f895b09e07955848caaf9ed757e10d71d4109a288954e450700b21863b9fd74eb60405160405180910390a450505050565b816001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146107b857600080fd5b81837f08ce5acb4b8c03f4150b9935bfe9ae6b176a007658a955d70ba1bc5eb0eb558660405160405180910390a3505050565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461084657600080fd5b816000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060019050919050565b826001600082815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146108fe57600080fd5b8183857f43d09e217ddeaf2a830cadb8ccfd10d5794fd962699cfe425bdeed3f5467d47360405160405180910390a450505050565b803373ffffffffffffffffffffffffffffffffffffffff167fc4df041d25ce185716aff03205e2861e0ca951e1f2eaae5b77fb57996481996460405160405180910390a350565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146109d357600080fd5b60405180602001604052808273ffffffffffffffffffffffffffffffffffffffff1681525060016000858560405160200180838380828437808301925050509250505060405160208183030381529060405280519060200120815260200190815260200160002060008201518160000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055509050508073ffffffffffffffffffffffffffffffffffffffff168383604051602001808383808284378083019250505092505050604051602081830303815290604052805190602001207fed90ece6faf918d7ecf69f4ec4db7f96b3eb8ac536b7bdc46e507523eab90905858560405180806020018281038252848482818152602001925080828437600081840152601f19601f820116905080830192505050935050505060405180910390a350505056fea165627a7a72305820319071b5c1719a18ca0351813b54b051312175cff274b6c959d581830cfb05060029",
-  "sourceMap": "51:8090:0:-;;;3402:62;8:9:-1;5:2;;;30:1;27;20:12;5:2;3402:62:0;;;;;;;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;3402:62:0;;;;;;;;;;;;;;;;3451:9;1267::1;1256:8;;:20;;;;;;;;;;;;;;;;;;1208:75;3402:62:0;51:8090;;;;;;",
-  "deployedSourceMap": "51:8090:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;51:8090:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;915:23:1;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;4337:153:0;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;4337:153:0;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;6812:258;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;6812:258:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;5002:407;;;;;;13:3:-1;8;5:12;2:2;;;30:1;27;20:12;2:2;5002:407:0;;;;;;;;;;;;;;;;;;;21:11:-1;8;5:28;2:2;;;46:1;43;36:12;2:2;5002:407:0;;35:9:-1;28:4;12:14;8:25;5:40;2:2;;;58:1;55;48:12;2:2;5002:407:0;;;;;;100:9:-1;95:1;81:12;77:20;67:8;63:35;60:50;39:11;25:12;22:29;11:107;8:2;;;131:1;128;121:12;8:2;5002:407:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;7894:244;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;7894:244:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;6338:201;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;6338:201:0;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;1520:148:1;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;1520:148:1;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;5771:272:0;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;5771:272:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;7372:127;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;7372:127:0;;;;;;;;;;;;;;;;;:::i;:::-;;3867:328;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;3867:328:0;;;;;;;;;;21:11:-1;8;5:28;2:2;;;46:1;43;36:12;2:2;3867:328:0;;35:9:-1;28:4;12:14;8:25;5:40;2:2;;;58:1;55;48:12;2:2;3867:328:0;;;;;;100:9:-1;95:1;81:12;77:20;67:8;63:35;60:50;39:11;25:12;22:29;11:107;8:2;;;131:1;128;121:12;8:2;3867:328:0;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;915:23:1;;;;;;;;;;;;;:::o;4337:153:0:-;4414:13;4446:10;:31;4457:19;4446:31;;;;;;;;;;;:37;;;;;;;;;;;;4439:44;;4337:153;;;:::o;6812:258::-;6919:19;3593:10;:31;3604:19;3593:31;;;;;;;;;;;:37;;;;;;;;;;;;3579:51;;:10;:51;;;3571:60;;;;;;6990:9;6950:10;:31;6961:19;6950:31;;;;;;;;;;;:37;;;:49;;;;;;;;;;;;;;;;;;7053:9;7014:49;;7032:19;7014:49;;;;;;;;;;6812:258;;;:::o;5002:407::-;5196:19;3593:10;:31;3604:19;3593:31;;;;;;;;;;;:37;;;;;;;;;;;;3579:51;;:10;:51;;;3571:60;;;;;;5314:11;5296:14;;5279:32;;;;;;;30:3:-1;22:6;14;1:33;57:3;49:6;45:16;35:26;;5279:32:0;;;;;;;;49:4:-1;39:7;30;26:21;22:32;13:7;6:49;5279:32:0;;;5269:43;;;;;;5248:19;5232:121;5327:14;;5343:9;5232:121;;;;;;;;;;;;;;;;;;;;;;;;;;30:3:-1;22:6;14;1:33;99:1;93:3;85:6;81:16;74:27;137:4;133:9;126:4;121:3;117:14;113:30;106:37;;169:3;161:6;157:16;147:26;;5232:121:0;;;;;;;;;;;;;;;5002:407;;;;;;:::o;7894:244::-;8024:19;3593:10;:31;3604:19;3593:31;;;;;;;;;;;:37;;;;;;;;;;;;3579:51;;:10;:51;;;3571:60;;;;;;8121:9;8105:14;8084:19;8060:71;;;;;;;;;;7894:244;;;;:::o;6338:201::-;6442:19;3593:10;:31;3604:19;3593:31;;;;;;;;;;;:37;;;;;;;;;;;;3579:51;;:10;:51;;;3571:60;;;;;;6517:14;6496:19;6478:54;;;;;;;;;;6338:201;;;:::o;1520:148:1:-;1601:4;1345:8;;;;;;;;;;;1331:22;;:10;:22;;;1323:31;;;;;;1628:12;1617:8;;:23;;;;;;;;;;;;;;;;;;1657:4;1650:11;;1520:148;;;:::o;5771:272:0:-;5933:19;3593:10;:31;3604:19;3593:31;;;;;;;;;;;:37;;;;;;;;;;;;3579:51;;:10;:51;;;3571:60;;;;;;6024:11;6008:14;5987:19;5969:67;;;;;;;;;;5771:272;;;;:::o;7372:127::-;7482:9;7470:10;7447:45;;;;;;;;;;;;7372:127;:::o;3867:328::-;1345:8:1;;;;;;;;;;;1331:22;;:10;:22;;;1323:31;;;;;;4026:23:0;;;;;;;;4041:6;4026:23;;;;;3971:10;:52;4009:11;;3992:29;;;;;;;30:3:-1;22:6;14;1:33;57:3;49:6;45:16;35:26;;3992:29:0;;;;;;;;49:4:-1;39:7;30;26:21;22:32;13:7;6:49;3992:29:0;;;3982:40;;;;;;3971:52;;;;;;;;;;;:78;;;;;;;;;;;;;;;;;;;;;;;;;;;;;4118:6;4064:74;;4103:11;;4086:29;;;;;;;30:3:-1;22:6;14;1:33;57:3;49:6;45:16;35:26;;4086:29:0;;;;;;;;49:4:-1;39:7;30;26:21;22:32;13:7;6:49;4086:29:0;;;4076:40;;;;;;4064:74;4126:11;;4064:74;;;;;;;;;;;;;;;;;;;;;30:3:-1;22:6;14;1:33;99:1;93:3;85:6;81:16;74:27;137:4;133:9;126:4;121:3;117:14;113:30;106:37;;169:3;161:6;157:16;147:26;;4064:74:0;;;;;;;;;;;;;;3867:328;;;:::o",
-  "source": "pragma solidity ^0.5.2;\n\nimport \"./Governed.sol\";\n\ncontract GNS is Governed {\n\n    /*\n    * @title Graph Name Service (GNS) contract\n    *\n    * @author Bryant Eisenbach\n    * @author Reuven Etzion\n    * @author Ashoka Finley\n    * @notice Contract Specification:\n    *\n    * Subgraph Ids : Subgraph definitions are immutable, even though the actual\n    * data ingested may grow -- each subgraph manifest is hashed in its IPLD\n    * canonical serialized form, to produce a unique Id. Nodes in the peer-to-peer\n    * network use this Id to communicate who is indexing and caching what data, as\n    * well as route queries through the network. The self-certifying nature of\n    * subgraph Ids also make them useful for providing attestations and filing disputes.\n    *\n    * Domains : Subgraph Ids can also be associated with a domain name in the Graph\n    * Name Service (GNS) to provide a mutable reference to a subgraph. This can be\n    * useful for writing more human readable queries, always querying the latest version\n    * of a subgraph, specifying relationships between subgraphs or mutably referencing a\n    * subgraph in smart contracts.\n    *\n    * Deploying a subgraph to a domain also enables discoverability, as explorer UIs will\n    * be built on top of the GNS.\n    *\n    * Subdomains : An owner of a domain in the GNS may wish to deploy multiple subgraphs\n    * to a single domain, and have them exist in separate namespaces. Sub-domains enable\n    * this use case, and add an optional additional layer of namespacing beyond that\n    * already provided by the top level domains.\n    *\n    * See: https://github.com/graphprotocol/specs/tree/master/data-model for details.\n    *\n    * The SubgraphIds are emitted in events. Only the owners can emit this events\n    * This means SubgraphIds are not stored in this contract anywhere\n    * Therefore, subgraphIds are mapped to domain names only through events (see requirements below)\n    *\n    * Requirements (\"GNS\" contract):\n    * req 01 Maps domains to owners\n    * req 02 Emit events that connect domain names to subgraphIds\n    * req 03 Emit events that connect subdomain names to subgraphId\n    * ...\n    */\n\n    /* Events */\n    event DomainAdded(bytes32 indexed topLevelDomainHash, address indexed owner, string domainName);\n    event DomainTransferred(bytes32 indexed topLevelDomainHash, address indexed newOwner);\n    event SubgraphIdAdded(\n        bytes32 indexed topLevelDomainHash,\n        bytes32 indexed subdomainHash,\n        bytes32 indexed subgraphId,\n        string subdomainName,\n        bytes32 ipfsHash\n    );\n    event SubgraphIdChanged(\n        bytes32 indexed topLevelDomainHash,\n        bytes32 indexed subdomainHash,\n        bytes32 indexed subgraphId\n    );\n    event SubgraphIdDeleted(bytes32 indexed topLevelDomainHash, bytes32 indexed subdomainHash);\n\n    event AccountMetadataChanged(address indexed account, bytes32 indexed ipfsHash);\n    event SubgraphMetadataChanged(bytes32 indexed topLevelDomainHash, bytes32 indexed subdomainHash, bytes32 indexed ipfsHash);\n\n    /* Structs */\n    struct Domain {\n        address owner;\n    }\n\n    /* STATE VARIABLES */\n    // Storage of a Hashed Domain Name mapped to its owner\n    mapping (bytes32 => Domain) internal gnsDomains;\n\n    /* Contract Constructor */\n    /* @param _governor <address> - Address of the multisig contract as Governor of this contract */\n    constructor (address _governor) public Governed (_governor) {}\n\n    /* Graph Protocol Functions */\n\n    modifier onlyDomainOwner (bytes32 _topLevelDomainHash) {\n        require(msg.sender == gnsDomains[_topLevelDomainHash].owner);\n        _;\n    }\n\n    /*\n     * @notice Register a Domain to an owner\n     * @dev Only registrar may do this\n     *\n     * @param _domainName <string> - Domain name\n     * @param _owner <address> - Address of domain owner\n     */\n    function registerDomain (string calldata _domainName, address _owner) external onlyGovernance {\n        gnsDomains[keccak256(abi.encodePacked(_domainName))] = Domain({owner: _owner});\n        emit DomainAdded(keccak256(abi.encodePacked(_domainName)), _owner, _domainName);  // 3rd field will automatically be hashed by EVM\n    }\n\n    /*\n     * @notice Get the owner of an existing domain\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     */\n    function getDomainOwner (bytes32 _topLevelDomainHash) external view returns (address owner) {\n        return gnsDomains[_topLevelDomainHash].owner;\n    }\n\n    /*\n     * @notice Register a subgraphId to a subdomain\n     * @notice To only register to the top level domain, pass _subdomainName as a blank string (which is c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 when hashed)\n     * @dev Only the domain owner may do this\n     *\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     * @param _subdomainName <string> - Name of the Subdomain\n     * @param _subgraphId <bytes32> - IPLD SubgraphId of the subdomain\n     */\n    function addSubgraphToDomain (\n        bytes32 _topLevelDomainHash,\n        string calldata _subdomainName,\n        bytes32 _subgraphId,\n        bytes32 _ipfsHash\n    ) external onlyDomainOwner(_topLevelDomainHash) {\n        emit SubgraphIdAdded(_topLevelDomainHash, keccak256(abi.encodePacked(_subdomainName)), _subgraphId, _subdomainName, _ipfsHash); // 2nd field will automatically be hashed by EVM\n    }\n\n    /*\n     * @notice Update an existing subdomain with a different subgraphId\n     * @dev Only the domain owner may do this\n     *\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     * @param _subdomainHash <bytes32> - Hash of the Name of the subdomain\n     * @param _subgraphId <bytes32> - IPLD SubgraphId of the subdomain\n     */\n    function changeDomainSubgraphId (\n        bytes32 _topLevelDomainHash,\n        bytes32 _subdomainHash,\n        bytes32 _subgraphId\n    ) external onlyDomainOwner(_topLevelDomainHash) {\n        emit SubgraphIdChanged(_topLevelDomainHash, _subdomainHash, _subgraphId);\n    }\n\n    /*\n     * @notice Remove an existing subdomain from the provided subdomainName\n     * @dev Only the domain owner may do this\n     *\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     * @param _subdomainHash <bytes32> - Hash of the name of the subdomain\n     */\n    function deleteSubdomain (bytes32 _topLevelDomainHash, bytes32 _subdomainHash) external onlyDomainOwner(_topLevelDomainHash) {\n        emit SubgraphIdDeleted(_topLevelDomainHash, _subdomainHash);\n    }\n\n    /*\n     * @notice Transfer ownership of domain by existing domain owner\n     * @dev Only the domain owner may do this\n     *\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     * @param _newOwner <address> - New owner of the domain\n     */\n    function transferDomainOwnership (bytes32 _topLevelDomainHash, address _newOwner) external onlyDomainOwner(_topLevelDomainHash) {\n        gnsDomains[_topLevelDomainHash].owner = _newOwner;\n        emit DomainTransferred(_topLevelDomainHash, _newOwner);\n    }\n\n    /*\n     * @notice Change or initalize the Account Metadata, which is stored in a schema on IPFS\n     * @dev Only the msg.sender can do this\n     *\n     * @param _ipfsHash <bytes32> - Hash of the IPFS file that stores the account metadata\n     * @param _account <address> - msg.sender\n     */\n    function changeAccountMetadata (bytes32 _ipfsHash) external {\n        emit AccountMetadataChanged(msg.sender, _ipfsHash);\n    }\n\n    /*\n    * @notice Change or initalize the Account Metadata, which is stored in a schema on IPFS\n    * @dev Only the msg.sender can do this\n    *\n    * @param _ipfsHash <bytes32> - Hash of the IPFS file that stores the subgraph metadata\n    * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n    * @param _subdomainHash <bytes32> - Hash of the name of the subdomain\n    */\n    function changeSubgraphMetadata (bytes32 _ipfsHash, bytes32 _topLevelDomainHash, bytes32 _subdomainHash) external onlyDomainOwner(_topLevelDomainHash) {\n        emit SubgraphMetadataChanged(_topLevelDomainHash, _subdomainHash, _ipfsHash);\n    }\n\n}\n",
-  "sourcePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/explorer-dapp/contracts/GNS.sol",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.2+commit.1df8f40c\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"}],\"name\":\"getDomainOwner\",\"outputs\":[{\"name\":\"owner\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"transferDomainOwnership\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subdomainName\",\"type\":\"string\"},{\"name\":\"_subgraphId\",\"type\":\"bytes32\"},{\"name\":\"_ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"addSubgraphToDomain\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_ipfsHash\",\"type\":\"bytes32\"},{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subdomainHash\",\"type\":\"bytes32\"}],\"name\":\"changeSubgraphMetadata\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subdomainHash\",\"type\":\"bytes32\"}],\"name\":\"deleteSubdomain\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_newGovernor\",\"type\":\"address\"}],\"name\":\"transferGovernance\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_topLevelDomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subdomainHash\",\"type\":\"bytes32\"},{\"name\":\"_subgraphId\",\"type\":\"bytes32\"}],\"name\":\"changeDomainSubgraphId\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"changeAccountMetadata\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_domainName\",\"type\":\"string\"},{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"registerDomain\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_governor\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"domainName\",\"type\":\"string\"}],\"name\":\"DomainAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"DomainTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subdomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subgraphId\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"subdomainName\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"SubgraphIdAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subdomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subgraphId\",\"type\":\"bytes32\"}],\"name\":\"SubgraphIdChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subdomainHash\",\"type\":\"bytes32\"}],\"name\":\"SubgraphIdDeleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"AccountMetadataChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"topLevelDomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"subdomainHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"ipfsHash\",\"type\":\"bytes32\"}],\"name\":\"SubgraphMetadataChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"_to\",\"type\":\"address\"}],\"name\":\"GovernanceTransferred\",\"type\":\"event\"}],\"devdoc\":{\"methods\":{\"transferGovernance(address)\":{\"details\":\"The current `governor` can assign a new `governor`\",\"params\":{\"_newGovernor\":\"<address> Address of new `governor`\"}}}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/davidkajpust/coding-no-icloud-backup/thegraph/research/soho-token-contracts/contracts/contracts/GNS.sol\":\"GNS\"},\"evmVersion\":\"byzantium\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":500},\"remappings\":[]},\"sources\":{\"/Users/davidkajpust/coding-no-icloud-backup/thegraph/research/soho-token-contracts/contracts/contracts/GNS.sol\":{\"keccak256\":\"0x17bf89faf2bb40fba07b18d59aa18132e797ccc251914a7f2f31b5efd1ce6db0\",\"urls\":[\"bzzr://95a4072a41641c6dbc98dad49901ce4db38a028597d7302bba41e72782f37b83\"]},\"/Users/davidkajpust/coding-no-icloud-backup/thegraph/research/soho-token-contracts/contracts/contracts/Governed.sol\":{\"keccak256\":\"0x83154fddfde3562ecd323464378b72bfa23f95613e3c96b0f33d16912e82d559\",\"urls\":[\"bzzr://26da7d76dd8a10f2fd26d10d33a4ade4fbbc5377a3db90e1fc70205588d5d509\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516020806107b48339810180604052602081101561003057600080fd5b505160008054600160a060020a03909216600160a060020a0319909216919091179055610752806100626000396000f3fe608060405234801561001057600080fd5b50600436106100bb576000357c010000000000000000000000000000000000000000000000000000000090048063666542e111610083578063666542e1146101d5578063d38bfff4146101f8578063d899b2ab14610232578063e3f9ab701461025b578063f52433cb14610278576100bb565b80630c340a24146100c057806311d4c3a2146100e45780631dc9a3b9146101015780633a46d5a51461012f57806344ea0dbe146101ac575b600080fd5b6100c86102f1565b60408051600160a060020a039092168252519081900360200190f35b6100c8600480360360208110156100fa57600080fd5b5035610300565b61012d6004803603604081101561011757600080fd5b5080359060200135600160a060020a031661031b565b005b61012d6004803603608081101561014557600080fd5b8135919081019060408101602082013564010000000081111561016757600080fd5b82018360208201111561017957600080fd5b8035906020019184600183028401116401000000008311171561019b57600080fd5b9193509150803590602001356103a7565b61012d600480360360608110156101c257600080fd5b508035906020810135906040013561046e565b61012d600480360360408110156101eb57600080fd5b50803590602001356104c8565b61021e6004803603602081101561020e57600080fd5b5035600160a060020a031661051f565b604080519115158252519081900360200190f35b61012d6004803603606081101561024857600080fd5b5080359060208101359060400135610569565b61012d6004803603602081101561027157600080fd5b50356105c3565b61012d6004803603604081101561028e57600080fd5b8101906020810181356401000000008111156102a957600080fd5b8201836020820111156102bb57600080fd5b803590602001918460018302840111640100000000831117156102dd57600080fd5b919350915035600160a060020a03166105f3565b600054600160a060020a031681565b600090815260016020526040902054600160a060020a031690565b6000828152600160205260409020548290600160a060020a0316331461034057600080fd5b600083815260016020526040808220805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0386169081179091559051909185917f526d3ede5b34aceac4e5820c0e9730fc09a7c9135c20ff6ac2522628413eb3839190a3505050565b6000858152600160205260409020548590600160a060020a031633146103cc57600080fd5b82858560405160200180838380828437808301925050509250505060405160208183030381529060405280519060200120877fa821a49fe7ab545d8d48ff1463851de2f142c94a27e14ead9e54ef0ce61888df88888760405180806020018381526020018281038252858582818152602001925080828437600083820152604051601f909101601f1916909201829003965090945050505050a4505050505050565b6000828152600160205260409020548290600160a060020a0316331461049357600080fd5b8382847f895b09e07955848caaf9ed757e10d71d4109a288954e450700b21863b9fd74eb60405160405180910390a450505050565b6000828152600160205260409020548290600160a060020a031633146104ed57600080fd5b604051829084907f08ce5acb4b8c03f4150b9935bfe9ae6b176a007658a955d70ba1bc5eb0eb558690600090a3505050565b60008054600160a060020a0316331461053757600080fd5b5060008054600160a060020a03831673ffffffffffffffffffffffffffffffffffffffff199091161790556001919050565b6000838152600160205260409020548390600160a060020a0316331461058e57600080fd5b8183857f43d09e217ddeaf2a830cadb8ccfd10d5794fd962699cfe425bdeed3f5467d47360405160405180910390a450505050565b604051819033907fc4df041d25ce185716aff03205e2861e0ca951e1f2eaae5b77fb57996481996490600090a350565b600054600160a060020a0316331461060a57600080fd5b60206040519081016040528082600160a060020a0316815250600160008585604051602001808383808284376040805191909301818103601f1901825283528051602091820120875286810197909752509384016000209551865473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a03918216179096555050905192841692869286925001808383808284378083019250505092505050604051602081830303815290604052805190602001207fed90ece6faf918d7ecf69f4ec4db7f96b3eb8ac536b7bdc46e507523eab90905858560405180806020018281038252848482818152602001925080828437600083820152604051601f909101601f19169092018290039550909350505050a350505056fea165627a7a72305820dff357b8c494cd6aa34fa0d56421fc4319d7ddf476788c29963c22e379c0c04a0029",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100bb576000357c010000000000000000000000000000000000000000000000000000000090048063666542e111610083578063666542e1146101d5578063d38bfff4146101f8578063d899b2ab14610232578063e3f9ab701461025b578063f52433cb14610278576100bb565b80630c340a24146100c057806311d4c3a2146100e45780631dc9a3b9146101015780633a46d5a51461012f57806344ea0dbe146101ac575b600080fd5b6100c86102f1565b60408051600160a060020a039092168252519081900360200190f35b6100c8600480360360208110156100fa57600080fd5b5035610300565b61012d6004803603604081101561011757600080fd5b5080359060200135600160a060020a031661031b565b005b61012d6004803603608081101561014557600080fd5b8135919081019060408101602082013564010000000081111561016757600080fd5b82018360208201111561017957600080fd5b8035906020019184600183028401116401000000008311171561019b57600080fd5b9193509150803590602001356103a7565b61012d600480360360608110156101c257600080fd5b508035906020810135906040013561046e565b61012d600480360360408110156101eb57600080fd5b50803590602001356104c8565b61021e6004803603602081101561020e57600080fd5b5035600160a060020a031661051f565b604080519115158252519081900360200190f35b61012d6004803603606081101561024857600080fd5b5080359060208101359060400135610569565b61012d6004803603602081101561027157600080fd5b50356105c3565b61012d6004803603604081101561028e57600080fd5b8101906020810181356401000000008111156102a957600080fd5b8201836020820111156102bb57600080fd5b803590602001918460018302840111640100000000831117156102dd57600080fd5b919350915035600160a060020a03166105f3565b600054600160a060020a031681565b600090815260016020526040902054600160a060020a031690565b6000828152600160205260409020548290600160a060020a0316331461034057600080fd5b600083815260016020526040808220805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0386169081179091559051909185917f526d3ede5b34aceac4e5820c0e9730fc09a7c9135c20ff6ac2522628413eb3839190a3505050565b6000858152600160205260409020548590600160a060020a031633146103cc57600080fd5b82858560405160200180838380828437808301925050509250505060405160208183030381529060405280519060200120877fa821a49fe7ab545d8d48ff1463851de2f142c94a27e14ead9e54ef0ce61888df88888760405180806020018381526020018281038252858582818152602001925080828437600083820152604051601f909101601f1916909201829003965090945050505050a4505050505050565b6000828152600160205260409020548290600160a060020a0316331461049357600080fd5b8382847f895b09e07955848caaf9ed757e10d71d4109a288954e450700b21863b9fd74eb60405160405180910390a450505050565b6000828152600160205260409020548290600160a060020a031633146104ed57600080fd5b604051829084907f08ce5acb4b8c03f4150b9935bfe9ae6b176a007658a955d70ba1bc5eb0eb558690600090a3505050565b60008054600160a060020a0316331461053757600080fd5b5060008054600160a060020a03831673ffffffffffffffffffffffffffffffffffffffff199091161790556001919050565b6000838152600160205260409020548390600160a060020a0316331461058e57600080fd5b8183857f43d09e217ddeaf2a830cadb8ccfd10d5794fd962699cfe425bdeed3f5467d47360405160405180910390a450505050565b604051819033907fc4df041d25ce185716aff03205e2861e0ca951e1f2eaae5b77fb57996481996490600090a350565b600054600160a060020a0316331461060a57600080fd5b60206040519081016040528082600160a060020a0316815250600160008585604051602001808383808284376040805191909301818103601f1901825283528051602091820120875286810197909752509384016000209551865473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a03918216179096555050905192841692869286925001808383808284378083019250505092505050604051602081830303815290604052805190602001207fed90ece6faf918d7ecf69f4ec4db7f96b3eb8ac536b7bdc46e507523eab90905858560405180806020018281038252848482818152602001925080828437600083820152604051601f909101601f19169092018290039550909350505050a350505056fea165627a7a72305820dff357b8c494cd6aa34fa0d56421fc4319d7ddf476788c29963c22e379c0c04a0029",
+  "sourceMap": "51:8041:0:-;;;3402:62;8:9:-1;5:2;;;30:1;27;20:12;5:2;3402:62:0;;;;;;;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;3402:62:0;1256:8:1;:20;;-1:-1:-1;;;;;1256:20:1;;;-1:-1:-1;;;;;;1256:20:1;;;;;;;;;51:8041:0;;;;;;",
+  "deployedSourceMap": "51:8041:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;51:8041:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;915:23:1;;;:::i;:::-;;;;-1:-1:-1;;;;;915:23:1;;;;;;;;;;;;;;4337:153:0;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;4337:153:0;;:::i;6763:258::-;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;6763:258:0;;;;;;-1:-1:-1;;;;;6763:258:0;;:::i;:::-;;5002:358;;;;;;13:3:-1;8;5:12;2:2;;;30:1;27;20:12;2:2;5002:358:0;;;;;;;;;;;;;;21:11:-1;5:28;;2:2;;;46:1;43;36:12;2:2;5002:358:0;;35:9:-1;28:4;12:14;8:25;5:40;2:2;;;58:1;55;48:12;2:2;5002:358:0;;;;;;100:9:-1;95:1;81:12;77:20;67:8;63:35;60:50;39:11;25:12;22:29;11:107;8:2;;;131:1;128;121:12;8:2;5002:358:0;;-1:-1:-1;5002:358:0;-1:-1:-1;5002:358:0;;;;;;;:::i;7845:244::-;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;7845:244:0;;;;;;;;;;;;:::i;6289:201::-;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;6289:201:0;;;;;;;:::i;1520:148:1:-;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;1520:148:1;-1:-1:-1;;;;;1520:148:1;;:::i;:::-;;;;;;;;;;;;;;;;;;5722:272:0;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;5722:272:0;;;;;;;;;;;;:::i;7323:127::-;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;-1:-1;7323:127:0;;:::i;3867:328::-;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;3867:328:0;;;;;;;;21:11:-1;5:28;;2:2;;;46:1;43;36:12;2:2;3867:328:0;;35:9:-1;28:4;12:14;8:25;5:40;2:2;;;58:1;55;48:12;2:2;3867:328:0;;;;;;100:9:-1;95:1;81:12;77:20;67:8;63:35;60:50;39:11;25:12;22:29;11:107;8:2;;;131:1;128;121:12;8:2;3867:328:0;;-1:-1:-1;3867:328:0;-1:-1:-1;3867:328:0;-1:-1:-1;;;;;3867:328:0;;:::i;915:23:1:-;;;-1:-1:-1;;;;;915:23:1;;:::o;4337:153:0:-;4414:13;4446:31;;;:10;:31;;;;;:37;-1:-1:-1;;;;;4446:37:0;;4337:153::o;6763:258::-;3593:31;;;;:10;:31;;;;;:37;:31;;-1:-1:-1;;;;;3593:37:0;3579:10;:51;3571:60;;;;;;6901:31;;;;:10;:31;;;;;;:49;;-1:-1:-1;;6901:49:0;-1:-1:-1;;;;;6901:49:0;;;;;;;;6965;;6901;;:31;;6965:49;;6901:31;6965:49;6763:258;;;:::o;5002:358::-;3593:31;;;;:10;:31;;;;;:37;:31;;-1:-1:-1;;;;;3593:37:0;3579:10;:51;3571:60;;;;;;5314:11;5296:14;;5279:32;;;;;;;30:3:-1;22:6;14;1:33;57:3;49:6;45:16;35:26;;5279:32:0;;;;;;;;49:4:-1;39:7;30;26:21;22:32;13:7;6:49;5279:32:0;;;5269:43;;;;;;5248:19;5232:121;5327:14;;5343:9;5232:121;;;;;;;;;;;;;;;;;;;;;;;;;;30:3:-1;22:6;14;1:33;99:1;81:16;;;74:27;5232:121:0;;137:4:-1;117:14;;;-1:-1;;113:30;157:16;;;5232:121:0;;;;-1:-1:-1;5232:121:0;;-1:-1:-1;;;;;5232:121:0;5002:358;;;;;;:::o;7845:244::-;3593:31;;;;:10;:31;;;;;:37;:31;;-1:-1:-1;;;;;3593:37:0;3579:10;:51;3571:60;;;;;;8072:9;8056:14;8035:19;8011:71;;;;;;;;;;7845:244;;;;:::o;6289:201::-;3593:31;;;;:10;:31;;;;;:37;:31;;-1:-1:-1;;;;;3593:37:0;3579:10;:51;3571:60;;;;;;6429:54;;6468:14;;6447:19;;6429:54;;;;;6289:201;;;:::o;1520:148:1:-;1601:4;1345:8;;-1:-1:-1;;;;;1345:8:1;1331:10;:22;1323:31;;;;;;-1:-1:-1;1617:8:1;:23;;-1:-1:-1;;;;;1617:23:1;;-1:-1:-1;;1617:23:1;;;;;;;1520:148;;;:::o;5722:272:0:-;3593:31;;;;:10;:31;;;;;:37;:31;;-1:-1:-1;;;;;3593:37:0;3579:10;:51;3571:60;;;;;;5975:11;5959:14;5938:19;5920:67;;;;;;;;;;5722:272;;;;:::o;7323:127::-;7398:45;;7433:9;;7421:10;;7398:45;;;;;7323:127;:::o;3867:328::-;1345:8:1;;-1:-1:-1;;;;;1345:8:1;1331:10;:22;1323:31;;;;;;4026:23:0;;;;;;;;;4041:6;-1:-1:-1;;;;;4026:23:0;;;;3971:10;:52;4009:11;;3992:29;;;;;;;30:3:-1;22:6;14;1:33;3992:29:0;;;45:16:-1;;;;26:21;;;-1:-1;;22:32;6:49;;3992:29:0;;3982:40;;49:4:-1;3982:40:0;;;;3971:52;;;;;;;;;-1:-1:-1;3971:52:0;;;-1:-1:-1;3971:52:0;:78;;;;-1:-1:-1;;3971:78:0;-1:-1:-1;;;;;3971:78:0;;;;;;;-1:-1:-1;;4086:29:0;;4064:74;;;;4103:11;;;;-1:-1:-1;4086:29:0;;4103:11;;;;4086:29;1:33:-1;57:3;49:6;45:16;35:26;;4086:29:0;;;;;;;;49:4:-1;39:7;30;26:21;22:32;13:7;6:49;4086:29:0;;;4076:40;;;;;;4064:74;4126:11;;4064:74;;;;;;;;;;;;;;;;;;;;;30:3:-1;22:6;14;1:33;99:1;81:16;;;74:27;4064:74:0;;137:4:-1;117:14;;;-1:-1;;113:30;157:16;;;4064:74:0;;;;-1:-1:-1;4064:74:0;;-1:-1:-1;;;;4064:74:0;3867:328;;;:::o",
+  "source": "pragma solidity ^0.5.2;\n\nimport \"./Governed.sol\";\n\ncontract GNS is Governed {\n\n    /*\n    * @title Graph Name Service (GNS) contract\n    *\n    * @author Bryant Eisenbach\n    * @author Reuven Etzion\n    * @author Ashoka Finley\n    * @notice Contract Specification:\n    *\n    * Subgraph Ids : Subgraph definitions are immutable, even though the actual\n    * data ingested may grow -- each subgraph manifest is hashed in its IPLD\n    * canonical serialized form, to produce a unique Id. Nodes in the peer-to-peer\n    * network use this Id to communicate who is indexing and caching what data, as\n    * well as route queries through the network. The self-certifying nature of\n    * subgraph Ids also make them useful for providing attestations and filing disputes.\n    *\n    * Domains : Subgraph Ids can also be associated with a domain name in the Graph\n    * Name Service (GNS) to provide a mutable reference to a subgraph. This can be\n    * useful for writing more human readable queries, always querying the latest version\n    * of a subgraph, specifying relationships between subgraphs or mutably referencing a\n    * subgraph in smart contracts.\n    *\n    * Deploying a subgraph to a domain also enables discoverability, as explorer UIs will\n    * be built on top of the GNS.\n    *\n    * Subdomains : An owner of a domain in the GNS may wish to deploy multiple subgraphs\n    * to a single domain, and have them exist in separate namespaces. Sub-domains enable\n    * this use case, and add an optional additional layer of namespacing beyond that\n    * already provided by the top level domains.\n    *\n    * See: https://github.com/graphprotocol/specs/tree/master/data-model for details.\n    *\n    * The SubgraphIds are emitted in events. Only the owners can emit this events\n    * This means SubgraphIds are not stored in this contract anywhere\n    * Therefore, subgraphIds are mapped to domain names only through events (see requirements below)\n    *\n    * Requirements (\"GNS\" contract):\n    * req 01 Maps domains to owners\n    * req 02 Emit events that connect domain names to subgraphIds\n    * req 03 Emit events that connect subdomain names to subgraphId\n    * ...\n    */\n\n    /* Events */\n    event DomainAdded(bytes32 indexed topLevelDomainHash, address indexed owner, string domainName);\n    event DomainTransferred(bytes32 indexed topLevelDomainHash, address indexed newOwner);\n    event SubgraphIdAdded(\n        bytes32 indexed topLevelDomainHash,\n        bytes32 indexed subdomainHash,\n        bytes32 indexed subgraphId,\n        string subdomainName,\n        bytes32 ipfsHash\n    );\n    event SubgraphIdChanged(\n        bytes32 indexed topLevelDomainHash,\n        bytes32 indexed subdomainHash,\n        bytes32 indexed subgraphId\n    );\n    event SubgraphIdDeleted(bytes32 indexed topLevelDomainHash, bytes32 indexed subdomainHash);\n\n    event AccountMetadataChanged(address indexed account, bytes32 indexed ipfsHash);\n    event SubgraphMetadataChanged(bytes32 indexed topLevelDomainHash, bytes32 indexed subdomainHash, bytes32 indexed ipfsHash);\n\n    /* Structs */\n    struct Domain {\n        address owner;\n    }\n\n    /* STATE VARIABLES */\n    // Storage of a Hashed Domain Name mapped to its owner\n    mapping (bytes32 => Domain) internal gnsDomains;\n\n    /* Contract Constructor */\n    /* @param _governor <address> - Address of the multisig contract as Governor of this contract */\n    constructor (address _governor) public Governed (_governor) {}\n\n    /* Graph Protocol Functions */\n\n    modifier onlyDomainOwner (bytes32 _topLevelDomainHash) {\n        require(msg.sender == gnsDomains[_topLevelDomainHash].owner);\n        _;\n    }\n\n    /*\n     * @notice Register a Domain to an owner\n     * @dev Only registrar may do this\n     *\n     * @param _domainName <string> - Domain name\n     * @param _owner <address> - Address of domain owner\n     */\n    function registerDomain (string calldata _domainName, address _owner) external onlyGovernance {\n        gnsDomains[keccak256(abi.encodePacked(_domainName))] = Domain({owner: _owner});\n        emit DomainAdded(keccak256(abi.encodePacked(_domainName)), _owner, _domainName);  // 3rd field will automatically be hashed by EVM\n    }\n\n    /*\n     * @notice Get the owner of an existing domain\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     */\n    function getDomainOwner (bytes32 _topLevelDomainHash) external view returns (address owner) {\n        return gnsDomains[_topLevelDomainHash].owner;\n    }\n\n    /*\n     * @notice Register a subgraphId to a subdomain\n     * @notice To only register to the top level domain, pass _subdomainName as a blank string (which is c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 when hashed)\n     * @dev Only the domain owner may do this\n     *\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     * @param _subdomainName <string> - Name of the Subdomain\n     * @param _subgraphId <bytes32> - IPLD SubgraphId of the subdomain\n     */\n    function addSubgraphToDomain (\n        bytes32 _topLevelDomainHash,\n        string calldata _subdomainName,\n        bytes32 _subgraphId,\n        bytes32 _ipfsHash\n    ) external onlyDomainOwner(_topLevelDomainHash) {\n        emit SubgraphIdAdded(_topLevelDomainHash, keccak256(abi.encodePacked(_subdomainName)), _subgraphId, _subdomainName, _ipfsHash);\n    }\n\n    /*\n     * @notice Update an existing subdomain with a different subgraphId\n     * @dev Only the domain owner may do this\n     *\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     * @param _subdomainHash <bytes32> - Hash of the Name of the subdomain\n     * @param _subgraphId <bytes32> - IPLD SubgraphId of the subdomain\n     */\n    function changeDomainSubgraphId (\n        bytes32 _topLevelDomainHash,\n        bytes32 _subdomainHash,\n        bytes32 _subgraphId\n    ) external onlyDomainOwner(_topLevelDomainHash) {\n        emit SubgraphIdChanged(_topLevelDomainHash, _subdomainHash, _subgraphId);\n    }\n\n    /*\n     * @notice Remove an existing subdomain from the provided subdomainName\n     * @dev Only the domain owner may do this\n     *\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     * @param _subdomainHash <bytes32> - Hash of the name of the subdomain\n     */\n    function deleteSubdomain (bytes32 _topLevelDomainHash, bytes32 _subdomainHash) external onlyDomainOwner(_topLevelDomainHash) {\n        emit SubgraphIdDeleted(_topLevelDomainHash, _subdomainHash);\n    }\n\n    /*\n     * @notice Transfer ownership of domain by existing domain owner\n     * @dev Only the domain owner may do this\n     *\n     * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n     * @param _newOwner <address> - New owner of the domain\n     */\n    function transferDomainOwnership (bytes32 _topLevelDomainHash, address _newOwner) external onlyDomainOwner(_topLevelDomainHash) {\n        gnsDomains[_topLevelDomainHash].owner = _newOwner;\n        emit DomainTransferred(_topLevelDomainHash, _newOwner);\n    }\n\n    /*\n     * @notice Change or initalize the Account Metadata, which is stored in a schema on IPFS\n     * @dev Only the msg.sender can do this\n     *\n     * @param _ipfsHash <bytes32> - Hash of the IPFS file that stores the account metadata\n     * @param _account <address> - msg.sender\n     */\n    function changeAccountMetadata (bytes32 _ipfsHash) external {\n        emit AccountMetadataChanged(msg.sender, _ipfsHash);\n    }\n\n    /*\n    * @notice Change or initalize the Account Metadata, which is stored in a schema on IPFS\n    * @dev Only the msg.sender can do this\n    *\n    * @param _ipfsHash <bytes32> - Hash of the IPFS file that stores the subgraph metadata\n    * @param _topLevelDomainHash <bytes32> - Hash of the domain name\n    * @param _subdomainHash <bytes32> - Hash of the name of the subdomain\n    */\n    function changeSubgraphMetadata (bytes32 _ipfsHash, bytes32 _topLevelDomainHash, bytes32 _subdomainHash) external onlyDomainOwner(_topLevelDomainHash) {\n        emit SubgraphMetadataChanged(_topLevelDomainHash, _subdomainHash, _ipfsHash);\n    }\n\n}\n",
+  "sourcePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/research/soho-token-contracts/contracts/contracts/GNS.sol",
   "ast": {
-    "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/explorer-dapp/contracts/GNS.sol",
+    "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/research/soho-token-contracts/contracts/contracts/GNS.sol",
     "exportedSymbols": {
       "GNS": [
         255
@@ -398,7 +398,7 @@
         "src": "0:23:0"
       },
       {
-        "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/explorer-dapp/contracts/Governed.sol",
+        "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/research/soho-token-contracts/contracts/contracts/Governed.sol",
         "file": "./Governed.sol",
         "id": 2,
         "nodeType": "ImportDirective",
@@ -1299,7 +1299,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 375,
+                            "referencedDeclaration": 6766,
                             "src": "3579:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -1396,10 +1396,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        378,
-                        379
+                        6769,
+                        6770
                       ],
-                      "referencedDeclaration": 378,
+                      "referencedDeclaration": 6769,
                       "src": "3571:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -1534,7 +1534,7 @@
                                 "name": "abi",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 362,
+                                "referencedDeclaration": 6753,
                                 "src": "3992:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_abi",
@@ -1581,7 +1581,7 @@
                           "name": "keccak256",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 369,
+                          "referencedDeclaration": 6760,
                           "src": "3982:9:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_keccak256_pure$_t_bytes_memory_ptr_$returns$_t_bytes32_$",
@@ -1633,12 +1633,7 @@
                         }
                       ],
                       "expression": {
-                        "argumentTypes": [
-                          {
-                            "typeIdentifier": "t_address",
-                            "typeString": "address"
-                          }
-                        ],
+                        "argumentTypes": null,
                         "id": 107,
                         "name": "Domain",
                         "nodeType": "Identifier",
@@ -1713,7 +1708,7 @@
                                 "name": "abi",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 362,
+                                "referencedDeclaration": 6753,
                                 "src": "4086:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_abi",
@@ -1760,7 +1755,7 @@
                           "name": "keccak256",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 369,
+                          "referencedDeclaration": 6760,
                           "src": "4076:9:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_keccak256_pure$_t_bytes_memory_ptr_$returns$_t_bytes32_$",
@@ -2107,7 +2102,7 @@
             "body": {
               "id": 164,
               "nodeType": "Block",
-              "src": "5217:192:0",
+              "src": "5217:143:0",
               "statements": [
                 {
                   "eventCall": {
@@ -2159,7 +2154,7 @@
                                 "name": "abi",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 362,
+                                "referencedDeclaration": 6753,
                                 "src": "5279:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_abi",
@@ -2206,7 +2201,7 @@
                           "name": "keccak256",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 369,
+                          "referencedDeclaration": 6760,
                           "src": "5269:9:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_keccak256_pure$_t_bytes_memory_ptr_$returns$_t_bytes32_$",
@@ -2480,7 +2475,7 @@
               "src": "5217:0:0"
             },
             "scope": 255,
-            "src": "5002:407:0",
+            "src": "5002:358:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -2489,7 +2484,7 @@
             "body": {
               "id": 183,
               "nodeType": "Block",
-              "src": "5954:89:0",
+              "src": "5905:89:0",
               "statements": [
                 {
                   "eventCall": {
@@ -2502,7 +2497,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 167,
-                        "src": "5987:19:0",
+                        "src": "5938:19:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -2515,7 +2510,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 169,
-                        "src": "6008:14:0",
+                        "src": "5959:14:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -2528,7 +2523,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 171,
-                        "src": "6024:11:0",
+                        "src": "5975:11:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -2555,7 +2550,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 38,
-                      "src": "5969:17:0",
+                      "src": "5920:17:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_bytes32_$_t_bytes32_$returns$__$",
                         "typeString": "function (bytes32,bytes32,bytes32)"
@@ -2569,7 +2564,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "5969:67:0",
+                    "src": "5920:67:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -2577,7 +2572,7 @@
                   },
                   "id": 182,
                   "nodeType": "EmitStatement",
-                  "src": "5964:72:0"
+                  "src": "5915:72:0"
                 }
               ]
             },
@@ -2595,7 +2590,7 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 167,
-                    "src": "5933:19:0",
+                    "src": "5884:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -2610,14 +2605,14 @@
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
                   "referencedDeclaration": 90,
-                  "src": "5917:15:0",
+                  "src": "5868:15:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$_t_bytes32_$",
                     "typeString": "modifier (bytes32)"
                   }
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "5917:36:0"
+                "src": "5868:36:0"
               }
             ],
             "name": "changeDomainSubgraphId",
@@ -2632,7 +2627,7 @@
                   "name": "_topLevelDomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 184,
-                  "src": "5813:27:0",
+                  "src": "5764:27:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2643,7 +2638,7 @@
                     "id": 166,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "5813:7:0",
+                    "src": "5764:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -2658,7 +2653,7 @@
                   "name": "_subdomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 184,
-                  "src": "5850:22:0",
+                  "src": "5801:22:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2669,7 +2664,7 @@
                     "id": 168,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "5850:7:0",
+                    "src": "5801:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -2684,7 +2679,7 @@
                   "name": "_subgraphId",
                   "nodeType": "VariableDeclaration",
                   "scope": 184,
-                  "src": "5882:19:0",
+                  "src": "5833:19:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2695,7 +2690,7 @@
                     "id": 170,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "5882:7:0",
+                    "src": "5833:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -2705,16 +2700,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "5803:104:0"
+              "src": "5754:104:0"
             },
             "returnParameters": {
               "id": 176,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "5954:0:0"
+              "src": "5905:0:0"
             },
             "scope": 255,
-            "src": "5771:272:0",
+            "src": "5722:272:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -2723,7 +2718,7 @@
             "body": {
               "id": 199,
               "nodeType": "Block",
-              "src": "6463:76:0",
+              "src": "6414:76:0",
               "statements": [
                 {
                   "eventCall": {
@@ -2736,7 +2731,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 186,
-                        "src": "6496:19:0",
+                        "src": "6447:19:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -2749,7 +2744,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 188,
-                        "src": "6517:14:0",
+                        "src": "6468:14:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -2772,7 +2767,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 44,
-                      "src": "6478:17:0",
+                      "src": "6429:17:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_bytes32_$returns$__$",
                         "typeString": "function (bytes32,bytes32)"
@@ -2786,7 +2781,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "6478:54:0",
+                    "src": "6429:54:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -2794,7 +2789,7 @@
                   },
                   "id": 198,
                   "nodeType": "EmitStatement",
-                  "src": "6473:59:0"
+                  "src": "6424:59:0"
                 }
               ]
             },
@@ -2812,7 +2807,7 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 186,
-                    "src": "6442:19:0",
+                    "src": "6393:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -2827,14 +2822,14 @@
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
                   "referencedDeclaration": 90,
-                  "src": "6426:15:0",
+                  "src": "6377:15:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$_t_bytes32_$",
                     "typeString": "modifier (bytes32)"
                   }
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "6426:36:0"
+                "src": "6377:36:0"
               }
             ],
             "name": "deleteSubdomain",
@@ -2849,7 +2844,7 @@
                   "name": "_topLevelDomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 200,
-                  "src": "6364:27:0",
+                  "src": "6315:27:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2860,7 +2855,7 @@
                     "id": 185,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "6364:7:0",
+                    "src": "6315:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -2875,7 +2870,7 @@
                   "name": "_subdomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 200,
-                  "src": "6393:22:0",
+                  "src": "6344:22:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2886,7 +2881,7 @@
                     "id": 187,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "6393:7:0",
+                    "src": "6344:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -2896,16 +2891,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "6363:53:0"
+              "src": "6314:53:0"
             },
             "returnParameters": {
               "id": 193,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "6463:0:0"
+              "src": "6414:0:0"
             },
             "scope": 255,
-            "src": "6338:201:0",
+            "src": "6289:201:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -2914,7 +2909,7 @@
             "body": {
               "id": 222,
               "nodeType": "Block",
-              "src": "6940:130:0",
+              "src": "6891:130:0",
               "statements": [
                 {
                   "expression": {
@@ -2935,7 +2930,7 @@
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 65,
-                          "src": "6950:10:0",
+                          "src": "6901:10:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_Domain_$61_storage_$",
                             "typeString": "mapping(bytes32 => struct GNS.Domain storage ref)"
@@ -2949,7 +2944,7 @@
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 202,
-                          "src": "6961:19:0",
+                          "src": "6912:19:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes32",
                             "typeString": "bytes32"
@@ -2960,7 +2955,7 @@
                         "isPure": false,
                         "lValueRequested": false,
                         "nodeType": "IndexAccess",
-                        "src": "6950:31:0",
+                        "src": "6901:31:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_struct$_Domain_$61_storage",
                           "typeString": "struct GNS.Domain storage ref"
@@ -2974,7 +2969,7 @@
                       "memberName": "owner",
                       "nodeType": "MemberAccess",
                       "referencedDeclaration": 60,
-                      "src": "6950:37:0",
+                      "src": "6901:37:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
@@ -2989,13 +2984,13 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 204,
-                      "src": "6990:9:0",
+                      "src": "6941:9:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
                       }
                     },
-                    "src": "6950:49:0",
+                    "src": "6901:49:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -3003,7 +2998,7 @@
                   },
                   "id": 216,
                   "nodeType": "ExpressionStatement",
-                  "src": "6950:49:0"
+                  "src": "6901:49:0"
                 },
                 {
                   "eventCall": {
@@ -3016,7 +3011,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 202,
-                        "src": "7032:19:0",
+                        "src": "6983:19:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -3029,7 +3024,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 204,
-                        "src": "7053:9:0",
+                        "src": "7004:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
                           "typeString": "address"
@@ -3052,7 +3047,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 18,
-                      "src": "7014:17:0",
+                      "src": "6965:17:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
@@ -3066,7 +3061,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "7014:49:0",
+                    "src": "6965:49:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -3074,7 +3069,7 @@
                   },
                   "id": 221,
                   "nodeType": "EmitStatement",
-                  "src": "7009:54:0"
+                  "src": "6960:54:0"
                 }
               ]
             },
@@ -3092,7 +3087,7 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 202,
-                    "src": "6919:19:0",
+                    "src": "6870:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -3107,14 +3102,14 @@
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
                   "referencedDeclaration": 90,
-                  "src": "6903:15:0",
+                  "src": "6854:15:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$_t_bytes32_$",
                     "typeString": "modifier (bytes32)"
                   }
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "6903:36:0"
+                "src": "6854:36:0"
               }
             ],
             "name": "transferDomainOwnership",
@@ -3129,7 +3124,7 @@
                   "name": "_topLevelDomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 223,
-                  "src": "6846:27:0",
+                  "src": "6797:27:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -3140,7 +3135,7 @@
                     "id": 201,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "6846:7:0",
+                    "src": "6797:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -3155,7 +3150,7 @@
                   "name": "_newOwner",
                   "nodeType": "VariableDeclaration",
                   "scope": 223,
-                  "src": "6875:17:0",
+                  "src": "6826:17:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -3166,7 +3161,7 @@
                     "id": 203,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "6875:7:0",
+                    "src": "6826:7:0",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -3177,16 +3172,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "6845:48:0"
+              "src": "6796:48:0"
             },
             "returnParameters": {
               "id": 209,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "6940:0:0"
+              "src": "6891:0:0"
             },
             "scope": 255,
-            "src": "6812:258:0",
+            "src": "6763:258:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -3195,7 +3190,7 @@
             "body": {
               "id": 234,
               "nodeType": "Block",
-              "src": "7432:67:0",
+              "src": "7383:67:0",
               "statements": [
                 {
                   "eventCall": {
@@ -3209,8 +3204,8 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 375,
-                          "src": "7470:3:0",
+                          "referencedDeclaration": 6766,
+                          "src": "7421:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
@@ -3224,7 +3219,7 @@
                         "memberName": "sender",
                         "nodeType": "MemberAccess",
                         "referencedDeclaration": null,
-                        "src": "7470:10:0",
+                        "src": "7421:10:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address_payable",
                           "typeString": "address payable"
@@ -3237,7 +3232,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 225,
-                        "src": "7482:9:0",
+                        "src": "7433:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -3260,7 +3255,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 50,
-                      "src": "7447:22:0",
+                      "src": "7398:22:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_bytes32_$returns$__$",
                         "typeString": "function (address,bytes32)"
@@ -3274,7 +3269,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "7447:45:0",
+                    "src": "7398:45:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -3282,7 +3277,7 @@
                   },
                   "id": 233,
                   "nodeType": "EmitStatement",
-                  "src": "7442:50:0"
+                  "src": "7393:50:0"
                 }
               ]
             },
@@ -3303,7 +3298,7 @@
                   "name": "_ipfsHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 235,
-                  "src": "7404:17:0",
+                  "src": "7355:17:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -3314,7 +3309,7 @@
                     "id": 224,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "7404:7:0",
+                    "src": "7355:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -3324,16 +3319,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "7403:19:0"
+              "src": "7354:19:0"
             },
             "returnParameters": {
               "id": 227,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "7432:0:0"
+              "src": "7383:0:0"
             },
             "scope": 255,
-            "src": "7372:127:0",
+            "src": "7323:127:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -3342,7 +3337,7 @@
             "body": {
               "id": 253,
               "nodeType": "Block",
-              "src": "8045:93:0",
+              "src": "7996:93:0",
               "statements": [
                 {
                   "eventCall": {
@@ -3355,7 +3350,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 239,
-                        "src": "8084:19:0",
+                        "src": "8035:19:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -3368,7 +3363,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 241,
-                        "src": "8105:14:0",
+                        "src": "8056:14:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -3381,7 +3376,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 237,
-                        "src": "8121:9:0",
+                        "src": "8072:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -3408,7 +3403,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 58,
-                      "src": "8060:23:0",
+                      "src": "8011:23:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_bytes32_$_t_bytes32_$returns$__$",
                         "typeString": "function (bytes32,bytes32,bytes32)"
@@ -3422,7 +3417,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "8060:71:0",
+                    "src": "8011:71:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -3430,7 +3425,7 @@
                   },
                   "id": 252,
                   "nodeType": "EmitStatement",
-                  "src": "8055:76:0"
+                  "src": "8006:76:0"
                 }
               ]
             },
@@ -3448,7 +3443,7 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 239,
-                    "src": "8024:19:0",
+                    "src": "7975:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -3463,14 +3458,14 @@
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
                   "referencedDeclaration": 90,
-                  "src": "8008:15:0",
+                  "src": "7959:15:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$_t_bytes32_$",
                     "typeString": "modifier (bytes32)"
                   }
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "8008:36:0"
+                "src": "7959:36:0"
               }
             ],
             "name": "changeSubgraphMetadata",
@@ -3485,7 +3480,7 @@
                   "name": "_ipfsHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 254,
-                  "src": "7927:17:0",
+                  "src": "7878:17:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -3496,7 +3491,7 @@
                     "id": 236,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "7927:7:0",
+                    "src": "7878:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -3511,7 +3506,7 @@
                   "name": "_topLevelDomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 254,
-                  "src": "7946:27:0",
+                  "src": "7897:27:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -3522,7 +3517,7 @@
                     "id": 238,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "7946:7:0",
+                    "src": "7897:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -3537,7 +3532,7 @@
                   "name": "_subdomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 254,
-                  "src": "7975:22:0",
+                  "src": "7926:22:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -3548,7 +3543,7 @@
                     "id": 240,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "7975:7:0",
+                    "src": "7926:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -3558,29 +3553,29 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "7926:72:0"
+              "src": "7877:72:0"
             },
             "returnParameters": {
               "id": 246,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "8045:0:0"
+              "src": "7996:0:0"
             },
             "scope": 255,
-            "src": "7894:244:0",
+            "src": "7845:244:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
         "scope": 256,
-        "src": "51:8090:0"
+        "src": "51:8041:0"
       }
     ],
-    "src": "0:8142:0"
+    "src": "0:8093:0"
   },
   "legacyAST": {
-    "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/explorer-dapp/contracts/GNS.sol",
+    "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/research/soho-token-contracts/contracts/contracts/GNS.sol",
     "exportedSymbols": {
       "GNS": [
         255
@@ -3601,7 +3596,7 @@
         "src": "0:23:0"
       },
       {
-        "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/explorer-dapp/contracts/Governed.sol",
+        "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/research/soho-token-contracts/contracts/contracts/Governed.sol",
         "file": "./Governed.sol",
         "id": 2,
         "nodeType": "ImportDirective",
@@ -4502,7 +4497,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 375,
+                            "referencedDeclaration": 6766,
                             "src": "3579:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -4599,10 +4594,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        378,
-                        379
+                        6769,
+                        6770
                       ],
-                      "referencedDeclaration": 378,
+                      "referencedDeclaration": 6769,
                       "src": "3571:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -4737,7 +4732,7 @@
                                 "name": "abi",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 362,
+                                "referencedDeclaration": 6753,
                                 "src": "3992:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_abi",
@@ -4784,7 +4779,7 @@
                           "name": "keccak256",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 369,
+                          "referencedDeclaration": 6760,
                           "src": "3982:9:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_keccak256_pure$_t_bytes_memory_ptr_$returns$_t_bytes32_$",
@@ -4836,12 +4831,7 @@
                         }
                       ],
                       "expression": {
-                        "argumentTypes": [
-                          {
-                            "typeIdentifier": "t_address",
-                            "typeString": "address"
-                          }
-                        ],
+                        "argumentTypes": null,
                         "id": 107,
                         "name": "Domain",
                         "nodeType": "Identifier",
@@ -4916,7 +4906,7 @@
                                 "name": "abi",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 362,
+                                "referencedDeclaration": 6753,
                                 "src": "4086:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_abi",
@@ -4963,7 +4953,7 @@
                           "name": "keccak256",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 369,
+                          "referencedDeclaration": 6760,
                           "src": "4076:9:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_keccak256_pure$_t_bytes_memory_ptr_$returns$_t_bytes32_$",
@@ -5310,7 +5300,7 @@
             "body": {
               "id": 164,
               "nodeType": "Block",
-              "src": "5217:192:0",
+              "src": "5217:143:0",
               "statements": [
                 {
                   "eventCall": {
@@ -5362,7 +5352,7 @@
                                 "name": "abi",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 362,
+                                "referencedDeclaration": 6753,
                                 "src": "5279:3:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_abi",
@@ -5409,7 +5399,7 @@
                           "name": "keccak256",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 369,
+                          "referencedDeclaration": 6760,
                           "src": "5269:9:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_keccak256_pure$_t_bytes_memory_ptr_$returns$_t_bytes32_$",
@@ -5683,7 +5673,7 @@
               "src": "5217:0:0"
             },
             "scope": 255,
-            "src": "5002:407:0",
+            "src": "5002:358:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -5692,7 +5682,7 @@
             "body": {
               "id": 183,
               "nodeType": "Block",
-              "src": "5954:89:0",
+              "src": "5905:89:0",
               "statements": [
                 {
                   "eventCall": {
@@ -5705,7 +5695,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 167,
-                        "src": "5987:19:0",
+                        "src": "5938:19:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -5718,7 +5708,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 169,
-                        "src": "6008:14:0",
+                        "src": "5959:14:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -5731,7 +5721,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 171,
-                        "src": "6024:11:0",
+                        "src": "5975:11:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -5758,7 +5748,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 38,
-                      "src": "5969:17:0",
+                      "src": "5920:17:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_bytes32_$_t_bytes32_$returns$__$",
                         "typeString": "function (bytes32,bytes32,bytes32)"
@@ -5772,7 +5762,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "5969:67:0",
+                    "src": "5920:67:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -5780,7 +5770,7 @@
                   },
                   "id": 182,
                   "nodeType": "EmitStatement",
-                  "src": "5964:72:0"
+                  "src": "5915:72:0"
                 }
               ]
             },
@@ -5798,7 +5788,7 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 167,
-                    "src": "5933:19:0",
+                    "src": "5884:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -5813,14 +5803,14 @@
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
                   "referencedDeclaration": 90,
-                  "src": "5917:15:0",
+                  "src": "5868:15:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$_t_bytes32_$",
                     "typeString": "modifier (bytes32)"
                   }
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "5917:36:0"
+                "src": "5868:36:0"
               }
             ],
             "name": "changeDomainSubgraphId",
@@ -5835,7 +5825,7 @@
                   "name": "_topLevelDomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 184,
-                  "src": "5813:27:0",
+                  "src": "5764:27:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -5846,7 +5836,7 @@
                     "id": 166,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "5813:7:0",
+                    "src": "5764:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -5861,7 +5851,7 @@
                   "name": "_subdomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 184,
-                  "src": "5850:22:0",
+                  "src": "5801:22:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -5872,7 +5862,7 @@
                     "id": 168,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "5850:7:0",
+                    "src": "5801:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -5887,7 +5877,7 @@
                   "name": "_subgraphId",
                   "nodeType": "VariableDeclaration",
                   "scope": 184,
-                  "src": "5882:19:0",
+                  "src": "5833:19:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -5898,7 +5888,7 @@
                     "id": 170,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "5882:7:0",
+                    "src": "5833:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -5908,16 +5898,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "5803:104:0"
+              "src": "5754:104:0"
             },
             "returnParameters": {
               "id": 176,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "5954:0:0"
+              "src": "5905:0:0"
             },
             "scope": 255,
-            "src": "5771:272:0",
+            "src": "5722:272:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -5926,7 +5916,7 @@
             "body": {
               "id": 199,
               "nodeType": "Block",
-              "src": "6463:76:0",
+              "src": "6414:76:0",
               "statements": [
                 {
                   "eventCall": {
@@ -5939,7 +5929,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 186,
-                        "src": "6496:19:0",
+                        "src": "6447:19:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -5952,7 +5942,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 188,
-                        "src": "6517:14:0",
+                        "src": "6468:14:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -5975,7 +5965,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 44,
-                      "src": "6478:17:0",
+                      "src": "6429:17:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_bytes32_$returns$__$",
                         "typeString": "function (bytes32,bytes32)"
@@ -5989,7 +5979,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "6478:54:0",
+                    "src": "6429:54:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -5997,7 +5987,7 @@
                   },
                   "id": 198,
                   "nodeType": "EmitStatement",
-                  "src": "6473:59:0"
+                  "src": "6424:59:0"
                 }
               ]
             },
@@ -6015,7 +6005,7 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 186,
-                    "src": "6442:19:0",
+                    "src": "6393:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6030,14 +6020,14 @@
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
                   "referencedDeclaration": 90,
-                  "src": "6426:15:0",
+                  "src": "6377:15:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$_t_bytes32_$",
                     "typeString": "modifier (bytes32)"
                   }
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "6426:36:0"
+                "src": "6377:36:0"
               }
             ],
             "name": "deleteSubdomain",
@@ -6052,7 +6042,7 @@
                   "name": "_topLevelDomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 200,
-                  "src": "6364:27:0",
+                  "src": "6315:27:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -6063,7 +6053,7 @@
                     "id": 185,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "6364:7:0",
+                    "src": "6315:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6078,7 +6068,7 @@
                   "name": "_subdomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 200,
-                  "src": "6393:22:0",
+                  "src": "6344:22:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -6089,7 +6079,7 @@
                     "id": 187,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "6393:7:0",
+                    "src": "6344:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6099,16 +6089,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "6363:53:0"
+              "src": "6314:53:0"
             },
             "returnParameters": {
               "id": 193,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "6463:0:0"
+              "src": "6414:0:0"
             },
             "scope": 255,
-            "src": "6338:201:0",
+            "src": "6289:201:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -6117,7 +6107,7 @@
             "body": {
               "id": 222,
               "nodeType": "Block",
-              "src": "6940:130:0",
+              "src": "6891:130:0",
               "statements": [
                 {
                   "expression": {
@@ -6138,7 +6128,7 @@
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 65,
-                          "src": "6950:10:0",
+                          "src": "6901:10:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_Domain_$61_storage_$",
                             "typeString": "mapping(bytes32 => struct GNS.Domain storage ref)"
@@ -6152,7 +6142,7 @@
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 202,
-                          "src": "6961:19:0",
+                          "src": "6912:19:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes32",
                             "typeString": "bytes32"
@@ -6163,7 +6153,7 @@
                         "isPure": false,
                         "lValueRequested": false,
                         "nodeType": "IndexAccess",
-                        "src": "6950:31:0",
+                        "src": "6901:31:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_struct$_Domain_$61_storage",
                           "typeString": "struct GNS.Domain storage ref"
@@ -6177,7 +6167,7 @@
                       "memberName": "owner",
                       "nodeType": "MemberAccess",
                       "referencedDeclaration": 60,
-                      "src": "6950:37:0",
+                      "src": "6901:37:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
@@ -6192,13 +6182,13 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 204,
-                      "src": "6990:9:0",
+                      "src": "6941:9:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
                       }
                     },
-                    "src": "6950:49:0",
+                    "src": "6901:49:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -6206,7 +6196,7 @@
                   },
                   "id": 216,
                   "nodeType": "ExpressionStatement",
-                  "src": "6950:49:0"
+                  "src": "6901:49:0"
                 },
                 {
                   "eventCall": {
@@ -6219,7 +6209,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 202,
-                        "src": "7032:19:0",
+                        "src": "6983:19:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -6232,7 +6222,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 204,
-                        "src": "7053:9:0",
+                        "src": "7004:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
                           "typeString": "address"
@@ -6255,7 +6245,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 18,
-                      "src": "7014:17:0",
+                      "src": "6965:17:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
@@ -6269,7 +6259,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "7014:49:0",
+                    "src": "6965:49:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -6277,7 +6267,7 @@
                   },
                   "id": 221,
                   "nodeType": "EmitStatement",
-                  "src": "7009:54:0"
+                  "src": "6960:54:0"
                 }
               ]
             },
@@ -6295,7 +6285,7 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 202,
-                    "src": "6919:19:0",
+                    "src": "6870:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6310,14 +6300,14 @@
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
                   "referencedDeclaration": 90,
-                  "src": "6903:15:0",
+                  "src": "6854:15:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$_t_bytes32_$",
                     "typeString": "modifier (bytes32)"
                   }
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "6903:36:0"
+                "src": "6854:36:0"
               }
             ],
             "name": "transferDomainOwnership",
@@ -6332,7 +6322,7 @@
                   "name": "_topLevelDomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 223,
-                  "src": "6846:27:0",
+                  "src": "6797:27:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -6343,7 +6333,7 @@
                     "id": 201,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "6846:7:0",
+                    "src": "6797:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6358,7 +6348,7 @@
                   "name": "_newOwner",
                   "nodeType": "VariableDeclaration",
                   "scope": 223,
-                  "src": "6875:17:0",
+                  "src": "6826:17:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -6369,7 +6359,7 @@
                     "id": 203,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "6875:7:0",
+                    "src": "6826:7:0",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -6380,16 +6370,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "6845:48:0"
+              "src": "6796:48:0"
             },
             "returnParameters": {
               "id": 209,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "6940:0:0"
+              "src": "6891:0:0"
             },
             "scope": 255,
-            "src": "6812:258:0",
+            "src": "6763:258:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -6398,7 +6388,7 @@
             "body": {
               "id": 234,
               "nodeType": "Block",
-              "src": "7432:67:0",
+              "src": "7383:67:0",
               "statements": [
                 {
                   "eventCall": {
@@ -6412,8 +6402,8 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 375,
-                          "src": "7470:3:0",
+                          "referencedDeclaration": 6766,
+                          "src": "7421:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
@@ -6427,7 +6417,7 @@
                         "memberName": "sender",
                         "nodeType": "MemberAccess",
                         "referencedDeclaration": null,
-                        "src": "7470:10:0",
+                        "src": "7421:10:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address_payable",
                           "typeString": "address payable"
@@ -6440,7 +6430,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 225,
-                        "src": "7482:9:0",
+                        "src": "7433:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -6463,7 +6453,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 50,
-                      "src": "7447:22:0",
+                      "src": "7398:22:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_bytes32_$returns$__$",
                         "typeString": "function (address,bytes32)"
@@ -6477,7 +6467,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "7447:45:0",
+                    "src": "7398:45:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -6485,7 +6475,7 @@
                   },
                   "id": 233,
                   "nodeType": "EmitStatement",
-                  "src": "7442:50:0"
+                  "src": "7393:50:0"
                 }
               ]
             },
@@ -6506,7 +6496,7 @@
                   "name": "_ipfsHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 235,
-                  "src": "7404:17:0",
+                  "src": "7355:17:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -6517,7 +6507,7 @@
                     "id": 224,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "7404:7:0",
+                    "src": "7355:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6527,16 +6517,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "7403:19:0"
+              "src": "7354:19:0"
             },
             "returnParameters": {
               "id": 227,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "7432:0:0"
+              "src": "7383:0:0"
             },
             "scope": 255,
-            "src": "7372:127:0",
+            "src": "7323:127:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -6545,7 +6535,7 @@
             "body": {
               "id": 253,
               "nodeType": "Block",
-              "src": "8045:93:0",
+              "src": "7996:93:0",
               "statements": [
                 {
                   "eventCall": {
@@ -6558,7 +6548,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 239,
-                        "src": "8084:19:0",
+                        "src": "8035:19:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -6571,7 +6561,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 241,
-                        "src": "8105:14:0",
+                        "src": "8056:14:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -6584,7 +6574,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 237,
-                        "src": "8121:9:0",
+                        "src": "8072:9:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
@@ -6611,7 +6601,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 58,
-                      "src": "8060:23:0",
+                      "src": "8011:23:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_bytes32_$_t_bytes32_$returns$__$",
                         "typeString": "function (bytes32,bytes32,bytes32)"
@@ -6625,7 +6615,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "8060:71:0",
+                    "src": "8011:71:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -6633,7 +6623,7 @@
                   },
                   "id": 252,
                   "nodeType": "EmitStatement",
-                  "src": "8055:76:0"
+                  "src": "8006:76:0"
                 }
               ]
             },
@@ -6651,7 +6641,7 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 239,
-                    "src": "8024:19:0",
+                    "src": "7975:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6666,14 +6656,14 @@
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
                   "referencedDeclaration": 90,
-                  "src": "8008:15:0",
+                  "src": "7959:15:0",
                   "typeDescriptions": {
                     "typeIdentifier": "t_modifier$_t_bytes32_$",
                     "typeString": "modifier (bytes32)"
                   }
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "8008:36:0"
+                "src": "7959:36:0"
               }
             ],
             "name": "changeSubgraphMetadata",
@@ -6688,7 +6678,7 @@
                   "name": "_ipfsHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 254,
-                  "src": "7927:17:0",
+                  "src": "7878:17:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -6699,7 +6689,7 @@
                     "id": 236,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "7927:7:0",
+                    "src": "7878:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6714,7 +6704,7 @@
                   "name": "_topLevelDomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 254,
-                  "src": "7946:27:0",
+                  "src": "7897:27:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -6725,7 +6715,7 @@
                     "id": 238,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "7946:7:0",
+                    "src": "7897:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6740,7 +6730,7 @@
                   "name": "_subdomainHash",
                   "nodeType": "VariableDeclaration",
                   "scope": 254,
-                  "src": "7975:22:0",
+                  "src": "7926:22:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -6751,7 +6741,7 @@
                     "id": 240,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "7975:7:0",
+                    "src": "7926:7:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -6761,59 +6751,47 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "7926:72:0"
+              "src": "7877:72:0"
             },
             "returnParameters": {
               "id": 246,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "8045:0:0"
+              "src": "7996:0:0"
             },
             "scope": 255,
-            "src": "7894:244:0",
+            "src": "7845:244:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
         "scope": 256,
-        "src": "51:8090:0"
+        "src": "51:8041:0"
       }
     ],
-    "src": "0:8142:0"
+    "src": "0:8093:0"
   },
   "compiler": {
     "name": "solc",
-    "version": "0.5.8+commit.23d335f2.Emscripten.clang"
+    "version": "0.5.2+commit.1df8f40c.Emscripten.clang"
   },
   "networks": {
-    "1559759010735": {
+    "1556562749438": {
       "events": {},
       "links": {},
-      "address": "0x724EfF135a1b45ce5E165922c06DE0242BE6a0f6",
-      "transactionHash": "0xa12af93c020ab77bc19c4c5dada4b3b49a3bb7a6e115ed232c813ac4cd6bcc3a"
+      "address": "0x73CD57b06393f50B60F2416db2f784c11CE0B9f2",
+      "transactionHash": "0xbbd879d57330a0d088a0c4ed5b142449f5ae190dcd410ee9d35d37c8b8ea84f0"
     },
-    "1560435171947": {
+    "1556737232261": {
       "events": {},
       "links": {},
-      "address": "0xBa29A227E4e542C3a2a72454Fdd9ebbB6E553748",
-      "transactionHash": "0x1c67f0529250f487a57da779277c7f834ceb3eda66fe9a83931773d3dccc412b"
-    },
-    "1561405346383": {
-      "events": {},
-      "links": {},
-      "address": "0xb7E79824C322D6E3614202874f6f8bdAceC1CB5B",
-      "transactionHash": "0x14affb712ea55deef2558d1fbc4dd9700c3dbf2460a154f87cc91f6d629781cd"
-    },
-    "1561405481393": {
-      "events": {},
-      "links": {},
-      "address": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
-      "transactionHash": "0x172ed11709bc4d998e99797f18d0df390f17e1a98a97cc5a85760794ef1047a7"
+      "address": "0x5db8E8cec184e2359F1cF5913C0CF94540510DC3",
+      "transactionHash": "0xd23d53cd03bb716d14dca38ac57d3480b9b211ca69d98a068d4c2ab34db21c18"
     }
   },
   "schemaVersion": "3.0.10",
-  "updatedAt": "2019-06-24T19:44:54.188Z",
+  "updatedAt": "2019-07-12T17:39:36.368Z",
   "devdoc": {
     "methods": {
       "transferGovernance(address)": {
