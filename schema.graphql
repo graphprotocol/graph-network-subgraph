@@ -38,7 +38,7 @@ type IndexNode @entity {
     # By knowing the thawing time, we can derive the time they can withdraw
     logoutStartTime: Int! # frrom IndexingNodeLogout
 
-    feesAccured: BigInt # not clear how this will work yet, in the smart contract
+    feesAccrued: BigInt # not clear how this will work yet, in the smart contract
 }
 
 # we probably need shares, unreralized gains, fees accrued

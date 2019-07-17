@@ -9,7 +9,7 @@ import {
   DisputeRejected
 } from '../../generated/Staking/Staking'
 import {Curator, IndexNode, Subgraph, Transactions} from '../../generated/schema'
-import {BigInt} from '@graphprotocol/graph-ts'
+import {BigInt, store} from '@graphprotocol/graph-ts'
 
 
 export function handleCurationNodeStaked(event: CurationNodeStaked): void {
@@ -29,11 +29,7 @@ export function handleCurationNodeStaked(event: CurationNodeStaked): void {
 
 export function handleCurationNodeLogout(event: CurationNodeLogout): void {
   let id = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
-  let curationNode = new Curator(id)
-  curationNode.subgraphID = event.params.subgraphID
-  curationNode.tokensStaked = BigInt.fromI32(0)
-  curationNode.shares = BigInt.fromI32(0)
-  curationNode.save()
+  store.remove('Curator', id)
 
   let subgraph = new Subgraph(event.params.subgraphID.toHexString())
   subgraph.totalCurationShares = event.params.subgraphShares
@@ -62,14 +58,14 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
 
 }
 
-export function handleIndexingBeginNodeLogout(event: IndexingNodeBeginLogout): void {
+export function handleIndexingNodeBeginLogout(event: IndexingNodeBeginLogout): void {
   let id = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
   let indexNode = new IndexNode(id)
   indexNode.logoutStartTime = event.block.timestamp
   indexNode.save()
 }
 
-export function handleIndexingFinalizeNodeLogout(event: IndexingNodeFinalizeLogout): void {
+export function handleIndexingNodeFinalizeLogout(event: IndexingNodeFinalizeLogout): void {
   let id = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
 
   let indexNode = new IndexNode(id)
@@ -85,13 +81,10 @@ export function handleIndexingFinalizeNodeLogout(event: IndexingNodeFinalizeLogo
 
 
 export function handleDisputeCreated(event: DisputeCreated): void {
-// not in MVP
 }
 
 export function handleDisputeAccepted(event: DisputeAccepted): void {
-// not in MVP
 }
 
 export function handleDisputeRejected(event: DisputeRejected): void {
-// not in MVP
 }
