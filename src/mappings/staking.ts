@@ -1,6 +1,6 @@
 import {
-  CurationNodeStaked,
-  CurationNodeLogout,
+  CuratorStaked,
+  CuratorLogout,
   IndexingNodeStaked,
   IndexingNodeBeginLogout,
   IndexingNodeFinalizeLogout,
@@ -12,14 +12,14 @@ import {Curator, IndexNode, Subgraph, Transactions} from '../../generated/schema
 import {BigInt, store} from '@graphprotocol/graph-ts'
 
 
-export function handleCurationNodeStaked(event: CurationNodeStaked): void {
+export function handleCuratorStaked(event: CuratorStaked): void {
   let id = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
-  let curationNode = new Curator(id)
-  curationNode.subgraphID = event.params.subgraphID
-  curationNode.tokensStaked = event.params.amountStaked
-  curationNode.user = event.params.staker
-  curationNode.shares = event.params.curatorShares
-  curationNode.save()
+  let curator = new Curator(id)
+  curator.subgraphID = event.params.subgraphID
+  curator.tokensStaked = event.params.amountStaked
+  curator.user = event.params.staker
+  curator.shares = event.params.curatorShares
+  curator.save()
 
   let subgraph = new Subgraph(event.params.subgraphID.toHexString())
   subgraph.totalCurationShares = event.params.subgraphShares
@@ -27,7 +27,7 @@ export function handleCurationNodeStaked(event: CurationNodeStaked): void {
   subgraph.save()
 }
 
-export function handleCurationNodeLogout(event: CurationNodeLogout): void {
+export function handleCuratorLogout(event: CuratorLogout): void {
   let id = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
   store.remove('Curator', id)
 
