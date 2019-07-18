@@ -22,8 +22,8 @@ export function handleCuratorStaked(event: CuratorStaked): void {
   curator.save()
 
   let subgraph = new Subgraph(event.params.subgraphID.toHexString())
-  subgraph.totalCurationShares = event.params.subgraphShares
-  subgraph.totalIndexingStake = event.params.subgraphStake
+  subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
+  subgraph.totalCurationStake = event.params.subgraphTotalCurationStake
   subgraph.save()
 }
 
@@ -32,8 +32,8 @@ export function handleCuratorLogout(event: CuratorLogout): void {
   store.remove('Curator', id)
 
   let subgraph = new Subgraph(event.params.subgraphID.toHexString())
-  subgraph.totalCurationShares = event.params.subgraphShares
-  subgraph.totalIndexingStake = event.params.subgraphStake
+  subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
+  subgraph.totalCurationStake = event.params.subgraphTotalCurationStake
   subgraph.save()
 }
 
@@ -43,6 +43,7 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
   // Subgraph SHOULD already exist, the GNS must create it before anyone can stake on it
   let subgraph = Subgraph.load(event.params.subgraphID.toHexString())
 
+  // Need to load to check if this is a new index node, so we can add 1 to total indexers
   let indexNode = IndexNode.load(id)
   if (indexNode == null) {
     indexNode.user = event.params.staker
@@ -53,7 +54,7 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
   indexNode.tokensStaked = event.params.amountStaked
   indexNode.save()
 
-  subgraph.totalIndexingStake = event.params.totalSubgraphStake
+  subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
   subgraph.save()
 
 }
@@ -75,7 +76,7 @@ export function handleIndexingNodeFinalizeLogout(event: IndexingNodeFinalizeLogo
 
   let subgraph = Subgraph.load(event.params.subgraphID.toHexString())
   subgraph.totalIndexers = subgraph.totalIndexers - 1
-  subgraph.totalIndexingStake = event.params.totalSubgraphStake
+  subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
   subgraph.save()
 }
 
