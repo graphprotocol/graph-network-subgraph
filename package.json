@@ -13,15 +13,7 @@
     "deploy-local": "graph deploy davekaj/explorer-dapp --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.12.0",
-    "@graphprotocol/graph-ts": "^0.12.0"
-  },
-  "dependencies": {
-    "babel-polyfill": "^6.26.0",
-    "babel-register": "^6.26.0",
-    "truffle": "^5.0.4",
-    "truffle-contract": "^4.0.5",
-    "truffle-hdwallet-provider": "^1.0.4",
-    "web3": "^1.0.0-beta.55"
+    "@graphprotocol/graph-cli": "^0.13.3",
+    "@graphprotocol/graph-ts": "^0.13.0"
   }
 }
