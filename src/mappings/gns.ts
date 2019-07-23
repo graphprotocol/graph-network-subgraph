@@ -8,7 +8,7 @@ import {
   AccountMetadataChanged,
   SubgraphMetadataChanged
 } from '../../generated/GNS/GNS'
-import {Domain, Account} from '../../generated/schema'
+import {Domain, Account, Subgraph} from '../../generated/schema'
 
 export function handleDomainAdded(event: DomainAdded): void {
   let id = event.params.topLevelDomainHash.toHex()
@@ -53,6 +53,9 @@ export function handleSubgraphIdAdded(event: SubgraphIdAdded): void {
     domain.save()
     // name is added previously when domain is registered
   }
+
+  let subgraph = new Subgraph(event.params.subgraphId.toHexString())
+  subgraph.save()
 }
 
 export function handleSubgraphIdChanged(event: SubgraphIdChanged): void {
@@ -67,6 +70,8 @@ export function handleSubgraphIdChanged(event: SubgraphIdChanged): void {
     domain.subgraphID = event.params.subgraphId
     domain.save()
   }
+  let subgraph = new Subgraph(event.params.subgraphId.toHexString())
+  subgraph.save()
 }
 
 export function handleSubgraphIdDeleted(event: SubgraphIdDeleted): void {
@@ -81,6 +86,9 @@ export function handleSubgraphIdDeleted(event: SubgraphIdDeleted): void {
     domain.subgraphID = null
     domain.save()
   }
+
+  // TODO - should we delete the subgraph here? it would still exist as its own staking contract, it is just getting
+  // remove from the gns. need to think this through a bit
 }
 
 export function handleAccountMetadataChanged(event: AccountMetadataChanged): void {
