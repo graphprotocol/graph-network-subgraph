@@ -33,8 +33,8 @@ export function handleSubgraphIdAdded(event: SubgraphIdAdded): void {
     ]
   )
 
-  // Subdomain string is not blank, therefore we are indexing a tld
-  if (event.params.subdomainHash.toHexString() != "0x1c47c222430ce3cff6bbf3ce14d1374f52c32d129ef0ce041af2c4eea5ff81e2") {
+  // Subdomain string is blank, therefore we are indexing a tld
+  if (event.params.subdomainHash.toHexString() == "0x1c47c222430ce3cff6bbf3ce14d1374f52c32d129ef0ce041af2c4eea5ff81e2") {
     let id = event.params.topLevelDomainHash.toHex()
     let domain = new Domain(id)
     domain.subgraphID = event.params.subgraphId

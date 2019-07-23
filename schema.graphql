@@ -6,11 +6,11 @@ type Account @entity {
     metadataHash: Bytes
 
     # From GraphToken.sol
-    balance: BigInt!
+    balance: BigInt
     # approvals: [Bytes!]!
     # allowances: [BigInt!]!
-    curating: [Curator!]! @derivedFrom(field: "user")
-    indexing: [IndexNode!]! @derivedFrom(field: "user")
+    curating: [Curator!] @derivedFrom(field: "user")
+    indexing: [IndexNode!] @derivedFrom(field: "user")
 
 }
 
@@ -56,12 +56,12 @@ type Subgraph @entity {
     # might get from gns
     id: ID!
 
-    # from staking
-    reserveRatio: BigInt!
-    totalCurationStake: BigInt!
-    totalCurationShares: BigInt!
-    totalIndexingStake: BigInt!
-    totalIndexers: Int!
+    # from staking TODO - add back the !'s for these 5 fields
+    reserveRatio: BigInt
+    totalCurationStake: BigInt
+    totalCurationShares: BigInt
+    totalIndexingStake: BigInt
+    totalIndexers: Int
 
 }
 
