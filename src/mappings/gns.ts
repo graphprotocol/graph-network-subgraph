@@ -26,15 +26,10 @@ export function handleDomainTransferred(event: DomainTransferred): void {
 }
 
 export function handleSubgraphIdAdded(event: SubgraphIdAdded): void {
-  log.debug(
-    'Subdomain Hash: {}',
-    [
-      event.params.subdomainHash.toHexString()
-    ]
-  )
+  // log.debug('Subdomain Hash: {}', [event.params.subdomainHash.toHexString()])
 
   // Subdomain string is blank, therefore we are indexing a tld
-  if (event.params.subdomainHash.toHexString() == "0x1c47c222430ce3cff6bbf3ce14d1374f52c32d129ef0ce041af2c4eea5ff81e2") {
+  if (event.params.subdomainHash.toHexString() == "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
     let id = event.params.topLevelDomainHash.toHex()
     let domain = new Domain(id)
     domain.subgraphID = event.params.subgraphId
@@ -59,7 +54,7 @@ export function handleSubgraphIdAdded(event: SubgraphIdAdded): void {
 }
 
 export function handleSubgraphIdChanged(event: SubgraphIdChanged): void {
-  if (event.params.subdomainHash.toHexString() == "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
+  if (event.params.subdomainHash.toHexString() == "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
     let id = event.params.topLevelDomainHash.toHex()
     let domain = new Domain(id)
     domain.subgraphID = event.params.subgraphId
@@ -75,7 +70,7 @@ export function handleSubgraphIdChanged(event: SubgraphIdChanged): void {
 }
 
 export function handleSubgraphIdDeleted(event: SubgraphIdDeleted): void {
-  if (event.params.subdomainHash.toHexString() == "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
+  if (event.params.subdomainHash.toHexString() == "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
     let id = event.params.topLevelDomainHash.toHex()
     let domain = new Domain(id)
     domain.subgraphID = null
@@ -99,7 +94,7 @@ export function handleAccountMetadataChanged(event: AccountMetadataChanged): voi
 }
 
 export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): void {
-  if (event.params.subdomainHash.toHexString() == "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
+  if (event.params.subdomainHash.toHexString() == "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
     let id = event.params.topLevelDomainHash.toHex()
     let domain = new Domain(id)
     domain.metadataHash = event.params.ipfsHash
