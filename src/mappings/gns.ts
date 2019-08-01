@@ -35,38 +35,6 @@ export function handleSubgraphCreated(event: SubgraphCreated): void {
   domain.metadataHash = event.params.registeredHash
 }
 
-export function handleSubgraphDeployed(event: SubgraphDeployed): void {
-  log.debug('Subdomain Hash: {}', [event.params.domainHash.toHexString()])
-
-  // Subdomain string is blank, therefore we are indexing a tld
-  if (event.params.subdomainHash.toHexString() == "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
-    {
-      let id = event.params.topLevelDomainHash.toHex()
-      let domain = new Domain(id)
-      domain.subgraphID = event.params.subgraphID
-      domain.metadataHash = event.params.ipfsHash // we don't have ipfsHash
-
-      domain.save()
-
-      // We are indexing a subdomain, since the name is not blank
-      // TODO - how to handle owner here. We can infer owner from the fact that the parent domain owner is the owner of
-      // all subdomains. Need to come up with a cleaner way for storing this
-    }
-  } else {
-    let id = event.params.subdomainHash.toHex()
-    let domain = new Domain(id)
-    domain.subgraphID = event.params.subgraphID
-    domain.metadataHash = event.params.ipfsHash
-    domain.parentDomain = event.params.topLevelDomainHash
-    domain.name = event.params.subdomainName
-    domain.save()
-    // name is added previously when domain is registered
-  }
-
-  let subgraph = new Subgraph(event.params.subgraphId.toHexString())
-  subgraph.save()
-}
-
 export function handleSubgraphIDUpdated(event: SubgraphIDUpdated): void {
   if (
     event.params.subdomainHash.toHexString() ==

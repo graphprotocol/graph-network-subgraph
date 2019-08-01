@@ -30,7 +30,7 @@ type GraphToken @entity {
 
 type IndexNode @entity {
   id: ID! # eth address of index node + subgraph ID
-  user: Bytes! # Eth addrress - for searching and filtering
+  user: Account! # Eth addrress - for searching and filtering
   subgraphID: Bytes! # SubgraphID - for searching and filtering
   tokensStaked: BigInt! # If this is 0, it means they have logged out
   # By knowing the thawing time, we can derive the time they can withdraw
@@ -44,7 +44,7 @@ type IndexNode @entity {
 
 type Curator @entity {
   id: ID! # eth address of curator + subgraph ID
-  user: Bytes! # Eth address - for searching and filtering
+  user: Account! # Eth address - for searching and filtering
   subgraphID: Bytes! # SubgraphID - for searching and filtering
   tokensStaked: BigInt!
   shares: BigInt!
