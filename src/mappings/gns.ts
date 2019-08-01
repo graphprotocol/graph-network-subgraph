@@ -38,6 +38,8 @@ export function handleSubgraphIdAdded(event: SubgraphIdAdded): void {
     domain.save()
 
     // We are indexing a subdomain, since the name is not blank
+    // TODO - how to handle owner here. We can infer owner from the fact that the parent domain owner is the owner of
+        // all subdomains. Need to come up with a cleaner way for storing this
   } else {
     let id = event.params.subdomainHash.toHex()
     let domain = new Domain(id)
