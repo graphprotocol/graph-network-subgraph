@@ -1,9 +1,7 @@
-
-
 type Account @entity {
-  # From GNS.sol
-  id: ID!
-  metadataHash: Bytes
+    # From GNS.sol
+    id: ID!
+    metadataHash: Bytes
 
     # From GraphToken.sol
     balance: BigInt
@@ -15,44 +13,44 @@ type Account @entity {
 }
 
 type Domain @entity {
-  id: ID! # Domain Hash
-  name: String # Domain name, can be a tld or subdomain
-  owner: Bytes # Domain owner
-  parentDomain: Bytes # If it is a tld, parent domain is null
-  subgraphID: Bytes # If it is not set yet, it is null
-  metadataHash: Bytes
+    id: ID! # Domain Hash
+    name: String # Domain name, can be a tld or subdomain
+    owner: Bytes # Domain owner
+    parentDomain: Bytes # If it is a tld, parent domain is null
+    subgraphID: Bytes # If it is not set yet, it is null
+    metadataHash: Bytes
 }
 
 type GraphToken @entity {
-  id: ID! # Just the value 1
-  total: BigInt!
+    id: ID! # Just the value 1
+    total: BigInt!
 }
 
 type IndexNode @entity {
-  id: ID! # eth address of index node + subgraph ID
-  user: Account! # Eth addrress - for searching and filtering
-  subgraphID: Bytes! # SubgraphID - for searching and filtering
-  tokensStaked: BigInt! # If this is 0, it means they have logged out
-  # By knowing the thawing time, we can derive the time they can withdraw
-  logoutStartTime: Int! # frrom IndexingNodeLogout
+    id: ID! # eth address of index node + subgraph ID
+    user: Account! # Eth addrress - for searching and filtering
+    subgraphID: Bytes! # SubgraphID - for searching and filtering
+    tokensStaked: BigInt! # If this is 0, it means they have logged out
+    # By knowing the thawing time, we can derive the time they can withdraw
+    logoutStartTime: Int! # frrom IndexingNodeLogout
 
-  # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
+    # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
 }
 
 # we probably need shares, unreralized gains, fees accrued
 # unrealized is derived from the total share of the pool, and the users shares, minus what they have deposited , and fees might be involved here
 
 type Curator @entity {
-  id: ID! # eth address of curator + subgraph ID
-  user: Account! # Eth address - for searching and filtering
-  subgraphID: Bytes! # SubgraphID - for searching and filtering
-  tokensStaked: BigInt!
-  shares: BigInt!
+    id: ID! # eth address of curator + subgraph ID
+    user: Account! # Eth address - for searching and filtering
+    subgraphID: Bytes! # SubgraphID - for searching and filtering
+    tokensStaked: BigInt!
+    shares: BigInt!
 }
 
 type Subgraph @entity {
-  # might get from gns
-  id: ID!
+    # might get from gns
+    id: ID!
 
     # from staking TODO - add back the !'s for these 5 fields
     reserveRatio: BigInt
@@ -83,20 +81,20 @@ type Subgraph @entity {
 # might have to add specifics here of each type, but i think i can probably
 # actually pass on that. this info might be enough
 type Transactions @entity {
-  id: ID! # tx hash (plus log index)
-  timestamp: Int!
-  block: Int!
-  type: TransactionType!
+    id: ID! # tx hash (plus log index)
+    timestamp: Int!
+    block: Int!
+    type: TransactionType!
 }
 
 # others to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
 # Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
 enum TransactionType {
-  CurateStake
-  CurateUnstake
-  IndexingStake
-  IndexingUnstake
-  RegisterGNS
-  UpdateGNS
-  DeploySubgraphToGNS
+    CurateStake
+    CurateUnstake
+    IndexingStake
+    IndexingUnstake
+    RegisterGNS
+    UpdateGNS
+    DeploySubgraphToGNS
 }
