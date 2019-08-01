@@ -1,14 +1,17 @@
+
+
 type Account @entity {
   # From GNS.sol
   id: ID!
   metadataHash: Bytes
 
-  # From GraphToken.sol
-  balance: BigInt!
-  # approvals: [Bytes!]!
-  # allowances: [BigInt!]!
-  # curating: [Curator!]! @derivedFrom(field: "user")
-  # indexing: [IndexNode!]! @derivedFrom(field: "user")
+    # From GraphToken.sol
+    balance: BigInt
+    # approvals: [Bytes!]!
+    # allowances: [BigInt!]!
+    curating: [Curator!] @derivedFrom(field: "user")
+    indexing: [IndexNode!] @derivedFrom(field: "user")
+
 }
 
 type Domain @entity {
@@ -51,12 +54,13 @@ type Subgraph @entity {
   # might get from gns
   id: ID!
 
-  # from staking
-  reserveRatio: BigInt!
-  totalCurationStake: BigInt!
-  totalCurationShares: BigInt!
-  totalIndexingStake: BigInt!
-  totalIndexers: Int!
+    # from staking TODO - add back the !'s for these 5 fields
+    reserveRatio: BigInt
+    totalCurationStake: BigInt
+    totalCurationShares: BigInt
+    totalIndexingStake: BigInt
+    totalIndexers: Int
+
 }
 
 # Not in use
