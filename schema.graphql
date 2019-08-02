@@ -1,40 +1,36 @@
-
-
 type Account @entity {
     # From GNS.sol
     id: ID!
     metadataHash: Bytes
 
     # From GraphToken.sol
-    balance: BigInt!
+    balance: BigInt
     # approvals: [Bytes!]!
     # allowances: [BigInt!]!
-    curating: [Curator!]! @derivedFrom(field: "user")
-    indexing: [IndexNode!]! @derivedFrom(field: "user")
+    curating: [Curator!] @derivedFrom(field: "user")
+    indexing: [IndexNode!] @derivedFrom(field: "user")
 
 }
 
 type Domain @entity {
-    id: ID!             # Domain Hash
-    name: String       # Domain name, can be a tld or subdomain
-    owner: Bytes       # Domain owner
+    id: ID! # Domain Hash
+    name: String # Domain name, can be a tld or subdomain
+    owner: Bytes # Domain owner
     parentDomain: Bytes # If it is a tld, parent domain is null
-    subgraphID: Bytes   # If it is not set yet, it is null
+    subgraphID: Bytes # If it is not set yet, it is null
     metadataHash: Bytes
-
 }
 
 type GraphToken @entity {
-    id: ID!                 # Just the value 1
+    id: ID! # Just the value 1
     total: BigInt!
 }
 
 type IndexNode @entity {
     id: ID! # eth address of index node + subgraph ID
-    user: Bytes! # Eth addrress - for searching and filtering
+    user: Account! # Eth addrress - for searching and filtering
     subgraphID: Bytes! # SubgraphID - for searching and filtering
     tokensStaked: BigInt! # If this is 0, it means they have logged out
-
     # By knowing the thawing time, we can derive the time they can withdraw
     logoutStartTime: Int! # frrom IndexingNodeLogout
 
@@ -46,7 +42,7 @@ type IndexNode @entity {
 
 type Curator @entity {
     id: ID! # eth address of curator + subgraph ID
-    user: Bytes! # Eth address - for searching and filtering
+    user: Account! # Eth address - for searching and filtering
     subgraphID: Bytes! # SubgraphID - for searching and filtering
     tokensStaked: BigInt!
     shares: BigInt!
@@ -56,12 +52,12 @@ type Subgraph @entity {
     # might get from gns
     id: ID!
 
-    # from staking
-    reserveRatio: BigInt!
-    totalCurationStake: BigInt!
-    totalCurationShares: BigInt!
-    totalIndexingStake: BigInt!
-    totalIndexers: Int!
+    # from staking TODO - add back the !'s for these 5 fields
+    reserveRatio: BigInt
+    totalCurationStake: BigInt
+    totalCurationShares: BigInt
+    totalIndexingStake: BigInt
+    totalIndexers: Int
 
 }
 
@@ -91,15 +87,14 @@ type Transactions @entity {
     type: TransactionType!
 }
 
-
 # others to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
 # Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
 enum TransactionType {
-    CurateStake,
-    CurateUnstake,
-    IndexingStake,
-    IndexingUnstake,
-    RegisterGNS,
-    UpdateGNS,
-    DeploySubgraphToGNS,
+    CurateStake
+    CurateUnstake
+    IndexingStake
+    IndexingUnstake
+    RegisterGNS
+    UpdateGNS
+    DeploySubgraphToGNS
 }

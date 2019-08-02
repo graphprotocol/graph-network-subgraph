@@ -1,17 +1,17 @@
-import { log } from '@graphprotocol/graph-ts'
+import {store} from '@graphprotocol/graph-ts'
 import {
   DomainAdded,
   DomainTransferred,
-  SubgraphIdAdded,
-  SubgraphIdChanged,
-  SubgraphIdDeleted,
+  SubgraphCreated,
+  SubgraphIDUpdated,
+  DomainDeleted,
   AccountMetadataChanged,
-  SubgraphMetadataChanged
+  SubgraphMetadataChanged,
 } from '../../generated/GNS/GNS'
-import {Domain, Account} from '../../generated/schema'
+import {Domain, Account, Subgraph} from '../../generated/schema'
 
 export function handleDomainAdded(event: DomainAdded): void {
-  let id = event.params.topLevelDomainHash.toHex()
+  let id = event.params.topLevelDomainHash.toHexString()
   let domain = new Domain(id)
   domain.name = event.params.domainName
   domain.owner = event.params.owner
@@ -19,87 +19,62 @@ export function handleDomainAdded(event: DomainAdded): void {
 }
 
 export function handleDomainTransferred(event: DomainTransferred): void {
-  let id = event.params.topLevelDomainHash.toHex()
+  let id = event.params.domainHash.toHexString()
   let domain = new Domain(id)
   domain.owner = event.params.newOwner
   domain.save()
 }
 
-export function handleSubgraphIdAdded(event: SubgraphIdAdded): void {
-  log.debug(
-    'Subdomain Hash: {}',
-    [
-      event.params.subdomainHash.toHexString()
-    ]
-  )
+export function handleSubgraphCreated(event: SubgraphCreated): void {
+  let id = event.params.topLevelDomainHash.toHexString()
+  let domain = new Domain(id)
+  domain.name = event.params.subdomainName
+  domain.metadataHash = event.params.registeredHash
 
-  // Subdomain string is not blank, therefore we are indexing a tld
-  if (event.params.subdomainHash.toHexString() != "0x1c47c222430ce3cff6bbf3ce14d1374f52c32d129ef0ce041af2c4eea5ff81e2") {
-    let id = event.params.topLevelDomainHash.toHex()
+  // The subddomain is blank, i.e. we are registered to the TLD
+  // We ignore the subdomain name (it is blank), and the domain hash is the same as the TLD
+  if (event.params.registeredHash.toHexString() ==
+    '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470') {
+    let id = event.params.topLevelDomainHash.toHexString()
     let domain = new Domain(id)
-    domain.subgraphID = event.params.subgraphId
-    domain.metadataHash = event.params.ipfsHash
-
     domain.save()
-
-    // We are indexing a subdomain, since the name is not blank
+    // It is a sub domain, we register a new domain, with a parent domain as the TLD
   } else {
-    let id = event.params.subdomainHash.toHex()
+    let id = event.params.registeredHash.toHexString()
     let domain = new Domain(id)
-    domain.subgraphID = event.params.subgraphId
-    domain.metadataHash = event.params.ipfsHash
     domain.parentDomain = event.params.topLevelDomainHash
     domain.name = event.params.subdomainName
     domain.save()
-    // name is added previously when domain is registered
   }
 }
 
-export function handleSubgraphIdChanged(event: SubgraphIdChanged): void {
-  if (event.params.subdomainHash.toHexString() == "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
-    let id = event.params.topLevelDomainHash.toHex()
-    let domain = new Domain(id)
-    domain.subgraphID = event.params.subgraphId
-    domain.save()
-  } else {
-    let id = event.params.subdomainHash.toHex()
-    let domain = new Domain(id)
-    domain.subgraphID = event.params.subgraphId
-    domain.save()
-  }
+export function handleUpdateDomainSubgraphID(event: SubgraphIDUpdated): void {
+  let id = event.params.domainHash.toHexString()
+  let domain = new Domain(id)
+  domain.subgraphID = event.params.subgraphID
+  domain.save()
+
+  // TODO - should we delete the old subgraph here too? it would still exist as its own staking contract, it is just getting remove from the gns. need to think this through a bit
+  let subgraphID = event.params.subgraphID.toHexString()
+  let subgraph = new Subgraph(subgraphID)
+  subgraph.save()
 }
 
-export function handleSubgraphIdDeleted(event: SubgraphIdDeleted): void {
-  if (event.params.subdomainHash.toHexString() == "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
-    let id = event.params.topLevelDomainHash.toHex()
-    let domain = new Domain(id)
-    domain.subgraphID = null
-    domain.save()
-  } else {
-    let id = event.params.subdomainHash.toHex()
-    let domain = new Domain(id)
-    domain.subgraphID = null
-    domain.save()
-  }
+export function handleDomainDeleted(event: DomainDeleted): void {
+  let id = event.params.domainHash.toHexString()
+  store.remove("Domain", id)
 }
 
 export function handleAccountMetadataChanged(event: AccountMetadataChanged): void {
-  let id = event.params.account.toHex()
+  let id = event.params.account.toHexString()
   let account = new Account(id)
   account.metadataHash = event.params.ipfsHash
   account.save()
 }
 
 export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): void {
-  if (event.params.subdomainHash.toHexString() == "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470") {
-    let id = event.params.topLevelDomainHash.toHex()
-    let domain = new Domain(id)
-    domain.metadataHash = event.params.ipfsHash
-    domain.save()
-  } else {
-    let id = event.params.subdomainHash.toHex()
-    let domain = new Domain(id)
-    domain.metadataHash = event.params.ipfsHash
-    domain.save()
-  }
+  let id = event.params.domainHash.toHexString()
+  let domain = new Domain(id)
+  domain.metadataHash = event.params.ipfsHash
+  domain.save()
 }
