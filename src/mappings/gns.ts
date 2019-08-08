@@ -1,4 +1,4 @@
-import { store, ByteArray, Bytes, ipfs, json, log, BigInt } from '@graphprotocol/graph-ts'
+import { store, ByteArray, Bytes, ipfs, json, log } from '@graphprotocol/graph-ts'
 import {
   DomainAdded,
   DomainTransferred,
@@ -17,7 +17,6 @@ export function handleDomainAdded(event: DomainAdded): void {
   subgraph.name = event.params.domainName
   subgraph.owner = event.params.owner
   subgraph.parent = null
-  subgraph.versions = []
   subgraph.save()
 }
 
@@ -33,11 +32,14 @@ export function handleSubgraphCreated(event: SubgraphCreated): void {
   // In this case both hashes are the same
   // We don't need to store any new data for the domain if TLD = registeredHash
   if (event.params.registeredHash != event.params.topLevelDomainHash) {
+    // Need to load the owner of the parent subgraph
+    let parent = Subgraph.load(event.params.topLevelDomainHash.toHexString())
+
     let id = event.params.registeredHash.toHexString()
     let subgraph = new Subgraph(id)
     subgraph.parent = event.params.topLevelDomainHash.toHexString()
     subgraph.name = event.params.subdomainName
-    subgraph.versions = []
+    subgraph.owner = parent.owner
     subgraph.save()
   }
 }
@@ -58,6 +60,9 @@ export function handleSubgraphIDUpdated(event: SubgraphIDUpdated): void {
   let id = event.params.domainHash.toHexString()
   let subgraph = new Subgraph(id)
   let versions = subgraph.versions
+  if (versions == null){
+    versions = []
+  }
   versions.push(event.params.subgraphID.toHexString())
   subgraph.versions = versions
   subgraph.save()
@@ -78,21 +83,22 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
   let subgraph = new Subgraph(id)
   subgraph.metadataHash = event.params.ipfsHash
 
-  let hexHash = addQm(event.params.ipfsHash) as Bytes
-  let base58Hash = hexHash.toBase58() // imported crypto function
+  // let hexHash = addQm(event.params.ipfsHash) as Bytes
+  // let base58Hash = hexHash.toBase58() // imported crypto function
+  //
+  // // read subgraph metadata from IPFS
+  // let getSubgraphDataFromIPFS = ipfs.cat(base58Hash)
+  // if (getSubgraphDataFromIPFS !== null) {
+  //   let data = json.fromBytes(getSubgraphDataFromIPFS as Bytes).toObject()
+  //   subgraph.name = data.get('name').toString()
+  //   subgraph.displayName = data.get('displayName').toString()
+  //   subgraph.subtitle = data.get('subtitle').toString()
+  //   subgraph.image = data.get('image').toString()
+  //   subgraph.description = data.get('description').toString()
+  //   subgraph.githubUrl = data.get('githubUrl').toString()
+  // }
 
-  // read subgraph metadata from IPFS
-  let getSubgraphDataFromIPFS = ipfs.cat(base58Hash)
-  if (getSubgraphDataFromIPFS !== null) {
-    let data = json.fromBytes(getSubgraphDataFromIPFS as Bytes).toObject()
-    subgraph.name = data.get('name').toString()
-    subgraph.displayName = data.get('displayName').toString()
-    subgraph.subtitle = data.get('subtitle').toString()
-    subgraph.image = data.get('image').toString()
-    subgraph.description = data.get('description').toString()
-    subgraph.githubUrl = data.get('githubUrl').toString()
-    subgraph.save()
-  }
+  subgraph.save()
 }
 
 /*     HELPERS     */

@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GNS
-    network: ganache # ropsten or ganache
+    network: ropsten # ropsten or ganache
     source:
       # Remember, this MUST be updated with changes to accounts on ganache.
       # everyone can get the same GNS address By running `ganache-cli -d`.

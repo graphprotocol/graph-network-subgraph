@@ -17,10 +17,10 @@ type Subgraph @entity {
   children: [Subgraph!]
 
   "Versions of this subgraph. Last version in array is current"
-  versions: [SubgraphVersion!]!
+  versions: [SubgraphVersion!]
 
   "Subgraph metadata"
-  metadataHash: Bytes!
+  metadataHash: Bytes
 
   #### Metadata taken from IPFS #### - TODO - talk to nena, add more
 
@@ -28,7 +28,7 @@ type Subgraph @entity {
   description: String
 
   "Common subgraph or owned by a user"
-  type: SubgraphType!
+  type: SubgraphType
 
   "Image in string format"
   image: String
