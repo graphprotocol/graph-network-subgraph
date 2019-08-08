@@ -1,38 +1,66 @@
 type Account @entity {
     # From GNS.sol
+    " Eth address "
     id: ID!
+
+    "IPFS hash with account metadata details"
     metadataHash: Bytes
 
     # From GraphToken.sol
+    "Graph token balance"
     balance: BigInt
+
     # approvals: [Bytes!]!
     # allowances: [BigInt!]!
-    curating: [Curator!] @derivedFrom(field: "user")
-    indexing: [IndexNode!] @derivedFrom(field: "user")
 
+    "All subgraphs this account curates"
+    curating: [Curator!] @derivedFrom(field: "user")
+
+    "All subgraphs this accoutn indexes"
+    indexing: [IndexNode!] @derivedFrom(field: "user")
 }
 
 type Domain @entity {
+    "Hash of the domain name"
     id: ID! # Domain Hash
+
+    "Domain name"
     name: String # Domain name, can be a tld or subdomain
+
+    "Eth address"
     owner: Bytes # Domain owner
+
+    "Top level domain hash"
     parentDomain: Bytes # If it is a tld, parent domain is null
+
+    "IPFS hash of subgraph files"
     subgraphID: Bytes # If it is not set yet, it is null
-    metadataHash: Bytes
 }
 
 type GraphToken @entity {
-    id: ID! # Just the value 1
+    "Set to 1"
+    id: ID!
+
+    "Total graph tokens"
     total: BigInt!
 }
 
 type IndexNode @entity {
+    "Eth address + subgraph ID"
     id: ID! # eth address of index node + subgraph ID
+
+    "Eth Address"
     user: Account! # Eth addrress - for searching and filtering
+
+    "IPFS hash of subgraph files"
     subgraphID: Bytes! # SubgraphID - for searching and filtering
+
+    "Number of tokens the indexer has staked"
     tokensStaked: BigInt! # If this is 0, it means they have logged out
+
     # By knowing the thawing time, we can derive the time they can withdraw
-    logoutStartTime: Int! # frrom IndexingNodeLogout
+    "Time logout has started for thawing"
+    logoutStartTime: Int! # from IndexingNodeLogout
 
     # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
 }
@@ -41,24 +69,55 @@ type IndexNode @entity {
 # unrealized is derived from the total share of the pool, and the users shares, minus what they have deposited , and fees might be involved here
 
 type Curator @entity {
+    "Eth address + subgraph ID"
     id: ID! # eth address of curator + subgraph ID
+
+    "Eth address"
     user: Account! # Eth address - for searching and filtering
+
+    "IPFS hash of subgraph files"
     subgraphID: Bytes! # SubgraphID - for searching and filtering
+
+    "Number of tokens the curator has staked"
     tokensStaked: BigInt!
+
+    "Number of shares the curator has"
     shares: BigInt!
 }
 
 type Subgraph @entity {
     # might get from gns
+    "IDs increment from 0"
     id: ID!
 
-    # from staking TODO - add back the !'s for these 5 fields
-    reserveRatio: BigInt
-    totalCurationStake: BigInt
-    totalCurationShares: BigInt
-    totalIndexingStake: BigInt
-    totalIndexers: Int
+    "IPFS hash of subgraph files"
+    subgraphID: Bytes
 
+    "IPFS hash of subgraph metadata details"
+    metadataHash: Bytes!
+
+    # from staking TODO - add back the !'s for these 5 fields
+    "Reserve ratio of the subgraph"
+    reserveRatio: BigInt
+    "Total stake of all curators"
+    totalCurationStake: BigInt
+
+    "Total shares of all curators"
+    totalCurationShares: BigInt
+
+    "Total stake of all indexers"
+    totalIndexingStake: BigInt
+
+    "Total number of indexers"
+    totalIndexers: Int
+}
+
+type TotalSubgraphs @entity {
+    "The number 1"
+    id: ID!
+
+    "Total subgraphs created"
+    total: Int!
 }
 
 # Not in use
@@ -81,9 +140,16 @@ type Subgraph @entity {
 # might have to add specifics here of each type, but i think i can probably
 # actually pass on that. this info might be enough
 type Transactions @entity {
+    "Tx hash"
     id: ID! # tx hash (plus log index)
+
+    "Block timestamp"
     timestamp: Int!
+
+    "Block number"
     block: Int!
+
+    "Transaction type"
     type: TransactionType!
 }
 

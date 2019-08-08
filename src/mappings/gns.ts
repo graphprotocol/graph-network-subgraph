@@ -1,4 +1,4 @@
-import {store} from '@graphprotocol/graph-ts'
+import {store, BigInt} from '@graphprotocol/graph-ts'
 import {
   DomainAdded,
   DomainTransferred,
@@ -8,7 +8,7 @@ import {
   AccountMetadataChanged,
   SubgraphMetadataChanged,
 } from '../../generated/GNS/GNS'
-import {Domain, Account, Subgraph} from '../../generated/schema'
+import {Domain, Account, Subgraph, TotalSubgraphs} from '../../generated/schema'
 
 export function handleDomainAdded(event: DomainAdded): void {
   let id = event.params.topLevelDomainHash.toHexString()
@@ -26,20 +26,10 @@ export function handleDomainTransferred(event: DomainTransferred): void {
 }
 
 export function handleSubgraphCreated(event: SubgraphCreated): void {
-  let id = event.params.topLevelDomainHash.toHexString()
-  let domain = new Domain(id)
-  domain.name = event.params.subdomainName
-  domain.metadataHash = event.params.registeredHash
-
   // The subddomain is blank, i.e. we are registered to the TLD
-  // We ignore the subdomain name (it is blank), and the domain hash is the same as the TLD
-  if (event.params.registeredHash.toHexString() ==
-    '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470') {
-    let id = event.params.topLevelDomainHash.toHexString()
-    let domain = new Domain(id)
-    domain.save()
-    // It is a sub domain, we register a new domain, with a parent domain as the TLD
-  } else {
+  // In this case both hashes are the same
+  // We don't need to store any new data for the domain if TLD = registeredHash
+  if (event.params.registeredHash != event.params.topLevelDomainHash) {
     let id = event.params.registeredHash.toHexString()
     let domain = new Domain(id)
     domain.parentDomain = event.params.topLevelDomainHash
@@ -75,6 +65,13 @@ export function handleAccountMetadataChanged(event: AccountMetadataChanged): voi
 export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): void {
   let id = event.params.domainHash.toHexString()
   let domain = new Domain(id)
-  domain.metadataHash = event.params.ipfsHash
   domain.save()
+
+  let totalSubgraphs = TotalSubgraphs.load("1")
+  if (totalSubgraphs == null){
+    totalSubgraphs = new TotalSubgraphs("1")
+  }
+  let subgraphID =  BigInt.fromI32(totalSubgraphs.total).toString()
+  let subgraph = new Subgraph(subgraphID)
+  subgraph.metadataHash = event.params.ipfsHash
 }
