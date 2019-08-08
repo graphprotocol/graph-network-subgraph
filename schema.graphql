@@ -1,6 +1,6 @@
 type Account @entity {
     # From GNS.sol
-    "Eth address"
+    " Eth address "
     id: ID!
 
     "IPFS hash with account metadata details"
@@ -18,7 +18,6 @@ type Account @entity {
 
     "All subgraphs this accoutn indexes"
     indexing: [IndexNode!] @derivedFrom(field: "user")
-
 }
 
 type Domain @entity {
@@ -36,7 +35,6 @@ type Domain @entity {
 
     "IPFS hash of subgraph files"
     subgraphID: Bytes # If it is not set yet, it is null
-
 }
 
 type GraphToken @entity {
@@ -89,11 +87,14 @@ type Curator @entity {
 
 type Subgraph @entity {
     # might get from gns
-    "IPFS hash of subgraph files"
+    "IDs increment from 0"
     id: ID!
 
+    "IPFS hash of subgraph files"
+    subgraphID: Bytes
+
     "IPFS hash of subgraph metadata details"
-    metadataHash: Bytes
+    metadataHash: Bytes!
 
     # from staking TODO - add back the !'s for these 5 fields
     "Reserve ratio of the subgraph"
@@ -109,7 +110,14 @@ type Subgraph @entity {
 
     "Total number of indexers"
     totalIndexers: Int
+}
 
+type TotalSubgraphs @entity {
+    "The number 1"
+    id: ID!
+
+    "Total subgraphs created"
+    total: Int!
 }
 
 # Not in use
