@@ -6,12 +6,13 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GNS
-    network: ganache # or ropsten
+    network: ganache # ropsten or ganache
     source:
       # Remember, this MUST be updated with changes to accounts on ganache.
       # everyone can get the same GNS address By running `ganache-cli -d`.
-      # Then run `truffle test` and GNS will be the addr 0x0290.....
-      address: '0x0290fb167208af455bb137780163b7b7a9a10c16'
+      # Then run `truffle test` and GNS will be the addr 0x0290fb167208af455bb137780163b7b7a9a10c16
+      # Or right now (aug 8th) ropsten is 0x77E8997a50aeD85b5d087a6B291878a172f68fA3
+      address: '0x77E8997a50aeD85b5d087a6B291878a172f68fA3'
       abi: GNS
     mapping:
       kind: ethereum/events
@@ -19,8 +20,8 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Account
-        - Domain
         - Subgraph
+        - SubgraphVersion
       abis:
         - name: GNS
           file: ./abis/GNS.json
