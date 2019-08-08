@@ -8,7 +8,7 @@ import {
   AccountMetadataChanged,
   SubgraphMetadataChanged,
 } from '../../generated/GNS/GNS'
-import { Domain, Account, Subgraph } from '../../generated/schema'
+import { Account, Subgraph, SubgraphVersion } from '../../generated/schema'
 
 // new domain is treated as a Subgraph entity with parent set to null
 export function handleDomainAdded(event: DomainAdded): void {
@@ -17,6 +17,7 @@ export function handleDomainAdded(event: DomainAdded): void {
   subgraph.name = event.params.domainName
   subgraph.owner = event.params.owner
   subgraph.parent = null
+  subgraph.versions = []
   subgraph.save()
 }
 
@@ -28,34 +29,17 @@ export function handleDomainTransferred(event: DomainTransferred): void {
 }
 
 export function handleSubgraphCreated(event: SubgraphCreated): void {
-  let id = event.params.topLevelDomainHash.toHexString()
-  let domain = new Domain(id)
-  domain.name = event.params.subdomainName
-  domain.metadataHash = event.params.registeredHash
-
   // The subddomain is blank, i.e. we are registered to the TLD
   // In this case both hashes are the same
   // We don't need to store any new data for the domain if TLD = registeredHash
   if (event.params.registeredHash != event.params.topLevelDomainHash) {
     let id = event.params.registeredHash.toHexString()
-    let domain = new Domain(id)
-    domain.parentDomain = event.params.topLevelDomainHash
-    domain.name = event.params.subdomainName
-    domain.save()
+    let subgraph = new Subgraph(id)
+    subgraph.parent = event.params.topLevelDomainHash.toHexString()
+    subgraph.name = event.params.subdomainName
+    subgraph.versions = []
+    subgraph.save()
   }
-}
-
-// NOTE: this is not inside of subgraph.yaml
-export function handleUpdateDomainSubgraphID(event: SubgraphIDUpdated): void {
-  let id = event.params.domainHash.toHexString()
-  let domain = new Domain(id)
-  domain.subgraphID = event.params.subgraphID
-  domain.save()
-
-  // TODO - should we delete the old subgraph here too? it would still exist as its own staking contract, it is just getting remove from the gns. need to think this through a bit
-  let subgraphID = event.params.subgraphID.toHexString()
-  let subgraph = new Subgraph(subgraphID)
-  subgraph.save()
 }
 
 export function handleDomainDeleted(event: DomainDeleted): void {
@@ -73,6 +57,16 @@ export function handleAccountMetadataChanged(event: AccountMetadataChanged): voi
 export function handleSubgraphIDUpdated(event: SubgraphIDUpdated): void {
   let id = event.params.domainHash.toHexString()
   let subgraph = new Subgraph(id)
+  let versions = subgraph.versions
+  versions.push(event.params.subgraphID.toHexString())
+  subgraph.versions = versions
+  subgraph.save()
+
+  // TODO - should we delete the old subgraph here too? it would still exist as its own staking contract, it is just getting remove from the gns. need to think this through a bit
+  let subgraphID = event.params.subgraphID.toHexString()
+  let subgraphVersion = new SubgraphVersion(subgraphID)
+  subgraphVersion.subgraph = id
+  subgraphVersion.save()
 }
 
 /* Params:
@@ -83,7 +77,6 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
   let id = event.params.domainHash.toHexString()
   let subgraph = new Subgraph(id)
   subgraph.metadataHash = event.params.ipfsHash
-  subgraph.save()
 
   let hexHash = addQm(event.params.ipfsHash) as Bytes
   let base58Hash = hexHash.toBase58() // imported crypto function
@@ -92,7 +85,6 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
   let getSubgraphDataFromIPFS = ipfs.cat(base58Hash)
   if (getSubgraphDataFromIPFS !== null) {
     let data = json.fromBytes(getSubgraphDataFromIPFS as Bytes).toObject()
-    let subgraph = new Subgraph(id)
     subgraph.name = data.get('name').toString()
     subgraph.displayName = data.get('displayName').toString()
     subgraph.subtitle = data.get('subtitle').toString()

@@ -33,6 +33,9 @@ type Subgraph @entity {
   "Image in string format"
   image: String
 
+  "Subtitle for display"
+  subtitle: String
+
   "Display name for subgraph"
   displayName: String
 
