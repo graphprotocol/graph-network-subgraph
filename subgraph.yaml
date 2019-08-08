@@ -30,8 +30,6 @@ dataSources:
           handler: handleDomainDeleted
         - event: SubgraphCreated(indexed bytes32,indexed bytes32,string)
           handler: handleSubgraphCreated
-        - event: SubgraphDeployed(indexed bytes32,indexed bytes32)
-          handler: handleSubgraphDeployed
         - event: SubgraphIDUpdated(indexed bytes32,indexed bytes32)
           handler: handleSubgraphIDUpdated
         - event: AccountMetadataChanged(indexed address,indexed bytes32)
