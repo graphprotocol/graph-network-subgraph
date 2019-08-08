@@ -1,73 +1,105 @@
-type Account @entity {
-  # From GNS.sol
-  id: ID!
-  metadataHash: Bytes
-
-  # From GraphToken.sol
-  balance: BigInt
-  # approvals: [Bytes!]!
-  # allowances: [BigInt!]!
-  curating: [Curator!] @derivedFrom(field: "user")
-  indexing: [IndexNode!] @derivedFrom(field: "user")
-}
-
-type Domain @entity {
-  id: ID! # Domain Hash
-  name: String # Domain name, can be a tld or subdomain
-  owner: Bytes # Domain owner
-  parentDomain: Bytes # If it is a tld, parent domain is null
-  subgraphID: Bytes # If it is not set yet, it is null
-  metadataHash: Bytes
-}
-
 type Subgraph @entity {
-  id: ID! # Domain Hash
-  name: String # Domain name, can be a tld or subdomain
-  owner: Bytes # Domain owner
-  parent: Subgraph # If it is a tld, parent domain is null
-  children: [Subgraph!] # Child subgraphs
-  versions: [SubgraphVersion!]
-  curators: [Curator!]
-  type: SubgraphType
-  metadataHash: Bytes
+  #### From gns contract ####
 
-  # Subgraph metadata
-  displayName: String
-  subtitle: String
-  image: String
+  "Hash of the domain name"
+  id: ID!
+
+  "Domain name, could be tld or subdomain"
+  name: String!
+
+  "Eth address"
+  owner: Bytes!
+
+  "Parent subgraph. If it is a tld, this is null"
+  parent: Subgraph
+
+  "Children Subgraphs"
+  children: [Subgraph!]
+
+  "Versions of this subgraph. Last version in array is current"
+  versions: [SubgraphVersion!]!
+
+  "Subgraph metadata"
+  metadataHash: Bytes!
+
+  #### Metadata taken from IPFS #### - TODO - talk to nena, add more
+
+  "Short description of the subgraph"
   description: String
+
+  "Common subgraph or owned by a user"
+  type: SubgraphType!
+
+  "Image in string format"
+  image: String
+
+  "Display name for subgraph"
+  displayName: String
+
+  "Github url for the subgraph repo"
   githubUrl: String
 
-  # from staking TODO - add back the !'s for these 5 fields
+  #### From staking contract ####
+  "Curators of this subgraph"
+  curators: [Curator!]
+
+  "Indexers of this subgraph"
+  indexers: [IndexNode!]
+
+  "Bonding curve reserve ratio"
   reserveRatio: BigInt
+
+  "Total curation stake on this subgraph"
   totalCurationStake: BigInt
+
+  "Total curation shares on this subgraph"
   totalCurationShares: BigInt
+
+  "Total indexing stake on this subgraph"
   totalIndexingStake: BigInt
-  totalIndexers: Int
+}
+
+enum SubgraphType {
+  Commons,
+  Owned
 }
 
 type SubgraphVersion @entity {
-  id: ID! # IPFS hash of the subgraph manifest
-  subgraph: Subgraph!
-  schema: String!
+  "Subgraph ID"
+  id: ID!
 
-  # from staking
+  "The subgraph this version is related to"
+  subgraph: Subgraph!
+
+  # Todo - not sure how this will work yet
+  # schema: Schema!
+
+  #### From staking contract ####
+
+  "Total stake of all curators"
   totalCurationStake: BigInt
+
+  "Total stake of all indexers"
   totalIndexingStake: BigInt
 }
 
-type GraphToken @entity {
-  id: ID! # Just the value 1
-  total: BigInt!
-}
 
 type IndexNode @entity {
+  "Eth address + subgraph ID"
   id: ID! # eth address of index node + subgraph ID
+
+  "Eth Address"
   user: Account! # Eth addrress - for searching and filtering
+
+  "IPFS hash of subgraph files"
   subgraphID: Bytes! # SubgraphID - for searching and filtering
+
+  "Number of tokens the indexer has staked"
   tokensStaked: BigInt! # If this is 0, it means they have logged out
+
   # By knowing the thawing time, we can derive the time they can withdraw
-  logoutStartTime: Int! # frrom IndexingNodeLogout
+  "Time logout has started for thawing"
+  logoutStartTime: Int! # from IndexingNodeLogout
 
   # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
 }
@@ -76,14 +108,86 @@ type IndexNode @entity {
 # unrealized is derived from the total share of the pool, and the users shares, minus what they have deposited , and fees might be involved here
 
 type Curator @entity {
+  "Eth address + subgraph ID"
   id: ID! # eth address of curator + subgraph ID
+
+  "Eth address"
   user: Account! # Eth address - for searching and filtering
+
+  "IPFS hash of subgraph files"
   subgraphID: Bytes! # SubgraphID - for searching and filtering
+
+  "Number of tokens the curator has staked"
   tokensStaked: BigInt!
+
+  "Number of shares the curator has"
   shares: BigInt!
 }
 
-# Not in use
+type Account @entity {
+  #### From GNS.sol ####
+
+  "Eth address"
+  id: ID!
+
+  "IPFS hash with account metadata details"
+  metadataHash: Bytes
+
+  #### From GraphToken.sol ####
+
+  "Graph token balance"
+  balance: BigInt
+
+  # "Might add this"
+  # approvals: [Bytes!]!
+
+  # "Might add this"
+  # allowances: [BigInt!]!
+
+  "All subgraphs this account curates"
+  curating: [Curator!] @derivedFrom(field: "user")
+
+  "All subgraphs this accoutn indexes"
+  indexing: [IndexNode!] @derivedFrom(field: "user")
+}
+
+type GraphToken @entity {
+  "Set to 1"
+  id: ID!
+
+  "Total graph tokens"
+  total: BigInt!
+}
+
+# might have to add specifics here of each type, but i think i can probably
+# actually pass on that. this info might be enough
+type Transactions @entity {
+  "Tx hash"
+  id: ID! # tx hash (plus log index)
+
+  "Block timestamp"
+  timestamp: Int!
+
+  "Block number"
+  block: Int!
+
+  "Transaction type"
+  type: TransactionType!
+}
+
+# others to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
+# Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
+enum TransactionType {
+  CurateStake
+  CurateUnstake
+  IndexingStake
+  IndexingUnstake
+  RegisterGNS
+  UpdateGNS
+  DeploySubgraphToGNS
+}
+
+#### Not in use for alpha ####
 
 #type Dispute @entity {
 #    id: ID! # dispute ID
@@ -100,28 +204,13 @@ type Curator @entity {
 #    Rejected
 #}
 
-# might have to add specifics here of each type, but i think i can probably
-# actually pass on that. this info might be enough
-type Transactions @entity {
-  id: ID! # tx hash (plus log index)
-  timestamp: Int!
-  block: Int!
-  type: TransactionType!
-}
+#### TODO -  DELETE DOMAIN LATER ####
 
-# others to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
-# Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
-enum TransactionType {
-  CurateStake
-  CurateUnstake
-  IndexingStake
-  IndexingUnstake
-  RegisterGNS
-  UpdateGNS
-  DeploySubgraphToGNS
-}
-
-enum SubgraphType {
-  commons
-  owned
+type Domain @entity {
+  id: ID! # Domain Hash
+  name: String # Domain name, can be a tld or subdomain
+  owner: Bytes # Domain owner
+  parentDomain: Bytes # If it is a tld, parent domain is null
+  subgraphID: Bytes # If it is not set yet, it is null
+  metadataHash: Bytes
 }
