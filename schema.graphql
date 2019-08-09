@@ -53,7 +53,7 @@ type Subgraph @entity {
   curatorInfo: [CuratorInfo!]
 
   "Indexers of this subgraph"
-  indexerInfo: [IndexNodeInfo!]
+  indexerInfo: [IndexerInfo!]
 
   "Bonding curve reserve ratio"
   reserveRatio: BigInt
@@ -92,7 +92,7 @@ type SubgraphVersion @entity {
   totalIndexingStake: BigInt
 }
 
-type IndexNodeInfo @entity {
+type IndexerInfo @entity {
   "Eth address + subgraph ID"
   id: ID! # eth address of index node + subgraph ID
   "Eth Address"
@@ -149,7 +149,7 @@ type Account @entity {
   curating: [CuratorInfo!] @derivedFrom(field: "user")
 
   "All subgraphs this accoutn indexes"
-  indexing: [IndexNodeInfo!] @derivedFrom(field: "user")
+  indexing: [IndexerInfo!] @derivedFrom(field: "user")
 }
 
 type GraphToken @entity {
