@@ -71,6 +71,7 @@ This describes a basic account for the Explorer Dapp. This data is linked to an 
     "displayName": "Uniswap",
     "image": "https://ipfs.infura.io/ipfs/Qmdpy5FmcGBAntxHyGdeCjDtB8gdZJ9JMeVBpqkp74RUz8",
     "type": "owned",
+    "createdAt": 1565372702,
     "subtitle": "Uniswap is a decentralized protocol for automated token exchange on Ethereum",
     "description": "The subgraph tracks event based data, which updates each exchange to index the live data. It also stores historical data entities, which can be used, and queried to build historical data, which can be used for charts.",
     "githubURL": "https://github.com/graphprotocol/uniswap-subgraph",
@@ -85,6 +86,7 @@ This describes a basic account for the Explorer Dapp. This data is linked to an 
 |**displayName** | Name displayed in the dapp |
 |**image** | Photo string for the subgraph |
 |**type** | Commons or Owned subgraph |
+|**createdAt** | Unix timestamp |
 
 ### Optional Fields
 

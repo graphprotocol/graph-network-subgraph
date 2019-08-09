@@ -1,0 +1,10 @@
+{
+  "displayName": "Decentraland",
+  "image": "http://localhost:8080/ipfs/QmVMtgVvEJLqmH3PZzcYVp5t8ni1v61e2M1rDVkcRo9WCz",
+  "type": "owned",
+  "createdAt": 1565272702,
+  "subtitle": "Decentraland Virtual Reality",
+  "description": "A decentralized virtual world that runs on open standards. Find districts, parcels, auctions, and more.",
+  "githubURL": "https://github.com/graphprotocol/decentraland-subgraph",
+  "websiteURL": "https://decentraland.org/"
+}

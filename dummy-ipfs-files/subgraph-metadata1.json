@@ -1,9 +1,0 @@
-{
-  "displayName":"Davids Subgraph",
-  "image":"https://ipfs.infura.io/ipfs/QmV5hptmRo8jk9qwVuP3izx7SHWbxS2KSUDcJJXc5f7zTq",
-  "type":"owned",
-  "githubURL":"https://github.com/graphprotocol/uniswap-subgraph",
-  "subtitle":"This is a test subgraph for dae",
-  "description":"There isn't much to this subgraph",
-  "hide": true
-}
