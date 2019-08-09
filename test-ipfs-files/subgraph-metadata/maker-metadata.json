@@ -1,0 +1,10 @@
+{
+  "displayName": "Maker",
+  "image": "http://localhost:8080/ipfs/",
+  "type": "owned",
+  "createdAt": 1565372702,
+  "subtitle": "Maker DAO",
+  "description": "Maker is a protocol for collateralized stable coin creation.",
+  "githubURL": "https://github.com/makerdao",
+  "websiteURL": "https://makerdao.com/en/"
+}
