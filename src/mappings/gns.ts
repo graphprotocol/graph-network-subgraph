@@ -60,7 +60,7 @@ export function handleSubgraphIDUpdated(event: SubgraphIDUpdated): void {
   let id = event.params.domainHash.toHexString()
   let subgraph = new Subgraph(id)
   let versions = subgraph.versions
-  if (versions == null){
+  if (versions == null) {
     versions = []
   }
   versions.push(event.params.subgraphID.toHexString())
@@ -82,21 +82,26 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
   let id = event.params.domainHash.toHexString()
   let subgraph = new Subgraph(id)
   subgraph.metadataHash = event.params.ipfsHash
+  subgraph.createdAt = event.block.timestamp.toI32()
 
-  // let hexHash = addQm(event.params.ipfsHash) as Bytes
-  // let base58Hash = hexHash.toBase58() // imported crypto function
-  //
-  // // read subgraph metadata from IPFS
-  // let getSubgraphDataFromIPFS = ipfs.cat(base58Hash)
-  // if (getSubgraphDataFromIPFS !== null) {
-  //   let data = json.fromBytes(getSubgraphDataFromIPFS as Bytes).toObject()
-  //   subgraph.name = data.get('name').toString()
-  //   subgraph.displayName = data.get('displayName').toString()
-  //   subgraph.subtitle = data.get('subtitle').toString()
-  //   subgraph.image = data.get('image').toString()
-  //   subgraph.description = data.get('description').toString()
-  //   subgraph.githubUrl = data.get('githubUrl').toString()
-  // }
+  let hexHash = addQm(event.params.ipfsHash) as Bytes
+  let base58Hash = hexHash.toBase58() // imported crypto function
+
+  // read subgraph metadata from IPFS
+  let getSubgraphDataFromIPFS = ipfs.cat(base58Hash)
+  if (getSubgraphDataFromIPFS !== null) {
+    let data = json.fromBytes(getSubgraphDataFromIPFS as Bytes).toObject()
+    subgraph.displayName = data.get('displayName').toString()
+    subgraph.subtitle = data.get('subtitle').toString()
+    subgraph.image = data.get('image').toString()
+    subgraph.description = data.get('description').toString()
+    if (data.get('githubUrl')) {
+      subgraph.githubUrl = data.get('githubUrl').toString()
+    }
+    if (data.get('websiteUrl')) {
+      subgraph.websiteUrl = data.get('websiteUrl').toString()
+    }
+  }
 
   subgraph.save()
 }

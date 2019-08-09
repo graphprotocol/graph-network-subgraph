@@ -39,8 +39,14 @@ type Subgraph @entity {
   "Display name for subgraph"
   displayName: String
 
-  "Github url for the subgraph repo"
+  "Github url of the subgraph repo"
   githubUrl: String
+
+  "Project's website"
+  websiteUrl: String
+
+  "Creation timestamp"
+  createdAt: Int
 
   #### From staking contract ####
   "Curators of this subgraph"
@@ -63,7 +69,7 @@ type Subgraph @entity {
 }
 
 enum SubgraphType {
-  Commons,
+  Commons
   Owned
 }
 
@@ -86,20 +92,15 @@ type SubgraphVersion @entity {
   totalIndexingStake: BigInt
 }
 
-
 type IndexNodeInfo @entity {
   "Eth address + subgraph ID"
   id: ID! # eth address of index node + subgraph ID
-
   "Eth Address"
   user: Account! # Eth addrress - for searching and filtering
-
   "IPFS hash of subgraph files"
   subgraphID: Bytes! # SubgraphID - for searching and filtering
-
   "Number of tokens the indexer has staked"
   tokensStaked: BigInt! # If this is 0, it means they have logged out
-
   # By knowing the thawing time, we can derive the time they can withdraw
   "Time logout has started for thawing"
   logoutStartTime: Int! # from IndexingNodeLogout
@@ -113,13 +114,10 @@ type IndexNodeInfo @entity {
 type CuratorInfo @entity {
   "Eth address + subgraph ID"
   id: ID! # eth address of curator + subgraph ID
-
   "Eth address"
   user: Account! # Eth address - for searching and filtering
-
   "IPFS hash of subgraph files"
   subgraphID: Bytes! # SubgraphID - for searching and filtering
-
   "Number of tokens the curator has staked"
   tokensStaked: BigInt!
 
@@ -167,7 +165,6 @@ type GraphToken @entity {
 type Transactions @entity {
   "Tx hash"
   id: ID! # tx hash (plus log index)
-
   "Block timestamp"
   timestamp: Int!
 
