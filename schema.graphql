@@ -44,10 +44,10 @@ type Subgraph @entity {
 
   #### From staking contract ####
   "Curators of this subgraph"
-  curators: [Curator!]
+  curatorInfo: [CuratorInfo!]
 
   "Indexers of this subgraph"
-  indexers: [IndexNode!]
+  indexerInfo: [IndexNodeInfo!]
 
   "Bonding curve reserve ratio"
   reserveRatio: BigInt
@@ -87,7 +87,7 @@ type SubgraphVersion @entity {
 }
 
 
-type IndexNode @entity {
+type IndexNodeInfo @entity {
   "Eth address + subgraph ID"
   id: ID! # eth address of index node + subgraph ID
 
@@ -110,7 +110,7 @@ type IndexNode @entity {
 # we probably need shares, unreralized gains, fees accrued
 # unrealized is derived from the total share of the pool, and the users shares, minus what they have deposited , and fees might be involved here
 
-type Curator @entity {
+type CuratorInfo @entity {
   "Eth address + subgraph ID"
   id: ID! # eth address of curator + subgraph ID
 
@@ -148,10 +148,10 @@ type Account @entity {
   # allowances: [BigInt!]!
 
   "All subgraphs this account curates"
-  curating: [Curator!] @derivedFrom(field: "user")
+  curating: [CuratorInfo!] @derivedFrom(field: "user")
 
   "All subgraphs this accoutn indexes"
-  indexing: [IndexNode!] @derivedFrom(field: "user")
+  indexing: [IndexNodeInfo!] @derivedFrom(field: "user")
 }
 
 type GraphToken @entity {
@@ -209,11 +209,11 @@ enum TransactionType {
 
 #### TODO -  DELETE DOMAIN LATER ####
 
-type Domain @entity {
-  id: ID! # Domain Hash
-  name: String # Domain name, can be a tld or subdomain
-  owner: Bytes # Domain owner
-  parentDomain: Bytes # If it is a tld, parent domain is null
-  subgraphID: Bytes # If it is not set yet, it is null
-  metadataHash: Bytes
-}
+#type Domain @entity {
+#  id: ID! # Domain Hash
+#  name: String # Domain name, can be a tld or subdomain
+#  owner: Bytes # Domain owner
+#  parentDomain: Bytes # If it is a tld, parent domain is null
+#  subgraphID: Bytes # If it is not set yet, it is null
+#  metadataHash: Bytes
+#}

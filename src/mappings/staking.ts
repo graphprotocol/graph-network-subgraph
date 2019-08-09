@@ -8,16 +8,17 @@ import {
   DisputeAccepted,
   DisputeRejected
 } from '../../generated/Staking/Staking'
-import {Curator, IndexNode, Subgraph, Transactions} from '../../generated/schema'
+import {CuratorInfo, IndexNodeInfo, Subgraph, Transactions} from '../../generated/schema'
 import {BigInt, store} from '@graphprotocol/graph-ts'
 
+// TODO - note, this mapping is far from complete, needs to be updated with the new schema
 
 export function handleCuratorStaked(event: CuratorStaked): void {
   let id = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
-  let curator = new Curator(id)
+  let curator = new CuratorInfo(id)
   curator.subgraphID = event.params.subgraphID
   curator.tokensStaked = event.params.amountStaked
-  curator.user = event.params.staker
+  curator.user = event.params.staker.toHexString()
   curator.shares = event.params.curatorShares
   curator.save()
 
@@ -44,12 +45,11 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
   let subgraph = Subgraph.load(event.params.subgraphID.toHexString())
 
   // Need to load to check if this is a new index node, so we can add 1 to total indexers
-  let indexNode = IndexNode.load(id)
+  let indexNode = IndexNodeInfo.load(id)
   if (indexNode == null) {
-    indexNode.user = event.params.staker
+    indexNode.user = event.params.staker.toHexString()
     indexNode.subgraphID = event.params.subgraphID
     indexNode.logoutStartTime = 0
-    subgraph.totalIndexers = subgraph.totalIndexers + 1
   }
   indexNode.tokensStaked = event.params.amountStaked
   indexNode.save()
@@ -61,7 +61,7 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
 
 export function handleIndexingNodeBeginLogout(event: IndexingNodeBeginLogout): void {
   let id = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
-  let indexNode = new IndexNode(id)
+  let indexNode = new IndexNodeInfo(id)
   indexNode.logoutStartTime = event.block.timestamp
   indexNode.save()
 }
@@ -69,13 +69,12 @@ export function handleIndexingNodeBeginLogout(event: IndexingNodeBeginLogout): v
 export function handleIndexingNodeFinalizeLogout(event: IndexingNodeFinalizeLogout): void {
   let id = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
 
-  let indexNode = new IndexNode(id)
+  let indexNode = new IndexNodeInfo(id)
   indexNode.logoutStartTime = 0
   indexNode.tokensStaked = BigInt.fromI32(0)
   indexNode.save()
 
   let subgraph = Subgraph.load(event.params.subgraphID.toHexString())
-  subgraph.totalIndexers = subgraph.totalIndexers - 1
   subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
   subgraph.save()
 }
