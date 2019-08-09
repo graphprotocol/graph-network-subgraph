@@ -6,13 +6,13 @@
 
 This describes a basic account for the Explorer Dapp. This data is linked to an Ethereum account through an event emitted by the GNS. 
 
-```javascript
+```json
 {
-    schemaId: "account_0.0.1",
-    name: "davekaj",
-    displayName: "Dave K",
-    photo: "photo-string-here",
-    accessToken: "123e9da7c87dd6e4ef4fc050e62df3be3d3209d834ce86cfb11c3",
+    "schemaId": "account_0.0.1",
+    "name": "davekaj",
+    "displayName": "Dave K",
+    "photo": "photo-string-here",
+    "accessToken": "123e9da7c87dd6e4ef4fc050e62df3be3d3209d834ce86cfb11c3",
 }
 ```
 
@@ -37,13 +37,13 @@ This describes a basic account for the Explorer Dapp. This data is linked to an 
 
 This describes a organization account for the Explorer Dapp. This data is linked to an Ethereum account through an event emitted by the GNS. 
 
-```javascript
+```json
 {
-    schemaId: "organization_0.0.1",
-    name: "graphprotocol",
-    displayName: "The Graph",
-    photo: "photo-string-here",
-    accessToken: "123e9da7c87dd6e4ef4fc050e62df3be3d3209d834ce86cfb11c3",
+    "schemaId": "organization_0.0.1",
+    "name": "graphprotocol",
+    "displayName": "The Graph",
+    "photo": "photo-string-here",
+    "accessToken": "123e9da7c87dd6e4ef4fc050e62df3be3d3209d834ce86cfb11c3",
 }
 ```
 
@@ -66,14 +66,15 @@ This describes a organization account for the Explorer Dapp. This data is linked
 
 This describes a basic account for the Explorer Dapp. This data is linked to an Ethereum account through an event emitted by the GNS. 
 
-```javascript
+```json
 {
-    displayName: "Uniswap",
-    image: "photo-string-here",
-    type: "owned",
-    githubURL: "https://github.com/graphprotocol/uniswap-subgraph",
-    subtitle: "Uniswap is a decentralized protocol for automated token exchange on Ethereum",
-    description: "The subgraph tracks event based data, which updates each exchange to index the live data. It also stores historical data entities, which can be used, and queried to build historical data, which can be used for charts."
+    "displayName": "Uniswap",
+    "image": "https://ipfs.infura.io/ipfs/Qmdpy5FmcGBAntxHyGdeCjDtB8gdZJ9JMeVBpqkp74RUz8",
+    "type": "owned",
+    "subtitle": "Uniswap is a decentralized protocol for automated token exchange on Ethereum",
+    "description": "The subgraph tracks event based data, which updates each exchange to index the live data. It also stores historical data entities, which can be used, and queried to build historical data, which can be used for charts.",
+    "githubURL": "https://github.com/graphprotocol/uniswap-subgraph",
+    "websiteURL": "https://uniswap.info/"
 }
 ```
 
@@ -84,7 +85,6 @@ This describes a basic account for the Explorer Dapp. This data is linked to an 
 |**displayName** | Name displayed in the dapp |
 |**image** | Photo string for the subgraph |
 |**type** | Commons or Owned subgraph |
-|**githubURL** | Github url of the subgraph repo|
 
 ### Optional Fields
 
@@ -92,3 +92,5 @@ This describes a basic account for the Explorer Dapp. This data is linked to an 
 |----|-----|
 |**subtitle** | A short explanation about what the subgraph does|
 |**description** | A detailed description of the subgraph explaining the features and functionality|
+|**githubURL** | Github url of the subgraph repo|
+|**websiteURL** | Website related to the subgraph|
