@@ -2,6 +2,7 @@
 # IPFS Schemas
 
 ## Account Schema
+*Not in use yet, need to plan with team.*
 
 This describes a basic account for the Explorer Dapp. This data is linked to an Ethereum account through an event emitted by the GNS. 
 
@@ -32,6 +33,7 @@ This describes a basic account for the Explorer Dapp. This data is linked to an 
 
 
 ## Organization Schema
+*Not in use yet, need to plan with team. It may become external, only managed with multi sigs.*
 
 This describes a organization account for the Explorer Dapp. This data is linked to an Ethereum account through an event emitted by the GNS. 
 
@@ -66,15 +68,12 @@ This describes a basic account for the Explorer Dapp. This data is linked to an 
 
 ```javascript
 {
-    name: "uniswap",
     displayName: "Uniswap",
     image: "photo-string-here",
-    featured: "true",
-    draft: "false",
+    type: "owned",
+    githubURL: "https://github.com/graphprotocol/uniswap-subgraph",
     subtitle: "Uniswap is a decentralized protocol for automated token exchange on Ethereum",
-    description: "The subgraph tracks event based data, which updates each exchange to index the live data. It also stores historical data entities, which can be used, and queried to build historical data, which can be used for charts.",
-    accountID: "0xd9e2ab07df0795f25dbe062783b8b35e20ec1df7",
-    accountName: "davekaj"
+    description: "The subgraph tracks event based data, which updates each exchange to index the live data. It also stores historical data entities, which can be used, and queried to build historical data, which can be used for charts."
 }
 ```
 
@@ -82,13 +81,10 @@ This describes a basic account for the Explorer Dapp. This data is linked to an 
 
 | | |
 |----|-----|
-|**name** | Name of the subgraph |
 |**displayName** | Name displayed in the dapp |
 |**image** | Photo string for the subgraph |
-|**featured** | Boolean determining if the subgraph shows up in featured subgraphs. |
-|**draft** | Boolean determining if the subgraph is a draft or published|
-|**accountID** | The ethereum account that owns and deployed this subgraph. |
-|**accountName** |  The name associated with the ethereum account|
+|**type** | Commons or Owned subgraph |
+|**githubURL** | Github url of the subgraph repo|
 
 ### Optional Fields
 

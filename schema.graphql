@@ -1,126 +1,172 @@
-type Account @entity {
-    # From GNS.sol
-    " Eth address "
-    id: ID!
+type Subgraph @entity {
+  #### From gns contract ####
+  "Hash of the domain name"
+  id: ID!
+  "Domain name, could be tld or subdomain"
+  name: String!
+  "Eth address"
+  owner: Bytes!
+  "Parent subgraph. If it is a tld, this is null"
+  parent: Subgraph
+  "Children Subgraphs"
+  children: [Subgraph!]
+  "Versions of this subgraph. Last version in array is current"
+  versions: [SubgraphVersion!]
+  "Subgraph metadata"
+  metadataHash: Bytes
 
-    "IPFS hash with account metadata details"
-    metadataHash: Bytes
+  #### Metadata taken from IPFS #### - TODO - talk to nena, add more
+  "Short description of the subgraph"
+  description: String
+  "Common subgraph or owned by a user"
+  type: SubgraphType
+  "Image in string format"
+  image: String
+  "Subtitle for display"
+  subtitle: String
+  "Display name for subgraph"
+  displayName: String
+  "Github url of the subgraph repo"
+  githubUrl: String
+  "Project's website"
+  websiteUrl: String
+  "Creation timestamp"
+  createdAt: Int
 
-    # From GraphToken.sol
-    "Graph token balance"
-    balance: BigInt
-
-    # approvals: [Bytes!]!
-    # allowances: [BigInt!]!
-
-    "All subgraphs this account curates"
-    curating: [Curator!] @derivedFrom(field: "user")
-
-    "All subgraphs this accoutn indexes"
-    indexing: [IndexNode!] @derivedFrom(field: "user")
+  #### From staking contract ####
+  "Curators of this subgraph"
+  curatorInfo: [Curator!]
+  "Indexers of this subgraph"
+  indexerInfo: [Indexer!]
+  "Bonding curve reserve ratio"
+  reserveRatio: BigInt
+  "Total curation stake on this subgraph"
+  totalCurationStake: BigInt
+  "Total curation shares on this subgraph"
+  totalCurationShares: BigInt
+  "Total indexing stake on this subgraph"
+  totalIndexingStake: BigInt
 }
 
-type Domain @entity {
-    "Hash of the domain name"
-    id: ID! # Domain Hash
+enum SubgraphType {
+  Commons
+  Owned
+}
 
-    "Domain name"
-    name: String # Domain name, can be a tld or subdomain
+type SubgraphVersion @entity {
+  "Subgraph ID"
+  id: ID!
+  "The subgraph this version is related to"
+  subgraph: Subgraph!
+  # Todo - not sure how this will work yet
+  # schema: Schema!
 
-    "Eth address"
-    owner: Bytes # Domain owner
+  #### From staking contract ####
+  "Total stake of all curators"
+  totalCurationStake: BigInt
+  "Total stake of all indexers"
+  totalIndexingStake: BigInt
+}
 
-    "Top level domain hash"
-    parentDomain: Bytes # If it is a tld, parent domain is null
+type Indexer @entity {
+  "Eth address"
+  id: ID!
+  "Serive registry URL"
+  url: String
+  "Array of subgraphs the indexer is indexing"
+  indexing: [IndexerInfo!] @derivedFrom(field: "user")
+}
 
-    "IPFS hash of subgraph files"
-    subgraphID: Bytes # If it is not set yet, it is null
+type IndexerInfo @entity {
+  "Eth address + subgraph ID"
+  id: ID!
+  "Eth address"
+  user: Indexer!
+  "IPFS hash of subgraph files"
+  subgraphID: Bytes!
+  "Number of tokens the indexer has staked"
+  tokensStaked: BigInt! # If this is 0, it means they have logged out
+  # By knowing the thawing time, we can derive the time they can withdraw
+  "Time logout has started for thawing"
+  logoutStartTime: Int!
+  # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
+}
+
+type Curator @entity {
+  "Eth address + subgraph ID"
+  id: ID!
+  "Serive registry URL"
+  url: String
+  "Array of subgraphs the indexer is indexing"
+  indexing: [CuratorInfo!] @derivedFrom(field: "user")
+}
+
+type CuratorInfo @entity {
+  "Eth address + subgraph ID"
+  id: ID!
+  "Eth address"
+  user: Curator!
+  "IPFS hash of subgraph files"
+  subgraphID: Bytes!
+  "Number of tokens the curator has staked"
+  tokensStaked: BigInt!
+  "Number of shares the curator has"
+  shares: BigInt!
+}
+
+type Account @entity {
+  #### From GNS.sol ####
+  "Eth address"
+  id: ID!
+  "IPFS hash with account metadata details"
+  metadataHash: Bytes
+
+  #### From GraphToken.sol ####
+  "Graph token balance"
+  balance: BigInt
+  # "Might add this"
+  # approvals: [Bytes!]!
+  # "Might add this"
+  # allowances: [BigInt!]!
+  "All subgraphs this account curates"
+  curating: Curator
+  "All subgraphs this accoutn indexes"
+  indexing: Indexer
 }
 
 type GraphToken @entity {
-    "Set to 1"
-    id: ID!
-
-    "Total graph tokens"
-    total: BigInt!
+  "Set to 1"
+  id: ID!
+  "Total graph tokens"
+  total: BigInt!
 }
 
-type IndexNode @entity {
-    "Eth address + subgraph ID"
-    id: ID! # eth address of index node + subgraph ID
-
-    "Eth Address"
-    user: Account! # Eth addrress - for searching and filtering
-
-    "IPFS hash of subgraph files"
-    subgraphID: Bytes! # SubgraphID - for searching and filtering
-
-    "Number of tokens the indexer has staked"
-    tokensStaked: BigInt! # If this is 0, it means they have logged out
-
-    # By knowing the thawing time, we can derive the time they can withdraw
-    "Time logout has started for thawing"
-    logoutStartTime: Int! # from IndexingNodeLogout
-
-    # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
+# might have to add specifics here of each type, but i think i can probably
+# actually pass on that. this info might be enough
+type Transactions @entity {
+  "Tx hash"
+  id: ID! # tx hash (plus log index)
+  "Block timestamp"
+  timestamp: Int!
+  "Block number"
+  block: Int!
+  "Transaction type"
+  type: TransactionType!
 }
 
-# we probably need shares, unreralized gains, fees accrued
-# unrealized is derived from the total share of the pool, and the users shares, minus what they have deposited , and fees might be involved here
-
-type Curator @entity {
-    "Eth address + subgraph ID"
-    id: ID! # eth address of curator + subgraph ID
-
-    "Eth address"
-    user: Account! # Eth address - for searching and filtering
-
-    "IPFS hash of subgraph files"
-    subgraphID: Bytes! # SubgraphID - for searching and filtering
-
-    "Number of tokens the curator has staked"
-    tokensStaked: BigInt!
-
-    "Number of shares the curator has"
-    shares: BigInt!
+# others to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
+# Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
+enum TransactionType {
+  CurateStake
+  CurateUnstake
+  IndexingStake
+  IndexingUnstake
+  RegisterGNS
+  UpdateGNS
+  DeploySubgraphToGNS
 }
 
-type Subgraph @entity {
-    # might get from gns
-    "IDs increment from 0"
-    id: ID!
-
-    "IPFS hash of subgraph files"
-    subgraphID: Bytes
-
-    "IPFS hash of subgraph metadata details"
-    metadataHash: Bytes!
-
-    # from staking TODO - add back the !'s for these 5 fields
-    "Reserve ratio of the subgraph"
-    reserveRatio: BigInt
-    "Total stake of all curators"
-    totalCurationStake: BigInt
-
-    "Total shares of all curators"
-    totalCurationShares: BigInt
-
-    "Total stake of all indexers"
-    totalIndexingStake: BigInt
-
-    "Total number of indexers"
-    totalIndexers: Int
-}
-
-type TotalSubgraphs @entity {
-    "The number 1"
-    id: ID!
-
-    "Total subgraphs created"
-    total: Int!
-}
-
-# Not in use
+#### Not in use for alpha ####
 
 #type Dispute @entity {
 #    id: ID! # dispute ID
@@ -136,31 +182,3 @@ type TotalSubgraphs @entity {
 #    Accepted,
 #    Rejected
 #}
-
-# might have to add specifics here of each type, but i think i can probably
-# actually pass on that. this info might be enough
-type Transactions @entity {
-    "Tx hash"
-    id: ID! # tx hash (plus log index)
-
-    "Block timestamp"
-    timestamp: Int!
-
-    "Block number"
-    block: Int!
-
-    "Transaction type"
-    type: TransactionType!
-}
-
-# others to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
-# Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
-enum TransactionType {
-    CurateStake
-    CurateUnstake
-    IndexingStake
-    IndexingUnstake
-    RegisterGNS
-    UpdateGNS
-    DeploySubgraphToGNS
-}

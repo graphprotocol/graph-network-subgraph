@@ -338,21 +338,14 @@
   "ast": {
     "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/dave/contracts/contracts/GNS.sol",
     "exportedSymbols": {
-      "GNS": [
-        314
-      ]
+      "GNS": [314]
     },
     "id": 315,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 1,
-        "literals": [
-          "solidity",
-          "^",
-          "0.5",
-          ".2"
-        ],
+        "literals": ["solidity", "^", "0.5", ".2"],
         "nodeType": "PragmaDirective",
         "src": "0:23:0"
       },
@@ -388,17 +381,12 @@
             "src": "67:8:0"
           }
         ],
-        "contractDependencies": [
-          363
-        ],
+        "contractDependencies": [363],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
         "id": 314,
-        "linearizedBaseContracts": [
-          314,
-          363
-        ],
+        "linearizedBaseContracts": [314, 363],
         "name": "GNS",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -1267,10 +1255,7 @@
                       "id": 70,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        7960,
-                        7961
-                      ],
+                      "overloadedDeclarations": [7960, 7961],
                       "referencedDeclaration": 7961,
                       "src": "3205:7:0",
                       "typeDescriptions": {
@@ -1350,9 +1335,7 @@
               "src": "3514:339:0",
               "statements": [
                 {
-                  "assignments": [
-                    89
-                  ],
+                  "assignments": [89],
                   "declarations": [
                     {
                       "constant": false,
@@ -1654,10 +1637,7 @@
                       "id": 97,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        7960,
-                        7961
-                      ],
+                      "overloadedDeclarations": [7960, 7961],
                       "referencedDeclaration": 7961,
                       "src": "3659:7:0",
                       "typeDescriptions": {
@@ -1953,9 +1933,7 @@
               "src": "4636:1157:0",
               "statements": [
                 {
-                  "assignments": [
-                    138
-                  ],
+                  "assignments": [138],
                   "declarations": [
                     {
                       "constant": false,
@@ -1990,9 +1968,7 @@
                   "src": "4646:18:0"
                 },
                 {
-                  "assignments": [
-                    141
-                  ],
+                  "assignments": [141],
                   "declarations": [
                     {
                       "constant": false,
@@ -2537,10 +2513,7 @@
                             "id": 169,
                             "name": "require",
                             "nodeType": "Identifier",
-                            "overloadedDeclarations": [
-                              7960,
-                              7961
-                            ],
+                            "overloadedDeclarations": [7960, 7961],
                             "referencedDeclaration": 7961,
                             "src": "5220:7:0",
                             "typeDescriptions": {
@@ -3160,10 +3133,7 @@
                       "id": 213,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        7960,
-                        7961
-                      ],
+                      "overloadedDeclarations": [7960, 7961],
                       "referencedDeclaration": 7961,
                       "src": "6209:7:0",
                       "typeDescriptions": {
@@ -3803,10 +3773,7 @@
                       "id": 263,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        7960,
-                        7961
-                      ],
+                      "overloadedDeclarations": [7960, 7961],
                       "referencedDeclaration": 7961,
                       "src": "7240:7:0",
                       "typeDescriptions": {
@@ -4455,21 +4422,14 @@
   "legacyAST": {
     "absolutePath": "/Users/davidkajpust/coding-no-icloud-backup/thegraph/dave/contracts/contracts/GNS.sol",
     "exportedSymbols": {
-      "GNS": [
-        314
-      ]
+      "GNS": [314]
     },
     "id": 315,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 1,
-        "literals": [
-          "solidity",
-          "^",
-          "0.5",
-          ".2"
-        ],
+        "literals": ["solidity", "^", "0.5", ".2"],
         "nodeType": "PragmaDirective",
         "src": "0:23:0"
       },
@@ -4505,17 +4465,12 @@
             "src": "67:8:0"
           }
         ],
-        "contractDependencies": [
-          363
-        ],
+        "contractDependencies": [363],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
         "id": 314,
-        "linearizedBaseContracts": [
-          314,
-          363
-        ],
+        "linearizedBaseContracts": [314, 363],
         "name": "GNS",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -5384,10 +5339,7 @@
                       "id": 70,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        7960,
-                        7961
-                      ],
+                      "overloadedDeclarations": [7960, 7961],
                       "referencedDeclaration": 7961,
                       "src": "3205:7:0",
                       "typeDescriptions": {
@@ -5467,9 +5419,7 @@
               "src": "3514:339:0",
               "statements": [
                 {
-                  "assignments": [
-                    89
-                  ],
+                  "assignments": [89],
                   "declarations": [
                     {
                       "constant": false,
@@ -5771,10 +5721,7 @@
                       "id": 97,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        7960,
-                        7961
-                      ],
+                      "overloadedDeclarations": [7960, 7961],
                       "referencedDeclaration": 7961,
                       "src": "3659:7:0",
                       "typeDescriptions": {
@@ -6070,9 +6017,7 @@
               "src": "4636:1157:0",
               "statements": [
                 {
-                  "assignments": [
-                    138
-                  ],
+                  "assignments": [138],
                   "declarations": [
                     {
                       "constant": false,
@@ -6107,9 +6052,7 @@
                   "src": "4646:18:0"
                 },
                 {
-                  "assignments": [
-                    141
-                  ],
+                  "assignments": [141],
                   "declarations": [
                     {
                       "constant": false,
@@ -6654,10 +6597,7 @@
                             "id": 169,
                             "name": "require",
                             "nodeType": "Identifier",
-                            "overloadedDeclarations": [
-                              7960,
-                              7961
-                            ],
+                            "overloadedDeclarations": [7960, 7961],
                             "referencedDeclaration": 7961,
                             "src": "5220:7:0",
                             "typeDescriptions": {
@@ -7277,10 +7217,7 @@
                       "id": 213,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        7960,
-                        7961
-                      ],
+                      "overloadedDeclarations": [7960, 7961],
                       "referencedDeclaration": 7961,
                       "src": "6209:7:0",
                       "typeDescriptions": {
@@ -7920,10 +7857,7 @@
                       "id": 263,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        7960,
-                        7961
-                      ],
+                      "overloadedDeclarations": [7960, 7961],
                       "referencedDeclaration": 7961,
                       "src": "7240:7:0",
                       "typeDescriptions": {
