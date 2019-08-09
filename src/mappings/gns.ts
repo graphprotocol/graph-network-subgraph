@@ -95,11 +95,11 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
     subgraph.subtitle = data.get('subtitle').toString()
     subgraph.image = data.get('image').toString()
     subgraph.description = data.get('description').toString()
-    if (data.get('githubUrl')) {
-      subgraph.githubUrl = data.get('githubUrl').toString()
+    if (data.get('githubURL')) {
+      subgraph.githubURL = data.get('githubURL').toString()
     }
-    if (data.get('websiteUrl')) {
-      subgraph.websiteUrl = data.get('websiteUrl').toString()
+    if (data.get('websiteURL')) {
+      subgraph.websiteURL = data.get('websiteURL').toString()
     }
   }
 

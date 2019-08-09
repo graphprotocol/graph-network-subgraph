@@ -27,9 +27,9 @@ type Subgraph @entity {
   "Display name for subgraph"
   displayName: String
   "Github url of the subgraph repo"
-  githubUrl: String
+  githubURL: String
   "Project's website"
-  websiteUrl: String
+  websiteURL: String
   "Creation timestamp"
   createdAt: Int
 
