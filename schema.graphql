@@ -72,7 +72,7 @@ type Indexer @entity {
   "Eth address"
   id: ID!
   "Serive registry URL"
-  url: String
+  url: Bytes
   "Array of subgraphs the indexer is indexing"
   indexing: [IndexerInfo!] @derivedFrom(field: "user")
 }
@@ -95,8 +95,6 @@ type IndexerInfo @entity {
 type Curator @entity {
   "Eth address + subgraph ID"
   id: ID!
-  "Serive registry URL"
-  url: String
   "Array of subgraphs the indexer is indexing"
   indexing: [CuratorInfo!] @derivedFrom(field: "user")
 }
