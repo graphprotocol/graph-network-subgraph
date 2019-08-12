@@ -60,6 +60,44 @@ dataSources:
         - event: ServiceUrlSet(indexed address,bytes)
           handler: handleServiceUrlSet
       file: ./src/mappings/service-registry.ts
+  - kind: ethereum/contract
+    name: Staking
+    network: ganache
+    source:
+      address: "0xa887a968BDb0e42D3Ffc2d6ff253568c6d2CaF34" # ropsten: 0xa887a968BDb0e42D3Ffc2d6ff253568c6d2CaF34
+      abi: Staking
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - CuratorInfo
+        - Curator
+        - IndexerInfo
+        - Indexer
+        - Subgraph
+        - SubgraphVersion
+      abis:
+        - name: Staking
+          file: ./abis/Staking.json
+      eventHandlers:
+        - event: CuratorStaked(indexed address,uint256,bytes32,uint256,uint256,uint256)
+          handler: handleCurationNodeStaked
+        - event: CuratorLogout(indexed address,bytes32,uint256,uint256)
+          handler: handleCurationNodeLogout
+        - event: IndexingNodeStaked(indexed address,uint256,bytes32,uint256)
+          handler: handleIndexingNodeStaked
+        - event: IndexingNodeBeginLogout(indexed address,bytes32)
+          handler: handleIndexingNodeBeginLogout
+        - event: IndexingNodeFinalizeLogout(indexed address,bytes32,uint256)
+          handler: handleIndexingNodeFinalizeLogout
+        - event: DisputeCreated(indexed bytes32,indexed address,indexed address,bytes32,bytes)
+          handler: handleDisputeCreated
+        - event: DisputeAccepted(indexed bytes32,indexed bytes32,indexed address,uint256)
+          handler: handleDisputeAccepted
+        - event: DisputeRejected(indexed bytes32,indexed bytes32,indexed address,uint256)
+          handler: handleDisputeRejected
+      file: ./src/mappings/staking.ts
 #  - kind: ethereum/contract
 #    name: GraphToken
 #    network: ganache
@@ -68,7 +106,7 @@ dataSources:
 #      abi: GraphToken
 #    mapping:
 #      kind: ethereum/events
-#      apiVersion: 0.0.2
+#      apiVersion: 0.0.3
 #      language: wasm/assemblyscript
 #      entities:
 #        - Account
@@ -82,36 +120,3 @@ dataSources:
 #        - event: Approval(address,address,uint256)
 #          handler: handleApproval
 #      file: ./src/mappings/graphtoken.ts
-#  - kind: ethereum/contract
-#    name: Staking
-#    network: ganache
-#    source:
-#      address: "0x1b2fd7988f44c53844fc0f8da21cafa21bbb571a" # note, fake for now
-#      abi: Staking
-#    mapping:
-#      kind: ethereum/events
-#      apiVersion: 0.0.2
-#      language: wasm/assemblyscript
-#      entities:
-#        - TODO
-#      abis:
-#        - name: Staking
-#          file: ./abis/Staking.json
-#      eventHandlers:
-#        - event: CuratorStaked(address,uint256,bytes32,uint256,uint256,uint256)
-#          handler: handleCurationNodeStaked
-#        - event: CuratorLogout(address,bytes32,uint256,uint256)
-#          handler: handleCurationNodeLogout
-#        - event: IndexingNodeStaked(address,uint256,bytes32,uint256)
-#          handler: handleIndexingNodeStaked
-#        - event: IndexingNodeBeginLogout(address,bytes32)
-#          handler: handleIndexingNodeBeginLogout
-#        - event: IndexingNodeFinalizeLogout(address,bytes32,uint256)
-#          handler: handleIndexingNodeFinalizeLogout
-#        - event: DisputeCreated(bytes32,address,address,bytes32,bytes)
-#          handler: handleDisputeCreated
-#        - event: DisputeAccepted(bytes32,bytes32,address,uint256)
-#          handler: handleDisputeAccepted
-#        - event: DisputeRejected(bytes32,bytes32,address,uint256)
-#          handler: handleDisputeRejected
-#      file: ./src/mappings/staking.ts
