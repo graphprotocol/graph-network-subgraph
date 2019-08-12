@@ -45,7 +45,7 @@ dataSources:
     name: ServiceRegistry
     network: ganache
     source:
-      address: "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7" # ropsten - 0xC0F3ddB5732Dec002eBB92cBc04B24ac274dE71F , ganache - 0xe982e462b094850f12af94d21d470e21be9d0e9c or 0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
+      address: "0x0290fb167208af455bb137780163b7b7a9a10c16" # ropsten - 0xC0F3ddB5732Dec002eBB92cBc04B24ac274dE71F
       abi: ServiceRegistry
     mapping:
       kind: ethereum/events
