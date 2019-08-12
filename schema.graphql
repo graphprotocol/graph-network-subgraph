@@ -15,7 +15,7 @@ type Subgraph @entity {
   "Subgraph metadata"
   metadataHash: Bytes
 
-  #### Metadata taken from IPFS #### - TODO - talk to nena, add more
+  #### Metadata taken from IPFS, also from GNS ####
   "Short description of the subgraph"
   description: String
   "Common subgraph or owned by a user"
@@ -95,7 +95,7 @@ type IndexerInfo @entity {
 }
 
 type Curator @entity {
-  "Eth address + subgraph ID"
+  "Eth address"
   id: ID!
   "Array of subgraphs the indexer is indexing"
   indexing: [CuratorInfo!] @derivedFrom(field: "user")

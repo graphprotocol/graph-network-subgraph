@@ -8,24 +8,50 @@ import {
   DisputeAccepted,
   DisputeRejected,
 } from '../../generated/Staking/Staking'
-import { CuratorInfo, IndexerInfo, Indexer, Subgraph, SubgraphVersion } from '../../generated/schema'
+import { CuratorInfo, Curator, IndexerInfo, Indexer, Subgraph, SubgraphVersion } from '../../generated/schema'
 import { BigInt, store } from '@graphprotocol/graph-ts'
 
 export function handleCuratorStaked(event: CuratorStaked): void {
-  let id = event.params.staker
-    .toHexString()
-    .concat('-')
-    .concat(event.params.subgraphID.toHexString())
-  let curator = new CuratorInfo(id)
-  curator.subgraphID = event.params.subgraphID
-  curator.tokensStaked = event.params.amountStaked
-  curator.user = event.params.staker.toHexString()
-  curator.shares = event.params.curatorShares
+  let curatorID = event.params.staker.toHexString()
+  let curator = new Curator(curatorID)
   curator.save()
 
-  let subgraph = new Subgraph(event.params.subgraphID.toHexString())
+  let infoID = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
+  let curatorInfo = CuratorInfo.load(infoID)
+  if (curatorInfo == null){
+    curatorInfo = new CuratorInfo(infoID)
+    curatorInfo.tokensStaked = BigInt.fromI32(0)
+    curatorInfo.shares = BigInt.fromI32(0)
+    curatorInfo.user = event.params.staker.toHexString()
+    curatorInfo.subgraphID = event.params.subgraphID
+  }
+  let previousStake = curatorInfo.tokensStaked
+  // Note, these are emitted as the real values stored in the contract, so no addition
+  // or subtraction needed
+  curatorInfo.tokensStaked = event.params.amountStaked
+  curatorInfo.shares = event.params.curatorShares
+  curatorInfo.save()
+
+  let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
+  // Note, this is emitted as the real values stored in the contract, so no addition
+  // or subtraction needed
+  subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
+  subgraphVersion.save()
+
+  let subgraph = Subgraph.load(subgraphVersion.subgraph)
+  // Shares only exist on the Subgraph, not within subgraph version.
+  // So this value is straight from the contract
   subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
-  subgraph.totalCurationStake = event.params.subgraphTotalCurationStake
+
+  // Must check if the CuratorStaked event increased or decreased the Curators stake
+  let changeInStake
+  if (curatorInfo.tokensStaked.gt(previousStake)){
+    changeInStake = curatorInfo.tokensStaked.minus(previousStake)
+    subgraph.totalCurationStake = subgraph.totalCurationStake.plus(changeInStake)
+  } else {
+    changeInStake = previousStake.minus(curatorInfo.tokensStaked)
+    subgraph.totalCurationStake = subgraph.totalCurationStake.minus(changeInStake)
+  }
   subgraph.save()
 }
 
@@ -34,11 +60,17 @@ export function handleCuratorLogout(event: CuratorLogout): void {
     .toHexString()
     .concat('-')
     .concat(event.params.subgraphID.toHexString())
+  let curatorInfo = CuratorInfo.load(id)
+  let removedStaked = curatorInfo.tokensStaked
   store.remove('Curator', id)
 
-  let subgraph = new Subgraph(event.params.subgraphID.toHexString())
+  let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
+  subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
+  subgraphVersion.save()
+
+  let subgraph = Subgraph.load(subgraphVersion.subgraph)
   subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
-  subgraph.totalCurationStake = event.params.subgraphTotalCurationStake
+  subgraph.totalCurationStake = event.params.subgraphTotalCurationStake.minus(removedStaked)
   subgraph.save()
 }
 
@@ -70,7 +102,7 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
     info.subgraphID = event.params.subgraphID
     info.logoutStartTime = 0
   }
-  info.tokensStaked = info.tokensStaked.plus(event.params.amountStaked)
+  info.tokensStaked = event.params.amountStaked
   info.save()
 }
 
