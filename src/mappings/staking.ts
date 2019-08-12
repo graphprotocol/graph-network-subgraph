@@ -11,9 +11,6 @@ import {
 import { CuratorInfo, IndexerInfo, Indexer, Subgraph, SubgraphVersion } from '../../generated/schema'
 import { BigInt, store } from '@graphprotocol/graph-ts'
 
-// TODO - note, this mapping is far from complete, needs to be updated with the new schema
-// TODO - commented out until we actually use it 
-
 export function handleCuratorStaked(event: CuratorStaked): void {
   let id = event.params.staker
     .toHexString()
@@ -77,6 +74,7 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
   info.save()
 }
 
+// TODO - Might be an error in how we handle logging out, users can still earn rewards and I dont think it should be like that. For now though, handle normally
 export function handleIndexingNodeBeginLogout(event: IndexingNodeBeginLogout): void {
   let id = event.params.staker
     .toHexString()
@@ -98,7 +96,11 @@ export function handleIndexingNodeFinalizeLogout(event: IndexingNodeFinalizeLogo
   indexNode.tokensStaked = BigInt.fromI32(0)
   indexNode.save()
 
-  let subgraph = Subgraph.load(event.params.subgraphID.toHexString())
+  let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
+  subgraphVersion.totalIndexingStake = event.params.subgraphTotalIndexingStake
+  subgraphVersion.save()
+
+  let subgraph = Subgraph.load(subgraphVersion.subgraph)
   subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
   subgraph.save()
 }
