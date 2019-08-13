@@ -41,6 +41,25 @@ dataSources:
         - event: SubgraphMetadataChanged(indexed bytes32,indexed bytes32)
           handler: handleSubgraphMetadataChanged
       file: ./src/mappings/gns.ts
+  - kind: ethereum/contract
+    name: ServiceRegistry
+    network: ganache
+    source:
+      address: "0xC0F3ddB5732Dec002eBB92cBc04B24ac274dE71F" # ropsten - 0xC0F3ddB5732Dec002eBB92cBc04B24ac274dE71F # ganache - 0x0290fb167208af455bb137780163b7b7a9a10c16
+      abi: ServiceRegistry
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Indexer
+      abis:
+        - name: ServiceRegistry
+          file: ./abis/ServiceRegistry.json
+      eventHandlers:
+        - event: ServiceUrlSet(indexed address,bytes)
+          handler: handleServiceUrlSet
+      file: ./src/mappings/service-registry.ts
 #  - kind: ethereum/contract
 #    name: GraphToken
 #    network: ganache
