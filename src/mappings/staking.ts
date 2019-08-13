@@ -44,7 +44,7 @@ export function handleCuratorStaked(event: CuratorStaked): void {
   subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
 
   // Must check if the CuratorStaked event increased or decreased the Curators stake
-  let changeInStake
+  let changeInStake: BigInt
   if (curatorInfo.tokensStaked.gt(previousStake)){
     changeInStake = curatorInfo.tokensStaked.minus(previousStake)
     subgraph.totalCurationStake = subgraph.totalCurationStake.plus(changeInStake)
@@ -113,7 +113,7 @@ export function handleIndexingNodeBeginLogout(event: IndexingNodeBeginLogout): v
     .concat('-')
     .concat(event.params.subgraphID.toHexString())
   let indexNode = new IndexerInfo(id)
-  indexNode.logoutStartTime = event.block.timestamp
+  indexNode.logoutStartTime = event.block.timestamp.toI32()
   indexNode.save()
 }
 
