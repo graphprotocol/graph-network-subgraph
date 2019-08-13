@@ -6,13 +6,13 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GNS
-    network: ropsten # ropsten or ganache
+    network: ganache # ropsten or ganache
     source:
       # Remember, this MUST be updated with changes to accounts on ganache.
       # everyone can get the same GNS address By running `ganache-cli -d`.
       # Then run `truffle test` and GNS will be the addr 0x0290fb167208af455bb137780163b7b7a9a10c16
       # Or right now (aug 8th) ropsten is 0x77E8997a50aeD85b5d087a6B291878a172f68fA3
-      address: '0x77E8997a50aeD85b5d087a6B291878a172f68fA3'
+      address: '0x0290fb167208af455bb137780163b7b7a9a10c16'
       abi: GNS
     mapping:
       kind: ethereum/events
@@ -45,7 +45,7 @@ dataSources:
     name: ServiceRegistry
     network: ganache
     source:
-      address: "0xC0F3ddB5732Dec002eBB92cBc04B24ac274dE71F" # ropsten - 0xC0F3ddB5732Dec002eBB92cBc04B24ac274dE71F # ganache - 0x0290fb167208af455bb137780163b7b7a9a10c16
+      address: "0x0290fb167208af455bb137780163b7b7a9a10c16" # ropsten - 0xC0F3ddB5732Dec002eBB92cBc04B24ac274dE71F # ganache - 0x0290fb167208af455bb137780163b7b7a9a10c16
       abi: ServiceRegistry
     mapping:
       kind: ethereum/events
@@ -64,7 +64,7 @@ dataSources:
     name: Staking
     network: ganache
     source:
-      address: "0xa887a968BDb0e42D3Ffc2d6ff253568c6d2CaF34" # ropsten: 0xa887a968BDb0e42D3Ffc2d6ff253568c6d2CaF34
+      address: "0x9b1f7F645351AF3631a656421eD2e40f2802E6c0" # ropsten: 0xa887a968BDb0e42D3Ffc2d6ff253568c6d2CaF34 # ganache: 0x9b1f7F645351AF3631a656421eD2e40f2802E6c0
       abi: Staking
     mapping:
       kind: ethereum/events

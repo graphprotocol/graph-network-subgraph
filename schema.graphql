@@ -97,8 +97,8 @@ type IndexerInfo @entity {
 type Curator @entity {
   "Eth address"
   id: ID!
-  "Array of subgraphs the indexer is indexing"
-  indexing: [CuratorInfo!] @derivedFrom(field: "user")
+  "Array of subgraphs the curator is curating"
+  curating: [CuratorInfo!] @derivedFrom(field: "user")
 }
 
 type CuratorInfo @entity {
