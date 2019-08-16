@@ -7,7 +7,7 @@ export function handleTransfer(event: Transfer): void {
   let to = event.params.to
   let from = event.params.from
   let value = event.params.value
-  let graphtoken: GraphToken
+  let graphtoken: GraphToken | null
 
   let userTo = Account.load(to.toHexString())
   if (userTo == null) {
@@ -23,7 +23,7 @@ export function handleTransfer(event: Transfer): void {
   // Mint Transfer
   if (from.toHex() == ' 0x0000000000000000000000000000000000000000') {
     graphtoken = GraphToken.load("1")
-    if (GraphToken == null) {
+    if (graphtoken == null) {
       graphtoken = new GraphToken("1")
     }
     graphtoken.total = graphtoken.total.plus(value)

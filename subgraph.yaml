@@ -6,13 +6,13 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GNS
-    network: ganache # ropsten or ganache
+    network: ropsten # ropsten or ganache
     source:
       # Remember, this MUST be updated with changes to accounts on ganache.
       # everyone can get the same GNS address By running `ganache-cli -d`.
       # Then run `truffle test` and GNS will be the addr 0x0290fb167208af455bb137780163b7b7a9a10c16
-      # Or right now (aug 8th) ropsten is 0x77E8997a50aeD85b5d087a6B291878a172f68fA3
-      address: '0x0290fb167208af455bb137780163b7b7a9a10c16'
+      # Or right now (aug 8th) ropsten is 0x7e0BBa74B7D0308986E2404f5f0868aaFd84D80C
+      address: '0x7e0BBa74B7D0308986E2404f5f0868aaFd84D80C'
       abi: GNS
     mapping:
       kind: ethereum/events
@@ -43,9 +43,9 @@ dataSources:
       file: ./src/mappings/gns.ts
   - kind: ethereum/contract
     name: ServiceRegistry
-    network: ganache
+    network: ropsten
     source:
-      address: "0x0290fb167208af455bb137780163b7b7a9a10c16" # ropsten - 0xC0F3ddB5732Dec002eBB92cBc04B24ac274dE71F # ganache - 0x0290fb167208af455bb137780163b7b7a9a10c16
+      address: "0xD7eF645bD0240cC954dE318bDe938886f14F6580" # ropsten - 0xD7eF645bD0240cC954dE318bDe938886f14F6580 # ganache - 0x0290fb167208af455bb137780163b7b7a9a10c16
       abi: ServiceRegistry
     mapping:
       kind: ethereum/events
@@ -62,9 +62,9 @@ dataSources:
       file: ./src/mappings/service-registry.ts
   - kind: ethereum/contract
     name: Staking
-    network: ganache
+    network: ropsten
     source:
-      address: "0x9b1f7F645351AF3631a656421eD2e40f2802E6c0" # ropsten: 0xa887a968BDb0e42D3Ffc2d6ff253568c6d2CaF34 # ganache: 0x9b1f7F645351AF3631a656421eD2e40f2802E6c0
+      address: "0x7AA834EEE8d2675671Cc00f4bb1d4C3CAC05b6B2" # ropsten: 0x7AA834EEE8d2675671Cc00f4bb1d4C3CAC05b6B2 # ganache: 0x9b1f7F645351AF3631a656421eD2e40f2802E6c0
       abi: Staking
     mapping:
       kind: ethereum/events
@@ -82,15 +82,15 @@ dataSources:
           file: ./abis/Staking.json
       eventHandlers:
         - event: CuratorStaked(indexed address,uint256,bytes32,uint256,uint256,uint256)
-          handler: handleCurationNodeStaked
+          handler: handleCuratorStaked
         - event: CuratorLogout(indexed address,bytes32,uint256,uint256)
-          handler: handleCurationNodeLogout
+          handler: handleCuratorLogout
         - event: IndexingNodeStaked(indexed address,uint256,bytes32,uint256)
-          handler: handleIndexingNodeStaked
+          handler: handleIndexerStaked
         - event: IndexingNodeBeginLogout(indexed address,bytes32)
-          handler: handleIndexingNodeBeginLogout
+          handler: handleIndexerBeginLogout
         - event: IndexingNodeFinalizeLogout(indexed address,bytes32,uint256)
-          handler: handleIndexingNodeFinalizeLogout
+          handler: handleIndexerFinalizeLogout
         - event: DisputeCreated(indexed bytes32,indexed address,indexed address,bytes32,bytes)
           handler: handleDisputeCreated
         - event: DisputeAccepted(indexed bytes32,indexed bytes32,indexed address,uint256)
@@ -98,25 +98,25 @@ dataSources:
         - event: DisputeRejected(indexed bytes32,indexed bytes32,indexed address,uint256)
           handler: handleDisputeRejected
       file: ./src/mappings/staking.ts
-#  - kind: ethereum/contract
-#    name: GraphToken
-#    network: ganache
-#    source:
-#      address: "0x1b2fd7988f44c53844fc0f8da21cafa21bbb571a" # note, fake for now
-#      abi: GraphToken
-#    mapping:
-#      kind: ethereum/events
-#      apiVersion: 0.0.3
-#      language: wasm/assemblyscript
-#      entities:
-#        - Account
-#        - GraphToken
-#      abis:
-#        - name: GraphToken
-#          file: ./abis/GraphToken.json
-#      eventHandlers:
-#        - event: Transfer(address,address,uint256)
-#          handler: handleTransfer
-#        - event: Approval(address,address,uint256)
-#          handler: handleApproval
-#      file: ./src/mappings/graphtoken.ts
+  - kind: ethereum/contract
+    name: GraphToken
+    network: ropsten
+    source:
+      address: "0x9Dcb2CCF45d8772c722f76A16374C1Ebc79DCB7E" # ropsten - 0x9Dcb2CCF45d8772c722f76A16374C1Ebc79DCB7E
+      abi: GraphToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Account
+        - GraphToken
+      abis:
+        - name: GraphToken
+          file: ./abis/GraphToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+      file: ./src/mappings/graphtoken.ts

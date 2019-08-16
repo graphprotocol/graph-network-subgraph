@@ -3,9 +3,9 @@ type Subgraph @entity {
   "Hash of the domain name"
   id: ID!
   "Domain name, could be tld or subdomain"
-  name: String!
+  name: String
   "Eth address"
-  owner: Bytes!
+  owner: Bytes
   "Parent subgraph. If it is a tld, this is null"
   parent: Subgraph
   "Children Subgraphs"
@@ -59,7 +59,7 @@ type SubgraphVersion @entity {
   "Subgraph ID"
   id: ID!
   "The subgraph this version is related to"
-  subgraph: Subgraph!
+  subgraph: Subgraph
   # Todo - not sure how this will work yet
   # schema: Schema!
 

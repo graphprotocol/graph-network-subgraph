@@ -33,12 +33,20 @@ export function handleCuratorStaked(event: CuratorStaked): void {
   curatorInfo.save()
 
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
+  // This null check is possible since GNS is not linked to subgraph creation
+  if (subgraphVersion == null){
+    subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
+  }
   // Note, this is emitted as the real values stored in the contract, so no addition
   // or subtraction needed
   subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
   subgraphVersion.save()
 
   let subgraph = Subgraph.load(subgraphVersion.subgraph)
+  // This null check is possible since GNS is not linked to subgraph creation
+  if (subgraph == null){
+    subgraph = new Subgraph(event.params.subgraphID.toHexString())
+  }
   // Shares only exist on the Subgraph, not within subgraph version.
   // So this value is straight from the contract
   subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
@@ -74,7 +82,7 @@ export function handleCuratorLogout(event: CuratorLogout): void {
   subgraph.save()
 }
 
-export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
+export function handleIndexerStaked(event: IndexingNodeStaked): void {
   let id = event.params.staker
     .toHexString()
     .concat('-')
@@ -82,7 +90,14 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
 
   // Subgraph SHOULD already exist, the GNS must create it before anyone can stake on it
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
+  if (subgraphVersion == null){
+    subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
+  }
   let subgraph = Subgraph.load(subgraphVersion.subgraph)
+  // This null check is possible since GNS is not linked to subgraph creation
+  if (subgraph == null){
+    subgraph = new Subgraph(event.params.subgraphID.toHexString())
+  }
 
   subgraphVersion.totalIndexingStake = event.params.subgraphTotalIndexingStake
   subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
@@ -107,7 +122,7 @@ export function handleIndexingNodeStaked(event: IndexingNodeStaked): void {
 }
 
 // TODO - Might be an error in how we handle logging out, users can still earn rewards and I dont think it should be like that. For now though, handle normally
-export function handleIndexingNodeBeginLogout(event: IndexingNodeBeginLogout): void {
+export function handleIndexerBeginLogout(event: IndexingNodeBeginLogout): void {
   let id = event.params.staker
     .toHexString()
     .concat('-')
@@ -117,7 +132,7 @@ export function handleIndexingNodeBeginLogout(event: IndexingNodeBeginLogout): v
   indexNode.save()
 }
 
-export function handleIndexingNodeFinalizeLogout(event: IndexingNodeFinalizeLogout): void {
+export function handleIndexerFinalizeLogout(event: IndexingNodeFinalizeLogout): void {
   let id = event.params.staker
     .toHexString()
     .concat('-')
