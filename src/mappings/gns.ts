@@ -64,6 +64,7 @@ export function handleSubgraphIDUpdated(event: SubgraphIDUpdated): void {
     versions = []
   }
   versions.push(event.params.subgraphID.toHexString())
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.versions = versions
   subgraph.save()
 
