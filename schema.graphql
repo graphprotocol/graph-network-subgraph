@@ -32,6 +32,8 @@ type Subgraph @entity {
   websiteURL: String
   "Creation timestamp"
   createdAt: Int
+  "Deploy timestamp"
+  updatedAt: Int
 
   #### From staking contract ####
   "Curators of this subgraph"
