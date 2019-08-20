@@ -83,10 +83,7 @@ export function handleCuratorLogout(event: CuratorLogout): void {
 }
 
 export function handleIndexerStaked(event: IndexingNodeStaked): void {
-  let id = event.params.staker
-    .toHexString()
-    .concat('-')
-    .concat(event.params.subgraphID.toHexString())
+  let id = event.params.staker.toHexString()
 
   // Subgraph SHOULD already exist, the GNS must create it before anyone can stake on it
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
@@ -113,7 +110,8 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
   let infoID = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
   let info = IndexerInfo.load(infoID)
   if (info == null) {
-    info.user = event.params.staker.toHexString()
+    info = new IndexerInfo(infoID)
+    info.user = id
     info.subgraphID = event.params.subgraphID
     info.logoutStartTime = 0
   }
@@ -148,8 +146,12 @@ export function handleIndexerFinalizeLogout(event: IndexingNodeFinalizeLogout): 
   subgraphVersion.save()
 
   let subgraph = Subgraph.load(subgraphVersion.subgraph)
-  subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
-  subgraph.save()
+  // It can be null if someone just staked, without registering a domain
+  // Then the subgraph exists only as a version, and does not have a Subgraph entity it can relate to
+  if (subgraph != null) {
+    subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
+    subgraph.save()
+  }
 }
 
 export function handleDisputeCreated(event: DisputeCreated): void {}
