@@ -1,31 +1,28 @@
-A subgraph for the Graph Explorer, which only interacts with the GNS. Only running on Ganache right now for testing. 
+# Graph Network Subgraph
 
-Run the `setup.js` file in the `/scripts` folder. This will setup the the Graph Network contracts on the ganache testnet. 
+The Graph Network Subgraph indexes all the contracts used to operate the Graph Network on Ethereum. Currently this involves the following contracts (Alpha version):
+- GNS
+- Service Registry
+- Staking
+- Graph Token
 
-Note that right now you need to reset the graph node and ganache, and drop and create the db in order to test again, everytime you want to test. 
- 
-A better solution will be made in the future that streamlines this process. 
-
+Instructions for setting up the environment for deploying the subgraph can be found in the README here https://github.com/graphprotocol/contracts. 
 
 # Query
 
 ```graphql
 {
-  accounts{
-    id
-    metadataHash
-  }
-  subgraphs{
+  subgraphs {
     id
     name
     owner
-    parent{
+    parent {
       id
     }
-    children{
+    children {
       id
     }
-    versions{
+    versions {
       id
     }
     metadataHash
@@ -34,22 +31,59 @@ A better solution will be made in the future that streamlines this process.
     image
     subtitle
     displayName
-    githubUrl
-    # curators
-    # indexers
+    githubURL
+    createdAt
+    websiteURL
     reserveRatio
     totalCurationStake
     totalCurationShares
     totalIndexingStake
-    
   }
-  subgraphVersions{
+  subgraphVersions {
     id
-    subgraph{
+    subgraph {
       id
     }
     totalCurationStake
     totalIndexingStake
   }
+  indexers {
+    id
+    url
+    indexing {
+      id
+      subgraphID
+      tokensStaked
+      logoutStartTime
+    }
+  }
+  indexerInfos{
+    id
+    user{
+      id
+    }
+    subgraphID
+    tokensStaked
+    logoutStartTime
+    
+  }
+  curators {
+    id
+    curating{
+      id
+      subgraphID
+      tokensStaked
+      shares
+    }
+  }
+  graphTokens{
+    id
+    total
+  }
+  accounts{
+    id
+    balance
+  }
 }
+
 ```
