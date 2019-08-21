@@ -3,9 +3,9 @@ type Subgraph @entity {
   "Hash of the domain name"
   id: ID!
   "Domain name, could be tld or subdomain"
-  name: String!
+  name: String
   "Eth address"
-  owner: Bytes!
+  owner: Bytes
   "Parent subgraph. If it is a tld, this is null"
   parent: Subgraph
   "Children Subgraphs"
@@ -15,7 +15,7 @@ type Subgraph @entity {
   "Subgraph metadata"
   metadataHash: Bytes
 
-  #### Metadata taken from IPFS #### - TODO - talk to nena, add more
+  #### Metadata taken from IPFS, also from GNS ####
   "Short description of the subgraph"
   description: String
   "Common subgraph or owned by a user"
@@ -59,7 +59,7 @@ type SubgraphVersion @entity {
   "Subgraph ID"
   id: ID!
   "The subgraph this version is related to"
-  subgraph: Subgraph!
+  subgraph: Subgraph
   # Todo - not sure how this will work yet
   # schema: Schema!
 
@@ -95,10 +95,10 @@ type IndexerInfo @entity {
 }
 
 type Curator @entity {
-  "Eth address + subgraph ID"
+  "Eth address"
   id: ID!
-  "Array of subgraphs the indexer is indexing"
-  indexing: [CuratorInfo!] @derivedFrom(field: "user")
+  "Array of subgraphs the curator is curating"
+  curating: [CuratorInfo!] @derivedFrom(field: "user")
 }
 
 type CuratorInfo @entity {

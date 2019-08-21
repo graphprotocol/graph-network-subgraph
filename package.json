@@ -9,7 +9,7 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "graph deploy --ipfs https://api.staging.thegraph.com/ipfs/ --node https://api.staging.thegraph.com/deploy/ graphprotocol/explorer-dapp",
-    "deploy-local": "graph deploy graphprotocol/explorer-dapp --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+    "deploy-local": "graph deploy graphprotocol/explorer-dapp --ipfs https://api.staging.thegraph.com/ipfs/ --node http://127.0.0.1:8020"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.14.0",
