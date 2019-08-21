@@ -86,5 +86,4 @@ Instructions for setting up the environment for deploying the subgraph can be fo
     balance
   }
 }
-
 ```
