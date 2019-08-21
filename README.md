@@ -32,12 +32,13 @@ Instructions for setting up the environment for deploying the subgraph can be fo
     subtitle
     displayName
     githubURL
-    createdAt
     websiteURL
     reserveRatio
     totalCurationStake
     totalCurationShares
     totalIndexingStake
+    createdAt
+    updatedAt
   }
   subgraphVersions {
     id
