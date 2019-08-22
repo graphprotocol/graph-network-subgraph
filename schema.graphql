@@ -36,18 +36,18 @@ type Subgraph @entity {
   updatedAt: Int
 
   #### From staking contract ####
-  "Curators of this subgraph"
-  curatorInfo: [Curator!]
-  "Indexers of this subgraph"
-  indexerInfo: [Indexer!]
-  "Bonding curve reserve ratio"
-  reserveRatio: BigInt
-  "Total curation stake on this subgraph"
-  totalCurationStake: BigInt
-  "Total curation shares on this subgraph"
-  totalCurationShares: BigInt
-  "Total indexing stake on this subgraph"
-  totalIndexingStake: BigInt
+#  "Curators of this subgraph"
+#  curatorInfo: [CuratorInfo!]
+#  "Indexers of this subgraph"
+#  indexerInfo: [IndexerInfo!]
+#  "Bonding curve reserve ratio"
+#  reserveRatio: BigInt
+#  "Total curation stake on this subgraph"
+#  totalCurationStake: BigInt
+#  "Total curation shares on this subgraph"
+#  totalCurationShares: BigInt
+#  "Total indexing stake on this subgraph"
+#  totalIndexingStake: BigInt
 }
 
 enum SubgraphType {
@@ -60,14 +60,22 @@ type SubgraphVersion @entity {
   id: ID!
   "The subgraph this version is related to"
   subgraph: Subgraph
-  # Todo - not sure how this will work yet
-  # schema: Schema!
+
+  # schema: Schema!   # TODO Beta - not sure how this will work yet
 
   #### From staking contract ####
   "Total stake of all curators"
   totalCurationStake: BigInt
   "Total stake of all indexers"
   totalIndexingStake: BigInt
+  "Total curation shares on this subgraph"
+  totalCurationShares: BigInt
+  "Curators of this subgraph"
+  curatorInfo: [CuratorInfo!] @derivedFrom(field: "subgraphID")
+  "Indexers of this subgraph"
+  indexerInfo: [IndexerInfo!] @derivedFrom(field: "subgraphID")
+  "Bonding curve reserve ratio"
+  reserveRatio: BigInt
 }
 
 type Indexer @entity {
@@ -85,7 +93,7 @@ type IndexerInfo @entity {
   "Eth address"
   user: Indexer!
   "IPFS hash of subgraph files"
-  subgraphID: Bytes!
+  subgraphID: SubgraphVersion!
   "Number of tokens the indexer has staked"
   tokensStaked: BigInt! # If this is 0, it means they have logged out
   # By knowing the thawing time, we can derive the time they can withdraw
@@ -107,7 +115,7 @@ type CuratorInfo @entity {
   "Eth address"
   user: Curator!
   "IPFS hash of subgraph files"
-  subgraphID: Bytes!
+  subgraphID: SubgraphVersion!
   "Number of tokens the curator has staked"
   tokensStaked: BigInt!
   "Number of shares the curator has"

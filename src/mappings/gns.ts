@@ -17,6 +17,8 @@ export function handleDomainAdded(event: DomainAdded): void {
   subgraph.name = event.params.domainName
   subgraph.owner = event.params.owner
   subgraph.parent = null
+  subgraph.createdAt = event.block.timestamp.toI32()
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 }
 
@@ -24,6 +26,7 @@ export function handleDomainTransferred(event: DomainTransferred): void {
   let id = event.params.domainHash.toHexString()
   let subgraph = new Subgraph(id)
   subgraph.owner = event.params.newOwner
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 }
 
@@ -40,6 +43,8 @@ export function handleSubgraphCreated(event: SubgraphCreated): void {
     subgraph.parent = event.params.topLevelDomainHash.toHexString()
     subgraph.name = event.params.subdomainName
     subgraph.owner = parent.owner
+    subgraph.createdAt = event.block.timestamp.toI32()
+    subgraph.updatedAt = event.block.timestamp.toI32()
     subgraph.save()
   }
 }
@@ -103,7 +108,7 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
       subgraph.websiteURL = data.get('websiteURL').toString()
     }
   }
-
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 }
 

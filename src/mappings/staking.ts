@@ -18,12 +18,12 @@ export function handleCuratorStaked(event: CuratorStaked): void {
 
   let infoID = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
   let curatorInfo = CuratorInfo.load(infoID)
-  if (curatorInfo == null){
+  if (curatorInfo == null) {
     curatorInfo = new CuratorInfo(infoID)
     curatorInfo.tokensStaked = BigInt.fromI32(0)
     curatorInfo.shares = BigInt.fromI32(0)
     curatorInfo.user = event.params.staker.toHexString()
-    curatorInfo.subgraphID = event.params.subgraphID
+    curatorInfo.subgraphID = event.params.subgraphID.toHexString()
   }
   let previousStake = curatorInfo.tokensStaked
   // Note, these are emitted as the real values stored in the contract, so no addition
@@ -34,33 +34,36 @@ export function handleCuratorStaked(event: CuratorStaked): void {
 
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
   // This null check is possible since GNS is not linked to subgraph creation
-  if (subgraphVersion == null){
+  if (subgraphVersion == null) {
     subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
   }
   // Note, this is emitted as the real values stored in the contract, so no addition
   // or subtraction needed
   subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
+  subgraphVersion.totalCurationShares = event.params.subgraphTotalCurationShares
   subgraphVersion.save()
 
-  let subgraph = Subgraph.load(subgraphVersion.subgraph)
-  // This null check is possible since GNS is not linked to subgraph creation
-  if (subgraph == null){
-    subgraph = new Subgraph(event.params.subgraphID.toHexString())
-  }
-  // Shares only exist on the Subgraph, not within subgraph version.
-  // So this value is straight from the contract
-  subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
-
-  // Must check if the CuratorStaked event increased or decreased the Curators stake
-  let changeInStake: BigInt
-  if (curatorInfo.tokensStaked.gt(previousStake)){
-    changeInStake = curatorInfo.tokensStaked.minus(previousStake)
-    subgraph.totalCurationStake = subgraph.totalCurationStake.plus(changeInStake)
-  } else {
-    changeInStake = previousStake.minus(curatorInfo.tokensStaked)
-    subgraph.totalCurationStake = subgraph.totalCurationStake.minus(changeInStake)
-  }
-  subgraph.save()
+  // TODO - Bring this back in when we stake on names, probably in beta
+  // let subgraph = Subgraph.load(subgraphVersion.subgraph)
+  // // This null check is possible since GNS is not linked to subgraph creation
+  // // So what happens - if this SubgraphVersion was registered to a Subgraph, both will end up updated.
+  // // If it wasnt registed, the Subgraphversion exists on its own
+  // if (subgraph != null) {
+  //   // Shares only exist on the Subgraph, not within subgraph version.
+  //   // So this value is straight from the contract
+  //   subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
+  //
+  //   // Must check if the CuratorStaked event increased or decreased the Curators stake
+  //   let changeInStake: BigInt
+  //   if (curatorInfo.tokensStaked.gt(previousStake)) {
+  //     changeInStake = curatorInfo.tokensStaked.minus(previousStake)
+  //     subgraph.totalCurationStake = subgraph.totalCurationStake.plus(changeInStake)
+  //   } else {
+  //     changeInStake = previousStake.minus(curatorInfo.tokensStaked)
+  //     subgraph.totalCurationStake = subgraph.totalCurationStake.minus(changeInStake)
+  //   }
+  //   subgraph.save()
+  // }
 }
 
 export function handleCuratorLogout(event: CuratorLogout): void {
@@ -76,10 +79,11 @@ export function handleCuratorLogout(event: CuratorLogout): void {
   subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
   subgraphVersion.save()
 
-  let subgraph = Subgraph.load(subgraphVersion.subgraph)
-  subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
-  subgraph.totalCurationStake = event.params.subgraphTotalCurationStake.minus(removedStaked)
-  subgraph.save()
+  // TODO - Bring this back in when we stake on names, probably in beta
+  // let subgraph = Subgraph.load(subgraphVersion.subgraph)
+  // subgraph.totalCurationShares = event.params.subgraphTotalCurationShares
+  // subgraph.totalCurationStake = event.params.subgraphTotalCurationStake.minus(removedStaked)
+  // subgraph.save()
 }
 
 export function handleIndexerStaked(event: IndexingNodeStaked): void {
@@ -90,16 +94,18 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
   if (subgraphVersion == null){
     subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
   }
-  let subgraph = Subgraph.load(subgraphVersion.subgraph)
-  // This null check is possible since GNS is not linked to subgraph creation
-  if (subgraph == null){
-    subgraph = new Subgraph(event.params.subgraphID.toHexString())
-  }
-
   subgraphVersion.totalIndexingStake = event.params.subgraphTotalIndexingStake
-  subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
-  subgraph.save()
   subgraphVersion.save()
+
+  // TODO - Bring this back in when we stake on names, probably in beta
+  // let subgraph = Subgraph.load(subgraphVersion.subgraph)
+  // // This null check is possible since GNS is not linked to subgraph creation
+  // if (subgraph == null){
+  //   subgraph = new Subgraph(event.params.subgraphID.toHexString())
+  // }
+  // subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
+  // subgraph.save()
+
 
   // Need to load to check if this is a new index node, so we can add 1 to total indexers
   let indexer = Indexer.load(id)
@@ -112,7 +118,7 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
   if (info == null) {
     info = new IndexerInfo(infoID)
     info.user = id
-    info.subgraphID = event.params.subgraphID
+    info.subgraphID = event.params.subgraphID.toHexString()
     info.logoutStartTime = 0
   }
   info.tokensStaked = event.params.amountStaked
@@ -145,13 +151,14 @@ export function handleIndexerFinalizeLogout(event: IndexingNodeFinalizeLogout): 
   subgraphVersion.totalIndexingStake = event.params.subgraphTotalIndexingStake
   subgraphVersion.save()
 
-  let subgraph = Subgraph.load(subgraphVersion.subgraph)
-  // It can be null if someone just staked, without registering a domain
-  // Then the subgraph exists only as a version, and does not have a Subgraph entity it can relate to
-  if (subgraph != null) {
-    subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
-    subgraph.save()
-  }
+  // TODO - Bring this back in when we stake on names, probably in beta
+  // let subgraph = Subgraph.load(subgraphVersion.subgraph)
+  // // It can be null if someone just staked, without registering a domain
+  // // Then the subgraph exists only as a version, and does not have a Subgraph entity it can relate to
+  // if (subgraph != null) {
+  //   subgraph.totalIndexingStake = event.params.subgraphTotalIndexingStake
+  //   subgraph.save()
+  // }
 }
 
 export function handleDisputeCreated(event: DisputeCreated): void {}
