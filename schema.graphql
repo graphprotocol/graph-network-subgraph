@@ -65,11 +65,11 @@ type SubgraphVersion @entity {
 
   #### From staking contract ####
   "Total stake of all curators"
-  totalCurationStake: BigInt
+  totalCurationStake: BigInt!
   "Total stake of all indexers"
-  totalIndexingStake: BigInt
+  totalIndexingStake: BigInt!
   "Total curation shares on this subgraph"
-  totalCurationShares: BigInt
+  totalCurationShares: BigInt!
   "Curators of this subgraph"
   curatorInfo: [CuratorInfo!] @derivedFrom(field: "subgraphID")
   "Indexers of this subgraph"
@@ -116,8 +116,10 @@ type CuratorInfo @entity {
   user: Curator!
   "IPFS hash of subgraph files"
   subgraphID: SubgraphVersion!
-  "Number of tokens the curator has staked"
+  "Cumulative number of tokens the curator has staked"
   tokensStaked: BigInt!
+  "Cumulative number of tokens the curator has unstaked"
+  tokensUnstaked: BigInt!
   "Number of shares the curator has"
   shares: BigInt!
 }

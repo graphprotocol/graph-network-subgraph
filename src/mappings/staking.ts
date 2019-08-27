@@ -16,32 +16,41 @@ export function handleCuratorStaked(event: CuratorStaked): void {
   let curator = new Curator(curatorID)
   curator.save()
 
+  let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
+  // This null check is possible since GNS is not linked to subgraph creation
+  if (subgraphVersion == null) {
+    subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
+    subgraphVersion.totalCurationShares = BigInt.fromI32(0)
+    subgraphVersion.totalCurationStake = BigInt.fromI32(0)
+    subgraphVersion.totalIndexingStake = BigInt.fromI32(0)
+  }
+  // Note, this is emitted as the real values stored in the contract, so no addition
+  // or subtraction needed
+
+  let oldTotalStake = subgraphVersion.totalCurationStake
+  let changeInStake = event.params.subgraphTotalCurationStake.minus(oldTotalStake)
+  subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
+  subgraphVersion.totalCurationShares = event.params.subgraphTotalCurationShares
+  subgraphVersion.save()
+
   let infoID = event.params.staker.toHexString().concat("-").concat(event.params.subgraphID.toHexString())
   let curatorInfo = CuratorInfo.load(infoID)
   if (curatorInfo == null) {
     curatorInfo = new CuratorInfo(infoID)
     curatorInfo.tokensStaked = BigInt.fromI32(0)
+    curatorInfo.tokensUnstaked = BigInt.fromI32(0)
     curatorInfo.shares = BigInt.fromI32(0)
     curatorInfo.user = event.params.staker.toHexString()
     curatorInfo.subgraphID = event.params.subgraphID.toHexString()
   }
-  let previousStake = curatorInfo.tokensStaked
-  // Note, these are emitted as the real values stored in the contract, so no addition
-  // or subtraction needed
-  curatorInfo.tokensStaked = event.params.amountStaked
+  // Need to check if we staked more tokens, or unstaked without full logout (same event)
+  if (changeInStake.gt(BigInt.fromI32(0))){
+    curatorInfo.tokensStaked = curatorInfo.tokensStaked.plus(changeInStake)
+  } else {
+    curatorInfo.tokensUnstaked = curatorInfo.tokensUnstaked.plus(changeInStake)
+  }
   curatorInfo.shares = event.params.curatorShares
   curatorInfo.save()
-
-  let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
-  // This null check is possible since GNS is not linked to subgraph creation
-  if (subgraphVersion == null) {
-    subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
-  }
-  // Note, this is emitted as the real values stored in the contract, so no addition
-  // or subtraction needed
-  subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
-  subgraphVersion.totalCurationShares = event.params.subgraphTotalCurationShares
-  subgraphVersion.save()
 
   // TODO - Bring this back in when we stake on names, probably in beta
   // let subgraph = Subgraph.load(subgraphVersion.subgraph)
@@ -72,11 +81,11 @@ export function handleCuratorLogout(event: CuratorLogout): void {
     .concat('-')
     .concat(event.params.subgraphID.toHexString())
   let curatorInfo = CuratorInfo.load(id)
-  let removedStaked = curatorInfo.tokensStaked
-  store.remove('Curator', id)
+  store.remove('CuratorInfo', id)
 
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
   subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
+  subgraphVersion.totalCurationShares = event.params.subgraphTotalCurationShares
   subgraphVersion.save()
 
   // TODO - Bring this back in when we stake on names, probably in beta
@@ -93,6 +102,9 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
   if (subgraphVersion == null){
     subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
+    subgraphVersion.totalCurationShares = BigInt.fromI32(0)
+    subgraphVersion.totalCurationStake = BigInt.fromI32(0)
+    subgraphVersion.totalIndexingStake = BigInt.fromI32(0)
   }
   subgraphVersion.totalIndexingStake = event.params.subgraphTotalIndexingStake
   subgraphVersion.save()

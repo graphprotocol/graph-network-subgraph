@@ -6,13 +6,13 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GNS
-    network: ropsten # ropsten or ganache
+    network: ganache # ropsten or ganache
     source:
       # Remember, this MUST be updated with changes to accounts on ganache.
       # everyone can get the same GNS address By running `ganache-cli -d`.
       # Then run `truffle test` and GNS will be the addr 0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
       # Or right now (aug 8th) ropsten is 0x7e0BBa74B7D0308986E2404f5f0868aaFd84D80C
-      address: '0x7e0BBa74B7D0308986E2404f5f0868aaFd84D80C'
+      address: '0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7'
       abi: GNS
     mapping:
       kind: ethereum/events
@@ -43,9 +43,9 @@ dataSources:
       file: ./src/mappings/gns.ts
   - kind: ethereum/contract
     name: ServiceRegistry
-    network: ropsten
+    network: ganache
     source:
-      address: "0xD7eF645bD0240cC954dE318bDe938886f14F6580" # ropsten - 0xD7eF645bD0240cC954dE318bDe938886f14F6580 # ganache - 0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
+      address: "0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb" # ropsten - 0xD7eF645bD0240cC954dE318bDe938886f14F6580 # ganache - 0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
       abi: ServiceRegistry
     mapping:
       kind: ethereum/events
@@ -62,9 +62,9 @@ dataSources:
       file: ./src/mappings/service-registry.ts
   - kind: ethereum/contract
     name: Staking
-    network: ropsten
+    network: ganache
     source:
-      address: "0x7AA834EEE8d2675671Cc00f4bb1d4C3CAC05b6B2" # ropsten: 0x7AA834EEE8d2675671Cc00f4bb1d4C3CAC05b6B2 # ganache: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+      address: "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B" # ropsten: 0x7AA834EEE8d2675671Cc00f4bb1d4C3CAC05b6B2 # ganache: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
       abi: Staking
     mapping:
       kind: ethereum/events
@@ -81,7 +81,7 @@ dataSources:
         - name: Staking
           file: ./abis/Staking.json
       eventHandlers:
-        - event: CuratorStaked(indexed address,uint256,bytes32,uint256,uint256,uint256)
+        - event: CuratorStaked(indexed address,bytes32,uint256,uint256,uint256)
           handler: handleCuratorStaked
         - event: CuratorLogout(indexed address,bytes32,uint256,uint256)
           handler: handleCuratorLogout
@@ -100,9 +100,9 @@ dataSources:
       file: ./src/mappings/staking.ts
   - kind: ethereum/contract
     name: GraphToken
-    network: ropsten
+    network: ganache
     source:
-      address: "0x9Dcb2CCF45d8772c722f76A16374C1Ebc79DCB7E" # ropsten - 0x9Dcb2CCF45d8772c722f76A16374C1Ebc79DCB7E # ganache 0xCfEB869F69431e42cdB54A4F4f105C19C080A601
+      address: "0xCfEB869F69431e42cdB54A4F4f105C19C080A601" # ropsten - 0x9Dcb2CCF45d8772c722f76A16374C1Ebc79DCB7E # ganache 0xCfEB869F69431e42cdB54A4F4f105C19C080A601
       abi: GraphToken
     mapping:
       kind: ethereum/events
