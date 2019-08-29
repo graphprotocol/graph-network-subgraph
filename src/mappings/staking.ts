@@ -77,8 +77,10 @@ export function handleCuratorStaked(event: CuratorStaked): void {
     account.standbyPoolBalance = account.standbyPoolBalance.minus(changeInStake)
 
   } else {
-    curatorInfo.tokensUnstaked = curatorInfo.tokensUnstaked.plus(changeInStake)
-    account.standbyPoolBalance = account.standbyPoolBalance.plus(changeInStake)
+    // Here we minus both, because the number is negative, so it increased tokens
+    // unstaked, and increases pool balance
+    curatorInfo.tokensUnstaked = curatorInfo.tokensUnstaked.minus(changeInStake)
+    account.standbyPoolBalance = account.standbyPoolBalance.minus(changeInStake)
   }
   curatorInfo.shares = event.params.curatorShares
   curatorInfo.save()
@@ -219,9 +221,7 @@ export function handleIndexerFinalizeLogout(event: IndexingNodeFinalizeLogout): 
     .concat('-')
     .concat(event.params.subgraphID.toHexString())
 
-  let indexNode = new IndexerInfo(id)
-  indexNode.logoutStartTime = 0
-  indexNode.save()
+  store.remove('IndexerInfo', id)
 
   let account = Account.load(event.params.staker.toHexString())
   account.standbyPoolBalance = account.standbyPoolBalance.plus(account.thawingTokenBalance)
