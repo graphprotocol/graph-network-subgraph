@@ -13,11 +13,15 @@ export function handleTransfer(event: Transfer): void {
   if (userTo == null) {
     userTo = new Account(to.toHexString())
     userTo.balance = BigInt.fromI32(0)
+    userTo.standbyPoolBalance = BigInt.fromI32(0)
+    userTo.thawingTokenBalance = BigInt.fromI32(0)
   }
   let userFrom = Account.load(from.toHexString())
   if (userFrom == null) {
     userFrom = new Account(from.toHexString())
     userFrom.balance = BigInt.fromI32(0)
+    userFrom.standbyPoolBalance = BigInt.fromI32(0)
+    userFrom.thawingTokenBalance = BigInt.fromI32(0)
   }
 
   // Mint Transfer
