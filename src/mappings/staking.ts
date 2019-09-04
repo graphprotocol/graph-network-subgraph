@@ -45,6 +45,7 @@ export function handleCuratorStaked(event: CuratorStaked): void {
   // This null check is possible since GNS is not linked to subgraph creation
   if (subgraphVersion == null) {
     subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
+    subgraphVersion.createdAt = event.block.timestamp.toI32()
     subgraphVersion.totalCurationShares = BigInt.fromI32(0)
     subgraphVersion.totalCurationStake = BigInt.fromI32(0)
     subgraphVersion.totalIndexingStake = BigInt.fromI32(0)
@@ -144,6 +145,7 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
   if (subgraphVersion == null) {
     subgraphVersion = new SubgraphVersion(event.params.subgraphID.toHexString())
+    subgraphVersion.createdAt = event.block.timestamp.toI32()
     subgraphVersion.totalCurationShares = BigInt.fromI32(0)
     subgraphVersion.totalCurationStake = BigInt.fromI32(0)
     subgraphVersion.totalIndexingStake = BigInt.fromI32(0)

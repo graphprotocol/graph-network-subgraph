@@ -9,7 +9,7 @@ type Subgraph @entity {
   "Parent subgraph. If it is a tld, this is null"
   parent: Subgraph
   "Children Subgraphs"
-  children: [Subgraph!]
+  children: [Subgraph!]! @derivedFrom(field: "parent")
   "Versions of this subgraph. Last version in array is current"
   versions: [SubgraphVersion!]
   "Subgraph metadata"
@@ -60,6 +60,8 @@ type SubgraphVersion @entity {
   id: ID!
   "The subgraph this version is related to"
   subgraph: Subgraph
+  "Creation timestamp"
+  createdAt: Int!
 
   # schema: Schema!   # TODO Beta - not sure how this will work yet
 
