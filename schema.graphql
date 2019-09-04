@@ -133,15 +133,21 @@ type Account @entity {
 
   #### From GraphToken.sol ####
   "Graph token balance"
-  balance: BigInt
+  balance: BigInt!
   # "Might add this"
   # approvals: [Bytes!]!
   # "Might add this"
   # allowances: [BigInt!]!
+
+  #### From Staking.sol ####
   "All subgraphs this account curates"
   curating: Curator
   "All subgraphs this accoutn indexes"
   indexing: Indexer
+  "Standby pool balance"
+  standbyPoolBalance: BigInt!
+  "Thawing token balance"
+  thawingTokenBalance: BigInt!
 }
 
 type GraphToken @entity {

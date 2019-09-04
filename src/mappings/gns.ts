@@ -56,7 +56,13 @@ export function handleDomainDeleted(event: DomainDeleted): void {
 
 export function handleAccountMetadataChanged(event: AccountMetadataChanged): void {
   let id = event.params.account.toHexString()
-  let account = new Account(id)
+  let account = Account.load(id)
+  if (account == null) {
+    account = new Account(id)
+    account.balance = BigInt.fromI32(0)
+    account.standbyPoolBalance = BigInt.fromI32(0)
+    account.thawingTokenBalance = BigInt.fromI32(0)
+  }
   account.metadataHash = event.params.ipfsHash
   account.save()
 }
