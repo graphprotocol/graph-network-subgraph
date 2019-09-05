@@ -8,7 +8,8 @@ import {
   DisputeAccepted,
   DisputeRejected,
   Deposit,
-  Withdraw
+  Withdraw,
+  Staking
 } from '../../generated/Staking/Staking'
 import {
   CuratorInfo,
@@ -50,7 +51,14 @@ export function handleCuratorStaked(event: CuratorStaked): void {
     subgraphVersion.totalCurationStake = BigInt.fromI32(0)
     subgraphVersion.totalIndexingStake = BigInt.fromI32(0)
   }
-  // Note, this is emitted as the real values stored in the contract, so no addition
+
+  if (subgraphVersion.reserveRatio == null) {
+    let staking = Staking.bind(event.address)
+    let subgraph = staking.subgraphs(event.params.subgraphID)
+    subgraphVersion.reserveRatio = subgraph.value0
+  }
+
+    // Note, this is emitted as the real values stored in the contract, so no addition
   // or subtraction needed
 
   let oldTotalStake = subgraphVersion.totalCurationStake
@@ -150,6 +158,13 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
     subgraphVersion.totalCurationStake = BigInt.fromI32(0)
     subgraphVersion.totalIndexingStake = BigInt.fromI32(0)
   }
+
+  if (subgraphVersion.reserveRatio == null) {
+    let staking = Staking.bind(event.address)
+    let subgraph = staking.subgraphs(event.params.subgraphID)
+    subgraphVersion.reserveRatio = subgraph.value0
+  }
+
   subgraphVersion.totalIndexingStake = event.params.subgraphTotalIndexingStake
   subgraphVersion.save()
 

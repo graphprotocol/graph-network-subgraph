@@ -83,8 +83,10 @@ type SubgraphVersion @entity {
 type Indexer @entity {
   "Eth address"
   id: ID!
-  "Serive registry URL"
-  url: Bytes
+  "Service registry URL bytes"
+  urlBytes: Bytes
+  "Service registry URL string"
+  urlString: String
   "Array of subgraphs the indexer is indexing"
   indexing: [IndexerInfo!] @derivedFrom(field: "user")
 }
