@@ -104,6 +104,8 @@ type IndexerInfo @entity {
   "Time logout has started for thawing"
   logoutStartTime: Int!
   # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
+  "Amount of tokens thawing on this subgraph for this indexer"
+  thawingTokens: BigInt!
 }
 
 type Curator @entity {

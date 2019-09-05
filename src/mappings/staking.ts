@@ -191,6 +191,8 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
     info.user = id
     info.subgraphID = event.params.subgraphID.toHexString()
     info.logoutStartTime = 0
+    info.thawingTokens = BigInt.fromI32(0)
+
   }
   info.tokensStaked = event.params.amountStaked
   info.save()
@@ -208,6 +210,7 @@ export function handleIndexerBeginLogout(event: IndexingNodeBeginLogout): void {
     .concat(event.params.subgraphID.toHexString())
   let indexNode = new IndexerInfo(id)
   indexNode.logoutStartTime = event.block.timestamp.toI32()
+  indexNode.thawingTokens = event.params.unstakedAmount
   indexNode.tokensStaked = BigInt.fromI32(0)
   indexNode.save()
 
