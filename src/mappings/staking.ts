@@ -53,8 +53,8 @@ export function handleCuratorStaked(event: CuratorStaked): void {
   }
 
   if (subgraphVersion.reserveRatio == null) {
-    const staking = Staking.bind(event.address)
-    const subgraph = staking.subgraphs(event.params.subgraphID)
+    let staking = Staking.bind(event.address)
+    let subgraph = staking.subgraphs(event.params.subgraphID)
     subgraphVersion.reserveRatio = subgraph.value0
   }
 
@@ -160,8 +160,8 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
   }
 
   if (subgraphVersion.reserveRatio == null) {
-    const staking = Staking.bind(event.address)
-    const subgraph = staking.subgraphs(event.params.subgraphID)
+    let staking = Staking.bind(event.address)
+    let subgraph = staking.subgraphs(event.params.subgraphID)
     subgraphVersion.reserveRatio = subgraph.value0
   }
 
