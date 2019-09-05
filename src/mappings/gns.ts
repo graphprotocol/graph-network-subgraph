@@ -81,11 +81,15 @@ export function handleSubgraphIDUpdated(event: SubgraphIDUpdated): void {
 
   // TODO - should we delete the old subgraph here too? it would still exist as its own staking contract, it is just getting remove from the gns. need to think this through a bit
   let subgraphID = event.params.subgraphID.toHexString()
-  let subgraphVersion = new SubgraphVersion(subgraphID)
-  subgraphVersion.createdAt = event.block.timestamp.toI32()
-  subgraphVersion.totalCurationShares = BigInt.fromI32(0)
-  subgraphVersion.totalCurationStake = BigInt.fromI32(0)
-  subgraphVersion.totalIndexingStake = BigInt.fromI32(0)
+  let subgraphVersion = SubgraphVersion.load(subgraphID)
+  if (subgraphVersion == null) {
+    subgraphVersion = new SubgraphVersion(subgraphID)
+    subgraphVersion.createdAt = event.block.timestamp.toI32()
+    subgraphVersion.totalCurationShares = BigInt.fromI32(0)
+    subgraphVersion.totalCurationStake = BigInt.fromI32(0)
+    subgraphVersion.totalIndexingStake = BigInt.fromI32(0)
+    subgraphVersion.reserveRatio = BigInt.fromI32(500000) // TODO - this is hardcoded, until we make staking dependant on GNS
+  }
   subgraphVersion.subgraph = id
   subgraphVersion.save()
 }

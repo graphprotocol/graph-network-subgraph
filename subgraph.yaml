@@ -57,7 +57,7 @@ dataSources:
         - name: ServiceRegistry
           file: ./abis/ServiceRegistry.json
       eventHandlers:
-        - event: ServiceUrlSet(indexed address,bytes)
+        - event: ServiceUrlSet(indexed address,string,bytes)
           handler: handleServiceUrlSet
       file: ./src/mappings/service-registry.ts
   - kind: ethereum/contract
