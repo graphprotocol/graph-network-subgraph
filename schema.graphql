@@ -156,6 +156,7 @@ type Account @entity {
   thawingTokenBalance: BigInt!
 }
 
+# TODO - expose all Staking and other values here. Rename this GraphNetwork
 type GraphToken @entity {
   "Set to 1"
   id: ID!
