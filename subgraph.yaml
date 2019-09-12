@@ -11,8 +11,8 @@ dataSources:
       # Remember, this MUST be updated with changes to accounts on ganache.
       # everyone can get the same GNS address By running `ganache-cli -d`.
       # Then run `truffle test` and GNS will be the addr 0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
-      # Or right now (september 4th) ropsten is 0x6764C9f8c45A0432409C27b6542fe9f2c9864645
-      address: '0x6764C9f8c45A0432409C27b6542fe9f2c9864645'
+      # Or right now (september 12th) ropsten is 0xA8aCc2a937b9cc824918656BBf45627d3b72630E
+      address: '0xA8aCc2a937b9cc824918656BBf45627d3b72630E'
       abi: GNS
     mapping:
       kind: ethereum/events
@@ -45,7 +45,7 @@ dataSources:
     name: ServiceRegistry
     network: ropsten
     source:
-      address: "0xd53DD5B8147761EB69CaEd7E303c2da09081A2EB" # ropsten - 0xd53DD5B8147761EB69CaEd7E303c2da09081A2EB # ganache - 0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
+      address: "0x67CF3Db926CA1A30EC348c8b1Ce82087A4f003a6" # ropsten - 0x67CF3Db926CA1A30EC348c8b1Ce82087A4f003a6 # ganache - 0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
       abi: ServiceRegistry
     mapping:
       kind: ethereum/events
@@ -57,14 +57,14 @@ dataSources:
         - name: ServiceRegistry
           file: ./abis/ServiceRegistry.json
       eventHandlers:
-        - event: ServiceUrlSet(indexed address,string,bytes)
+        - event: ServiceUrlSet(indexed address,string)
           handler: handleServiceUrlSet
       file: ./src/mappings/service-registry.ts
   - kind: ethereum/contract
     name: Staking
     network: ropsten
     source:
-      address: "0x2aF5CcB503292937171228E72858793160fb6560" # ropsten: 0x2aF5CcB503292937171228E72858793160fb6560 # ganache: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+      address: "0x89d58b45432706D3F2fa6239A24573cF70b10BC4" # ropsten: 0x89d58b45432706D3F2fa6239A24573cF70b10BC4 # ganache: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
       abi: Staking
     mapping:
       kind: ethereum/events
@@ -81,10 +81,6 @@ dataSources:
         - name: Staking
           file: ./abis/Staking.json
       eventHandlers:
-        - event: Deposit(indexed address,uint256)
-          handler: handleDeposit
-        - event: Withdraw(indexed address,uint256)
-          handler: handleWithdraw
         - event: CuratorStaked(indexed address,bytes32,uint256,uint256,uint256)
           handler: handleCuratorStaked
         - event: CuratorLogout(indexed address,bytes32,uint256,uint256)
@@ -106,7 +102,7 @@ dataSources:
     name: GraphToken
     network: ropsten
     source:
-      address: "0x8a714a02feEFd3CD763BF9d626650dCb0692be9A" # ropsten - 0x8a714a02feEFd3CD763BF9d626650dCb0692be9A # ganache 0xCfEB869F69431e42cdB54A4F4f105C19C080A601
+      address: "0x2893e2Acb60a52c27bD54bfc04afe71b5e6cbe7A" # ropsten - 0x2893e2Acb60a52c27bD54bfc04afe71b5e6cbe7A # ganache 0xCfEB869F69431e42cdB54A4F4f105C19C080A601
       abi: GraphToken
     mapping:
       kind: ethereum/events

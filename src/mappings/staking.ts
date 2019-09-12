@@ -7,8 +7,6 @@ import {
   DisputeCreated,
   DisputeAccepted,
   DisputeRejected,
-  Deposit,
-  Withdraw,
   Staking
 } from '../../generated/Staking/Staking'
 import {
@@ -21,21 +19,6 @@ import {
   Account
 } from '../../generated/schema'
 import {BigInt, store} from '@graphprotocol/graph-ts'
-
-export function handleDeposit(event: Deposit): void {
-  let id = event.params.user.toHexString()
-  let account = Account.load(id)
-  account.standbyPoolBalance = account.standbyPoolBalance.plus(event.params.amount)
-  account.save()
-}
-
-export function handleWithdraw(event: Withdraw): void {
-  let id = event.params.user.toHexString()
-  let account = Account.load(id)
-  account.standbyPoolBalance = account.standbyPoolBalance.minus(event.params.amount)
-  account.save()
-}
-
 
 export function handleCuratorStaked(event: CuratorStaked): void {
   let curatorID = event.params.staker.toHexString()
@@ -78,23 +61,16 @@ export function handleCuratorStaked(event: CuratorStaked): void {
     curatorInfo.subgraphID = event.params.subgraphID.toHexString()
   }
 
-  let account = Account.load(event.params.staker.toHexString())
-
   // Need to check if we staked more tokens, or unstaked without full logout (same event)
   if (changeInStake.gt(BigInt.fromI32(0))) {
     curatorInfo.tokensStaked = curatorInfo.tokensStaked.plus(changeInStake)
-    account.standbyPoolBalance = account.standbyPoolBalance.minus(changeInStake)
-
   } else {
     // Here we minus both, because the number is negative, so it increased tokens
     // unstaked, and increases pool balance
     curatorInfo.tokensUnstaked = curatorInfo.tokensUnstaked.minus(changeInStake)
-    account.standbyPoolBalance = account.standbyPoolBalance.minus(changeInStake)
   }
   curatorInfo.shares = event.params.curatorShares
   curatorInfo.save()
-  account.save()
-
 
   // TODO - Bring this back in when we stake on names, probably in beta
   // let subgraph = Subgraph.load(subgraphVersion.subgraph)
@@ -128,14 +104,9 @@ export function handleCuratorLogout(event: CuratorLogout): void {
   store.remove('CuratorInfo', id)
 
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
-  let changeInStake = subgraphVersion.totalCurationStake.minus(event.params.subgraphTotalCurationStake)
   subgraphVersion.totalCurationStake = event.params.subgraphTotalCurationStake
   subgraphVersion.totalCurationShares = event.params.subgraphTotalCurationShares
   subgraphVersion.save()
-
-  let account = Account.load(event.params.staker.toHexString())
-  account.standbyPoolBalance = account.standbyPoolBalance.plus(changeInStake)
-  account.save()
 
   // TODO - Bring this back in when we stake on names, probably in beta
   // let subgraph = Subgraph.load(subgraphVersion.subgraph)
@@ -191,15 +162,9 @@ export function handleIndexerStaked(event: IndexingNodeStaked): void {
     info.user = id
     info.subgraphID = event.params.subgraphID.toHexString()
     info.logoutStartTime = 0
-    info.thawingTokens = BigInt.fromI32(0)
-
   }
   info.tokensStaked = event.params.amountStaked
   info.save()
-
-  let account = Account.load(event.params.staker.toHexString())
-  account.standbyPoolBalance = account.standbyPoolBalance.minus(event.params.amountStaked)
-  account.save()
 }
 
 // TODO - Might be an error in how we handle logging out, users can still earn rewards and I dont think it should be like that. For now though, handle normally
@@ -210,19 +175,13 @@ export function handleIndexerBeginLogout(event: IndexingNodeBeginLogout): void {
     .concat(event.params.subgraphID.toHexString())
   let indexNode = new IndexerInfo(id)
   indexNode.logoutStartTime = event.block.timestamp.toI32()
-  indexNode.thawingTokens = event.params.unstakedAmount
+  indexNode.lockedTokens = event.params.unstakedAmount
   indexNode.tokensStaked = BigInt.fromI32(0)
   indexNode.save()
 
   let subgraphVersion = SubgraphVersion.load(event.params.subgraphID.toHexString())
   subgraphVersion.totalIndexingStake = subgraphVersion.totalIndexingStake.minus(event.params.unstakedAmount)
   subgraphVersion.save()
-
-  let account = Account.load(event.params.staker.toHexString())
-  account.thawingTokenBalance = account.thawingTokenBalance.plus(event.params.unstakedAmount).plus(event.params.fees)
-  account.save()
-
-
 
   // TODO - Bring this back in when we stake on names, probably in beta
   // let subgraph = Subgraph.load(subgraphVersion.subgraph)
@@ -240,14 +199,7 @@ export function handleIndexerFinalizeLogout(event: IndexingNodeFinalizeLogout): 
     .toHexString()
     .concat('-')
     .concat(event.params.subgraphID.toHexString())
-
   store.remove('IndexerInfo', id)
-
-  let account = Account.load(event.params.staker.toHexString())
-  account.standbyPoolBalance = account.standbyPoolBalance.plus(account.thawingTokenBalance)
-  account.thawingTokenBalance = BigInt.fromI32(0)
-  account.save()
-
 }
 
 export function handleDisputeCreated(event: DisputeCreated): void {
