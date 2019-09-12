@@ -60,8 +60,6 @@ export function handleAccountMetadataChanged(event: AccountMetadataChanged): voi
   if (account == null) {
     account = new Account(id)
     account.balance = BigInt.fromI32(0)
-    account.standbyPoolBalance = BigInt.fromI32(0)
-    account.thawingTokenBalance = BigInt.fromI32(0)
   }
   account.metadataHash = event.params.ipfsHash
   account.save()

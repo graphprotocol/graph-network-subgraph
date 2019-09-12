@@ -104,8 +104,8 @@ type IndexerInfo @entity {
   "Time logout has started for thawing"
   logoutStartTime: Int!
   # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
-  "Amount of tokens thawing on this subgraph for this indexer"
-  thawingTokens: BigInt!
+  "Amount of tokens locked on this subgraph for this indexer"
+  lockedTokens: BigInt!
 }
 
 type Curator @entity {
@@ -124,7 +124,7 @@ type CuratorInfo @entity {
   subgraphID: SubgraphVersion!
   "Cumulative number of tokens the curator has staked"
   tokensStaked: BigInt!
-  "Cumulative number of tokens the curator has unstaked"
+  "Cumulative number of tokens the curator has unstaked. Not equivalent to tokensStaked. tokensStaked - tokensUnstaked = curating profit"
   tokensUnstaked: BigInt!
   "Number of shares the curator has"
   shares: BigInt!
@@ -150,10 +150,6 @@ type Account @entity {
   curating: Curator
   "All subgraphs this accoutn indexes"
   indexing: Indexer
-  "Standby pool balance"
-  standbyPoolBalance: BigInt!
-  "Thawing token balance"
-  thawingTokenBalance: BigInt!
 }
 
 # TODO - expose all Staking and other values here. Rename this GraphNetwork
