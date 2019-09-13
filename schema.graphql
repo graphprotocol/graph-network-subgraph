@@ -36,18 +36,18 @@ type Subgraph @entity {
   updatedAt: Int
 
   #### From staking contract ####
-#  "Curators of this subgraph"
-#  curatorInfo: [CuratorInfo!]
-#  "Indexers of this subgraph"
-#  indexerInfo: [IndexerInfo!]
-#  "Bonding curve reserve ratio"
-#  reserveRatio: BigInt
-#  "Total curation stake on this subgraph"
-#  totalCurationStake: BigInt
-#  "Total curation shares on this subgraph"
-#  totalCurationShares: BigInt
-#  "Total indexing stake on this subgraph"
-#  totalIndexingStake: BigInt
+  #  "Curators of this subgraph"
+  #  curatorInfo: [CuratorInfo!]
+  #  "Indexers of this subgraph"
+  #  indexerInfo: [IndexerInfo!]
+  #  "Bonding curve reserve ratio"
+  #  reserveRatio: BigInt
+  #  "Total curation stake on this subgraph"
+  #  totalCurationStake: BigInt
+  #  "Total curation shares on this subgraph"
+  #  totalCurationShares: BigInt
+  #  "Total indexing stake on this subgraph"
+  #  totalIndexingStake: BigInt
 }
 
 enum SubgraphType {
@@ -105,7 +105,7 @@ type IndexerInfo @entity {
   logoutStartTime: Int!
   # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
   "Amount of tokens locked on this subgraph for this indexer"
-  lockedTokens: BigInt!
+  lockedTokens: BigInt
 }
 
 type Curator @entity {
