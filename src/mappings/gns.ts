@@ -67,7 +67,7 @@ export function handleAccountMetadataChanged(event: AccountMetadataChanged): voi
 
 export function handleSubgraphIDUpdated(event: SubgraphIDUpdated): void {
   let id = event.params.domainHash.toHexString()
-  let subgraph = new Subgraph(id)
+  let subgraph = Subgraph.load(id)
   let versions = subgraph.versions
   if (versions == null) {
     versions = []
