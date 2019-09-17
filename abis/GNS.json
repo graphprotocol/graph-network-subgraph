@@ -122,6 +122,11 @@
         "indexed": false,
         "name": "subdomainName",
         "type": "string"
+      },
+      {
+        "indexed": true,
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "SubgraphCreated",
