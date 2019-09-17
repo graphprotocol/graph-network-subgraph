@@ -32,7 +32,7 @@ dataSources:
           handler: handleDomainTransferred
         - event: DomainDeleted(indexed bytes32)
           handler: handleDomainDeleted
-        - event: SubgraphCreated(indexed bytes32,indexed bytes32,string)
+        - event: SubgraphCreated(indexed bytes32,indexed bytes32,string,indexed address)
           handler: handleSubgraphCreated
         - event: SubgraphIDUpdated(indexed bytes32,indexed bytes32)
           handler: handleSubgraphIDUpdated

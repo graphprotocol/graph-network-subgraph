@@ -46,6 +46,15 @@ export function handleSubgraphCreated(event: SubgraphCreated): void {
     subgraph.createdAt = event.block.timestamp.toI32()
     subgraph.updatedAt = event.block.timestamp.toI32()
     subgraph.save()
+  } else {
+    let id = event.params.topLevelDomainHash.toHexString()
+    let subgraph = new Subgraph(id)
+    subgraph.name = event.params.subdomainName
+    subgraph.owner = event.params.owner
+    subgraph.parent = null
+    subgraph.createdAt = event.block.timestamp.toI32()
+    subgraph.updatedAt = event.block.timestamp.toI32()
+    subgraph.save()
   }
 }
 
@@ -109,10 +118,18 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
   let getSubgraphDataFromIPFS = ipfs.cat(base58Hash)
   if (getSubgraphDataFromIPFS !== null) {
     let data = json.fromBytes(getSubgraphDataFromIPFS as Bytes).toObject()
-    subgraph.displayName = data.get('displayName').toString()
-    subgraph.subtitle = data.get('subtitle').toString()
-    subgraph.image = data.get('image').toString()
-    subgraph.description = data.get('description').toString()
+    if (data.get('displayName')) {
+      subgraph.displayName = data.get('displayName').toString()
+    }
+    if (data.get('subtitle')) {
+      subgraph.subtitle = data.get('subtitle').toString()
+    }
+    if (data.get('image')) {
+      subgraph.image = data.get('image').toString()
+    }
+    if (data.get('description')) {
+      subgraph.description = data.get('description').toString()
+    }
     if (data.get('githubURL')) {
       subgraph.githubURL = data.get('githubURL').toString()
     }
