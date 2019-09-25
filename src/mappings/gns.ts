@@ -44,7 +44,6 @@ export function handleSubgraphCreated(event: SubgraphCreated): void {
     subgraph.name = event.params.subdomainName
     subgraph.owner = parent.owner
     subgraph.createdAt = event.block.timestamp.toI32()
-    subgraph.updatedAt = event.block.timestamp.toI32()
     subgraph.save()
   } else {
     let id = event.params.topLevelDomainHash.toHexString()
@@ -53,7 +52,6 @@ export function handleSubgraphCreated(event: SubgraphCreated): void {
     subgraph.owner = event.params.owner
     subgraph.parent = null
     subgraph.createdAt = event.block.timestamp.toI32()
-    subgraph.updatedAt = event.block.timestamp.toI32()
     subgraph.save()
   }
 }
@@ -137,7 +135,6 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
       subgraph.websiteURL = data.get('websiteURL').toString()
     }
   }
-  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 }
 
