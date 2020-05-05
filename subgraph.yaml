@@ -8,7 +8,7 @@ dataSources:
     name: GNS
     network: ropsten
     source:
-      address: ''
+      address: '0x0000000000000000000000000000000000000000'
       abi: GNS
     mapping:
       kind: ethereum/events
@@ -39,7 +39,7 @@ dataSources:
     name: ServiceRegistry
     network: ropsten
     source:
-      address: "" 
+      address: "0x0000000000000000000000000000000000000000" 
       abi: ServiceRegistry
     mapping:
       kind: ethereum/events
@@ -58,7 +58,7 @@ dataSources:
     name: Staking
     network: ropsten
     source:
-      address: ""
+      address: "0x0000000000000000000000000000000000000000"
       abi: Staking
     mapping:
       kind: ethereum/events
@@ -74,18 +74,20 @@ dataSources:
           handler: handleStakeUpdate
         - event: StakeLocked(indexed address,uint256,uint256)
           handler: handleStakeLocked
+        - event: AllocationUpdated(indexed address,indexed bytes32,uint256,uint256,address)
+          handler: handleAllocationUpdated
         - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address)
           handler: handleAllocationSettled
         - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256)
           handler: handleRebateClaimed
         - event: SlasherUpdate(indexed address,indexed address,bool)
-          handler: handleRebateClaimed
+          handler: handleSlasherUpdate
       file: ./src/mappings/staking.ts
   - kind: ethereum/contract
-    name: Staking
+    name: Curation
     network: ropsten
     source:
-      address: ""
+      address: "0x0000000000000000000000000000000000000000"
       abi: Curation
     mapping:
       kind: ethereum/events
@@ -94,19 +96,21 @@ dataSources:
       entities:
         - TODO
       abis:
-        - name: Staking
+        - name: Curation
           file: ./abis/Curation.json
       eventHandlers:
-        - event: CuratorStakeUpdated(indexed address,indexed bytes32,uint256)
-          handler: handleCuratorStaked
-        - event: SubgraphStakeUpdated(indexed address,indexed bytes32,uint256)
-          handler: handleCuratorLogout
+        - event: Staked(indexed address,indexed bytes32,uint256,uint256)
+          handler: handleStaked
+        - event: Redeemed(indexed address,indexed bytes32,uint256,uint256)
+          handler: handleRedeemed
+        - event: Collected(indexed bytes32,uint256)
+          handler: handleCollected
       file: ./src/mappings/curation.ts
   - kind: ethereum/contract
     name: GraphToken
     network: ropsten
     source:
-      address: ""
+      address: "0x0000000000000000000000000000000000000000"
       abi: GraphToken
     mapping:
       kind: ethereum/events
