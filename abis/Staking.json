@@ -1,325 +1,27 @@
 [
   {
-    "constant": true,
-    "inputs": [],
-    "name": "minimumCurationStakingAmount",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "governor",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "maximumIndexers",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "graphSubgraphID",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
     "inputs": [
       {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "subgraphs",
-    "outputs": [
-      {
-        "name": "reserveRatio",
-        "type": "uint256"
-      },
-      {
-        "name": "totalCurationStake",
-        "type": "uint256"
-      },
-      {
-        "name": "totalCurationShares",
-        "type": "uint256"
-      },
-      {
-        "name": "totalIndexingStake",
-        "type": "uint256"
-      },
-      {
-        "name": "totalIndexers",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "version",
-    "outputs": [
-      {
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "indexingNodes",
-    "outputs": [
-      {
-        "name": "amountStaked",
-        "type": "uint256"
-      },
-      {
-        "name": "feesAccrued",
-        "type": "uint256"
-      },
-      {
-        "name": "logoutStarted",
-        "type": "uint256"
-      },
-      {
-        "name": "lockedTokens",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "arbitrator",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "minimumIndexingStakingAmount",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "graphIndexingNodeAddresses",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "curators",
-    "outputs": [
-      {
-        "name": "subgraphShares",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "thawingPeriod",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_newGovernor",
-        "type": "address"
-      }
-    ],
-    "name": "transferGovernance",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "defaultReserveRatio",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "token",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "slashingPercent",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
+        "internalType": "address",
         "name": "_governor",
         "type": "address"
       },
       {
-        "name": "_minimumCurationStakingAmount",
-        "type": "uint256"
-      },
-      {
-        "name": "_defaultReserveRatio",
-        "type": "uint256"
-      },
-      {
-        "name": "_minimumIndexingStakingAmount",
-        "type": "uint256"
-      },
-      {
-        "name": "_maximumIndexers",
-        "type": "uint256"
-      },
-      {
-        "name": "_slashingPercent",
-        "type": "uint256"
-      },
-      {
-        "name": "_thawingPeriod",
-        "type": "uint256"
-      },
-      {
+        "internalType": "address",
         "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_epochManager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_curation",
         "type": "address"
       }
     ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -328,31 +30,42 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "staker",
+        "internalType": "address",
+        "name": "indexNode",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
+        "internalType": "bytes32",
         "name": "subgraphID",
         "type": "bytes32"
       },
       {
         "indexed": false,
-        "name": "curatorShares",
+        "internalType": "uint256",
+        "name": "epoch",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "name": "subgraphTotalCurationShares",
+        "internalType": "uint256",
+        "name": "tokens",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "name": "subgraphTotalCurationStake",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "channelID",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
       }
     ],
-    "name": "CuratorStaked",
+    "name": "AllocationSettled",
     "type": "event"
   },
   {
@@ -360,26 +73,36 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "staker",
+        "internalType": "address",
+        "name": "indexNode",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
+        "internalType": "bytes32",
         "name": "subgraphID",
         "type": "bytes32"
       },
       {
         "indexed": false,
-        "name": "subgraphTotalCurationShares",
+        "internalType": "uint256",
+        "name": "epoch",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "name": "subgraphTotalCurationStake",
+        "internalType": "uint256",
+        "name": "tokens",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "channelID",
+        "type": "address"
       }
     ],
-    "name": "CuratorLogout",
+    "name": "AllocationUpdated",
     "type": "event"
   },
   {
@@ -387,26 +110,55 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "staker",
+        "internalType": "address",
+        "name": "from",
         "type": "address"
       },
       {
-        "indexed": false,
-        "name": "amountStaked",
-        "type": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "indexNode",
+        "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
+        "internalType": "bytes32",
         "name": "subgraphID",
         "type": "bytes32"
       },
       {
         "indexed": false,
-        "name": "subgraphTotalIndexingStake",
+        "internalType": "uint256",
+        "name": "epoch",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "forEpoch",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokens",
         "type": "uint256"
       }
     ],
-    "name": "IndexingNodeStaked",
+    "name": "RebateClaimed",
     "type": "event"
   },
   {
@@ -414,26 +166,24 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "staker",
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "slasher",
         "type": "address"
       },
       {
         "indexed": false,
-        "name": "subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "name": "unstakedAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "fees",
-        "type": "uint256"
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
       }
     ],
-    "name": "IndexingNodeBeginLogout",
+    "name": "SlasherUpdate",
     "type": "event"
   },
   {
@@ -441,16 +191,24 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "staker",
+        "internalType": "address",
+        "name": "indexNode",
         "type": "address"
       },
       {
         "indexed": false,
-        "name": "subgraphID",
-        "type": "bytes32"
+        "internalType": "uint256",
+        "name": "tokens",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "until",
+        "type": "uint256"
       }
     ],
-    "name": "IndexingNodeFinalizeLogout",
+    "name": "StakeLocked",
     "type": "event"
   },
   {
@@ -458,286 +216,477 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "_subgraphId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "_indexingNode",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "_fisherman",
+        "internalType": "address",
+        "name": "indexNode",
         "type": "address"
       },
       {
         "indexed": false,
-        "name": "_disputeId",
-        "type": "bytes32"
+        "internalType": "uint256",
+        "name": "tokens",
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "name": "_attestation",
-        "type": "bytes"
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
       }
     ],
-    "name": "DisputeCreated",
+    "name": "StakeUpdate",
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "_disputeId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "_subgraphId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "_indexingNode",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "DisputeAccepted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "_disputeId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "_subgraphId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "_fisherman",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "DisputeRejected",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "_from",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "_to",
-        "type": "address"
-      }
-    ],
-    "name": "GovernanceTransferred",
-    "type": "event"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_minimumCurationStakingAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMinimumCurationStakingAmount",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_defaultReserveRatio",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateDefaultReserveRatio",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_minimumIndexingStakingAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMinimumIndexingStakingAmount",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_maximumIndexers",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMaximumIndexers",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_slashingPercent",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateSlashingPercentage",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_thawingPeriod",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateThawingPeriod",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_arbitrator",
-        "type": "address"
-      }
-    ],
-    "name": "setArbitrator",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "name": "_newIndexers",
-        "type": "address[]"
-      }
-    ],
-    "name": "setGraphSubgraphID",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
     "inputs": [],
-    "name": "numberOfGraphIndexingNodeAddresses",
+    "name": "channelDisputeEpochs",
     "outputs": [
       {
-        "name": "count",
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "payable": false,
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "channels",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "indexNode",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "subgraphID",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "curation",
+    "outputs": [
+      {
+        "internalType": "contract Curation",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "curationPercentage",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "epochManager",
+    "outputs": [
+      {
+        "internalType": "contract EpochManager",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governor",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxSettlementEpochs",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "rebates",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "fees",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "allocation",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "settlementsCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "slashers",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "stakes",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokensIndexNode",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokensDelegated",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokensAllocated",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokensLocked",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokensLockedUntil",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "thawingPeriod",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token",
+    "outputs": [
+      {
+        "internalType": "contract GraphToken",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newGovernor",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract Curation",
+        "name": "_curation",
+        "type": "address"
+      }
+    ],
+    "name": "setCuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_percentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "setCurationPercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_channelDisputeEpochs",
+        "type": "uint256"
+      }
+    ],
+    "name": "setChannelDisputeEpochs",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_maxSettlementEpochs",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxSettlementEpochs",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_slasher",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_allowed",
+        "type": "bool"
+      }
+    ],
+    "name": "setSlasher",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_thawingPeriod",
+        "type": "uint256"
+      }
+    ],
+    "name": "setThawingPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_channelID",
+        "type": "address"
+      }
+    ],
+    "name": "isChannel",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexNode",
+        "type": "address"
+      }
+    ],
+    "name": "hasStake",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexNode",
+        "type": "address"
+      }
+    ],
+    "name": "getIndexNodeStakeTokens",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexNode",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAllocation",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAtEpoch",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "channelID",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct Stakes.Allocation",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexNode",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_reward",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_beneficiary",
+        "type": "address"
+      }
+    ],
+    "name": "slash",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_from",
         "type": "address"
       },
       {
+        "internalType": "uint256",
         "name": "_value",
         "type": "uint256"
       },
       {
+        "internalType": "bytes",
         "name": "_data",
         "type": "bytes"
       }
@@ -745,190 +694,77 @@
     "name": "tokensReceived",
     "outputs": [
       {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "_purchaseTokens",
-        "type": "uint256"
-      },
-      {
-        "name": "_currentTokens",
-        "type": "uint256"
-      },
-      {
-        "name": "_currentShares",
-        "type": "uint256"
-      },
-      {
-        "name": "_reserveRatio",
-        "type": "uint256"
-      }
-    ],
-    "name": "stakeToShares",
-    "outputs": [
-      {
-        "name": "issuedShares",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "_returnedShares",
-        "type": "uint256"
-      },
-      {
-        "name": "_currentTokens",
-        "type": "uint256"
-      },
-      {
-        "name": "_currentShares",
-        "type": "uint256"
-      },
-      {
-        "name": "_reserveRatio",
-        "type": "uint256"
-      }
-    ],
-    "name": "sharesToStake",
-    "outputs": [
-      {
-        "name": "refundTokens",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_subgraphId",
-        "type": "bytes32"
-      },
-      {
-        "name": "_numShares",
-        "type": "uint256"
-      }
-    ],
-    "name": "curatorLogout",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_subgraphId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "beginLogout",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_subgraphId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "finalizeLogout",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "_value",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRewardForValue",
-    "outputs": [
-      {
+        "internalType": "bool",
         "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_channelID",
+        "type": "address"
+      }
+    ],
+    "name": "allocate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
         "type": "uint256"
       }
     ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_disputeId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "verifyDispute",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_disputeId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "rejectDispute",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_subgraphId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "withdrawFees",
+    "name": "unstake",
     "outputs": [],
-    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_epoch",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "_restake",
+        "type": "bool"
+      }
+    ],
+    "name": "claim",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   }

@@ -1,26 +1,21 @@
 specVersion: 0.0.2
 description: The Graph Network Smart Contracts on Ethereum
-repository: https://github.com/graphprotocol/contracts/subgraph
+repository: https://github.com/graphprotocol/contracts/graph-network-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: GNS
-    network: ropsten # ropsten or ganache
+    network: ropsten
     source:
-      # Remember, this MUST be updated with changes to accounts on ganache.
-      # everyone can get the same GNS address By running `ganache-cli -d`.
-      # Then run `truffle test` and GNS will be the addr 0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7
-      address: '0x2b0FB3a066D3676B392B318Bda633aD373F99506'
+      address: ''
       abi: GNS
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Account
-        - Subgraph
-        - SubgraphVersion
+        - TODO
       abis:
         - name: GNS
           file: ./abis/GNS.json
@@ -44,14 +39,14 @@ dataSources:
     name: ServiceRegistry
     network: ropsten
     source:
-      address: "0x6e4De1886Ffd8908cfe4CD12560465CcaB0F5409" # ganache - 0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb
+      address: "" 
       abi: ServiceRegistry
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Indexer
+        - TODO
       abis:
         - name: ServiceRegistry
           file: ./abis/ServiceRegistry.json
@@ -63,53 +58,62 @@ dataSources:
     name: Staking
     network: ropsten
     source:
-      address: "0x2B7F343cD8933c94A1666AdB9d309798F5F74812" # ganache: 0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B
+      address: ""
       abi: Staking
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - CuratorInfo
-        - Curator
-        - IndexerInfo
-        - Indexer
-        - Subgraph
-        - SubgraphVersion
+        - TODO
       abis:
         - name: Staking
           file: ./abis/Staking.json
       eventHandlers:
-        - event: CuratorStaked(indexed address,bytes32,uint256,uint256,uint256)
-          handler: handleCuratorStaked
-        - event: CuratorLogout(indexed address,bytes32,uint256,uint256)
-          handler: handleCuratorLogout
-        - event: IndexingNodeStaked(indexed address,uint256,bytes32,uint256)
-          handler: handleIndexerStaked
-        - event: IndexingNodeBeginLogout(indexed address,bytes32,uint256,uint256)
-          handler: handleIndexerBeginLogout
-        - event: IndexingNodeFinalizeLogout(indexed address,bytes32)
-          handler: handleIndexerFinalizeLogout
-        - event: DisputeCreated(indexed bytes32,indexed address,indexed address,bytes32,bytes)
-          handler: handleDisputeCreated
-        - event: DisputeAccepted(indexed bytes32,indexed bytes32,indexed address,uint256)
-          handler: handleDisputeAccepted
-        - event: DisputeRejected(indexed bytes32,indexed bytes32,indexed address,uint256)
-          handler: handleDisputeRejected
+        - event: StakeUpdate(indexed address,uint256,uint256)
+          handler: handleStakeUpdate
+        - event: StakeLocked(indexed address,uint256,uint256)
+          handler: handleStakeLocked
+        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address)
+          handler: handleAllocationSettled
+        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256)
+          handler: handleRebateClaimed
+        - event: SlasherUpdate(indexed address,indexed address,bool)
+          handler: handleRebateClaimed
       file: ./src/mappings/staking.ts
+  - kind: ethereum/contract
+    name: Staking
+    network: ropsten
+    source:
+      address: ""
+      abi: Curation
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - TODO
+      abis:
+        - name: Staking
+          file: ./abis/Curation.json
+      eventHandlers:
+        - event: CuratorStakeUpdated(indexed address,indexed bytes32,uint256)
+          handler: handleCuratorStaked
+        - event: SubgraphStakeUpdated(indexed address,indexed bytes32,uint256)
+          handler: handleCuratorLogout
+      file: ./src/mappings/curation.ts
   - kind: ethereum/contract
     name: GraphToken
     network: ropsten
     source:
-      address: "0xF94B27eBA87C7982E7e92322B6f7717F2f5e64f4" # ganache 0xCfEB869F69431e42cdB54A4F4f105C19C080A601
+      address: ""
       abi: GraphToken
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Account
-        - GraphToken
+        - TODO
       abis:
         - name: GraphToken
           file: ./abis/GraphToken.json
