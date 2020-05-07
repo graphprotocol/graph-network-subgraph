@@ -62,7 +62,7 @@ type GraphNetwork @entity {
   slashingPercentage: BigInt!
 }
 
-"""Account type is a user in the front end, which could be doing any actions"""
+"""Account type is a user in the front end which could be doing any actions"""
 type Account @entity {
   # From GNS
   "Eth address"
@@ -88,11 +88,11 @@ type Subgraph @entity {
   # From GNS
   "Hash of the domain name"
   id: ID!
-  "Domain name, can be a Top Level Domain or a Subdomain"
+  "Domain name can be a Top Level Domain or a Subdomain"
   name: String!
   "Eth address"
   owner: Bytes!
-  "Parent subgraph. If it is a Top Level Domain, this is null"
+  "Parent subgraph. If it is a Top Level Domain this is null"
   parent: Subgraph
   "Children Subgraphs"
   children: [Subgraph!]! @derivedFrom(field: "parent")
@@ -100,7 +100,7 @@ type Subgraph @entity {
   versions: [SubgraphVersion!]
 
 
-  # Metadata from IPFS, linked in GNS
+  # Metadata from IPFS linked in GNS
   "Subgraph metadata"
   metadataHash: Bytes!
   "Short description of the subgraph"
@@ -129,9 +129,13 @@ type Subgraph @entity {
   totalInflationRewards: BigInt!
   "Total rebate rewards earned by this subgraph"
   totalRebateRewards: BigInt!
+  "Total stake of all indexers on all Subgraph Versions"
+  totalStake: BigInt!
+  "Total signal of all curators on all Subgraph Versions"
+  totalSignal: BigInt!
 }
 
-"""SubgraphVersion represents a single instance of a Subgraph, with a unique Subgraph ID"""
+"""SubgraphVersion represents a single instance of a Subgraph with a unique Subgraph ID"""
 type SubgraphVersion @entity {
   "Subgraph ID"
   id: ID!
@@ -142,7 +146,7 @@ type SubgraphVersion @entity {
 
   # From Staking
   "Total stake of all indexers on this Subgraph"
-  totalIndexingStake: BigInt!
+  totalStake: BigInt!
   "Indexers of this subgraph"
   indexers: [Channel!] @derivedFrom(field: "subgraphID")
   "Total fees accrued all time by this subgraph version"
@@ -150,9 +154,9 @@ type SubgraphVersion @entity {
 
   # From Curation
   "Total signal of all curators"
-  totalCurationSignal: BigInt!
+  totalSignal: BigInt!
   "Total curation shares on this subgraph version"
-  totalCurationShares: BigInt!
+  totalShares: BigInt!
   "Total rebate rewards earned by this subgraph version"
   totalRebateRewards: BigInt!
   "Curators of this subgraph version"
@@ -161,9 +165,9 @@ type SubgraphVersion @entity {
   reserveRatio: BigInt!
 }
 
-"""Indexer represents metadata of the indexer, all of its stake, and delegator stake"""
+"""Indexer represents metadata of the indexer all of its stake and delegator stake"""
 type Indexer @entity {
-  "Eth address of Indexer"=
+  "Eth address of Indexer"
   id: ID!
   "Service registry URL bytes"
   urlBytes: Bytes!
@@ -213,9 +217,9 @@ type Channel @entity {
   feesCollected: BigInt!
   "Epoch number of the Pool it was settled in"
   settled: Pool
-  }
+}
 
-"""Global pool of settled state channels. One pool per epoch""""
+"""Global pool of settled state channels. One pool per epoch"""
 type Pool @entity {
   "Epoch number of the pool"
   id: ID!
@@ -289,9 +293,9 @@ type Dispute @entity {
   createdAt: Int!
   "Result of the dispute. Created is the initial value"
   result: DisputeResult!
-  "Tokens slashed (if Dispute is accepted)"
+  "Tokens slashed"
   tokensSlashed: BigInt!
-  "Tokens rewarded (if Dispute is accepted)"
+  "Tokens rewarded"
   tokensRewarded: BigInt!  
 }
 
