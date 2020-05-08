@@ -30,6 +30,10 @@ type GraphNetwork @entity {
   slashers: [Bytes!]
   "Minimum time an Indexer must use for resetting their Delegation parameters"
   minDelegationParameterCooldown: Int!
+  "The number of indexing rewards handed out per epoch"
+  indexingRewardsPerEpoch: Int!
+  "The issuance rate that GRT is minted at to support Indexers of the protocol"
+  networkGRTIssuance: Int!
 
   # Curation global variables
   "Default reserve ratio for all subgraphs"
@@ -122,6 +126,9 @@ type Subgraph @entity {
   "Deploy timestamp"
   updatedAt: Int!
 
+  # From Subgraph Manifest
+  dataSources: [DataSource!]!
+
   # Aggregate data
   "Total inflation rewards earned all time by this subgraph"
   totalSubraphIndexingRewards: BigInt!
@@ -131,6 +138,16 @@ type Subgraph @entity {
   totalStake: BigInt!
   "Total signal of all curators on all Subgraph Versions"
   totalSignal: BigInt!
+}
+
+"""Data source obtained from the subgraph manifest"""
+type DataSource @entity {
+  "Unique identifier of the data source. Such as contract address"
+  id: ID
+  "Data source name in the manifest"
+  name: String!
+  "Network "
+  network: String!  
 }
 
 """SubgraphVersion represents a single instance of a Subgraph with a unique Subgraph ID"""
@@ -201,6 +218,20 @@ type Indexer @entity {
   forcedSettlements: Int!
 }
 
+"""Allocation represents the continuous stake of an Indexer on a Subgraph, which is the accumulation of Channels between an indexer and a subgraph"""
+type Allocation @entity {
+  "Indexer ID concatenated with the Subgraph ID"
+  id: ID!
+  "Indexer of this Allocation"
+  indexer: Indexer!
+  "Subgraph of this Allocation"
+  subgraph: Subgraph!
+  "Active Channel. Null if this Indexer is no longer indexing this subgraph"
+  activeChannel: Channel
+  "Past channels that have been closed for this allocation"
+  closedChannels: [Channel!] @derivedFrom(field: allocation)
+}
+
 """State channel allocation representing Indexer-Subgraph stake"""
 type Channel @entity {
   "Channel Address"
@@ -209,17 +240,21 @@ type Channel @entity {
   indexer: Indexer!
   "Subgraph that is being staked on with an open channel"
   subgraph: SubgraphVersion!
+  "Allocation this channel is a part of"
+  allocation: Allocation!
   "Tokens in this channel"
   tokensAllocated: BigInt!
   "Epoch this channel was created"
   createdAtEpoch: Int!
   "Fees this channel collected upon closing"
   feesCollected: BigInt!
+  "Curator rewards deposited to the curating bonding curve"
+  curatorReward: BigInt!
   "Epoch number of the Pool it was settled in"
   settled: Pool
 }
 
-"""Global pool of query fees for settled state channels after Curation rewards hve been removed. One pool per epoch"""
+"""Global pool of query fees for settled state channels after Curation rewards have been removed. One pool per epoch"""
 type Pool @entity {
   "Epoch number of the pool"
   id: ID!
@@ -227,8 +262,36 @@ type Pool @entity {
   fees: BigInt!
   "Total allocation settled in this epoch"
   allocation: BigInt!
+  "Total rewards deposited to all curator bonding curves during the epoch"
+  curatorReward: BigInt!
   "Channels that were settled during this epoch"
   settled: [Channel!] @derivedFrom(field: settled)
+}
+
+"""All data regarding an Indexing Reward handed out per epoch"""
+type IndexingReward @entity {
+  "Epoch number of the reward"
+  id: ID!
+  "Minted GRT in this epoch"
+  mintedGRT: BigInt!
+  "Total allocation settled in this epoch"
+  allocation: BigInt!
+  "Channels that were settled during this epoch"
+  winners: [RewardWinners!] @derivedFrom(field: settled)
+  "Subgraph that won durning this epoch"
+  subgraph: SubgraphVersion!
+}
+
+"""A winner during an Indexing Reward given out during an Epoch"""
+type RewardWinners @entity {
+  "Concatenation of IndexingReward ID and the Reward ID"
+  id: ID!
+  "Indexing Reward this Winner was a part of"
+  reward: IndexingReward!
+  "Winning Indexer"
+  indexer: Indexer!
+  "True if reward has been claimed"
+  reward: Boolean!  
 }
 
 """Delegator with all their stakes"""
@@ -288,7 +351,7 @@ type Dispute @entity {
   "Fisherman deposit"
   deposit: BigInt!
   "Attestation disputed. If an attestation dispute there will be 2 attestation"
-  attestation: Attestation!
+  attestation: [Attestation]!
   "Time dispute was created"
   createdAt: Int!
   "Result of either type of dispute"
