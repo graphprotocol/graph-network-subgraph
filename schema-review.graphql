@@ -75,6 +75,8 @@ type Account @entity {
   metadataHash: Bytes!
   "Name of the account"
   name: String!
+  "Named subgraphs this account owns"
+  namedSubgraphs: namedSubgraphs
 
   # From Graph Token
   "Graph token balance"
@@ -223,10 +225,10 @@ type Indexer @entity {
   tokensDelegated: BigInt!
   "Total tokens available to be delegated"
   tokenCapacity: BigInt!
-  "The amount of inflation the Indexer agrees to share with delegators"
-  inflationSharePercentage: Int!
-  "The amount of rebate rewards the Indexer agrees to share with delegators"
-  rebateSharePercentage: Int!
+  "The percent the Indexer agrees to share with delegators"
+  indexingRewardCut: Int!
+  "The percent of query rebate rewards the Indexer agrees to share with delegators"
+  queryFeeCut: Int!
   "Time delegator decides to wait for changing of their parameters"
   delegatorParameterCooldown: Int!
   "Count of how many times this indexer has been forced to settle"
@@ -254,7 +256,7 @@ type Channel @entity {
   "Indexer of this channel"
   indexer: Indexer!
   "Subgraph that is being staked on with an open channel"
-  subgraph: SubgraphVersion!
+  subgraph: Subgraph!
   "Allocation this channel is a part of"
   allocation: Allocation!
   "Tokens in this channel"
@@ -294,7 +296,7 @@ type IndexingReward @entity {
   "Channels that were settled during this epoch"
   winners: [RewardWinners!] @derivedFrom(field: settled)
   "Subgraph that won durning this epoch"
-  subgraph: SubgraphVersion!
+  subgraph: Subgraph!
 }
 
 """A winner during an Indexing Reward given out during an Epoch"""
@@ -355,7 +357,7 @@ type Signal @entity {
   "Eth address of the curator"
   curator: Curator!
   "Subgraph being signaled"
-  subgraph: SubgraphVersion!
+  subgraph: Subgraph!
   "Cumulative number of tokens the curator has signaled"
   tokensSignaled: BigInt!
   "Cumulative number of tokens the curator has redeemed"
@@ -369,7 +371,7 @@ type Dispute @entity {
   "Dispute ID"
   id: ID!
   "Subgraph of the dispute"
-  subgraph: SubgraphVersion!
+  subgraph: Subgraph!
   "Indexer disputed. If an attestation dispute there will be 2 indexers"
   indexers: [Indexer!]!
   "Fisherman address"
@@ -392,8 +394,8 @@ type Dispute @entity {
 type Attestation @entity {
   "Concatenation of the requestCID and responseCID"
   id: ID!
-  "Subgraph ID of the subgraph being disputed"
-  subgraphID: Bytes!
+  "Subgraph of the subgraph being disputed"
+  subgraph: Subgraph!
   "RequestCID"
   requestCID: String!
   "ResponseCID"
@@ -442,7 +444,7 @@ enum DisputeResult {
 #   "Indexer of this channel"
 #   indexer: Indexer!
 #   "Subgraph that is being staked on with an open channel"
-#   subgraph: SubgraphVersion!
+#   subgraph: Subgraph!
 #   "State channel this allocation is a part of"
 #   stateChannel: StateChannel!
 #   "Tokens in this channel"
