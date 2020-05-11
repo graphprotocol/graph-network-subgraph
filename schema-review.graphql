@@ -89,8 +89,8 @@ type Account @entity {
   delegator: Delegator
 }
 
-"""Subgraph contains all SubgraphVersions and metadata"""
-type Subgraph @entity {
+"""All the information related the name that is in the GNS"""
+type NamedSubgraph @entity {
   # From GNS
   "Hash of the domain name"
   id: ID!
@@ -100,9 +100,34 @@ type Subgraph @entity {
   name: String!
   "Owner of this subgraph"
   owner: Account!
-  "Versions of this subgraph. Last version in array is current"
-  versions: [SubgraphVersion!]
+  "Current version"
+  currentVersion: SubgraphVersion
+  "Past versions"
+  pastVersions: [SubgraphVersion!]
+  "Current subgraph"
+  currentSubgraph: Subgraph
+  "Past subgraphs"
+  pastSubgraphs: [Subgraph!]
 
+  # Aggregate data
+  "Total inflation rewards earned all time by this named subgraph"
+  totalSubraphIndexingRewards: BigInt!
+  "Total query fees earned by this named subgraph"
+  totalQueryFeesCollected: BigInt!
+  "Total stake of all indexers on all subgraph versions"
+  totalStake: BigInt!
+  "Total signal of all curators on all subgraph versions"
+  totalSignal: BigInt!
+}
+
+"""Contains all the version metadata"""
+type SubgraphVersion @entity {
+  "Concatenation of named subgraph, subgraph, and version ID"
+  id: ID!
+  "Named subgraph of this version"
+  namedSubgraph: NamedSubgraph!
+  "Version number"
+  version: Int!
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
@@ -125,37 +150,14 @@ type Subgraph @entity {
   createdAt: Int!
   "Deploy timestamp"
   updatedAt: Int!
-
-  # From Subgraph Manifest
-  dataSources: [DataSource!]!
-
-  # Aggregate data
-  "Total inflation rewards earned all time by this subgraph"
-  totalSubraphIndexingRewards: BigInt!
-  "Total query fees earned by this subgraph"
-  totalQueryFeesCollected: BigInt!
-  "Total stake of all indexers on all Subgraph Versions"
-  totalStake: BigInt!
-  "Total signal of all curators on all Subgraph Versions"
-  totalSignal: BigInt!
 }
 
-"""Data source obtained from the subgraph manifest"""
-type DataSource @entity {
-  "Unique identifier of the data source. Such as contract address"
-  id: ID
-  "Data source name in the manifest"
-  name: String!
-  "Network "
-  network: String!  
-}
-
-"""SubgraphVersion represents a single instance of a Subgraph with a unique Subgraph ID"""
-type SubgraphVersion @entity {
+"""The immutable subgraph defined by a subgraph manifest, that Indexers stake on and Curators signal on"""
+type Subgraph @entity {
   "Subgraph ID"
   id: Bytes!
-  "The subgraph this version is related to"
-  subgraph: Subgraph!
+  "The named subgraph"
+  namedSubgraph: NamedSubgraph!
   "Creation timestamp"
   createdAt: Int!
 
@@ -178,6 +180,19 @@ type SubgraphVersion @entity {
   curators: [CuratorSignal!] @derivedFrom(field: "subgraph")
   "Bonding curve reserve ratio"
   reserveRatio: BigInt!
+
+  # From Subgraph Manifest
+  dataSources: [DataSource!]!
+}
+
+"""Data source obtained from the subgraph manifest"""
+type DataSource @entity {
+  "Unique identifier of the data source. Such as contract address"
+  id: ID
+  "Data source name in the manifest"
+  name: String!
+  "Network "
+  network: String!  
 }
 
 """Indexer represents metadata of the indexer all of its stake and delegator stake"""
@@ -403,3 +418,41 @@ enum DisputeResult {
   Indexer1Correct
   Indexer2Correct
 }
+
+
+
+# """StateChannel represents the continuous stake of an Indexer on a Subgraph, which is the accumulation of Allocations between an indexer and a subgraph"""
+# type StateChannel @entity {
+#   "Indexer ID concatenated with the Subgraph ID"
+#   id: ID!
+#   "Indexer of this state channel"
+#   indexer: Indexer!
+#   "Subgraph of this state channel"
+#   subgraph: Subgraph!
+#   "Active allocation. Null if this Indexer is no longer indexing this subgraph"
+#   activeAllocation: Allocation
+#   "Past allocation that have been closed for this state channel"
+#   closedAllocations: [Allocation!] @derivedFrom(field: stateChannel)
+# }
+
+# """State channel allocation representing Indexer-Subgraph stake"""
+# type Allocation @entity {
+#   "Channel Address"
+#   id: Bytes!
+#   "Indexer of this channel"
+#   indexer: Indexer!
+#   "Subgraph that is being staked on with an open channel"
+#   subgraph: SubgraphVersion!
+#   "State channel this allocation is a part of"
+#   stateChannel: StateChannel!
+#   "Tokens in this channel"
+#   tokensAllocated: BigInt!
+#   "Epoch this channel was created"
+#   createdAtEpoch: Int!
+#   "Fees this channel collected upon closing"
+#   feesCollected: BigInt!
+#   "Curator rewards deposited to the curating bonding curve"
+#   curatorReward: BigInt!
+#   "Epoch number of the Pool it was settled in"
+#   settled: Pool
+# }
