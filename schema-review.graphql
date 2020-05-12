@@ -106,10 +106,6 @@ type NamedSubgraph @entity {
   currentVersion: SubgraphVersion
   "Past versions"
   pastVersions: [SubgraphVersion!]
-  "Current subgraph"
-  currentSubgraph: Subgraph
-  "Past subgraphs"
-  pastSubgraphs: [Subgraph!]
 
   # Aggregate data
   "Total inflation rewards earned all time by this named subgraph"
@@ -160,8 +156,8 @@ type SubgraphVersion @entity {
 type Subgraph @entity {
   "Subgraph ID"
   id: Bytes!
-  "The version this subgraph relates to"
-  version: SubgraphVersion!
+  "The versions this subgraph relates to"
+  versions: [SubgraphVersion!] @derivedFrom(field: "subgraph")
   "Creation timestamp"
   createdAt: Int!
 
