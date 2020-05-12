@@ -1,203 +1,412 @@
-type Subgraph @entity {
-  #### From gns contract ####
+"""Graph Network global parameters"""
+type GraphNetwork @entity {
+  "id = 1"
+  id: ID
+  "Contract address"
+  graphToken: Bytes!
+  "Contract address"
+  epochManager: Bytes!
+  "Contract address"
+  curation: Bytes!
+  "Contract address"
+  staking: Bytes!
+  "Contract address"
+  disputeManager: Bytes!
+  "Set to true if the protocol is paused"
+  paused: Boolean!
+
+  # Staking global variables
+  "Percentage of fees going to curators"
+  curationPercentage: BigInt!
+  "Capacity of staked delegation tokens to own stake"
+  delegationCapacity: Int!
+  "Period to wait before fees can be claimed in rebate pool"
+  channelDisputeEpochs: BigInt!
+  "Period to wait before delegators can settle"
+  maxAllocationEpochs: BigInt!
+  "Time in blocks needed to wait to unstake"
+  thawingPeriod: BigInt!
+  "All addresses that have slashing privileges"
+  slashers: [Bytes!]
+  "Minimum time an Indexer must use for resetting their Delegation parameters"
+  minDelegationParameterCooldown: Int!
+  "The number of indexing rewards handed out per epoch"
+  indexingRewardsPerEpoch: Int!
+  "The issuance rate that GRT is minted at to support Indexers of the protocol"
+  networkGRTIssuance: Int!
+
+  # Curation global variables
+  "Default reserve ratio for all subgraphs"
+  defaultReserveRatio: BigInt!
+  "Minimum amount of tokens needed to start curating"
+  minimumCurationSignal: BigInt!
+
+  # Graph Token global variables
+  "Graph Token supply"
+  totalSupply: BigInt!
+
+  # Epoch Manager global variables
+  "Epoch Length in blocks"
+  epochLength: Int!
+  "Epoch that was last run"
+  lastRunEpoch: Int!
+  "Epoch when epoch length was last updated"
+  lastLengthUpdateEpoch: Int!
+  "Block when epoch length was last updated"
+  lastLengthUpdateBlock: Int!
+
+  # Dispute Manager global variables
+  "Address with permission to verify or reject disputes"
+  arbitrator: Bytes!
+  "Minimum deposit to create a dispute"
+  minimumDisputeDeposit: BigInt!
+  "Reward to Fisherman on successful disputes"
+  fishermanRewardPercentage: BigInt!
+  "Penalty to Indexer on successful disputes"
+  slashingPercentage: BigInt!
+}
+
+"""Account type is a user in the front end which could be doing any actions"""
+type Account @entity {
+  # From GNS
+  "Eth address"
+  id: Bytes!
+  "IPFS hash with account metadata details"
+  metadataHash: Bytes!
+  "Name of the account"
+  name: String!
+  "Named subgraphs this account owns"
+  namedSubgraphs: namedSubgraphs
+
+  # From Graph Token
+  "Graph token balance"
+  balance: BigInt!
+
+  # From Staking and Curating and Delegating
+  "Subgraphs this account curates"
+  curator: Curator
+  "Subgraphs this account indexes"
+  indexer: Indexer
+  "Subgraphs this account has delegated to"
+  delegator: Delegator
+}
+
+"""All the information related the name that is in the GNS"""
+type NamedSubgraph @entity {
+  # From GNS
   "Hash of the domain name"
   id: ID!
-  "Domain name, could be tld or subdomain"
-  name: String
-  "Eth address"
-  owner: Bytes
-  "Parent subgraph. If it is a tld, this is null"
-  parent: Subgraph
-  "Children Subgraphs"
-  children: [Subgraph!]! @derivedFrom(field: "parent")
-  "Versions of this subgraph. Last version in array is current"
-  versions: [SubgraphVersion!]
-  "Subgraph metadata"
-  metadataHash: Bytes
+  "System used for naming"
+  nameSystem: String
+  "Name of the subgraph"
+  name: String!
+  "Owner of this subgraph"
+  owner: Account!
+  "Current version"
+  currentVersion: SubgraphVersion
+  "Past versions"
+  pastVersions: [SubgraphVersion!]
 
-  #### Metadata taken from IPFS, also from GNS ####
-  "Short description of the subgraph"
-  description: String
-  "Common subgraph or owned by a user"
-  type: SubgraphType
-  "Image in string format"
-  image: String
-  "Subtitle for display"
-  subtitle: String
-  "Display name for subgraph"
-  displayName: String
-  "Github url of the subgraph repo"
-  githubURL: String
-  "Project's website"
-  websiteURL: String
-  "Creation timestamp"
-  createdAt: Int
-  "Deploy timestamp"
-  updatedAt: Int
-
-  #### From staking contract ####
-  #  "Curators of this subgraph"
-  #  curatorInfo: [CuratorInfo!]
-  #  "Indexers of this subgraph"
-  #  indexerInfo: [IndexerInfo!]
-  #  "Bonding curve reserve ratio"
-  #  reserveRatio: BigInt
-  #  "Total curation stake on this subgraph"
-  #  totalCurationStake: BigInt
-  #  "Total curation shares on this subgraph"
-  #  totalCurationShares: BigInt
-  #  "Total indexing stake on this subgraph"
-  #  totalIndexingStake: BigInt
+  # Aggregate data
+  "Total inflation rewards earned all time by this named subgraph"
+  totalSubraphIndexingRewards: BigInt!
+  "Total query fees earned by this named subgraph"
+  totalQueryFeesCollected: BigInt!
+  "Total stake of all indexers on all subgraph versions"
+  totalStake: BigInt!
+  "Total signal of all curators on all subgraph versions"
+  totalSignal: BigInt!
 }
 
-enum SubgraphType {
-  Commons
-  Owned
-}
-
+"""Contains all the version metadata"""
 type SubgraphVersion @entity {
-  "Subgraph ID"
+  "Concatenation of named subgraph, subgraph, and version ID"
   id: ID!
-  "The subgraph this version is related to"
-  subgraph: Subgraph
+  "Named subgraph of this version"
+  namedSubgraph: NamedSubgraph!
+  "Subgraph of this version"
+  subgraph: Subgraph!
+  "Version number"
+  version: Int!
+
+  # Metadata from IPFS linked in GNS
+  "Subgraph metadata"
+  metadataHash: Bytes!
+  "Short description of the subgraph"
+  description: String!
+  "Image in string format"
+  image: String!
+  "Subtitle for display"
+  subtitle: String!
+  "Display name for subgraph"
+  displayName: String!
+  "Location of the code for this project"
+  repoAddress: String!
+  "Project's website"
+  websiteURL: String!
+  "Network that the subgraph is indexing"
+  network: String!
+  "Creation timestamp"
+  createdAt: Int!
+  "Deploy timestamp"
+  updatedAt: Int!
+}
+
+"""The immutable subgraph defined by a subgraph manifest, that Indexers stake on and Curators signal on"""
+type Subgraph @entity {
+  "Subgraph ID"
+  id: Bytes!
+  "The versions this subgraph relates to"
+  versions: [SubgraphVersion!] @derivedFrom(field: "subgraph")
   "Creation timestamp"
   createdAt: Int!
 
-  # schema: Schema!   # TODO Beta - not sure how this will work yet
-
-  #### From staking contract ####
-  "Total stake of all curators"
-  totalCurationStake: BigInt!
-  "Total stake of all indexers"
-  totalIndexingStake: BigInt!
-  "Total curation shares on this subgraph"
-  totalCurationShares: BigInt!
-  "Curators of this subgraph"
-  curatorInfo: [CuratorInfo!] @derivedFrom(field: "subgraphID")
+  # From Staking
+  "Total stake of all indexers on this Subgraph"
+  totalStake: BigInt!
   "Indexers of this subgraph"
-  indexerInfo: [IndexerInfo!] @derivedFrom(field: "subgraphID")
+  indexers: [Channel!] @derivedFrom(field: "subgraph")
+  "Total fees accrued all time by this subgraph version"
+  totalSubraphIndexingRewards: BigInt!
+
+  # From Curation
+  "Total signal of all curators"
+  totalSignaledGRT: BigInt!
+  "Total curation signal on this subgraph version"
+  totalSignalMinted: BigInt!
+  "Total query fees earned by this subgraph version"
+  totalQueryFeesCollected: BigInt!
+  "Curators of this subgraph version"
+  curators: [CuratorSignal!] @derivedFrom(field: "subgraph")
   "Bonding curve reserve ratio"
-  reserveRatio: BigInt
+  reserveRatio: BigInt!
+
+  # From Subgraph Manifest
+  dataSources: [DataSource!]!
 }
 
+"""Data source obtained from the subgraph manifest"""
+type DataSource @entity {
+  "Unique identifier of the data source. Such as contract address"
+  id: ID
+  "Data source name in the manifest"
+  name: String!
+  "Network "
+  network: String!  
+}
+
+"""Indexer represents metadata of the indexer all of its stake and delegator stake"""
 type Indexer @entity {
-  "Eth address"
-  id: ID!
-  "Service registry URL bytes"
-  urlBytes: Bytes
+  "Eth address of Indexer"
+  id: Bytes!
+  "Time this indexer was created"
+  createdAt: Int!
+  "Account of this indexer"
+  account: Account!
   "Service registry URL string"
-  urlString: String
-  "Array of subgraphs the indexer is indexing"
-  indexing: [IndexerInfo!] @derivedFrom(field: "user")
+  urlString: String!
+  "Total tokens staked"
+  stakedTokens: BigInt!
+  "Total tokens allocated"
+  tokensAllocated: BigInt!
+  "Total tokens locked"
+  tokensLocked: BigInt!
+  "Time when Indexers tokens unlock"
+  tokensLockedUntil: Int!
+  "Channels this indexer is currently staked on"
+  channels: [Channel!] @derivedFrom(field: "indexer")
+
+  # Delegator fields
+  "Delegators to this Indexer"
+  delegators: [DelegatorStake!] @derivedFrom(field: "indexer")
+  "Total tokens delegated to the indexer"
+  tokensDelegated: BigInt!
+  "Total tokens available to be delegated"
+  tokenCapacity: BigInt!
+  "The percent the Indexer agrees to share with delegators"
+  indexingRewardCut: Int!
+  "The percent of query rebate rewards the Indexer agrees to share with delegators"
+  queryFeeCut: Int!
+  "Time delegator decides to wait for changing of their parameters"
+  delegatorParameterCooldown: Int!
+  "Count of how many times this indexer has been forced to settle"
+  forcedSettlements: Int!
 }
 
-type IndexerInfo @entity {
-  "Eth address + subgraph ID"
+"""Allocation represents the continuous stake of an Indexer on a Subgraph, which is the accumulation of Channels between an indexer and a subgraph"""
+type Allocation @entity {
+  "Indexer ID concatenated with the Subgraph ID"
   id: ID!
-  "Eth address"
-  user: Indexer!
-  "IPFS hash of subgraph files"
-  subgraphID: SubgraphVersion!
-  "Number of tokens the indexer has staked"
-  tokensStaked: BigInt! # If this is 0, it means they have logged out
-  # By knowing the thawing time, we can derive the time they can withdraw
-  "Time logout has started for thawing"
-  logoutStartTime: Int!
-  # feesAccrued: BigInt # not clear how this will work yet, in the smart contract
-  "Amount of tokens locked on this subgraph for this indexer"
-  lockedTokens: BigInt
+  "Indexer of this Allocation"
+  indexer: Indexer!
+  "Subgraph of this Allocation"
+  subgraph: Subgraph!
+  "Active Channel. Null if this Indexer is no longer indexing this subgraph"
+  activeChannel: Channel
+  "Past channels that have been closed for this allocation"
+  closedChannels: [Channel!] @derivedFrom(field: allocation)
 }
 
+"""State channel allocation representing Indexer-Subgraph stake"""
+type Channel @entity {
+  "Channel Address"
+  id: Bytes!
+  "Indexer of this channel"
+  indexer: Indexer!
+  "Subgraph that is being staked on with an open channel"
+  subgraph: Subgraph!
+  "Allocation this channel is a part of"
+  allocation: Allocation!
+  "Tokens associated with the channel"
+  tokensAllocated: BigInt!
+  "Epoch this channel was created"
+  createdAtEpoch: Int!
+  "Fees this channel collected upon closing"
+  feesCollected: BigInt!
+  "Curator rewards deposited to the curating bonding curve"
+  curatorReward: BigInt!
+  "Epoch number of the Pool it was settled in"
+  settled: Pool
+}
+
+"""Global pool of query fees for settled state channels after Curation rewards have been removed. One pool per epoch"""
+type Pool @entity {
+  "Epoch number of the pool"
+  id: ID!
+  "Total fees earned in this epoch"
+  fees: BigInt!
+  "Total allocation settled in this epoch"
+  allocation: BigInt!
+  "Total rewards deposited to all curator bonding curves during the epoch"
+  curatorReward: BigInt!
+  "Channels that were settled during this epoch"
+  settled: [Channel!] @derivedFrom(field: settled)
+}
+
+"""All data regarding an Indexing Reward"""
+type IndexingReward @entity {
+  "Reward ID"
+  id: ID!
+  "Minted GRT in this epoch"
+  mintedGRT: BigInt!
+  "Epoch the reward was handed out"
+  epoch: Int!
+  "Total allocation settled in this epoch"
+  allocation: BigInt!
+  "Subgraph that won durning this epoch"
+  subgraph: Subgraph!
+  "Winning Indexer"
+  indexer: Indexer!
+  "True if reward has been claimed"
+  claimed: Boolean!  
+}
+
+"""Delegator with all their stakes"""
+type Delegator @entity {
+  "Delegator address"
+  id: Bytes!
+  "Stakes of this delegator"
+  stakes: [DelegatedStake!] @derivedFrom(field: "delegator")
+}
+
+"""Delegator stake for a single Indexer"""
+type DelegatedStake @entity {
+  "Concatenation of Delegator address and Indexer address"
+  id: ID!
+  "Index the stake is delegated to"
+  indexer: Indexer!
+  "Delegator"
+  delegator: Delegator!
+  "Amount delegated"
+  stake: BigInt!
+}
+
+"""Curator with all their signals"""
 type Curator @entity {
-  "Eth address"
-  id: ID!
-  "Array of subgraphs the curator is curating"
-  curating: [CuratorInfo!] @derivedFrom(field: "user")
+  "Eth address of the Curator"
+  id: Bytes!
+  "Time this curator was created"
+  createdAt: Int!
+  "Account of this curator"
+  account: Account!
+  "Total minted signal this curator has on all subgraphs"
+  totalSignal: BigInt!
+  "Total GRT signaled on all the subgraphs"
+  totalSignaledGRT: BigInt!
+  "Total fees earned from being a curator"
+  feesEarned: BigInt!
+  "Subgraphs the curator is curating"
+  signals: [Signal!] @derivedFrom(field: "curator")
+
 }
 
-type CuratorInfo @entity {
+"""Curator signal for a single Subgraph"""
+type Signal @entity {
   "Eth address + subgraph ID"
   id: ID!
-  "Eth address"
-  user: Curator!
-  "IPFS hash of subgraph files"
-  subgraphID: SubgraphVersion!
-  "Cumulative number of tokens the curator has staked"
-  tokensStaked: BigInt!
-  "Cumulative number of tokens the curator has unstaked. Not equivalent to tokensStaked. tokensStaked - tokensUnstaked = curating profit"
-  tokensUnstaked: BigInt!
-  "Number of shares the curator has"
-  shares: BigInt!
+  "Eth address of the curator"
+  curator: Curator!
+  "Subgraph being signaled"
+  subgraph: Subgraph!
+  "Cumulative number of tokens the curator has signaled"
+  tokensSignaled: BigInt!
+  "Cumulative number of tokens the curator has redeemed"
+  tokensRedeemed: BigInt!
+  "Signal that the curator has from signaling their GRT"
+  signal: BigInt!
 }
 
-type Account @entity {
-  #### From GNS.sol ####
-  "Eth address"
+"""Dispute of a query. Includes both normal and attestation Disputes"""
+type Dispute @entity {
+  "Dispute ID"
   id: ID!
-  "IPFS hash with account metadata details"
-  metadataHash: Bytes
-
-  #### From GraphToken.sol ####
-  "Graph token balance"
-  balance: BigInt!
-  # "Might add this"
-  # approvals: [Bytes!]!
-  # "Might add this"
-  # allowances: [BigInt!]!
-
-  #### From Staking.sol ####
-  "All subgraphs this account curates"
-  curating: Curator
-  "All subgraphs this accoutn indexes"
-  indexing: Indexer
+  "Subgraph of the dispute"
+  subgraph: Subgraph!
+  "Indexer disputed. If an attestation dispute there will be 2 indexers"
+  indexers: [Indexer!]!
+  "Fisherman address"
+  fisherman: Bytes!
+  "Fisherman deposit"
+  deposit: BigInt!
+  "Attestation disputed. If an attestation dispute there will be 2 attestation"
+  attestation: [Attestation]!
+  "Time dispute was created"
+  createdAt: Int!
+  "Result of either type of dispute"
+  result: DisputeResult!
+  "Tokens slashed"
+  tokensSlashed: BigInt!
+  "Tokens rewarded"
+  tokensRewarded: BigInt!  
 }
 
-# TODO - expose all Staking and other values here. Rename this GraphNetwork
-type GraphToken @entity {
-  "Set to 1"
+"""Attestation of a dispute"""
+type Attestation @entity {
+  "Concatenation of the requestCID and responseCID"
   id: ID!
-  "Total graph tokens"
-  total: BigInt!
+  "Subgraph of the subgraph being disputed"
+  subgraph: Subgraph!
+  "RequestCID"
+  requestCID: String!
+  "ResponseCID"
+  responseCID: String!
+  "Gas used by the attested query"
+  gasUsed: BigInt!
+  "Bytes of attested query"
+  responseNumBytes: BigInt!
+  "V of the indexers signature"
+  v: Int!
+  "R of the indexers signature"
+  r: Bytes!
+  "S of the indexers signature"
+  s: Bytes!
 }
 
-# might have to add specifics here of each type, but i think i can probably
-# actually pass on that. this info might be enough
-type Transactions @entity {
-  "Tx hash"
-  id: ID! # tx hash (plus log index)
-  "Block timestamp"
-  timestamp: Int!
-  "Block number"
-  block: Int!
-  "Transaction type"
-  type: TransactionType!
+enum DisputeResult {
+  Undecided
+  Accepted
+  Rejected
+  Draw
+  Indexer1Correct
+  Indexer2Correct
 }
-
-# others to probably add GNS - transfer GNS ownership, delete subgraph, account metadata and subgraph metadata changed
-# Staking - curatorBeginLogout, Disputes (not included yet), distribute channel fees
-enum TransactionType {
-  CurateStake
-  CurateUnstake
-  IndexingStake
-  IndexingUnstake
-  RegisterGNS
-  UpdateGNS
-  DeploySubgraphToGNS
-}
-
-#### Not in use for alpha ####
-
-#type Dispute @entity {
-#    id: ID! # dispute ID
-#    subgraphID: Bytes!
-#    indexingNode: Bytes!
-#    fisherman: Bytes!
-#    attestation: Bytes!
-#    status: DisputeStatus!
-#}
-#
-#enum DisputeStatus {
-#    Created,
-#    Accepted,
-#    Rejected
-#}

@@ -1,68 +1,12 @@
 [
   {
-    "constant": true,
-    "inputs": [],
-    "name": "governor",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
     "inputs": [
       {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "domains",
-    "outputs": [
-      {
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "name": "subgraphID",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_newGovernor",
-        "type": "address"
-      }
-    ],
-    "name": "transferGovernance",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
+        "internalType": "address",
         "name": "_governor",
         "type": "address"
       }
     ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -71,106 +15,13 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "topLevelDomainHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "domainName",
-        "type": "string"
-      }
-    ],
-    "name": "DomainAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "domainHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "DomainTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "topLevelDomainHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "registeredHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "name": "subdomainName",
-        "type": "string"
-      },
-      {
-        "indexed": true,
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "SubgraphCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "domainHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "name": "subgraphID",
-        "type": "bytes32"
-      }
-    ],
-    "name": "SubgraphIDUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "domainHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "DomainDeleted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
+        "internalType": "address",
         "name": "account",
         "type": "address"
       },
       {
         "indexed": true,
+        "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
       }
@@ -183,11 +34,139 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "bytes32",
+        "name": "topLevelDomainHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "domainName",
+        "type": "string"
+      }
+    ],
+    "name": "DomainAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "domainHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "DomainDeleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
         "name": "domainHash",
         "type": "bytes32"
       },
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "DomainTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "topLevelDomainHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "registeredHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "subdomainName",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "SubgraphCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "domainHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "subgraphID",
+        "type": "bytes32"
+      }
+    ],
+    "name": "SubgraphIDUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "domainHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
       }
@@ -196,137 +175,168 @@
     "type": "event"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "name": "_from",
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "domains",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
         "type": "address"
       },
       {
-        "indexed": true,
-        "name": "_to",
+        "internalType": "bytes32",
+        "name": "subgraphID",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governor",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "GovernanceTransferred",
-    "type": "event"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_newGovernor",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
         "name": "_domainName",
         "type": "string"
       }
     ],
     "name": "registerDomain",
     "outputs": [],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "_topLevelDomainHash",
         "type": "bytes32"
       },
       {
+        "internalType": "string",
         "name": "_subdomainName",
         "type": "string"
       },
       {
+        "internalType": "bytes32",
         "name": "_ipfsHash",
         "type": "bytes32"
       }
     ],
     "name": "createSubgraph",
     "outputs": [],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "_domainHash",
         "type": "bytes32"
       },
       {
+        "internalType": "bytes32",
         "name": "_subgraphID",
         "type": "bytes32"
       }
     ],
     "name": "updateDomainSubgraphID",
     "outputs": [],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "_domainHash",
         "type": "bytes32"
       }
     ],
     "name": "deleteSubdomain",
     "outputs": [],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "_domainHash",
         "type": "bytes32"
       },
       {
+        "internalType": "address",
         "name": "_newOwner",
         "type": "address"
       }
     ],
     "name": "transferDomainOwnership",
     "outputs": [],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "_ipfsHash",
         "type": "bytes32"
       }
     ],
     "name": "changeAccountMetadata",
     "outputs": [],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "_domainHash",
         "type": "bytes32"
       },
       {
+        "internalType": "bytes32",
         "name": "_ipfsHash",
         "type": "bytes32"
       }
     ],
     "name": "changeSubgraphMetadata",
     "outputs": [],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   }
