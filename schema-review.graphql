@@ -128,6 +128,8 @@ type SubgraphVersion @entity {
   id: ID!
   "Named subgraph of this version"
   namedSubgraph: NamedSubgraph!
+  "Subgraph of this version"
+  subgraph: Subgraph!
   "Version number"
   version: Int!
 
@@ -158,8 +160,8 @@ type SubgraphVersion @entity {
 type Subgraph @entity {
   "Subgraph ID"
   id: Bytes!
-  "The named subgraph"
-  namedSubgraph: NamedSubgraph!
+  "The version this subgraph relates to"
+  version: SubgraphVersion!
   "Creation timestamp"
   createdAt: Int!
 
@@ -259,7 +261,7 @@ type Channel @entity {
   subgraph: Subgraph!
   "Allocation this channel is a part of"
   allocation: Allocation!
-  "Tokens in this channel"
+  "Tokens associated with the channel"
   tokensAllocated: BigInt!
   "Epoch this channel was created"
   createdAtEpoch: Int!
@@ -285,26 +287,18 @@ type Pool @entity {
   settled: [Channel!] @derivedFrom(field: settled)
 }
 
-"""All data regarding an Indexing Reward handed out per epoch"""
+"""All data regarding an Indexing Reward"""
 type IndexingReward @entity {
-  "Epoch number of the reward"
+  "Reward ID"
   id: ID!
   "Minted GRT in this epoch"
   mintedGRT: BigInt!
+  "Epoch the reward was handed out"
+  epoch: Int!
   "Total allocation settled in this epoch"
   allocation: BigInt!
-  "Channels that were settled during this epoch"
-  winners: [RewardWinners!] @derivedFrom(field: settled)
   "Subgraph that won durning this epoch"
   subgraph: Subgraph!
-}
-
-"""A winner during an Indexing Reward given out during an Epoch"""
-type RewardWinners @entity {
-  "Concatenation of IndexingReward ID and the Reward ID"
-  id: ID!
-  "Indexing Reward this Winner was a part of"
-  reward: IndexingReward!
   "Winning Indexer"
   indexer: Indexer!
   "True if reward has been claimed"
@@ -420,41 +414,3 @@ enum DisputeResult {
   Indexer1Correct
   Indexer2Correct
 }
-
-
-
-# """StateChannel represents the continuous stake of an Indexer on a Subgraph, which is the accumulation of Allocations between an indexer and a subgraph"""
-# type StateChannel @entity {
-#   "Indexer ID concatenated with the Subgraph ID"
-#   id: ID!
-#   "Indexer of this state channel"
-#   indexer: Indexer!
-#   "Subgraph of this state channel"
-#   subgraph: Subgraph!
-#   "Active allocation. Null if this Indexer is no longer indexing this subgraph"
-#   activeAllocation: Allocation
-#   "Past allocation that have been closed for this state channel"
-#   closedAllocations: [Allocation!] @derivedFrom(field: stateChannel)
-# }
-
-# """State channel allocation representing Indexer-Subgraph stake"""
-# type Allocation @entity {
-#   "Channel Address"
-#   id: Bytes!
-#   "Indexer of this channel"
-#   indexer: Indexer!
-#   "Subgraph that is being staked on with an open channel"
-#   subgraph: Subgraph!
-#   "State channel this allocation is a part of"
-#   stateChannel: StateChannel!
-#   "Tokens in this channel"
-#   tokensAllocated: BigInt!
-#   "Epoch this channel was created"
-#   createdAtEpoch: Int!
-#   "Fees this channel collected upon closing"
-#   feesCollected: BigInt!
-#   "Curator rewards deposited to the curating bonding curve"
-#   curatorReward: BigInt!
-#   "Epoch number of the Pool it was settled in"
-#   settled: Pool
-# }
