@@ -31,7 +31,50 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "indexNode",
+        "name": "indexer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "epoch",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokens",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "channelID",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "channelPubKey",
+        "type": "bytes"
+      }
+    ],
+    "name": "AllocationCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "indexer",
         "type": "address"
       },
       {
@@ -74,43 +117,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "indexNode",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "epoch",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokens",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "channelID",
-        "type": "address"
-      }
-    ],
-    "name": "AllocationUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "from",
         "type": "address"
       },
@@ -130,7 +136,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "indexNode",
+        "name": "indexer",
         "type": "address"
       },
       {
@@ -155,6 +161,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "tokens",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "settlements",
         "type": "uint256"
       }
     ],
@@ -192,7 +204,26 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "indexNode",
+        "name": "indexer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "StakeDeposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "indexer",
         "type": "address"
       },
       {
@@ -217,7 +248,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "indexNode",
+        "name": "indexer",
         "type": "address"
       },
       {
@@ -229,11 +260,36 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "total",
+        "name": "reward",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      }
+    ],
+    "name": "StakeSlashed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "indexer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokens",
         "type": "uint256"
       }
     ],
-    "name": "StakeUpdate",
+    "name": "StakeWithdrawn",
     "type": "event"
   },
   {
@@ -261,7 +317,7 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "indexNode",
+        "name": "indexer",
         "type": "address"
       },
       {
@@ -398,12 +454,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "tokensIndexNode",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokensDelegated",
+        "name": "tokensIndexer",
         "type": "uint256"
       },
       {
@@ -570,7 +621,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_indexNode",
+        "name": "_indexer",
         "type": "address"
       }
     ],
@@ -589,11 +640,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_indexNode",
+        "name": "_indexer",
         "type": "address"
       }
     ],
-    "name": "getIndexNodeStakeTokens",
+    "name": "getIndexerStakeTokens",
     "outputs": [
       {
         "internalType": "uint256",
@@ -608,7 +659,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_indexNode",
+        "name": "_indexer",
         "type": "address"
       },
       {
@@ -649,7 +700,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_indexNode",
+        "name": "_indexer",
         "type": "address"
       },
       {
@@ -715,9 +766,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "_channelID",
-        "type": "address"
+        "internalType": "bytes",
+        "name": "_channelPubKey",
+        "type": "bytes"
       }
     ],
     "name": "allocate",

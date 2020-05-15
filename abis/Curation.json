@@ -140,19 +140,6 @@
   },
   {
     "inputs": [],
-    "name": "distributor",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "governor",
     "outputs": [
       {
@@ -172,6 +159,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "staking",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -262,11 +262,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_distributor",
+        "name": "_staking",
         "type": "address"
       }
     ],
-    "name": "setDistributor",
+    "name": "setStaking",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
