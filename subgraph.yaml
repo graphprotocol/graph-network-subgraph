@@ -69,16 +69,22 @@ dataSources:
       abis:
         - name: Staking
           file: ./abis/Staking.json
+        - name: GraphToken
+          file: ./abis/GraphToken.json
       eventHandlers:
-        - event: StakeUpdate(indexed address,uint256,uint256)
-          handler: handleStakeUpdate
+        - event: StakeDeposited(indexed address,uint256)
+          handler: handleStakeDeposited
+        - event: StakeWithdrawn(indexed address,uint256)
+          handler: handleStakeWithdrawn
         - event: StakeLocked(indexed address,uint256,uint256)
           handler: handleStakeLocked
-        - event: AllocationUpdated(indexed address,indexed bytes32,uint256,uint256,address)
+        - event: StakeSlashed(indexed address,uint256,uint256,address)
+          handler: handleStakeSlashed          
+        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes)
           handler: handleAllocationUpdated
         - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address)
           handler: handleAllocationSettled
-        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256)
+        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
         - event: SlasherUpdate(indexed address,indexed address,bool)
           handler: handleSlasherUpdate

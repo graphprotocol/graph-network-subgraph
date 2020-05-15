@@ -1,28 +1,102 @@
 import {
-  StakeUpdate,
+  StakeDeposited,
+  StakeWithdrawn,
   StakeLocked,
-  AllocationUpdated,
+  StakeSlashed,
+  AllocationCreated,
   AllocationSettled,
   RebateClaimed,
   SlasherUpdate,
   Staking
 } from '../../generated/Staking/Staking'
+
+import {GraphToken} from '../../generated/Staking/GraphToken'
 import {
-  IndexerInfo,
+  Channel,
   Indexer,
-  SubgraphVersion,
+  Allocation,
+  Subgraph,
+  NamedSubgraph,
+  Account,
+  GraphNetwork
 } from '../../generated/schema'
-import {BigInt, store} from '@graphprotocol/graph-ts'
+import {BigInt, store, Bytes} from '@graphprotocol/graph-ts'
 
+/**
+ * handleStakeDeposited
+ * - creates an Indexer if it is the first time they have staked
+ * - updated the Indexers stake
+ * - updates the GraphNetwork total stake
+ * - no need to create an Account. To stake, it would have obtained GRT, and
+ *   the account would have been created in graphToken.ts
+ */
+export function handleStakeDeposited(event: StakeDeposited): void {
+  // update indexer
+  let id = event.params.indexer.toHexString()
+  let indexer = Indexer.load(id)
+  if (indexer == null){
+    indexer = new Indexer(id)
+    indexer.stakedTokens = BigInt.fromI32(0)
+    indexer.tokensAllocated = BigInt.fromI32(0)
+    indexer.tokensLocked = BigInt.fromI32(0)
+    indexer.tokensLockedUntil  = BigInt.fromI32(0)
+    indexer.tokensDelegated = BigInt.fromI32(0)
+    indexer.tokenCapacity = BigInt.fromI32(0)
+    indexer.indexingRewardCut = 0
+    indexer.queryFeeCut = 0
+    indexer.delegatorParameterCooldown = 0
+    indexer.forcedSettlements = 0
+  }
+  indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
+  indexer.save()
 
-// OLD BELOW, to clean
-export function handleStakeUpdate(event: StakeUpdate): void {
+  // Update graph network
+  let graphNetwork = GraphNetwork.load("1")
+  let graphToken = GraphToken.bind(graphNetwork.graphToken)
+  graphNetwork.totalGRTStaked = graphToken.balanceOf(graphNetwork.staking)
+  graphNetwork.save()
+}
+/**
+ * handleStakeDeposited
+ * - updated the Indexers stake
+ * - updates the GraphNetwork total stake
+ * - no need to create an Account or an Indexer, they would have been created
+ *   already
+ */
+export function handleStakeWithdrawn(event: StakeWithdrawn): void {
+    // update indexer
+    let id = event.params.indexer.toHexString()
+    let indexer = Indexer.load(id)
+    if (indexer == null){
+      indexer = new Indexer(id)
+      indexer.stakedTokens = BigInt.fromI32(0)
+      indexer.tokensAllocated = BigInt.fromI32(0)
+      indexer.tokensLocked = BigInt.fromI32(0)
+      indexer.tokensLockedUntil  = BigInt.fromI32(0)
+      indexer.tokensDelegated = BigInt.fromI32(0)
+      indexer.tokenCapacity = BigInt.fromI32(0)
+      indexer.indexingRewardCut = 0
+      indexer.queryFeeCut = 0
+      indexer.delegatorParameterCooldown = 0
+      indexer.forcedSettlements = 0
+    }
+    indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
+    indexer.save()
+  
+    // Update graph network
+    let graphNetwork = GraphNetwork.load("1")
+    let graphToken = GraphToken.bind(graphNetwork.graphToken)
+    graphNetwork.totalGRTStaked = graphToken.balanceOf(graphNetwork.staking)
+    graphNetwork.save()
 
 }
 export function handleStakeLocked(event: StakeLocked): void {
 
 }
-export function handleAllocationUpdated(event: AllocationUpdated): void {
+export function handleStakeSlashed(event: StakeSlashed): void {
+
+}
+export function handleAllocationUpdated(event: AllocationCreated): void {
 
 }
 export function handleAllocationSettled(event: AllocationSettled): void {

@@ -1,7 +1,7 @@
 """Graph Network global parameters"""
 type GraphNetwork @entity {
   "id = 1"
-  id: ID
+  id: ID!
   "Contract address"
   graphToken: Bytes!
   "Contract address"
@@ -12,6 +12,10 @@ type GraphNetwork @entity {
   staking: Bytes!
   "Contract address"
   disputeManager: Bytes!
+  "Contract address"
+  gns: Bytes!
+  "Contract address"
+  serviceRegistry: Bytes!
   "Set to true if the protocol is paused"
   paused: Boolean!
 
@@ -34,12 +38,16 @@ type GraphNetwork @entity {
   indexingRewardsPerEpoch: Int!
   "The issuance rate that GRT is minted at to support Indexers of the protocol"
   networkGRTIssuance: Int!
+  "The total amount of GRT staked in the staking contract"
+  totalGRTStaked: BigInt!
 
   # Curation global variables
   "Default reserve ratio for all subgraphs"
   defaultReserveRatio: BigInt!
   "Minimum amount of tokens needed to start curating"
   minimumCurationSignal: BigInt!
+  "The total amount of GRT staked in the Curation contract"
+  totalGRTSignaled: BigInt!
 
   # Graph Token global variables
   "Graph Token supply"
@@ -70,13 +78,13 @@ type GraphNetwork @entity {
 type Account @entity {
   # From GNS
   "Eth address"
-  id: Bytes!
+  id: ID!
   "IPFS hash with account metadata details"
   metadataHash: Bytes!
   "Name of the account"
   name: String!
   "Named subgraphs this account owns"
-  namedSubgraphs: namedSubgraphs
+  namedSubgraphs: NamedSubgraph
 
   # From Graph Token
   "Graph token balance"
@@ -155,7 +163,7 @@ type SubgraphVersion @entity {
 """The immutable subgraph defined by a subgraph manifest, that Indexers stake on and Curators signal on"""
 type Subgraph @entity {
   "Subgraph ID"
-  id: Bytes!
+  id: ID!
   "The versions this subgraph relates to"
   versions: [SubgraphVersion!] @derivedFrom(field: "subgraph")
   "Creation timestamp"
@@ -177,7 +185,7 @@ type Subgraph @entity {
   "Total query fees earned by this subgraph version"
   totalQueryFeesCollected: BigInt!
   "Curators of this subgraph version"
-  curators: [CuratorSignal!] @derivedFrom(field: "subgraph")
+  curators: [Signal!] @derivedFrom(field: "subgraph")
   "Bonding curve reserve ratio"
   reserveRatio: BigInt!
 
@@ -188,7 +196,7 @@ type Subgraph @entity {
 """Data source obtained from the subgraph manifest"""
 type DataSource @entity {
   "Unique identifier of the data source. Such as contract address"
-  id: ID
+  id: ID!
   "Data source name in the manifest"
   name: String!
   "Network "
@@ -198,13 +206,13 @@ type DataSource @entity {
 """Indexer represents metadata of the indexer all of its stake and delegator stake"""
 type Indexer @entity {
   "Eth address of Indexer"
-  id: Bytes!
+  id: ID!
   "Time this indexer was created"
   createdAt: Int!
   "Account of this indexer"
   account: Account!
   "Service registry URL string"
-  urlString: String!
+  urlString: String! # TODO - might not be a !
   "Total tokens staked"
   stakedTokens: BigInt!
   "Total tokens allocated"
@@ -218,7 +226,7 @@ type Indexer @entity {
 
   # Delegator fields
   "Delegators to this Indexer"
-  delegators: [DelegatorStake!] @derivedFrom(field: "indexer")
+  delegators: [DelegatedStake!] @derivedFrom(field: "indexer")
   "Total tokens delegated to the indexer"
   tokensDelegated: BigInt!
   "Total tokens available to be delegated"
@@ -244,13 +252,13 @@ type Allocation @entity {
   "Active Channel. Null if this Indexer is no longer indexing this subgraph"
   activeChannel: Channel
   "Past channels that have been closed for this allocation"
-  closedChannels: [Channel!] @derivedFrom(field: allocation)
+  closedChannels: [Channel!] @derivedFrom(field: "allocation")
 }
 
 """State channel allocation representing Indexer-Subgraph stake"""
 type Channel @entity {
   "Channel Address"
-  id: Bytes!
+  id: ID!
   "Indexer of this channel"
   indexer: Indexer!
   "Subgraph that is being staked on with an open channel"
@@ -280,7 +288,7 @@ type Pool @entity {
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorReward: BigInt!
   "Channels that were settled during this epoch"
-  settled: [Channel!] @derivedFrom(field: settled)
+  settled: [Channel!] @derivedFrom(field: "settled")
 }
 
 """All data regarding an Indexing Reward"""
@@ -304,7 +312,7 @@ type IndexingReward @entity {
 """Delegator with all their stakes"""
 type Delegator @entity {
   "Delegator address"
-  id: Bytes!
+  id: ID!
   "Stakes of this delegator"
   stakes: [DelegatedStake!] @derivedFrom(field: "delegator")
 }
@@ -324,7 +332,7 @@ type DelegatedStake @entity {
 """Curator with all their signals"""
 type Curator @entity {
   "Eth address of the Curator"
-  id: Bytes!
+  id: ID!
   "Time this curator was created"
   createdAt: Int!
   "Account of this curator"
