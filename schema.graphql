@@ -176,14 +176,15 @@ type Subgraph @entity {
   indexers: [Channel!] @derivedFrom(field: "subgraph")
   "Total fees accrued all time by this subgraph version"
   totalSubraphIndexingRewards: BigInt!
+  "Total query fees earned by this subgraph version"
+  totalQueryFeesCollected: BigInt!
 
   # From Curation
   "Total signal of all curators"
   totalSignaledGRT: BigInt!
   "Total curation signal on this subgraph version"
   totalSignalMinted: BigInt!
-  "Total query fees earned by this subgraph version"
-  totalQueryFeesCollected: BigInt!
+
   "Curators of this subgraph version"
   curators: [Signal!] @derivedFrom(field: "subgraph")
   "Bonding curve reserve ratio"
@@ -269,7 +270,7 @@ type Channel @entity {
   tokensAllocated: BigInt!
   "Epoch this channel was created"
   createdAtEpoch: Int!
-  "Fees this channel collected upon closing"
+  "Fees this channel collected upon closing, excluding curator reward"
   feesCollected: BigInt!
   "Curator rewards deposited to the curating bonding curve"
   curatorReward: BigInt!

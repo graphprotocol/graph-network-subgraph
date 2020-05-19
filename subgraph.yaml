@@ -84,7 +84,7 @@ dataSources:
           handler: handleStakeSlashed          
         - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes)
           handler: handleAllocationUpdated
-        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address)
+        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
           handler: handleAllocationSettled
         - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed

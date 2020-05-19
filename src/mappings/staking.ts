@@ -136,7 +136,7 @@ export function handleAllocationUpdated(event: AllocationCreated): void {
 export function handleAllocationSettled(event: AllocationSettled): void {
   let subgraphID = event.params.subgraphID.toString();
   let indexerID = event.params.indexer.toString();
-  let challengeID = event.params.channelID.toString();
+  let channelID = event.params.channelID.toString();
 
   // update indexer
   let indexer = Indexer.load(indexerID);
@@ -146,9 +146,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   // update subgraph
   let subgraph = Subgraph.load(subgraphID);
   subgraph.totalStake = subgraph.totalStake.minus(event.params.tokens)
-  // TODO - looks like we need query fees exposed 
-  // asked for this here https://github.com/graphprotocol/contracts/issues/197
-  subgraph.totalQueryFeesCollected
+  subgraph.totalQueryFeesCollected =  subgraph.totalQueryFeesCollected.plus(event.params.rebateFees)
   subgraph.save()
 
   // update allocation
@@ -161,6 +159,14 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   allocation.save();
 
   // update channel
+  let channel = Channel.load(channelID)
+  channel.feesCollected = event.params.rebateFees
+  channel.curatorReward = event.params.curationFees
+  let graphNetwork = GraphNetwork.load("1");
+  let epochManager = EpochManager.bind(graphNetwork.epochManager)
+  channel.settled = epochManager.currentEpoch().toString()
+  channel.save()
 }
+
 export function handleRebateClaimed(event: RebateClaimed): void {}
 export function handleSlasherUpdate(event: SlasherUpdate): void {}
