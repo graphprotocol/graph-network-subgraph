@@ -1,7 +1,7 @@
 import { Approval, Transfer } from '../../generated/GraphToken/GraphToken'
 import { Account, GraphNetwork } from '../../generated/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
-import { createAccount } from "./helpers";
+import { createAccount } from './helpers'
 
 export function handleTransfer(event: Transfer): void {
   let to = event.params.to

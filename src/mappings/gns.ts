@@ -12,7 +12,6 @@ import { Account, Subgraph, SubgraphVersion } from '../../generated/schema'
 
 // Note - this file will be updated when we have a new PRD - dave may 12 2020
 
-
 // new domain is treated as a Subgraph entity with parent set to null
 export function handleDomainAdded(event: DomainAdded): void {
   // let id = event.params.topLevelDomainHash.toHexString()
@@ -40,7 +39,6 @@ export function handleSubgraphCreated(event: SubgraphCreated): void {
   // if (event.params.registeredHash != event.params.topLevelDomainHash) {
   //   // Need to load the owner of the parent subgraph
   //   let parent = Subgraph.load(event.params.topLevelDomainHash.toHexString())
-
   //   let id = event.params.registeredHash.toHexString()
   //   let subgraph = new Subgraph(id)
   //   subgraph.parent = event.params.topLevelDomainHash.toHexString()
@@ -86,7 +84,6 @@ export function handleSubgraphIDUpdated(event: SubgraphIDUpdated): void {
   // subgraph.updatedAt = event.block.timestamp.toI32()
   // subgraph.versions = versions
   // subgraph.save()
-
   // // TODO - should we delete the old subgraph here too? it would still exist as its own staking contract, it is just getting remove from the gns. need to think this through a bit
   // let subgraphID = event.params.subgraphID.toHexString()
   // let subgraphVersion = SubgraphVersion.load(subgraphID)
@@ -111,10 +108,8 @@ export function handleSubgraphMetadataChanged(event: SubgraphMetadataChanged): v
   // let subgraph = new Subgraph(id)
   // subgraph.metadataHash = event.params.ipfsHash
   // subgraph.createdAt = event.block.timestamp.toI32()
-
   // let hexHash = addQm(event.params.ipfsHash) as Bytes
   // let base58Hash = hexHash.toBase58() // imported crypto function
-
   // // read subgraph metadata from IPFS
   // let getSubgraphDataFromIPFS = ipfs.cat(base58Hash)
   // if (getSubgraphDataFromIPFS !== null) {

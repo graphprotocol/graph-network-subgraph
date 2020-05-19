@@ -90,6 +90,8 @@ dataSources:
           handler: handleRebateClaimed
         - event: SlasherUpdate(indexed address,indexed address,bool)
           handler: handleSlasherUpdate
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
       file: ./src/mappings/staking.ts
   - kind: ethereum/contract
     name: Curation
@@ -113,6 +115,8 @@ dataSources:
           handler: handleRedeemed
         - event: Collected(indexed bytes32,uint256)
           handler: handleCollected
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
       file: ./src/mappings/curation.ts
   - kind: ethereum/contract
     name: GraphToken

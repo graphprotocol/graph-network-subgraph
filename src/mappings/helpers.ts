@@ -35,6 +35,6 @@ export function createIndexer(id: string, timestamp: BigInt): Indexer {
 export function createAccount(id: string): Account {
   let account = new Account(id)
   account.metadataHash = Bytes.fromHexString('0x')
-  account.name = ""
+  account.name = ''
   return account
 }
