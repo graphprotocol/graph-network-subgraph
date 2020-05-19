@@ -1,45 +1,43 @@
-import {Approval, Transfer} from '../../generated/GraphToken/GraphToken'
-import {Account, GraphToken} from '../../generated/schema'
-import {BigInt} from '@graphprotocol/graph-ts'
-
+import { Approval, Transfer } from '../../generated/GraphToken/GraphToken'
+import { Account, GraphNetwork } from '../../generated/schema'
+import { BigInt } from '@graphprotocol/graph-ts'
+import { createAccount } from "./helpers";
 
 export function handleTransfer(event: Transfer): void {
   let to = event.params.to
   let from = event.params.from
   let value = event.params.value
-  let graphtoken: GraphToken | null
+  let graphNetwork: GraphNetwork | null
 
   let userTo = Account.load(to.toHexString())
   if (userTo == null) {
-    userTo = new Account(to.toHexString())
-    userTo.balance = BigInt.fromI32(0)
+    userTo = createAccount(to.toHexString())
   }
   let userFrom = Account.load(from.toHexString())
   if (userFrom == null) {
-    userFrom = new Account(from.toHexString())
-    userFrom.balance = BigInt.fromI32(0)
+    userFrom = createAccount(from.toHexString())
   }
 
   // Mint Transfer
   if (from.toHexString() == '0x0000000000000000000000000000000000000000') {
-    graphtoken = GraphToken.load("1")
-    if (graphtoken == null) {
-      graphtoken = new GraphToken("1")
-      graphtoken.total = BigInt.fromI32(0)
+    graphNetwork = GraphNetwork.load('1')
+    if (graphNetwork == null) {
+      graphNetwork = new GraphNetwork('1')
+      graphNetwork.totalSupply = BigInt.fromI32(0)
     }
-    graphtoken.total = graphtoken.total.plus(value)
-    graphtoken.save()
+    graphNetwork.totalSupply = graphNetwork.totalSupply.plus(value)
+    graphNetwork.save()
     userTo.balance = userTo.balance.plus(value)
 
-  // Burn Transfer
+    // Burn Transfer
   } else if (to.toHexString() == '0x0000000000000000000000000000000000000000') {
-    graphtoken = GraphToken.load("1")
-    graphtoken.total = graphtoken.total.minus(value)
-    graphtoken.save()
+    graphNetwork = GraphNetwork.load('1')
+    graphNetwork.totalSupply = graphNetwork.totalSupply.minus(value)
+    graphNetwork.save()
 
     userFrom.balance = userFrom.balance.minus(value)
 
-  // Normal Transfer
+    // Normal Transfer
   } else {
     userTo.balance = userTo.balance.plus(value)
     userFrom.balance = userFrom.balance.minus(value)
