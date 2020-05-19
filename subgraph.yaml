@@ -71,6 +71,8 @@ dataSources:
           file: ./abis/Staking.json
         - name: GraphToken
           file: ./abis/GraphToken.json
+        - name: EpochManager
+          file: ./abis/EpochManager.json
       eventHandlers:
         - event: StakeDeposited(indexed address,uint256)
           handler: handleStakeDeposited
