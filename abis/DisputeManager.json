@@ -214,6 +214,19 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "param",
+        "type": "string"
+      }
+    ],
+    "name": "ParameterUpdated",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "arbitrator",
     "outputs": [
@@ -495,29 +508,18 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_from",
-        "type": "address"
+        "internalType": "bytes",
+        "name": "_attestationData",
+        "type": "bytes"
       },
       {
         "internalType": "uint256",
-        "name": "_value",
+        "name": "_deposit",
         "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
       }
     ],
-    "name": "tokensReceived",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "name": "createDispute",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

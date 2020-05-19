@@ -106,6 +106,18 @@
         "internalType": "address",
         "name": "from",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "curationFees",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "rebateFees",
+        "type": "uint256"
       }
     ],
     "name": "AllocationSettled",
@@ -128,6 +140,19 @@
       }
     ],
     "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "param",
+        "type": "string"
+      }
+    ],
+    "name": "ParameterUpdated",
     "type": "event"
   },
   {
@@ -383,7 +408,7 @@
   },
   {
     "inputs": [],
-    "name": "maxSettlementEpochs",
+    "name": "maxAllocationEpochs",
     "outputs": [
       {
         "internalType": "uint256",
@@ -558,11 +583,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_maxSettlementEpochs",
+        "name": "_maxAllocationEpochs",
         "type": "uint256"
       }
     ],
-    "name": "setMaxSettlementEpochs",
+    "name": "setMaxAllocationEpochs",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -727,29 +752,26 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_from",
-        "type": "address"
-      },
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "stake",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
-        "name": "_value",
+        "name": "_tokens",
         "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
       }
     ],
-    "name": "tokensReceived",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "name": "unstake",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -779,12 +801,17 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_channelID",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_tokens",
         "type": "uint256"
       }
     ],
-    "name": "unstake",
+    "name": "settle",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
