@@ -84,7 +84,7 @@ type Account @entity {
   "Name of the account"
   name: String!
   "Named subgraphs this account owns"
-  namedSubgraphs: NamedSubgraph
+  namedSubgraphs: [NamedSubgraph!]!
 
   # From Graph Token
   "Graph token balance"
@@ -117,7 +117,7 @@ type NamedSubgraph @entity {
 
   # Aggregate data
   "Total inflation rewards earned all time by this named subgraph"
-  totalSubraphIndexingRewards: BigInt!
+  totalSubgraphIndexingRewards: BigInt!
   "Total query fees earned by this named subgraph"
   totalQueryFeesCollected: BigInt!
   "Total stake of all indexers on all subgraph versions"
@@ -190,7 +190,7 @@ type Subgraph @entity {
   reserveRatio: BigInt!
 
   # From Subgraph Manifest
-  dataSources: [DataSource!]!
+  dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
 }
 
 """Data source obtained from the subgraph manifest"""
