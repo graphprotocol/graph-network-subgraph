@@ -1,10 +1,34 @@
-import { ServiceUrlSet } from '../../generated/ServiceRegistry/ServiceRegistry'
+import {
+  ServiceRegistered,
+  ServiceUnregistered,
+} from '../../generated/ServiceRegistry/ServiceRegistry'
 import { Indexer } from '../../generated/schema'
 
-// Note - this file will be updated when we have a new PRD - dave may 12 2020
-export function handleServiceUrlSet(event: ServiceUrlSet): void {
-  // let id = event.params.serviceProvider.toHexString()
-  // let indexer = new Indexer(id)
-  // indexer.urlString = event.params.urlString
-  // indexer.save()
+import { createIndexer } from './helpers'
+
+/**
+ * @dev handleServiceRegistered
+ * - updates indexer, creates if needed
+ */
+export function handleServiceRegistered(event: ServiceRegistered): void {
+  let id = event.params.indexer.toHexString()
+  let indexer = Indexer.load(id)
+  if (indexer == null) {
+    indexer = createIndexer(id, event.block.timestamp)
+  }
+  indexer.urlString = event.params.url
+  indexer.geoHash = event.params.geohash
+  indexer.save()
+}
+
+/**
+ * @dev handleServiceUnregistered
+ * - updates indexer
+ */
+export function handleServiceUnregistered(event: ServiceUnregistered): void {
+  let id = event.params.indexer.toHexString()
+  let indexer = Indexer.load(id)
+  indexer.urlString = null
+  indexer.geoHash = null
+  indexer.save()
 }

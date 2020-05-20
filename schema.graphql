@@ -216,7 +216,9 @@ type Indexer @entity {
   "Account of this indexer"
   account: Account!
   "Service registry URL string"
-  urlString: String! # TODO - might not be a !
+  urlString: String
+  "Geohash of the indexer"
+  geoHash: String
   "Total tokens staked"
   stakedTokens: BigInt!
   "Total tokens allocated"

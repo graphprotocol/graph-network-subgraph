@@ -39,8 +39,8 @@ export function handleStaked(event: Staked): void {
 
   // update subgraph
   let subgraph = Subgraph.load(subgraphID)
-  if (subgraph == null){
-      subgraph = createSubgraph(subgraphID, event.block.timestamp)
+  if (subgraph == null) {
+    subgraph = createSubgraph(subgraphID, event.block.timestamp)
   }
   subgraph.totalSignaledGRT = subgraph.totalSignaledGRT.plus(event.params.tokens)
   subgraph.totalSignalMinted = subgraph.totalSignalMinted.plus(event.params.shares)
@@ -81,11 +81,11 @@ export function handleRedeemed(event: Redeemed): void {
  *    staking.handleAllocationSettled()
  */
 export function handleCollected(event: Collected): void {
-    // update subgraph
-    let subgraphID = event.params.subgraphID.toHexString()
-    let subgraph = Subgraph.load(subgraphID)
-    subgraph.totalSignaledGRT = subgraph.totalSignaledGRT.plus(event.params.tokens)
-    subgraph.save()
+  // update subgraph
+  let subgraphID = event.params.subgraphID.toHexString()
+  let subgraph = Subgraph.load(subgraphID)
+  subgraph.totalSignaledGRT = subgraph.totalSignaledGRT.plus(event.params.tokens)
+  subgraph.save()
 }
 
 /**

@@ -51,8 +51,10 @@ dataSources:
         - name: ServiceRegistry
           file: ./abis/ServiceRegistry.json
       eventHandlers:
-        - event: ServiceUrlSet(indexed address,string)
-          handler: handleServiceUrlSet
+        - event: ServiceRegistered(indexed address,string,string)
+          handler: handleServiceRegistered
+        - event: ServiceUnregistered(indexed address)
+          handler: handleServiceUnregistered
       file: ./src/mappings/serviceRegistry.ts
   - kind: ethereum/contract
     name: Staking
