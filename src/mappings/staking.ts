@@ -1,4 +1,4 @@
-import { BigInt } from '@graphprotocol/graph-ts'
+import { BigInt, Address } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -40,8 +40,9 @@ export function handleStakeDeposited(event: StakeDeposited): void {
 
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
-  let graphToken = GraphToken.bind(graphNetwork.graphToken)
-  graphNetwork.totalGRTStaked = graphToken.balanceOf(graphNetwork.staking)
+  let graphTokenAddress = Address.fromString(graphNetwork.graphToken.toString())
+  let graphToken = GraphToken.bind(graphTokenAddress)
+  graphNetwork.totalGRTStaked = graphToken.balanceOf(graphTokenAddress)
   graphNetwork.save()
 }
 
@@ -61,8 +62,9 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
 
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
-  let graphToken = GraphToken.bind(graphNetwork.graphToken)
-  graphNetwork.totalGRTStaked = graphToken.balanceOf(graphNetwork.staking)
+  let graphTokenAddress = Address.fromString(graphNetwork.graphToken.toString())
+  let graphToken = GraphToken.bind(graphTokenAddress)
+  graphNetwork.totalGRTStaked = graphToken.balanceOf(graphTokenAddress)
   graphNetwork.save()
 }
 
@@ -75,7 +77,7 @@ export function handleStakeLocked(event: StakeLocked): void {
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)
   indexer.tokensLocked = event.params.tokens
-  indexer.tokensLockedUntil = event.params.until
+  indexer.tokensLockedUntil = event.params.until.toI32()
   indexer.save()
 }
 
@@ -92,7 +94,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   // We need to call into stakes mapping, because locked tokens might have been
   // decremented, and this is not released in the event
   let graphNetwork = GraphNetwork.load('1')
-  let staking = Staking.bind(graphNetwork.staking)
+  let staking = Staking.bind(Address.fromString(graphNetwork.staking.toString()))
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.tokensLocked = indexerStored.value2
   indexer.save()
@@ -140,7 +142,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   channel.subgraph = subgraphID
   channel.allocation = allocationID
   channel.tokensAllocated = event.params.tokens
-  channel.createdAtEpoch = event.params.epoch
+  channel.createdAtEpoch = event.params.epoch.toI32()
   channel.feesCollected = BigInt.fromI32(0)
   channel.curatorReward = BigInt.fromI32(0)
   channel.claimed = false
@@ -235,7 +237,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
 export function handleParamterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = GraphNetwork.load('1')
-  let staking = Staking.bind(graphNetwork.staking)
+  let staking = Staking.bind(Address.fromString(graphNetwork.staking.toString()))
 
   // TODO - can't remember if switch case works in typescript. will try
   if (parameter == 'curation') {

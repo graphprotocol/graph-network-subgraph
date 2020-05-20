@@ -6,7 +6,7 @@ import {
   ParameterUpdated,
 } from '../../generated/Curation/Curation'
 import { Curator, GraphNetwork, Signal, Subgraph } from '../../generated/schema'
-import { BigInt } from '@graphprotocol/graph-ts'
+import { Address } from '@graphprotocol/graph-ts'
 
 import { createCurator, createSignal, createSubgraph } from './helpers'
 
@@ -96,7 +96,8 @@ export function handleCollected(event: Collected): void {
 export function handleParamterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = GraphNetwork.load('1')
-  let staking = Curation.bind(graphNetwork.staking)
+  let curationAddress = Address.fromString(graphNetwork.curation.toString())
+  let staking = Curation.bind(curationAddress)
 
   // TODO - can't remember if switch case works in typescript. will try
   if (parameter == 'defaultReserveRatio') {

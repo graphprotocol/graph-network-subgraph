@@ -11,9 +11,14 @@ import {
 } from '../../generated/schema'
 import { BigInt, Bytes, ByteArray, Address } from '@graphprotocol/graph-ts'
 
-export function createNamedSubgraph(nameHash: ByteArray, name: string, owner: Address, versionID: string): NamedSubgraph {
+export function createNamedSubgraph(
+  nameHash: ByteArray,
+  name: string,
+  owner: Address,
+  versionID: string,
+): NamedSubgraph {
   let namedSubgraph = new NamedSubgraph(nameHash.toHexString())
-  namedSubgraph.nameSystem = "GNS"
+  namedSubgraph.nameSystem = 'GNS'
   namedSubgraph.name = name
   namedSubgraph.owner = owner.toHexString()
   namedSubgraph.currentVersion = versionID
@@ -41,7 +46,7 @@ export function createIndexer(id: string, timestamp: BigInt): Indexer {
   indexer.stakedTokens = BigInt.fromI32(0)
   indexer.tokensAllocated = BigInt.fromI32(0)
   indexer.tokensLocked = BigInt.fromI32(0)
-  indexer.tokensLockedUntil = BigInt.fromI32(0)
+  indexer.tokensLockedUntil = 0
   indexer.tokensDelegated = BigInt.fromI32(0)
   indexer.tokenCapacity = BigInt.fromI32(0)
   indexer.indexingRewardCut = 0
@@ -76,7 +81,7 @@ export function createSignal(curator: string, subgraphID: string): Signal {
 
 export function createAccount(id: string): Account {
   let account = new Account(id)
-  account.metadataHash = Bytes.fromHexString('0x')
+  account.metadataHash = null
   account.name = ''
   return account
 }
@@ -100,13 +105,18 @@ export function addQm(a: ByteArray): ByteArray {
   return out as ByteArray
 }
 
-export function getVersionNumber(name: string, subgraphID: string, versionNumber: string): string {
+export function getVersionNumber(name: string, subgraphID: string, versionNumber: BigInt): BigInt {
   // create versionID. start at version 1
-  let versionID = name.concat('-').concat(subgraphID).concat("-").concat(versionNumber)
+  let versionID = name
+    .concat('-')
+    .concat(subgraphID)
+    .concat('-')
+    .concat(versionNumber.toString())
   let version = SubgraphVersion.load(versionID)
-  if (version != null){
-    versionNumber = String(Number(versionNumber) + 1)
-    versionID = getVersionNumber(name, subgraphID, versionNumber)
+  // recursion until you get the right verison
+  if (version != null) {
+    versionNumber = versionNumber.plus(BigInt.fromI32(1))
+    getVersionNumber(name, subgraphID, versionNumber)
   }
   return versionNumber
 }

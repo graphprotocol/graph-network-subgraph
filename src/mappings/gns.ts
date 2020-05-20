@@ -1,4 +1,4 @@
-import { crypto, ByteArray, Bytes, ipfs, json } from '@graphprotocol/graph-ts'
+import { crypto, ByteArray, Bytes, ipfs, json, BigInt } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphUnpublished,
@@ -18,12 +18,12 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let name = event.params.name
   let nameHash = crypto.keccak256(ByteArray.fromUTF8(name))
   let subgraphID = event.params.subgraphID.toHexString()
-  let versionNumber = getVersionNumber(name, subgraphID, '1')
+  let versionNumber = getVersionNumber(name, subgraphID, BigInt.fromI32(1))
   let versionID = name
     .concat('-')
     .concat(subgraphID)
     .concat('-')
-    .concat(versionNumber)
+    .concat(versionNumber.toString())
 
   // update named subgraph
   let namedSubgraph = NamedSubgraph.load(nameHash.toHexString())
@@ -44,9 +44,9 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let subgraphVersion = new SubgraphVersion(versionID)
   subgraphVersion.namedSubgraph = nameHash.toHexString()
   subgraphVersion.subgraph = subgraphID
-  subgraphVersion.version = Number(versionNumber)
-  subgraphVersion.createdAt = event.block.timestamp
-  subgraphVersion.updatedAt = event.block.timestamp
+  subgraphVersion.version = versionNumber.toI32()
+  subgraphVersion.createdAt = event.block.timestamp.toI32()
+  subgraphVersion.updatedAt = event.block.timestamp.toI32()
 
   subgraphVersion.metadataHash = event.params.metadataHash
 

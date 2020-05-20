@@ -6,7 +6,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy-kovan": "npm run prepare:kovan && graph deploy graphprotocol/the-graph-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-kovan": "npm run prepare:kovan && graph deploy davekaj/the-graph-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-testing": "graph deploy davekaj/the-graph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "prepare:kovan": "mustache ./config/kovanTemp.json subgraph.template.yaml > subgraph.yaml && yarn graph codegen --output-dir src/types/",
     "lint": "yarn eslint.",

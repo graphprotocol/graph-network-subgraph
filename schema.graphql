@@ -80,7 +80,7 @@ type Account @entity {
   "Eth address"
   id: ID!
   "IPFS hash with account metadata details"
-  metadataHash: Bytes!
+  metadataHash: Bytes
   "Name of the account"
   name: String!
   "Named subgraphs this account owns"
