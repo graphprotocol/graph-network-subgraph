@@ -134,9 +134,9 @@ type SubgraphVersion @entity {
   "Concatenation of named subgraph, subgraph, and version ID"
   id: ID!
   "Named subgraph of this version"
-  namedSubgraph: NamedSubgraph!
+  namedSubgraph: NamedSubgraph
   "Subgraph of this version"
-  subgraph: Subgraph!
+  subgraph: Subgraph
   "Version number"
   version: Int!
   "Creation timestamp"

@@ -91,16 +91,31 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
 /**
  * @dev handleSubgraphUnpublished
- * - updates named subgraph
+ * - updates named subgraph.
  * - updates subgraph version
- * - updates subgraph
+ *    -  To unpublish a subgraph version is to make namedSubgraph and subgraph null
  */
 export function handleSubgraphUnpublished(event: SubgraphUnpublished): void {
-  
+  // update named subgraph
+  let namedSubgraph = NamedSubgraph.load(event.params.nameHash.toHexString())
+  let subgraphVersionID = namedSubgraph.currentVersion
+  namedSubgraph.currentVersion = null
+  namedSubgraph.save()
+
+  // update subgraph version
+  let subgraphVersion = SubgraphVersion.load(subgraphVersionID)
+  subgraphVersion.subgraph = null
+  subgraphVersion.namedSubgraph = null
+  subgraphVersion.save()
 }
 
 /**
  * @dev handleSubgraphTransferred
  * - updates named subgraph
  */
-export function handleSubgraphTransferred(event: SubgraphTransferred): void {}
+export function handleSubgraphTransferred(event: SubgraphTransferred): void {
+    // update named subgraph
+    let namedSubgraph = NamedSubgraph.load(event.params.nameHash.toHexString())
+    namedSubgraph.owner = event.params.to.toHexString()
+    namedSubgraph.save()
+}
