@@ -15,25 +15,19 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - NamedSubgraph
+        - SubgraphVersion
+        - Subgraph
       abis:
         - name: GNS
           file: ./abis/GNS.json
       eventHandlers:
-        - event: DomainAdded(indexed bytes32,indexed address,string)
-          handler: handleDomainAdded
-        - event: DomainTransferred(indexed bytes32,indexed address)
-          handler: handleDomainTransferred
-        - event: DomainDeleted(indexed bytes32)
-          handler: handleDomainDeleted
-        - event: SubgraphCreated(indexed bytes32,indexed bytes32,string,indexed address)
-          handler: handleSubgraphCreated
-        - event: SubgraphIDUpdated(indexed bytes32,indexed bytes32)
-          handler: handleSubgraphIDUpdated
-        - event: AccountMetadataChanged(indexed address,indexed bytes32)
-          handler: handleAccountMetadataChanged
-        - event: SubgraphMetadataChanged(indexed bytes32,indexed bytes32)
-          handler: handleSubgraphMetadataChanged
+        - event: SubgraphPublished(string,address,bytes32,bytes32)
+          handler: handleSubgraphPublished
+        - event: SubgraphUnpublished(bytes32)
+          handler: handleSubgraphUnpublished
+        - event: SubgraphTransferred(bytes32,address,address)
+          handler: handleSubgraphTransferred
       file: ./src/mappings/gns.ts
   - kind: ethereum/contract
     name: ServiceRegistry
@@ -46,7 +40,7 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Indexer
       abis:
         - name: ServiceRegistry
           file: ./abis/ServiceRegistry.json
@@ -67,7 +61,12 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Channel
+        - Indexer
+        - Allocation
+        - Subgraph
+        - GraphNetwork
+        - Pool
       abis:
         - name: Staking
           file: ./abis/Staking.json
@@ -104,7 +103,10 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Curator
+        - GraphNetwork
+        - Signal
+        - Subgraph
       abis:
         - name: Curation
           file: ./abis/Curation.json
@@ -129,7 +131,8 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Account
+        - GraphNetwork
       abis:
         - name: GraphToken
           file: ./abis/GraphToken.json

@@ -6,8 +6,20 @@ import {
   Pool,
   Curator,
   Signal,
+  SubgraphVersion,
+  NamedSubgraph,
 } from '../../generated/schema'
-import { BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, Bytes, ByteArray, Address } from '@graphprotocol/graph-ts'
+
+export function createNamedSubgraph(nameHash: ByteArray, name: string, owner: Address, versionID: string): NamedSubgraph {
+  let namedSubgraph = new NamedSubgraph(nameHash.toHexString())
+  namedSubgraph.nameSystem = "GNS"
+  namedSubgraph.name = name
+  namedSubgraph.owner = owner.toHexString()
+  namedSubgraph.currentVersion = versionID
+
+  return namedSubgraph
+}
 
 export function createSubgraph(subgraphID: string, timestamp: BigInt): Subgraph {
   let subgraph = new Subgraph(subgraphID)
@@ -76,4 +88,25 @@ export function createPool(id: BigInt): Pool {
   pool.allocationClaimed = BigInt.fromI32(0)
   pool.curatorReward = BigInt.fromI32(0)
   return pool
+}
+
+export function addQm(a: ByteArray): ByteArray {
+  let out = new Uint8Array(34)
+  out[0] = 0x12
+  out[1] = 0x20
+  for (let i = 0; i < 32; i++) {
+    out[i + 2] = a[i]
+  }
+  return out as ByteArray
+}
+
+export function getVersionNumber(name: string, subgraphID: string, versionNumber: string): string {
+  // create versionID. start at version 1
+  let versionID = name.concat('-').concat(subgraphID).concat("-").concat(versionNumber)
+  let version = SubgraphVersion.load(versionID)
+  if (version != null){
+    versionNumber = String(Number(versionNumber) + 1)
+    versionID = getVersionNumber(name, subgraphID, versionNumber)
+  }
+  return versionNumber
 }

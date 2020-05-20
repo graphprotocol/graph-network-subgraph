@@ -105,7 +105,7 @@ type NamedSubgraph @entity {
   "Hash of the domain name"
   id: ID!
   "System used for naming"
-  nameSystem: String
+  nameSystem: String!
   "Name of the subgraph"
   name: String!
   "Owner of this subgraph"
@@ -139,6 +139,10 @@ type SubgraphVersion @entity {
   subgraph: Subgraph!
   "Version number"
   version: Int!
+  "Creation timestamp"
+  createdAt: Int!
+  "Deploy timestamp"
+  updatedAt: Int! # TODO - when would someone update a SubgraphVersion, doesn't it just become a new version?
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
@@ -157,10 +161,7 @@ type SubgraphVersion @entity {
   websiteURL: String!
   "Network that the subgraph is indexing"
   network: String!
-  "Creation timestamp"
-  createdAt: Int!
-  "Deploy timestamp"
-  updatedAt: Int!
+
 }
 
 """The immutable subgraph defined by a subgraph manifest, that Indexers stake on and Curators signal on"""

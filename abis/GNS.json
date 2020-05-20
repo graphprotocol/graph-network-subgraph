@@ -16,82 +16,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "AccountMetadataChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "topLevelDomainHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "domainName",
-        "type": "string"
-      }
-    ],
-    "name": "DomainAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "domainHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "DomainDeleted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "domainHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "DomainTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "from",
         "type": "address"
       },
@@ -109,94 +33,83 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "topLevelDomainHash",
-        "type": "bytes32"
+        "indexed": false,
+        "internalType": "string",
+        "name": "param",
+        "type": "string"
+      }
+    ],
+    "name": "ParameterUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
       },
       {
-        "indexed": true,
+        "indexed": false,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "bytes32",
-        "name": "registeredHash",
+        "name": "subgraphID",
         "type": "bytes32"
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "subdomainName",
-        "type": "string"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "metadataHash",
+        "type": "bytes32"
       }
     ],
-    "name": "SubgraphCreated",
+    "name": "SubgraphPublished",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "bytes32",
-        "name": "domainHash",
+        "name": "nameHash",
         "type": "bytes32"
       },
       {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "subgraphID",
-        "type": "bytes32"
+        "indexed": false,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       }
     ],
-    "name": "SubgraphIDUpdated",
+    "name": "SubgraphTransferred",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "bytes32",
-        "name": "domainHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
+        "name": "nameHash",
         "type": "bytes32"
       }
     ],
-    "name": "SubgraphMetadataChanged",
+    "name": "SubgraphUnpublished",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "domains",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "subgraphID",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [],
@@ -206,6 +119,35 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "records",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum GNS.RecordType",
+        "name": "nameSystem",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -228,65 +170,21 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "_domainName",
+        "name": "_name",
         "type": "string"
-      }
-    ],
-    "name": "registerDomain",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_topLevelDomainHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "_subdomainName",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_ipfsHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "createSubgraph",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_domainHash",
-        "type": "bytes32"
       },
       {
         "internalType": "bytes32",
         "name": "_subgraphID",
         "type": "bytes32"
-      }
-    ],
-    "name": "updateDomainSubgraphID",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "bytes32",
-        "name": "_domainHash",
+        "name": "_metadataHash",
         "type": "bytes32"
       }
     ],
-    "name": "deleteSubdomain",
+    "name": "publish",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -295,16 +193,29 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "_domainHash",
+        "name": "_nameHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "unpublish",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_nameHash",
         "type": "bytes32"
       },
       {
         "internalType": "address",
-        "name": "_newOwner",
+        "name": "_to",
         "type": "address"
       }
     ],
-    "name": "transferDomainOwnership",
+    "name": "transfer",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -313,31 +224,19 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "_ipfsHash",
+        "name": "_nameHash",
         "type": "bytes32"
       }
     ],
-    "name": "changeAccountMetadata",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "name": "isReserved",
+    "outputs": [
       {
-        "internalType": "bytes32",
-        "name": "_domainHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_ipfsHash",
-        "type": "bytes32"
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
-    "name": "changeSubgraphMetadata",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   }
 ]
