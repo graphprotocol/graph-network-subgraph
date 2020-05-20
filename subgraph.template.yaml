@@ -1,0 +1,149 @@
+specVersion: 0.0.2
+description: The Graph Network Smart Contracts on Ethereum
+repository: https://github.com/graphprotocol/contracts/graph-network-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: GNS
+    network: {{network}}
+    source:
+      address: '{{gns}}'
+      abi: GNS
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - NamedSubgraph
+        - SubgraphVersion
+        - Subgraph
+      abis:
+        - name: GNS
+          file: ./abis/GNS.json
+      eventHandlers:
+        - event: SubgraphPublished(string,address,bytes32,bytes32)
+          handler: handleSubgraphPublished
+        - event: SubgraphUnpublished(bytes32)
+          handler: handleSubgraphUnpublished
+        - event: SubgraphTransferred(bytes32,address,address)
+          handler: handleSubgraphTransferred
+      file: ./src/mappings/gns.ts
+  - kind: ethereum/contract
+    name: ServiceRegistry
+    network: {{network}}
+    source:
+      address: '{{serviceRegistry}}'
+      abi: ServiceRegistry
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Indexer
+      abis:
+        - name: ServiceRegistry
+          file: ./abis/ServiceRegistry.json
+      eventHandlers:
+        - event: ServiceRegistered(indexed address,string,string)
+          handler: handleServiceRegistered
+        - event: ServiceUnregistered(indexed address)
+          handler: handleServiceUnregistered
+      file: ./src/mappings/serviceRegistry.ts
+  - kind: ethereum/contract
+    name: Staking
+    network: {{network}}
+    source:
+      address: '{{staking}}'
+      abi: Staking
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Channel
+        - Indexer
+        - Allocation
+        - Subgraph
+        - GraphNetwork
+        - Pool
+      abis:
+        - name: Staking
+          file: ./abis/Staking.json
+        - name: GraphToken
+          file: ./abis/GraphToken.json
+        - name: EpochManager
+          file: ./abis/EpochManager.json
+      eventHandlers:
+        - event: StakeDeposited(indexed address,uint256)
+          handler: handleStakeDeposited
+        - event: StakeWithdrawn(indexed address,uint256)
+          handler: handleStakeWithdrawn
+        - event: StakeLocked(indexed address,uint256,uint256)
+          handler: handleStakeLocked
+        - event: StakeSlashed(indexed address,uint256,uint256,address)
+          handler: handleStakeSlashed          
+        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes)
+          handler: handleAllocationCreated
+        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256,uint256)
+          handler: handleAllocationSettled
+        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256,uint256)
+          handler: handleRebateClaimed
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
+      file: ./src/mappings/staking.ts
+  - kind: ethereum/contract
+    name: Curation
+    network: {{network}}
+    source:
+      address: '{{curation}}'
+      abi: Curation
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Curator
+        - GraphNetwork
+        - Signal
+        - Subgraph
+      abis:
+        - name: Curation
+          file: ./abis/Curation.json
+      eventHandlers:
+        - event: Staked(indexed address,indexed bytes32,uint256,uint256)
+          handler: handleStaked
+        - event: Redeemed(indexed address,indexed bytes32,uint256,uint256)
+          handler: handleRedeemed
+        - event: Collected(indexed bytes32,uint256)
+          handler: handleCollected
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
+      file: ./src/mappings/curation.ts
+  - kind: ethereum/contract
+    name: GraphToken
+    network: {{network}}
+    source:
+      address: '{{graphToken}}'
+      abi: GraphToken
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Account
+        - GraphNetwork
+      abis:
+        - name: GraphToken
+          file: ./abis/GraphToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+      file: ./src/mappings/graphToken.ts

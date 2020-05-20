@@ -1,0 +1,13 @@
+{
+    "network": "kovan",
+    "blockNumber": "18628084",
+    "governor": "0x93606b27cB5e4c780883eC4F6b7Bed5f6572d1dd",
+    "graphToken": "0x20AbE3B457e510EEF66D2518212A6f862E1ebfA9",
+    "epochManager": "0x8d3086840fd075697E590fB6B5A8f0C44fB45176",
+    "disputeManager": "0x7c812124D432dB9C3BAF23e751D704d82ed09e1D",
+    "staking": "0x66F940145995EC6033F5804eDC2041F606e755B5",
+    "curation": "0xFC6CCBa00ceA43512cC50f6f8CC029E782c5AC96",
+    "rewardsManager": "0x449B394836881CA995d4db4313064a66aF5Ca0b0",
+    "serviceRegistry": "0x3caC355B211DbBF593DCb2F806deaEdF070a35D5",
+    "gns": "0xADFc64E984655d67B23Df88D3B608C2770BB60b6"
+  }
