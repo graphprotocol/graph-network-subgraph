@@ -115,15 +115,14 @@ type NamedSubgraph @entity {
   "Past versions"
   pastVersions: [SubgraphVersion!]
 
-  # Aggregate data
-  "Total inflation rewards earned all time by this named subgraph"
-  totalSubgraphIndexingRewards: BigInt!
-  "Total query fees earned by this named subgraph"
-  totalQueryFeesCollected: BigInt!
-
   # TODO - add these later in the event that this is implemented :
-  # https://www.notion.so/thegraph/Graph-Name-Service-Signaling-30e72e7f1b3c46a4a6b224155e5a6612#a379698b83c241208b6929a1788bcf4e  
-  
+  # https://www.notion.so/thegraph/Graph-Name-Service-Signaling-30e72e7f1b3c46a4a6b224155e5a6612#a379698b83c241208b6929a1788bcf4e 
+
+  # Aggregate data
+  # "Total inflation rewards earned all time by this named subgraph"
+  # totalSubgraphIndexingRewards: BigInt!
+  # "Total query fees earned by this named subgraph"
+  # totalQueryFeesCollected: BigInt! 
   # "Total stake of all indexers on all subgraph versions"
   # totalStake: BigInt!
   # "Total signal of all curators on all subgraph versions"
@@ -195,7 +194,7 @@ type Subgraph @entity {
   reserveRatio: BigInt!
 
   # From Subgraph Manifest
-  dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
+  # dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
 }
 
 """Data source obtained from the subgraph manifest"""
@@ -350,7 +349,9 @@ type Curator @entity {
   totalSignal: BigInt!
   "Total GRT signaled on all the subgraphs"
   totalSignaledGRT: BigInt!
-  "Total fees earned from being a curator"
+  "Total GRT redeemed on all the subgraphs"
+  totalRedeemedGRT: BigInt!
+  "Total fees earned from being a curator" # TODO - might remove, this is hard to calculate
   feesEarned: BigInt!
   "Subgraphs the curator is curating"
   signals: [Signal!] @derivedFrom(field: "curator")

@@ -1,4 +1,12 @@
-import { Subgraph, GraphNetwork, Indexer, Account, Pool } from '../../generated/schema'
+import {
+  Subgraph,
+  GraphNetwork,
+  Indexer,
+  Account,
+  Pool,
+  Curator,
+  Signal,
+} from '../../generated/schema'
 import { BigInt, Bytes } from '@graphprotocol/graph-ts'
 
 export function createSubgraph(subgraphID: string, timestamp: BigInt): Subgraph {
@@ -30,6 +38,28 @@ export function createIndexer(id: string, timestamp: BigInt): Indexer {
   indexer.forcedSettlements = 0
   indexer.createdAt = timestamp.toI32()
   return indexer
+}
+
+export function createCurator(id: string, timestamp: BigInt): Curator {
+  let curator = new Curator(id)
+  curator.createdAt = timestamp.toI32()
+  curator.account = id
+  curator.totalSignal = BigInt.fromI32(0)
+  curator.totalSignaledGRT = BigInt.fromI32(0)
+  curator.totalRedeemedGRT = BigInt.fromI32(0)
+  curator.feesEarned = BigInt.fromI32(0)
+  return curator
+}
+
+export function createSignal(curator: string, subgraphID: string): Signal {
+  let signalID = curator.concat('-').concat(subgraphID)
+  let signal = new Signal(signalID)
+  signal.curator = curator
+  signal.subgraph = subgraphID
+  signal.tokensSignaled = BigInt.fromI32(0)
+  signal.tokensSignaled = BigInt.fromI32(0)
+  signal.signal = BigInt.fromI32(0)
+  return signal
 }
 
 export function createAccount(id: string): Account {

@@ -239,7 +239,10 @@ export function handleParamterUpdated(event: ParameterUpdated): void {
 
   // TODO - can't remember if switch case works in typescript. will try
   if (parameter == 'curation') {
-    graphNetwork.curation = staking.curation()
+    // Not in use now, we are waiting till we have a controller contract that
+    // houses all the addresses of all contracts. So that there aren't a bunch 
+    // of different instances of the contract addresses across all contracts
+    // graphNetwork.curation = staking.curation()
   } else if (parameter == 'curationPercentage') {
     graphNetwork.curationPercentage = staking.curationPercentage()
   } else if (parameter == 'channelDisputeEpochs') {
