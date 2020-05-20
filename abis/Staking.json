@@ -118,6 +118,12 @@
         "internalType": "uint256",
         "name": "rebateFees",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "effectiveAllocation",
+        "type": "uint256"
       }
     ],
     "name": "AllocationSettled",

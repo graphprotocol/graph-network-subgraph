@@ -1,4 +1,4 @@
-import { BigInt, store, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -7,31 +7,26 @@ import {
   AllocationCreated,
   AllocationSettled,
   RebateClaimed,
-  SlasherUpdate,
   ParameterUpdated,
   Staking,
 } from '../../generated/Staking/Staking'
 import { GraphToken } from '../../generated/Staking/GraphToken'
-import { EpochManager } from '../../generated/Staking/EpochManager'
 import {
   Channel,
   Indexer,
   Allocation,
   Subgraph,
-  NamedSubgraph,
-  Account,
   GraphNetwork,
+  Pool,
 } from '../../generated/schema'
 
-import { createSubgraph, createIndexer } from './helpers'
+import { createSubgraph, createIndexer, createPool } from './helpers'
 
 /**
- * handleStakeDeposited
+ * @dev handleStakeDeposited
  * - creates an Indexer if it is the first time they have staked
  * - updated the Indexers stake
  * - updates the GraphNetwork total stake
- * - no need to create an Account. To stake, it would have obtained GRT, and
- *   the account would have been created in graphToken.ts
  */
 export function handleStakeDeposited(event: StakeDeposited): void {
   // update indexer
@@ -49,12 +44,11 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   graphNetwork.totalGRTStaked = graphToken.balanceOf(graphNetwork.staking)
   graphNetwork.save()
 }
+
 /**
- * handleStakeWithdrawn
+ * @dev handleStakeWithdrawn
  * - updated the Indexers stake
  * - updates the GraphNetwork total stake
- * - no need to create an Account or an Indexer, they would have been created
- *   already
  */
 export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   // update indexer
@@ -73,10 +67,8 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
 }
 
 /**
- * handleStakeLocked
+ * @dev handleStakeLocked
  * - updated the Indexers stake
- * - no need to create an Account or an Indexer, they would have been created
- *   already
  */
 export function handleStakeLocked(event: StakeLocked): void {
   // update indexer
@@ -87,6 +79,10 @@ export function handleStakeLocked(event: StakeLocked): void {
   indexer.save()
 }
 
+/**
+ * @dev handleStakeSlashed
+ * - update the Indexers stake
+ */
 export function handleStakeSlashed(event: StakeSlashed): void {
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)
@@ -101,7 +97,16 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   indexer.tokensLocked = indexerStored.value2
   indexer.save()
 }
-export function handleAllocationUpdated(event: AllocationCreated): void {
+
+/**
+ * @dev handleAllocationUpdated
+ * - update the indexers stake
+ * - update the subgraph total stake
+ * - update the named subgraph aggregate stake
+ * - update the specific allocation
+ * - create a new channel
+ */
+export function handleAllocationCreated(event: AllocationCreated): void {
   let subgraphID = event.params.subgraphID.toString()
   let indexerID = event.params.indexer.toString()
   let challengeID = event.params.channelID.toString()
@@ -138,9 +143,18 @@ export function handleAllocationUpdated(event: AllocationCreated): void {
   channel.createdAtEpoch = event.params.epoch
   channel.feesCollected = BigInt.fromI32(0)
   channel.curatorReward = BigInt.fromI32(0)
+  channel.claimed = false
   channel.save()
 }
 
+/**
+ * @dev handleAllocationSettled
+ * - update the indexers stake
+ * - update the subgraph total stake
+ * - update the named subgraph aggregate stake
+ * - update the specific allocation
+ * - update and close the channel
+ */
 export function handleAllocationSettled(event: AllocationSettled): void {
   let subgraphID = event.params.subgraphID.toString()
   let indexerID = event.params.indexer.toString()
@@ -157,12 +171,22 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   subgraph.totalQueryFeesCollected = subgraph.totalQueryFeesCollected.plus(event.params.rebateFees)
   subgraph.save()
 
+  // update pool
+  let pool = Pool.load(event.params.epoch.toString())
+  if ((pool = null)) {
+    pool = createPool(event.params.epoch)
+  }
+  pool.fees = pool.fees.plus(event.params.rebateFees)
+  pool.allocation = pool.allocation.plus(event.params.effectiveAllocation)
+  pool.curatorReward = pool.curatorReward.plus(event.params.curationFees)
+  pool.save()
+
   // update allocation
   let allocation = new Allocation(indexerID.concat('-').concat(subgraphID))
   allocation.subgraph = subgraphID
-  let closedChannels = allocation.closedChannels
+  let closedChannels = allocation.channels
   closedChannels.push(allocation.activeChannel)
-  allocation.closedChannels = closedChannels
+  allocation.channels = closedChannels
   allocation.activeChannel = null
   allocation.save()
 
@@ -170,13 +194,61 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   let channel = Channel.load(channelID)
   channel.feesCollected = event.params.rebateFees
   channel.curatorReward = event.params.curationFees
-  let graphNetwork = GraphNetwork.load('1')
-  let epochManager = EpochManager.bind(graphNetwork.epochManager)
-  channel.settled = epochManager.currentEpoch().toString()
+  channel.settled = event.params.epoch.toString()
   channel.save()
 }
 
-export function handleRebateClaimed(event: RebateClaimed): void {}
-export function handleSlasherUpdate(event: SlasherUpdate): void {}
+/**
+ * @dev handleRebateClaimed
+ * - update pool
+ * - update settlement of channel in pool
+ * - update pool
+ * - note - if rebate is transferred to indexer, that will be handled in graphToken.ts
+ */
+export function handleRebateClaimed(event: RebateClaimed): void {
+  let subgraphID = event.params.subgraphID.toString()
+  let indexerID = event.params.indexer.toString()
+  let allocationID = indexerID.concat('-').concat(subgraphID)
 
-export function handleParamterUpdated(event: ParameterUpdated): void {}
+  // update allocation
+  let allocation = Allocation.load(allocationID)
+  let channelID = allocation.activeChannel
+  allocation.activeChannel = null
+  allocation.save()
+
+  // update channel
+  let channel = Channel.load(channelID)
+  channel.claimed = true
+  channel.save()
+
+  // update pool
+  let pool = Pool.load(event.params.forEpoch.toString())
+  pool.allocationClaimed = pool.allocationClaimed.plus(event.params.tokens)
+  pool.save()
+}
+
+/**
+ * @dev handleParamterUpdated
+ * - updates all parameters of staking, depending on string passed. We then can
+ *   call the contract directly to get the updated value
+ */
+export function handleParamterUpdated(event: ParameterUpdated): void {
+  let parameter = event.params.param
+  let graphNetwork = GraphNetwork.load('1')
+  let staking = Staking.bind(graphNetwork.staking)
+
+  // TODO - can't remember if switch case works in typescript. will try
+  if (parameter == 'curation') {
+    graphNetwork.curation = staking.curation()
+  } else if (parameter == 'curationPercentage') {
+    graphNetwork.curationPercentage = staking.curationPercentage()
+  } else if (parameter == 'channelDisputeEpochs') {
+    graphNetwork.channelDisputeEpochs = staking.channelDisputeEpochs()
+  } else if (parameter == 'maxAllocationEpochs') {
+    graphNetwork.maxAllocationEpochs = staking.maxAllocationEpochs()
+  } else if (parameter == 'thawingPeriod') {
+    graphNetwork.thawingPeriod = staking.thawingPeriod()
+  }
+
+  graphNetwork.save()
+}

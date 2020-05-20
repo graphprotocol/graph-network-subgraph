@@ -53,7 +53,7 @@ dataSources:
       eventHandlers:
         - event: ServiceUrlSet(indexed address,string)
           handler: handleServiceUrlSet
-      file: ./src/mappings/service-registry.ts
+      file: ./src/mappings/serviceRegistry.ts
   - kind: ethereum/contract
     name: Staking
     network: ropsten
@@ -83,13 +83,11 @@ dataSources:
         - event: StakeSlashed(indexed address,uint256,uint256,address)
           handler: handleStakeSlashed          
         - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes)
-          handler: handleAllocationUpdated
-        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
+          handler: handleAllocationCreated
+        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256,uint256)
           handler: handleAllocationSettled
         - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
-        - event: SlasherUpdate(indexed address,indexed address,bool)
-          handler: handleSlasherUpdate
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
       file: ./src/mappings/staking.ts
@@ -138,4 +136,4 @@ dataSources:
           handler: handleTransfer
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
-      file: ./src/mappings/graphtoken.ts
+      file: ./src/mappings/graphToken.ts

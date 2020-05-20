@@ -1,4 +1,4 @@
-import { Subgraph, GraphNetwork, Indexer, Account } from '../../generated/schema'
+import { Subgraph, GraphNetwork, Indexer, Account, Pool } from '../../generated/schema'
 import { BigInt, Bytes } from '@graphprotocol/graph-ts'
 
 export function createSubgraph(subgraphID: string, timestamp: BigInt): Subgraph {
@@ -37,4 +37,13 @@ export function createAccount(id: string): Account {
   account.metadataHash = Bytes.fromHexString('0x')
   account.name = ''
   return account
+}
+
+export function createPool(id: BigInt): Pool {
+  let pool = new Pool(id.toString())
+  pool.fees = BigInt.fromI32(0)
+  pool.allocation = BigInt.fromI32(0)
+  pool.allocationClaimed = BigInt.fromI32(0)
+  pool.curatorReward = BigInt.fromI32(0)
+  return pool
 }

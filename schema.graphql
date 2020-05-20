@@ -120,10 +120,14 @@ type NamedSubgraph @entity {
   totalSubgraphIndexingRewards: BigInt!
   "Total query fees earned by this named subgraph"
   totalQueryFeesCollected: BigInt!
-  "Total stake of all indexers on all subgraph versions"
-  totalStake: BigInt!
-  "Total signal of all curators on all subgraph versions"
-  totalSignal: BigInt!
+
+  # TODO - add these later in the event that this is implemented :
+  # https://www.notion.so/thegraph/Graph-Name-Service-Signaling-30e72e7f1b3c46a4a6b224155e5a6612#a379698b83c241208b6929a1788bcf4e  
+  
+  # "Total stake of all indexers on all subgraph versions"
+  # totalStake: BigInt!
+  # "Total signal of all curators on all subgraph versions"
+  # totalSignal: BigInt!
 }
 
 """Contains all the version metadata"""
@@ -252,8 +256,8 @@ type Allocation @entity {
   subgraph: Subgraph!
   "Active Channel. Null if this Indexer is no longer indexing this subgraph"
   activeChannel: Channel
-  "Past channels that have been closed for this allocation"
-  closedChannels: [Channel!] @derivedFrom(field: "allocation")
+  "Past channels and active channel for this Allocation"
+  channels: [Channel!] @derivedFrom(field: "allocation")
 }
 
 """State channel allocation representing Indexer-Subgraph stake"""
@@ -276,6 +280,8 @@ type Channel @entity {
   curatorReward: BigInt!
   "Epoch number of the Pool it was settled in"
   settled: Pool
+  "Whether or not the channel has been claimed"
+  claimed: Boolean!
 }
 
 """Global pool of query fees for settled state channels after Curation rewards have been removed. One pool per epoch"""
@@ -286,6 +292,8 @@ type Pool @entity {
   fees: BigInt!
   "Total allocation settled in this epoch"
   allocation: BigInt!
+  "Total allocation claimed in this epoch"
+  allocationClaimed: BigInt!
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorReward: BigInt!
   "Channels that were settled during this epoch"
