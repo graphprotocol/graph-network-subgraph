@@ -7,3 +7,4 @@ src/types/
 .DS_STORE
 yarn-error.log
 subgraph.yaml
+config/addresses.ts

@@ -3,41 +3,41 @@ type GraphNetwork @entity {
   "id = 1"
   id: ID!
   "Contract address"
-  graphToken: Bytes!
+  graphToken: String!
   "Contract address"
-  epochManager: Bytes!
+  epochManager: String!
   "Contract address"
-  curation: Bytes!
+  curation: String!
   "Contract address"
-  staking: Bytes!
+  staking: String!
   "Contract address"
-  disputeManager: Bytes!
+  disputeManager: String!
   "Contract address"
-  gns: Bytes!
+  gns: String!
   "Contract address"
-  serviceRegistry: Bytes!
-  "Set to true if the protocol is paused"
-  paused: Boolean!
+  serviceRegistry: String!
+  # "Set to true if the protocol is paused" TODO - add when implemente
+  # paused: Boolean!
 
   # Staking global variables
   "Percentage of fees going to curators"
   curationPercentage: BigInt!
-  "Capacity of staked delegation tokens to own stake"
-  delegationCapacity: Int!
+  # "Capacity of staked delegation tokens to own stake"  TODO - add when implemented
+  # delegationCapacity: Int!
   "Period to wait before fees can be claimed in rebate pool"
   channelDisputeEpochs: BigInt!
   "Period to wait before delegators can settle"
   maxAllocationEpochs: BigInt!
   "Time in blocks needed to wait to unstake"
   thawingPeriod: BigInt!
-  "All addresses that have slashing privileges"
-  slashers: [Bytes!]
-  "Minimum time an Indexer must use for resetting their Delegation parameters"
-  minDelegationParameterCooldown: Int!
-  "The number of indexing rewards handed out per epoch"
-  indexingRewardsPerEpoch: Int!
-  "The issuance rate that GRT is minted at to support Indexers of the protocol"
-  networkGRTIssuance: Int!
+  # "All addresses that have slashing privileges" TODO - add when implemented
+  # slashers: [Bytes!]
+  # "Minimum time an Indexer must use for resetting their Delegation parameters" TODO - add when implemented
+  # minDelegationParameterCooldown: Int!
+  # "The number of indexing rewards handed out per epoch" TODO - add when implemented
+  # indexingRewardsPerEpoch: Int!
+  # "The issuance rate that GRT is minted at to support Indexers of the protocol" TODO - add when implemented
+  # networkGRTIssuance: Int!
   "The total amount of GRT staked in the staking contract"
   totalGRTStaked: BigInt!
 
@@ -53,25 +53,25 @@ type GraphNetwork @entity {
   "Graph Token supply"
   totalSupply: BigInt!
 
-  # Epoch Manager global variables
-  "Epoch Length in blocks"
-  epochLength: Int!
-  "Epoch that was last run"
-  lastRunEpoch: Int!
-  "Epoch when epoch length was last updated"
-  lastLengthUpdateEpoch: Int!
-  "Block when epoch length was last updated"
-  lastLengthUpdateBlock: Int!
+  # Epoch Manager global variables TODO - add in after beta
+  # "Epoch Length in blocks"
+  # epochLength: Int!
+  # "Epoch that was last run"
+  # lastRunEpoch: Int!
+  # "Epoch when epoch length was last updated"
+  # lastLengthUpdateEpoch: Int!
+  # "Block when epoch length was last updated"
+  # lastLengthUpdateBlock: Int!
 
-  # Dispute Manager global variables
-  "Address with permission to verify or reject disputes"
-  arbitrator: Bytes!
-  "Minimum deposit to create a dispute"
-  minimumDisputeDeposit: BigInt!
-  "Reward to Fisherman on successful disputes"
-  fishermanRewardPercentage: BigInt!
-  "Penalty to Indexer on successful disputes"
-  slashingPercentage: BigInt!
+  # Dispute Manager global variables TODO - add in after beta
+  # "Address with permission to verify or reject disputes"
+  # arbitrator: Bytes!
+  # "Minimum deposit to create a dispute"
+  # minimumDisputeDeposit: BigInt!
+  # "Reward to Fisherman on successful disputes"
+  # fishermanRewardPercentage: BigInt!
+  # "Penalty to Indexer on successful disputes"
+  # slashingPercentage: BigInt!
 }
 
 """Account type is a user in the front end which could be doing any actions"""
@@ -84,7 +84,7 @@ type Account @entity {
   "Name of the account"
   name: String!
   "Named subgraphs this account owns"
-  namedSubgraphs: [NamedSubgraph!]!
+  namedSubgraphs: [NamedSubgraph!]
 
   # From Graph Token
   "Graph token balance"
@@ -198,15 +198,16 @@ type Subgraph @entity {
   # dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
 }
 
-"""Data source obtained from the subgraph manifest"""
-type DataSource @entity {
-  "Unique identifier of the data source. Such as contract address"
-  id: ID!
-  "Data source name in the manifest"
-  name: String!
-  "Network "
-  network: String!  
-}
+# TODO - add when we can parse this
+# """Data source obtained from the subgraph manifest"""
+# type DataSource @entity {
+#   "Unique identifier of the data source. Such as contract address"
+#   id: ID!
+#   "Data source name in the manifest"
+#   name: String!
+#   "Network "
+#   network: String!  
+# }
 
 """Indexer represents metadata of the indexer all of its stake and delegator stake"""
 type Indexer @entity {

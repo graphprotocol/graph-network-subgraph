@@ -93,7 +93,7 @@ export function handleCollected(event: Collected): void {
  * - updates all parameters of curation, depending on string passed. We then can
  *   call the contract directly to get the updated value
  */
-export function handleParamterUpdated(event: ParameterUpdated): void {
+export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = GraphNetwork.load('1')
   let curationAddress = Address.fromString(graphNetwork.curation.toString())

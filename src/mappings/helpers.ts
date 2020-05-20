@@ -1,3 +1,4 @@
+import { BigInt, Bytes, ByteArray, Address } from '@graphprotocol/graph-ts'
 import {
   Subgraph,
   GraphNetwork,
@@ -9,7 +10,8 @@ import {
   SubgraphVersion,
   NamedSubgraph,
 } from '../../generated/schema'
-import { BigInt, Bytes, ByteArray, Address } from '@graphprotocol/graph-ts'
+import { GraphToken } from '../../generated/GraphToken/GraphToken'
+import { addresses } from '../../config/addresses'
 
 export function createNamedSubgraph(
   nameHash: ByteArray,
@@ -83,6 +85,7 @@ export function createAccount(id: string): Account {
   let account = new Account(id)
   account.metadataHash = null
   account.name = ''
+  account.balance = BigInt.fromI32(0) // gets set by transfers
   return account
 }
 
@@ -93,6 +96,37 @@ export function createPool(id: BigInt): Pool {
   pool.allocationClaimed = BigInt.fromI32(0)
   pool.curatorReward = BigInt.fromI32(0)
   return pool
+}
+
+export function createGraphNetwork(): GraphNetwork {
+  let graphNetwork = new GraphNetwork('1')
+  graphNetwork.graphToken = addresses.graphToken
+  graphNetwork.epochManager = addresses.epochManager
+  graphNetwork.curation = addresses.curation
+  graphNetwork.staking = addresses.staking
+  graphNetwork.disputeManager = addresses.disputeManager
+  graphNetwork.gns = addresses.gns
+  graphNetwork.serviceRegistry = addresses.serviceRegistry
+
+  let graphTokenAddress = Address.fromString(addresses.graphToken)
+  let graphToken = GraphToken.bind(graphTokenAddress)
+  graphNetwork.totalSupply = BigInt.fromI32(0) // gets set by mint
+
+  // most of the parameters below are updated in the constructor, or else
+  // right after deployement
+  let stakingAddress = Address.fromString(addresses.staking)
+  graphNetwork.curationPercentage = BigInt.fromI32(0)
+  graphNetwork.channelDisputeEpochs = BigInt.fromI32(0)
+  graphNetwork.maxAllocationEpochs = BigInt.fromI32(0)
+  graphNetwork.thawingPeriod = BigInt.fromI32(0)
+  graphNetwork.totalGRTStaked = graphToken.balanceOf(stakingAddress)
+  let curationAddress = Address.fromString(addresses.curation)
+  graphNetwork.defaultReserveRatio = BigInt.fromI32(0)
+  graphNetwork.minimumCurationSignal = BigInt.fromI32(0)
+  graphNetwork.totalGRTSignaled = graphToken.balanceOf(curationAddress)
+  graphNetwork.save()
+  
+  return graphNetwork
 }
 
 export function addQm(a: ByteArray): ByteArray {

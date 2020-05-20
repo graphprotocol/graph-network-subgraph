@@ -234,7 +234,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
  * - updates all parameters of staking, depending on string passed. We then can
  *   call the contract directly to get the updated value
  */
-export function handleParamterUpdated(event: ParameterUpdated): void {
+export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = GraphNetwork.load('1')
   let staking = Staking.bind(Address.fromString(graphNetwork.staking.toString()))
