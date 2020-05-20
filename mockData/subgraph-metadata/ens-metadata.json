@@ -2,9 +2,9 @@
   "displayName": "ENS",
   "image": "http://localhost:8080/ipfs/QmUqD4MMAXQvbNX3FbWNP43gmDFFdQPmQrn8CT9kNEb7Rs",
   "type": "owned",
-  "createdAt": 1565372702,
+  "network": "mainnet",
   "subtitle": "Ethereum Name Service",
   "description": "A secure & decentralized way to address resources on and off the blockchain using simple, human-readable names. Access domains and transfer history.",
-  "githubURL": "https://github.com/ensdomains/ens-subgraph",
+  "repoAddress": "https://github.com/ensdomains/ens-subgraph",
   "websiteURL": "https://ens.domains/"
 }

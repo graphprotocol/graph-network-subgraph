@@ -2,9 +2,9 @@
   "displayName": "Uniswap",
   "image": "http://localhost:8080/ipfs/QmSaK8PKxNWPv3QMMdjp8bYvQxnpU277DowPMwCUr7dAxS",
   "type": "commons",
-  "createdAt": 1565372702,
+  "network": "mainnet",
   "subtitle": "Uniswap is a decentralized protocol for automated token exchange on Ethereum",
   "description": "The subgraph tracks event based data, which updates each exchange to index the live data. It also stores historical data entities, which can be used, and queried to build historical data, which can be used for charts.",
-  "githubURL": "https://github.com/graphprotocol/uniswap-subgraph",
+  "repoAddress": "https://github.com/graphprotocol/uniswap-subgraph",
   "websiteURL": "https://uniswap.info/"
 }

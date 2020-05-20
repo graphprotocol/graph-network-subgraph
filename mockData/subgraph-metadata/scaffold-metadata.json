@@ -2,9 +2,9 @@
   "displayName": "Test",
   "image": "http://localhost:8080/ipfs/Qmcz6dZTaWZo3iuiMPHgmc4BA5idZF4QXWE1JATgiPEtZf",
   "type": "owned",
-  "createdAt": 1565372702,
+  "network": "mainnet",
   "subtitle": "Test",
   "description": "Test with eth picture.",
-  "githubURL": "No URL",
+  "repoAddress": "No URL",
   "websiteURL": "No URL"
 }

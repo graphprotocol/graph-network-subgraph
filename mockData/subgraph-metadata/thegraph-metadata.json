@@ -2,9 +2,9 @@
   "displayName": "Graph Network",
   "image": "http://localhost:8080/ipfs/QmTFK5DZc58XrTqhuuDTYoaq29ndnwoHX5TAW1bZr5EMpq",
   "type": "owned",
-  "createdAt": 1565372702,
+  "network": "mainnet",
   "subtitle": "Graph Network Subgraph",
   "description": "Scalable queries for a decentralized future.",
-  "githubURL": "https://github.com/graphprotocol/graph-network-subgraph",
+  "repoAddress": "https://github.com/graphprotocol/graph-network-subgraph",
   "websiteURL": "https://thegraph.com/"
 }
