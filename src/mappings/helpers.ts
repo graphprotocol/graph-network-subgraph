@@ -36,6 +36,7 @@ export function createSubgraph(subgraphID: string, timestamp: BigInt): Subgraph 
   subgraph.totalSignaledGRT = BigInt.fromI32(0)
   subgraph.totalSignalMinted = BigInt.fromI32(0)
   subgraph.totalQueryFeesCollected = BigInt.fromI32(0)
+  subgraph.totalCuratorFeeReward = BigInt.fromI32(0)
 
   let graphNetwork = GraphNetwork.load('1')
   subgraph.reserveRatio = graphNetwork.defaultReserveRatio
@@ -66,7 +67,6 @@ export function createCurator(id: string, timestamp: BigInt): Curator {
   curator.totalSignal = BigInt.fromI32(0)
   curator.totalSignaledGRT = BigInt.fromI32(0)
   curator.totalRedeemedGRT = BigInt.fromI32(0)
-  curator.feesEarned = BigInt.fromI32(0)
   return curator
 }
 

@@ -40,9 +40,7 @@ export function handleStakeDeposited(event: StakeDeposited): void {
 
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
-  let graphTokenAddress = Address.fromString(graphNetwork.graphToken.toString())
-  let graphToken = GraphToken.bind(graphTokenAddress)
-  graphNetwork.totalGRTStaked = graphToken.balanceOf(graphTokenAddress)
+  graphNetwork.totalGRTStaked = graphNetwork.totalGRTStaked.plus(event.params.tokens)
   graphNetwork.save()
 }
 
@@ -56,15 +54,13 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)
   indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
-  indexer.tokensLocked = indexer.tokensLocked.minus(event.params.tokens)
-  indexer.tokensLockedUntil = 0
+  indexer.tokensLocked = BigInt.fromI32(0) // always set to 0 when withdrawn
+  indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
   indexer.save()
 
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
-  let graphTokenAddress = Address.fromString(graphNetwork.graphToken.toString())
-  let graphToken = GraphToken.bind(graphTokenAddress)
-  graphNetwork.totalGRTStaked = graphToken.balanceOf(graphTokenAddress)
+  graphNetwork.totalGRTStaked = graphNetwork.totalGRTStaked.minus(event.params.tokens)
   graphNetwork.save()
 }
 
@@ -98,6 +94,10 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.tokensLocked = indexerStored.value2
   indexer.save()
+
+  // Update graph network
+  graphNetwork.totalGRTStaked = graphNetwork.totalGRTStaked.minus(event.params.tokens)
+  graphNetwork.save()
 }
 
 /**
@@ -184,7 +184,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   pool.save()
 
   // update allocation
-  let allocation = new Allocation(indexerID.concat('-').concat(subgraphID))
+  let allocation = Allocation.load(indexerID.concat('-').concat(subgraphID))
   allocation.subgraph = subgraphID
   let closedChannels = allocation.channels
   closedChannels.push(allocation.activeChannel)

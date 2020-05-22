@@ -34,7 +34,7 @@ export function handleStaked(event: Staked): void {
     signal = createSignal(id, subgraphID)
   }
   signal.tokensSignaled = signal.tokensSignaled.plus(event.params.tokens)
-  signal.signal = signal.tokensRedeemed.plus(event.params.shares)
+  signal.signal = signal.signal.plus(event.params.shares)
   signal.save()
 
   // update subgraph
@@ -63,8 +63,8 @@ export function handleRedeemed(event: Redeemed): void {
   let subgraphID = event.params.subgraphID.toHexString()
   let signalID = id.concat('-').concat(subgraphID)
   let signal = Signal.load(signalID)
-  signal.tokensSignaled = signal.tokensSignaled.minus(event.params.tokens)
-  signal.signal = signal.tokensRedeemed.minus(event.params.shares)
+  signal.tokensRedeemed = signal.tokensRedeemed.plus(event.params.tokens)
+  signal.signal = signal.signal.minus(event.params.shares)
   signal.save()
 
   // update subgraph
@@ -85,6 +85,7 @@ export function handleCollected(event: Collected): void {
   let subgraphID = event.params.subgraphID.toHexString()
   let subgraph = Subgraph.load(subgraphID)
   subgraph.totalSignaledGRT = subgraph.totalSignaledGRT.plus(event.params.tokens)
+  subgraph.totalCuratorFeeReward = subgraph.totalCuratorFeeReward.plus(event.params.tokens)
   subgraph.save()
 }
 

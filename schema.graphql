@@ -188,6 +188,8 @@ type Subgraph @entity {
   totalSignaledGRT: BigInt!
   "Total curation signal on this subgraph version"
   totalSignalMinted: BigInt!
+  "Total curator reward from fees"
+  totalCuratorFeeReward: BigInt!
 
   "Curators of this subgraph version"
   curators: [Signal!] @derivedFrom(field: "subgraph")
@@ -355,8 +357,6 @@ type Curator @entity {
   totalSignaledGRT: BigInt!
   "Total GRT redeemed on all the subgraphs"
   totalRedeemedGRT: BigInt!
-  "Total fees earned from being a curator" # TODO - might remove, this is hard to calculate
-  feesEarned: BigInt!
   "Subgraphs the curator is curating"
   signals: [Signal!] @derivedFrom(field: "curator")
 
