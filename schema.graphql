@@ -31,7 +31,7 @@ type GraphNetwork @entity {
   "Time in blocks needed to wait to unstake"
   thawingPeriod: BigInt!
   # "All addresses that have slashing privileges" TODO - add when implemented
-  # slashers: [Bytes!]
+  # slashers: [Bytes!]!
   # "Minimum time an Indexer must use for resetting their Delegation parameters" TODO - add when implemented
   # minDelegationParameterCooldown: Int!
   # "The number of indexing rewards handed out per epoch" TODO - add when implemented
@@ -84,7 +84,7 @@ type Account @entity {
   "Name of the account"
   name: String!
   "Named subgraphs this account owns"
-  namedSubgraphs: [NamedSubgraph!]
+  namedSubgraphs: [NamedSubgraph!]!
 
   # From Graph Token
   "Graph token balance"
@@ -113,7 +113,7 @@ type NamedSubgraph @entity {
   "Current version"
   currentVersion: SubgraphVersion
   "Past versions"
-  pastVersions: [SubgraphVersion!]
+  pastVersions: [SubgraphVersion!]!
 
   # TODO - add these later in the event that this is implemented :
   # https://www.notion.so/thegraph/Graph-Name-Service-Signaling-30e72e7f1b3c46a4a6b224155e5a6612#a379698b83c241208b6929a1788bcf4e 
@@ -134,15 +134,17 @@ type SubgraphVersion @entity {
   "Concatenation of named subgraph, subgraph, and version ID"
   id: ID!
   "Named subgraph of this version"
-  namedSubgraph: NamedSubgraph
+  namedSubgraph: NamedSubgraph!
   "Subgraph of this version"
-  subgraph: Subgraph
+  subgraph: Subgraph!
   "Version number"
   version: Int!
   "Creation timestamp"
   createdAt: Int!
   "Deploy timestamp"
   updatedAt: Int! # TODO - when would someone update a SubgraphVersion, doesn't it just become a new version?
+  "Unpublished"
+  unpublished: Boolean!
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
@@ -156,11 +158,11 @@ type SubgraphVersion @entity {
   "Display name for subgraph"
   displayName: String!
   "Location of the code for this project"
-  repoAddress: String!
+  codeRepository: String!
   "Project's website"
   websiteURL: String!
   "Network that the subgraph is indexing"
-  network: String!
+  networks: [String!]!
 
 }
 
@@ -169,7 +171,7 @@ type Subgraph @entity {
   "Subgraph ID"
   id: ID!
   "The versions this subgraph relates to"
-  versions: [SubgraphVersion!] @derivedFrom(field: "subgraph")
+  versions: [SubgraphVersion!]! @derivedFrom(field: "subgraph")
   "Creation timestamp"
   createdAt: Int!
 
@@ -177,7 +179,7 @@ type Subgraph @entity {
   "Total stake of all indexers on this Subgraph"
   totalStake: BigInt!
   "Indexers of this subgraph"
-  indexers: [Channel!] @derivedFrom(field: "subgraph")
+  indexers: [Channel!]! @derivedFrom(field: "subgraph")
   "Total fees accrued all time by this subgraph version"
   totalSubraphIndexingRewards: BigInt!
   "Total query fees earned by this subgraph version"
@@ -192,12 +194,12 @@ type Subgraph @entity {
   totalCuratorFeeReward: BigInt!
 
   "Curators of this subgraph version"
-  curators: [Signal!] @derivedFrom(field: "subgraph")
+  curators: [Signal!]! @derivedFrom(field: "subgraph")
   "Bonding curve reserve ratio"
   reserveRatio: BigInt!
 
   # From Subgraph Manifest
-  # dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
+  # dataSources: [DataSource!]! # TODO - add a ! when we have the ability to parse data sources
 }
 
 # TODO - add when we can parse this
@@ -232,11 +234,11 @@ type Indexer @entity {
   "Time when Indexers tokens unlock"
   tokensLockedUntil: Int!
   "Channels this indexer is currently staked on"
-  channels: [Channel!] @derivedFrom(field: "indexer")
+  channels: [Channel!]! @derivedFrom(field: "indexer")
 
   # Delegator fields
   "Delegators to this Indexer"
-  delegators: [DelegatedStake!] @derivedFrom(field: "indexer")
+  delegators: [DelegatedStake!]! @derivedFrom(field: "indexer")
   "Total tokens delegated to the indexer"
   tokensDelegated: BigInt!
   "Total tokens available to be delegated"
@@ -262,7 +264,7 @@ type Allocation @entity {
   "Active Channel. Null if this Indexer is no longer indexing this subgraph"
   activeChannel: Channel
   "Past channels and active channel for this Allocation"
-  channels: [Channel!] @derivedFrom(field: "allocation")
+  channels: [Channel!]! @derivedFrom(field: "allocation")
 }
 
 """State channel allocation representing Indexer-Subgraph stake"""
@@ -302,7 +304,7 @@ type Pool @entity {
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorReward: BigInt!
   "Channels that were settled during this epoch"
-  settled: [Channel!] @derivedFrom(field: "settled")
+  settled: [Channel!]! @derivedFrom(field: "settled")
 }
 
 """All data regarding an Indexing Reward"""
@@ -328,7 +330,7 @@ type Delegator @entity {
   "Delegator address"
   id: ID!
   "Stakes of this delegator"
-  stakes: [DelegatedStake!] @derivedFrom(field: "delegator")
+  stakes: [DelegatedStake!]! @derivedFrom(field: "delegator")
 }
 
 """Delegator stake for a single Indexer"""
@@ -358,7 +360,7 @@ type Curator @entity {
   "Total GRT redeemed on all the subgraphs"
   totalRedeemedGRT: BigInt!
   "Subgraphs the curator is curating"
-  signals: [Signal!] @derivedFrom(field: "curator")
+  signals: [Signal!]! @derivedFrom(field: "curator")
 
 }
 
@@ -391,7 +393,7 @@ type Dispute @entity {
   "Fisherman deposit"
   deposit: BigInt!
   "Attestation disputed. If an attestation dispute there will be 2 attestation"
-  attestation: [Attestation]!
+  attestation: [Attestation!]!
   "Time dispute was created"
   createdAt: Int!
   "Result of either type of dispute"

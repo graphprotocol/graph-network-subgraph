@@ -31,9 +31,6 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
     namedSubgraph = createNamedSubgraph(nameHash, name, event.params.owner, versionID)
   } else {
     let pastVersions = namedSubgraph.pastVersions
-    if (pastVersions == null) {
-      pastVersions = []
-    }
     pastVersions.push(namedSubgraph.currentVersion)
     namedSubgraph.pastVersions = pastVersions
     namedSubgraph.currentVersion = versionID
@@ -47,6 +44,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   subgraphVersion.version = versionNumber.toI32()
   subgraphVersion.createdAt = event.block.timestamp.toI32()
   subgraphVersion.updatedAt = event.block.timestamp.toI32()
+  subgraphVersion.unpublished = false
 
   subgraphVersion.metadataHash = event.params.metadataHash
 
@@ -70,13 +68,18 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
       subgraphVersion.displayName = data.get('displayName').toString()
     }
     if (data.get('repoAddress')) {
-      subgraphVersion.repoAddress = data.get('repoAddress').toString()
+      subgraphVersion.codeRepository = data.get('repoAddress').toString()
     }
     if (data.get('websiteURL')) {
       subgraphVersion.websiteURL = data.get('websiteURL').toString()
     }
     if (data.get('network')) {
-      subgraphVersion.network = data.get('network').toString()
+      let networksJSONValue = data.get('network').toArray()
+      let networks: Array<string>
+      for (let i = 0; i < networksJSONValue.length; i++){
+        networks.push(networksJSONValue[i].toString())
+      }
+      subgraphVersion.networks = networks
     }
   }
   subgraphVersion.save()
@@ -104,8 +107,7 @@ export function handleSubgraphUnpublished(event: SubgraphUnpublished): void {
 
   // update subgraph version
   let subgraphVersion = SubgraphVersion.load(subgraphVersionID)
-  subgraphVersion.subgraph = null
-  subgraphVersion.namedSubgraph = null
+  subgraphVersion.unpublished = true
   subgraphVersion.save()
 }
 

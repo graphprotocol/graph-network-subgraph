@@ -230,7 +230,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
 }
 
 /**
- * @dev handleParamterUpdated
+ * @dev handleParameterUpdated
  * - updates all parameters of staking, depending on string passed. We then can
  *   call the contract directly to get the updated value
  */
@@ -239,7 +239,6 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   let graphNetwork = GraphNetwork.load('1')
   let staking = Staking.bind(Address.fromString(graphNetwork.staking.toString()))
 
-  // TODO - can't remember if switch case works in typescript. will try
   if (parameter == 'curation') {
     // Not in use now, we are waiting till we have a controller contract that
     // houses all the addresses of all contracts. So that there aren't a bunch 

@@ -24,6 +24,7 @@ export function createNamedSubgraph(
   namedSubgraph.name = name
   namedSubgraph.owner = owner.toHexString()
   namedSubgraph.currentVersion = versionID
+  namedSubgraph.pastVersions = []
 
   return namedSubgraph
 }
@@ -85,6 +86,7 @@ export function createAccount(id: string): Account {
   let account = new Account(id)
   account.metadataHash = null
   account.name = ''
+  account.namedSubgraphs = []
   account.balance = BigInt.fromI32(0) // gets set by transfers
   return account
 }

@@ -100,7 +100,6 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   let curationAddress = Address.fromString(graphNetwork.curation.toString())
   let staking = Curation.bind(curationAddress)
 
-  // TODO - can't remember if switch case works in typescript. will try
   if (parameter == 'defaultReserveRatio') {
     graphNetwork.defaultReserveRatio = staking.defaultReserveRatio()
   } else if (parameter == 'staking') {
