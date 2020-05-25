@@ -55,41 +55,44 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let getVersionDataFromIPFS = ipfs.cat(base58Hash)
   if (getVersionDataFromIPFS !== null) {
     let data = json.fromBytes(getVersionDataFromIPFS as Bytes).toObject()
-    if (data.get('description')) {
-      subgraphVersion.description = data.get('description').toString()
-    }
-    if (data.get('image')) {
-      subgraphVersion.image = data.get('image').toString()
-    }
-    if (data.get('subtitle')) {
-      subgraphVersion.subtitle = data.get('subtitle').toString()
-    }
-    if (data.get('displayName')) {
-      subgraphVersion.displayName = data.get('displayName').toString()
-    }
-    if (data.get('repoAddress')) {
-      subgraphVersion.codeRepository = data.get('repoAddress').toString()
-    }
-    if (data.get('websiteURL')) {
-      subgraphVersion.websiteURL = data.get('websiteURL').toString()
-    }
+    data.get('description')
+      ? (subgraphVersion.description = data.get('description').toString())
+      : (subgraphVersion.description = '')
+
+    data.get('image')
+      ? subgraphVersion.image = data.get('image').toString()
+      : subgraphVersion.image = ""
+    
+    data.get('subtitle')
+      ? subgraphVersion.subtitle = data.get('subtitle').toString()
+      : subgraphVersion.description = ''
+    data.get('displayName')
+      ? subgraphVersion.displayName = data.get('displayName').toString()
+      : subgraphVersion.displayName = ''
+    data.get('repoAddress')
+      ? subgraphVersion.codeRepository = data.get('repoAddress').toString()
+      : subgraphVersion.codeRepository = ''
+    data.get('websiteURL')
+      ?subgraphVersion.websiteURL = data.get('websiteURL').toString()
+      : subgraphVersion.websiteURL = ''
     if (data.get('network')) {
       let networksJSONValue = data.get('network').toArray()
       let networks: Array<string>
-      for (let i = 0; i < networksJSONValue.length; i++){
+      for (let i = 0; i < networksJSONValue.length; i++) {
         networks.push(networksJSONValue[i].toString())
       }
       subgraphVersion.networks = networks
+    } else {
+      subgraphVersion.networks = []
     }
   }
   subgraphVersion.save()
 
   // create subgraph, if needed
   let subgraph = Subgraph.load(subgraphID)
-  if (subgraph == null){
+  if (subgraph == null) {
     createSubgraph(subgraphID, event.block.timestamp)
   }
-
 }
 
 /**
@@ -116,8 +119,8 @@ export function handleSubgraphUnpublished(event: SubgraphUnpublished): void {
  * - updates named subgraph
  */
 export function handleSubgraphTransferred(event: SubgraphTransferred): void {
-    // update named subgraph
-    let namedSubgraph = NamedSubgraph.load(event.params.nameHash.toHexString())
-    namedSubgraph.owner = event.params.to.toHexString()
-    namedSubgraph.save()
+  // update named subgraph
+  let namedSubgraph = NamedSubgraph.load(event.params.nameHash.toHexString())
+  namedSubgraph.owner = event.params.to.toHexString()
+  namedSubgraph.save()
 }
