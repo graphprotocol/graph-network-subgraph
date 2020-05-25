@@ -113,16 +113,17 @@ export function createGraphNetwork(): GraphNetwork {
 
   // most of the parameters below are updated in the constructor, or else
   // right after deployement
-  let stakingAddress = Address.fromString(addresses.staking)
   graphNetwork.curationPercentage = BigInt.fromI32(0)
   graphNetwork.channelDisputeEpochs = BigInt.fromI32(0)
   graphNetwork.maxAllocationEpochs = BigInt.fromI32(0)
   graphNetwork.thawingPeriod = BigInt.fromI32(0)
-  graphNetwork.totalGRTStaked = graphToken.balanceOf(stakingAddress)
-  let curationAddress = Address.fromString(addresses.curation)
+  graphNetwork.totalGRTStaked = BigInt.fromI32(0)
+  graphNetwork.totalGRTAllocated = BigInt.fromI32(0)
+  graphNetwork.totalGRTClaimable = BigInt.fromI32(0)
+  graphNetwork.totalGRTLocked = BigInt.fromI32(0)
   graphNetwork.defaultReserveRatio = BigInt.fromI32(0)
   graphNetwork.minimumCurationSignal = BigInt.fromI32(0)
-  graphNetwork.totalGRTSignaled = graphToken.balanceOf(curationAddress)
+  graphNetwork.totalGRTSignaled = BigInt.fromI32(0)
   graphNetwork.save()
   
   return graphNetwork

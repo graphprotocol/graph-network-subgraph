@@ -40,6 +40,12 @@ type GraphNetwork @entity {
   # networkGRTIssuance: Int!
   "The total amount of GRT staked in the staking contract"
   totalGRTStaked: BigInt!
+  "Total tokens that are settled and waiting to be claimed"
+  totalGRTClaimable: BigInt!
+  "Total tokens that are currently locked in the network"
+  totalGRTLocked: BigInt!
+  "Total GRT currertly in allocation"
+  totalGRTAllocated: BigInt!
 
   # Curation global variables
   "Default reserve ratio for all subgraphs"
@@ -231,6 +237,8 @@ type Indexer @entity {
   tokensAllocated: BigInt!
   "Total tokens locked"
   tokensLocked: BigInt!
+  "Tokens settled and waiting to be claimed"
+  tokensClaimable: BigInt!
   "Time when Indexers tokens unlock"
   tokensLockedUntil: Int!
   "Channels this indexer is currently staked on"

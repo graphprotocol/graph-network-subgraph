@@ -11,14 +11,7 @@ import {
   Staking,
 } from '../../generated/Staking/Staking'
 import { GraphToken } from '../../generated/Staking/GraphToken'
-import {
-  Channel,
-  Indexer,
-  Allocation,
-  Subgraph,
-  GraphNetwork,
-  Pool,
-} from '../../generated/schema'
+import { Channel, Indexer, Allocation, Subgraph, GraphNetwork, Pool } from '../../generated/schema'
 
 import { createSubgraph, createIndexer, createPool } from './helpers'
 
@@ -61,6 +54,7 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalGRTStaked = graphNetwork.totalGRTStaked.minus(event.params.tokens)
+  graphNetwork.totalGRTLocked = graphNetwork.totalGRTLocked.minus(event.params.tokens)
   graphNetwork.save()
 }
 
@@ -75,6 +69,11 @@ export function handleStakeLocked(event: StakeLocked): void {
   indexer.tokensLocked = event.params.tokens
   indexer.tokensLockedUntil = event.params.until.toI32()
   indexer.save()
+
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalGRTLocked = graphNetwork.totalGRTLocked.plus(event.params.tokens)
+  graphNetwork.save()
 }
 
 /**
@@ -118,6 +117,11 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let indexer = Indexer.load(indexerID)
   indexer.tokensAllocated = indexer.tokensAllocated.plus(event.params.tokens)
   indexer.save()
+
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalGRTAllocated = graphNetwork.totalGRTAllocated.plus(event.params.tokens)
+  graphNetwork.save()
 
   // update subgraph
   let subgraph = Subgraph.load(subgraphID)
@@ -165,7 +169,14 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.tokensAllocated = indexer.tokensAllocated.minus(event.params.tokens)
+  indexer.tokensClaimable = indexer.tokensAllocated.plus(event.params.tokens)
   indexer.save()
+
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalGRTClaimable = graphNetwork.totalGRTClaimable.plus(event.params.tokens)
+  graphNetwork.totalGRTAllocated = graphNetwork.totalGRTAllocated.minus(event.params.tokens)
+  graphNetwork.save()
 
   // update subgraph
   let subgraph = Subgraph.load(subgraphID)
@@ -211,6 +222,16 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   let indexerID = event.params.indexer.toString()
   let allocationID = indexerID.concat('-').concat(subgraphID)
 
+  // update indexer
+  let indexer = Indexer.load(indexerID)
+  indexer.tokensClaimable = indexer.tokensAllocated.minus(event.params.tokens)
+  indexer.save()
+
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalGRTClaimable = graphNetwork.totalGRTClaimable.minus(event.params.tokens)
+  graphNetwork.save()
+
   // update allocation
   let allocation = Allocation.load(allocationID)
   let channelID = allocation.activeChannel
@@ -240,7 +261,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 
   if (parameter == 'curation') {
     // Not in use now, we are waiting till we have a controller contract that
-    // houses all the addresses of all contracts. So that there aren't a bunch 
+    // houses all the addresses of all contracts. So that there aren't a bunch
     // of different instances of the contract addresses across all contracts
     // graphNetwork.curation = staking.curation()
   } else if (parameter == 'curationPercentage') {
