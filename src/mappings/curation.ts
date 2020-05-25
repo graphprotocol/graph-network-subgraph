@@ -44,6 +44,9 @@ export function handleStaked(event: Staked): void {
   }
   subgraph.totalSignaledGRT = subgraph.totalSignaledGRT.plus(event.params.tokens)
   subgraph.totalSignalMinted = subgraph.totalSignalMinted.plus(event.params.shares)
+
+  let curation = Curation.bind(event.address)
+  subgraph.reserveRatio = curation.subgraphs(event.params.subgraphID).value0
   subgraph.save()
 }
 /**

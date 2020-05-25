@@ -196,7 +196,7 @@ type Subgraph @entity {
   "Curators of this subgraph version"
   curators: [Signal!]! @derivedFrom(field: "subgraph")
   "Bonding curve reserve ratio"
-  reserveRatio: BigInt!
+  reserveRatio: BigInt
 
   # From Subgraph Manifest
   # dataSources: [DataSource!]! # TODO - add a ! when we have the ability to parse data sources
@@ -295,12 +295,12 @@ type Channel @entity {
 type Pool @entity {
   "Epoch number of the pool"
   id: ID!
-  "Total fees earned in this epoch"
-  fees: BigInt!
-  "Total allocation settled in this epoch"
+  "Total effective allocation settled in this epoch"
   allocation: BigInt!
-  "Total allocation claimed in this epoch"
-  allocationClaimed: BigInt!
+  "Total fees in this epoch"
+  fees: BigInt!
+  "Total fees claimed in this epoch"
+  feesClaimed: BigInt!
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorReward: BigInt!
   "Channels that were settled during this epoch"

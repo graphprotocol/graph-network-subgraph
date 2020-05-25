@@ -111,7 +111,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
 export function handleAllocationCreated(event: AllocationCreated): void {
   let subgraphID = event.params.subgraphID.toString()
   let indexerID = event.params.indexer.toString()
-  let challengeID = event.params.channelID.toString()
+  let channelID = event.params.channelID.toString()
   let allocationID = indexerID.concat('-').concat(subgraphID)
 
   // update indexer
@@ -133,11 +133,11 @@ export function handleAllocationCreated(event: AllocationCreated): void {
     allocation = new Allocation(allocationID)
   }
   allocation.subgraph = subgraphID
-  allocation.activeChannel = challengeID
+  allocation.activeChannel = channelID
   allocation.save()
 
   // create channel
-  let channel = new Channel(challengeID)
+  let channel = new Channel(channelID)
   channel.indexer = indexerID
   channel.subgraph = subgraphID
   channel.allocation = allocationID
@@ -185,7 +185,6 @@ export function handleAllocationSettled(event: AllocationSettled): void {
 
   // update allocation
   let allocation = Allocation.load(indexerID.concat('-').concat(subgraphID))
-  allocation.subgraph = subgraphID
   let closedChannels = allocation.channels
   closedChannels.push(allocation.activeChannel)
   allocation.channels = closedChannels
@@ -225,7 +224,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
 
   // update pool
   let pool = Pool.load(event.params.forEpoch.toString())
-  pool.allocationClaimed = pool.allocationClaimed.plus(event.params.tokens)
+  pool.feesClaimed = pool.feesClaimed.plus(event.params.tokens)
   pool.save()
 }
 

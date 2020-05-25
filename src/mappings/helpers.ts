@@ -1,4 +1,4 @@
-import { BigInt, Bytes, ByteArray, Address } from '@graphprotocol/graph-ts'
+import { BigInt, ByteArray, Address } from '@graphprotocol/graph-ts'
 import {
   Subgraph,
   GraphNetwork,
@@ -39,9 +39,6 @@ export function createSubgraph(subgraphID: string, timestamp: BigInt): Subgraph 
   subgraph.totalQueryFeesCollected = BigInt.fromI32(0)
   subgraph.totalCuratorFeeReward = BigInt.fromI32(0)
 
-  let graphNetwork = GraphNetwork.load('1')
-  subgraph.reserveRatio = graphNetwork.defaultReserveRatio
-
   return subgraph
 }
 
@@ -77,7 +74,7 @@ export function createSignal(curator: string, subgraphID: string): Signal {
   signal.curator = curator
   signal.subgraph = subgraphID
   signal.tokensSignaled = BigInt.fromI32(0)
-  signal.tokensSignaled = BigInt.fromI32(0)
+  signal.tokensRedeemed = BigInt.fromI32(0)
   signal.signal = BigInt.fromI32(0)
   return signal
 }
@@ -95,7 +92,7 @@ export function createPool(id: BigInt): Pool {
   let pool = new Pool(id.toString())
   pool.fees = BigInt.fromI32(0)
   pool.allocation = BigInt.fromI32(0)
-  pool.allocationClaimed = BigInt.fromI32(0)
+  pool.feesClaimed = BigInt.fromI32(0)
   pool.curatorReward = BigInt.fromI32(0)
   return pool
 }
