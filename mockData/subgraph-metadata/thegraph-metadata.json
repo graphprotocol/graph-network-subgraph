@@ -5,6 +5,6 @@
   "network": "mainnet",
   "subtitle": "Graph Network Subgraph",
   "description": "Scalable queries for a decentralized future.",
-  "repoAddress": "https://github.com/graphprotocol/graph-network-subgraph",
+  "codeRepository": "https://github.com/graphprotocol/graph-network-subgraph",
   "websiteURL": "https://thegraph.com/"
 }

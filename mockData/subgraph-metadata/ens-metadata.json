@@ -5,6 +5,6 @@
   "network": "mainnet",
   "subtitle": "Ethereum Name Service",
   "description": "A secure & decentralized way to address resources on and off the blockchain using simple, human-readable names. Access domains and transfer history.",
-  "repoAddress": "https://github.com/ensdomains/ens-subgraph",
+  "codeRepository": "https://github.com/ensdomains/ens-subgraph",
   "websiteURL": "https://ens.domains/"
 }

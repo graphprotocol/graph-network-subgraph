@@ -5,6 +5,6 @@
   "network": "mainnet",
   "subtitle": "Video Encoding",
   "description": "A protocol for affordable and reliable video encoding. Find transcoders, staking rounds, and rewards.",
-  "repoAddress": "https://github.com/livepeer/livepeerjs/tree/master/packages/subgraph",
+  "codeRepository": "https://github.com/livepeer/livepeerjs/tree/master/packages/subgraph",
   "websiteURL": "https://livepeer.org/"
 }

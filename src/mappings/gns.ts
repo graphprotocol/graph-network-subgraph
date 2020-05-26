@@ -4,15 +4,22 @@ import {
   SubgraphUnpublished,
   SubgraphTransferred,
 } from '../../generated/GNS/GNS'
-import { NamedSubgraph, Subgraph, SubgraphVersion } from '../../generated/schema'
+import { NamedSubgraph, Subgraph, SubgraphVersion, Account } from '../../generated/schema'
 
-import { createNamedSubgraph, createSubgraph, getVersionNumber, addQm } from './helpers'
+import {
+  createNamedSubgraph,
+  createSubgraph,
+  getVersionNumber,
+  addQm,
+  createAccount,
+} from './helpers'
 
 /**
  * @dev handleSubgraphPublished
  * - updates named subgraph, creates if needed
  * - creates subgraph version
  * - creates subgraph, if needed
+ * - create account, if needed
  */
 export function handleSubgraphPublished(event: SubgraphPublished): void {
   let name = event.params.name
@@ -58,23 +65,18 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
     data.get('description')
       ? (subgraphVersion.description = data.get('description').toString())
       : (subgraphVersion.description = '')
-
     data.get('image')
-      ? subgraphVersion.image = data.get('image').toString()
-      : subgraphVersion.image = ""
-    
-    data.get('subtitle')
-      ? subgraphVersion.subtitle = data.get('subtitle').toString()
-      : subgraphVersion.description = ''
+      ? (subgraphVersion.image = data.get('image').toString())
+      : (subgraphVersion.image = '')
     data.get('displayName')
-      ? subgraphVersion.displayName = data.get('displayName').toString()
-      : subgraphVersion.displayName = ''
-    data.get('repoAddress')
-      ? subgraphVersion.codeRepository = data.get('repoAddress').toString()
-      : subgraphVersion.codeRepository = ''
+      ? (subgraphVersion.displayName = data.get('displayName').toString())
+      : (subgraphVersion.displayName = '')
+    data.get('codeRepository')
+      ? (subgraphVersion.codeRepository = data.get('codeRepository').toString())
+      : (subgraphVersion.codeRepository = '')
     data.get('websiteURL')
-      ?subgraphVersion.websiteURL = data.get('websiteURL').toString()
-      : subgraphVersion.websiteURL = ''
+      ? (subgraphVersion.websiteURL = data.get('websiteURL').toString())
+      : (subgraphVersion.websiteURL = '')
     if (data.get('network')) {
       let networksJSONValue = data.get('network').toArray()
       let networks: Array<string>
@@ -92,6 +94,12 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let subgraph = Subgraph.load(subgraphID)
   if (subgraph == null) {
     createSubgraph(subgraphID, event.block.timestamp)
+  }
+
+  let accountID = event.params.owner.toHexString()
+  let account = Account.load(accountID)
+  if (account == null) {
+    createAccount(accountID)
   }
 }
 
@@ -119,8 +127,15 @@ export function handleSubgraphUnpublished(event: SubgraphUnpublished): void {
  * - updates named subgraph
  */
 export function handleSubgraphTransferred(event: SubgraphTransferred): void {
+  let id = event.params.to.toHexString()
+
   // update named subgraph
   let namedSubgraph = NamedSubgraph.load(event.params.nameHash.toHexString())
-  namedSubgraph.owner = event.params.to.toHexString()
+  namedSubgraph.owner = id
   namedSubgraph.save()
+
+  let account = Account.load(id)
+  if (account == null) {
+    createAccount(id)
+  }
 }

@@ -90,7 +90,7 @@ type Account @entity {
   "Name of the account"
   name: String!
   "Named subgraphs this account owns"
-  namedSubgraphs: [NamedSubgraph!]!
+  namedSubgraphs: [NamedSubgraph!]! @derivedFrom(field: "owner")
 
   # From Graph Token
   "Graph token balance"
@@ -159,8 +159,6 @@ type SubgraphVersion @entity {
   description: String!
   "Image in string format"
   image: String!
-  "Subtitle for display"
-  subtitle: String!
   "Display name for subgraph"
   displayName: String!
   "Location of the code for this project"

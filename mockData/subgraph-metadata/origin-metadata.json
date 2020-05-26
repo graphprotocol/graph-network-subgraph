@@ -5,6 +5,6 @@
   "network": "mainnet",
   "subtitle": "Origin Marketplace",
   "description": "Origin is a protocol for creating peer-to-peer marketplaces using the Ethereum blockchain and IPFS.",
-  "repoAddress": "https://github.com/graphprotocol/origin-subgraph",
+  "codeRepository": "https://github.com/graphprotocol/origin-subgraph",
   "websiteURL": "https://www.originprotocol.com/en"
 }

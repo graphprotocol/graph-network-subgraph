@@ -5,6 +5,6 @@
   "network": "mainnet",
   "subtitle": "MelonPort",
   "description": "Technology operated and regulated funds",
-  "repoAddress": "https://github.com/melonproject/melon-subgraph\n",
+  "codeRepository": "https://github.com/melonproject/melon-subgraph\n",
   "websiteURL": "https://melonport.com/"
 }

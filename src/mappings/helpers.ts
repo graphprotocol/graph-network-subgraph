@@ -25,7 +25,7 @@ export function createNamedSubgraph(
   namedSubgraph.owner = owner.toHexString()
   namedSubgraph.currentVersion = versionID
   namedSubgraph.pastVersions = []
-
+  namedSubgraph.save()
   return namedSubgraph
 }
 
@@ -38,7 +38,7 @@ export function createSubgraph(subgraphID: string, timestamp: BigInt): Subgraph 
   subgraph.totalSignalMinted = BigInt.fromI32(0)
   subgraph.totalQueryFeesCollected = BigInt.fromI32(0)
   subgraph.totalCuratorFeeReward = BigInt.fromI32(0)
-
+  subgraph.save()
   return subgraph
 }
 
@@ -55,6 +55,7 @@ export function createIndexer(id: string, timestamp: BigInt): Indexer {
   indexer.delegatorParameterCooldown = 0
   indexer.forcedSettlements = 0
   indexer.createdAt = timestamp.toI32()
+  indexer.save()
   return indexer
 }
 
@@ -65,6 +66,7 @@ export function createCurator(id: string, timestamp: BigInt): Curator {
   curator.totalSignal = BigInt.fromI32(0)
   curator.totalSignaledGRT = BigInt.fromI32(0)
   curator.totalRedeemedGRT = BigInt.fromI32(0)
+  curator.save()
   return curator
 }
 
@@ -76,6 +78,7 @@ export function createSignal(curator: string, subgraphID: string): Signal {
   signal.tokensSignaled = BigInt.fromI32(0)
   signal.tokensRedeemed = BigInt.fromI32(0)
   signal.signal = BigInt.fromI32(0)
+  signal.save()
   return signal
 }
 
@@ -83,8 +86,8 @@ export function createAccount(id: string): Account {
   let account = new Account(id)
   account.metadataHash = null
   account.name = ''
-  account.namedSubgraphs = []
   account.balance = BigInt.fromI32(0) // gets set by transfers
+  account.save()
   return account
 }
 
@@ -94,6 +97,7 @@ export function createPool(id: BigInt): Pool {
   pool.allocation = BigInt.fromI32(0)
   pool.feesClaimed = BigInt.fromI32(0)
   pool.curatorReward = BigInt.fromI32(0)
+  pool.save()
   return pool
 }
 

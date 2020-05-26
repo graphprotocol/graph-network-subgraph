@@ -5,6 +5,6 @@
   "network": "mainnet",
   "subtitle": "Moloch DAO",
   "description": "Decentralized asset allocation",
-  "repoAddress": "https://github.com/MolochVentures/moloch-monorepo/",
+  "codeRepository": "https://github.com/MolochVentures/moloch-monorepo/",
   "websiteURL": "https://molochdao.com/"
 }

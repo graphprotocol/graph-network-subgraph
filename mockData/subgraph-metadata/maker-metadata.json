@@ -5,6 +5,6 @@
   "network": "mainnet",
   "subtitle": "Maker DAO",
   "description": "Maker is a protocol for collateralized stable coin creation.",
-  "repoAddress": "https://github.com/makerdao",
+  "codeRepository": "https://github.com/makerdao",
   "websiteURL": "https://makerdao.com/en/"
 }
