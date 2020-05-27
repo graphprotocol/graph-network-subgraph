@@ -1,8 +1,8 @@
 import {
   ServiceRegistered,
   ServiceUnregistered,
-} from '../../generated/ServiceRegistry/ServiceRegistry'
-import { Indexer } from '../../generated/schema'
+} from '../types/ServiceRegistry/ServiceRegistry'
+import { Indexer } from '../types/schema'
 
 import { createIndexer } from './helpers'
 

@@ -3,8 +3,8 @@ import {
   SubgraphPublished,
   SubgraphUnpublished,
   SubgraphTransferred,
-} from '../../generated/GNS/GNS'
-import { NamedSubgraph, Subgraph, SubgraphVersion, Account } from '../../generated/schema'
+} from '../types/GNS/GNS'
+import { NamedSubgraph, Subgraph, SubgraphVersion, Account } from '../types/schema'
 
 import {
   createNamedSubgraph,
@@ -87,6 +87,14 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
     } else {
       subgraphVersion.networks = []
     }
+    // When the subgraph cannot find the ipfs file
+  } else {
+    subgraphVersion.description = ''
+    subgraphVersion.image = ''
+    subgraphVersion.displayName = ''
+    subgraphVersion.codeRepository = ''
+    subgraphVersion.websiteURL = ''
+    subgraphVersion.networks = []
   }
   subgraphVersion.save()
 

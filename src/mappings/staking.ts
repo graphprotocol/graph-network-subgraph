@@ -9,9 +9,9 @@ import {
   RebateClaimed,
   ParameterUpdated,
   Staking,
-} from '../../generated/Staking/Staking'
-import { GraphToken } from '../../generated/Staking/GraphToken'
-import { Channel, Indexer, Allocation, Subgraph, GraphNetwork, Pool } from '../../generated/schema'
+} from '../types/Staking/Staking'
+import { GraphToken } from '../types/Staking/GraphToken'
+import { Channel, Indexer, Allocation, Subgraph, GraphNetwork, Pool } from '../types/schema'
 
 import { createSubgraph, createIndexer, createPool } from './helpers'
 
@@ -89,7 +89,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   // We need to call into stakes mapping, because locked tokens might have been
   // decremented, and this is not released in the event
   let graphNetwork = GraphNetwork.load('1')
-  let staking = Staking.bind(Address.fromString(graphNetwork.staking.toString()))
+  let staking = Staking.bind(graphNetwork.staking as Address)
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.tokensLocked = indexerStored.value2
   indexer.save()
@@ -257,7 +257,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = GraphNetwork.load('1')
-  let staking = Staking.bind(Address.fromString(graphNetwork.staking.toString()))
+  let staking = Staking.bind(graphNetwork.staking as Address)
 
   if (parameter == 'curation') {
     // Not in use now, we are waiting till we have a controller contract that

@@ -3,19 +3,19 @@ type GraphNetwork @entity {
   "id = 1"
   id: ID!
   "Contract address"
-  graphToken: String!
+  graphToken: Bytes!
   "Contract address"
-  epochManager: String!
+  epochManager: Bytes!
   "Contract address"
-  curation: String!
+  curation: Bytes!
   "Contract address"
-  staking: String!
+  staking: Bytes!
   "Contract address"
-  disputeManager: String!
+  disputeManager: Bytes!
   "Contract address"
-  gns: String!
+  gns: Bytes!
   "Contract address"
-  serviceRegistry: String!
+  serviceRegistry: Bytes!
   # "Set to true if the protocol is paused" TODO - add when implemente
   # paused: Boolean!
 

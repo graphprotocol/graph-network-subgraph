@@ -1,5 +1,5 @@
-import { Approval, Transfer } from '../../generated/GraphToken/GraphToken'
-import { Account, GraphNetwork } from '../../generated/schema'
+import { Approval, Transfer } from '../types/GraphToken/GraphToken'
+import { Account, GraphNetwork } from '../types/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { createAccount, createGraphNetwork } from './helpers'
 

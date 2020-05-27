@@ -9,8 +9,8 @@ import {
   Signal,
   SubgraphVersion,
   NamedSubgraph,
-} from '../../generated/schema'
-import { GraphToken } from '../../generated/GraphToken/GraphToken'
+} from '../types/schema'
+import { GraphToken } from '../types/GraphToken/GraphToken'
 import { addresses } from '../../config/addresses'
 
 export function createNamedSubgraph(
@@ -103,13 +103,13 @@ export function createPool(id: BigInt): Pool {
 
 export function createGraphNetwork(): GraphNetwork {
   let graphNetwork = new GraphNetwork('1')
-  graphNetwork.graphToken = addresses.graphToken
-  graphNetwork.epochManager = addresses.epochManager
-  graphNetwork.curation = addresses.curation
-  graphNetwork.staking = addresses.staking
-  graphNetwork.disputeManager = addresses.disputeManager
-  graphNetwork.gns = addresses.gns
-  graphNetwork.serviceRegistry = addresses.serviceRegistry
+  graphNetwork.graphToken = Address.fromString(addresses.graphToken)
+  graphNetwork.epochManager = Address.fromString(addresses.epochManager)
+  graphNetwork.curation = Address.fromString(addresses.curation)
+  graphNetwork.staking = Address.fromString(addresses.staking)
+  graphNetwork.disputeManager = Address.fromString(addresses.disputeManager)
+  graphNetwork.gns = Address.fromString(addresses.gns)
+  graphNetwork.serviceRegistry = Address.fromString(addresses.serviceRegistry)
 
   let graphTokenAddress = Address.fromString(addresses.graphToken)
   let graphToken = GraphToken.bind(graphTokenAddress)

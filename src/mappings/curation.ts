@@ -4,8 +4,8 @@ import {
   Collected,
   Curation,
   ParameterUpdated,
-} from '../../generated/Curation/Curation'
-import { Curator, GraphNetwork, Signal, Subgraph } from '../../generated/schema'
+} from '../types/Curation/Curation'
+import { Curator, GraphNetwork, Signal, Subgraph } from '../types/schema'
 import { Address } from '@graphprotocol/graph-ts'
 
 import { createCurator, createSignal, createSubgraph } from './helpers'
@@ -100,11 +100,11 @@ export function handleCollected(event: Collected): void {
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = GraphNetwork.load('1')
-  let curationAddress = Address.fromString(graphNetwork.curation.toString())
-  let staking = Curation.bind(curationAddress)
+  let curationAddress = graphNetwork.curation
+  let curation = Curation.bind(curationAddress as Address)
 
   if (parameter == 'defaultReserveRatio') {
-    graphNetwork.defaultReserveRatio = staking.defaultReserveRatio()
+    graphNetwork.defaultReserveRatio = curation.defaultReserveRatio()
   } else if (parameter == 'staking') {
     // Not in use now, we are waiting till we have a controller contract that
     // houses all the addresses of all contracts. So that there aren't a bunch
@@ -113,7 +113,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   } else if (parameter == 'minimumCurationStake') {
     // TODO - it appears Curation contract still is using Stake as a term instead of signal
     // will have to update soon
-    graphNetwork.minimumCurationSignal = staking.minimumCurationStake()
+    graphNetwork.minimumCurationSignal = curation.minimumCurationStake()
   }
 
   graphNetwork.save()
