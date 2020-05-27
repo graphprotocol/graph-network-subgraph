@@ -2,9 +2,9 @@
   "displayName": "Melon",
   "image": "http://localhost:8080/ipfs/QmQpuowYwm5c7XYXmEbSGsP6EqTU7vEWBJGN3NhJLQZ7wq",
   "type": "owned",
-  "createdAt": 1565372702,
+  "network": "mainnet",
   "subtitle": "MelonPort",
   "description": "Technology operated and regulated funds",
-  "githubURL": "https://github.com/melonproject/melon-subgraph\n",
+  "codeRepository": "https://github.com/melonproject/melon-subgraph\n",
   "websiteURL": "https://melonport.com/"
 }

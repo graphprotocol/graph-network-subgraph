@@ -4,20 +4,12 @@
   "bracketSpacing": true,
   "overrides": [
     {
-      "files": "*.js",
+      "files": "*.ts",
       "options": {
         "semi": false,
         "trailingComma": "all",
         "tabWidth": 2,
         "singleQuote": true,
-        "explicitTypes": "always"
-      }
-    },
-    {
-      "files": "*.sol",
-      "options": {
-        "tabWidth": 4,
-        "singleQuote": false,
         "explicitTypes": "always"
       }
     }

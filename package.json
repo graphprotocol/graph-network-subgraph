@@ -4,11 +4,12 @@
   "repository": "https://github.com/graphprotocol/explorer-dapp",
   "license": "MIT",
   "scripts": {
-    "codegen": "graph codegen",
+    "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
-    "deploy-ropsten": "graph deploy graphprotocol/the-graph-ropsten --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-testing": "graph deploy davekaj/the-graph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-mainnet": "graph deploy graphprotocol/the-graph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-kovan": "yarn prepare:kovan && graph deploy graphprotocol/the-graph-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-kovan-testing": "yarn prepare:kovan && graph deploy davekaj/the-graph-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "prepare:addresses": "mustache ./config/kovanTemp.json ./config/addresses.template.ts > ./config/addresses.ts",
+    "prepare:kovan": "mustache ./config/kovanTemp.json subgraph.template.yaml > subgraph.yaml && yarn prepare:addresses && yarn codegen",
     "lint": "yarn eslint.",
     "lint:fix": "eslint . --fix",
     "prettier": "yarn prettier:js",
@@ -18,7 +19,7 @@
     "@graphprotocol/graph-cli": "^0.18.0",
     "@graphprotocol/graph-ts": "^0.18.1",
     "prettier": "^1.19.1",
-    "eslint": "^6.8.0"
-
+    "eslint": "^6.8.0",
+    "mustache": "^4.0.1"
   }
 }

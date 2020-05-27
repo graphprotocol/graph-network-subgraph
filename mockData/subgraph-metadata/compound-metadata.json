@@ -2,9 +2,9 @@
   "displayName": "Compound",
   "image": "http://localhost:8080/ipfs/QmeMR3qK7wfAuSns4PpdFVZZcsCoLa7wEPQbrZTBQNKGWq",
   "type": "owned",
-  "createdAt": 1565372702,
+  "network": "mainnet",
   "subtitle": "Compound finance Protocol",
   "description": "Compound is an open-source protocol for algorithmic, efficient Money Markets on the Ethereum blockchain.",
-  "githubURL": "https://github.com/graphprotocol/compound-V2-subgraph",
+  "codeRepository": "https://github.com/graphprotocol/compound-V2-subgraph",
   "websiteURL": "https://compound.finance/"
 }

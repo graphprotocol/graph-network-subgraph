@@ -2,9 +2,9 @@
   "displayName": "Origin",
   "image": "http://localhost:8080/ipfs/QmdNkVFiDjStPhCgQfnLUg8agwCK5yQQfmfivyeJJHDeDf",
   "type": "owned",
-  "createdAt": 1565372702,
+  "network": "mainnet",
   "subtitle": "Origin Marketplace",
   "description": "Origin is a protocol for creating peer-to-peer marketplaces using the Ethereum blockchain and IPFS.",
-  "githubURL": "ttps://github.com/graphprotocol/origin-subgraph",
+  "codeRepository": "https://github.com/graphprotocol/origin-subgraph",
   "websiteURL": "https://www.originprotocol.com/en"
 }

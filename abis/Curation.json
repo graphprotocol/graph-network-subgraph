@@ -67,6 +67,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "string",
+        "name": "param",
+        "type": "string"
+      }
+    ],
+    "name": "ParameterUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "curator",
@@ -140,19 +153,6 @@
   },
   {
     "inputs": [],
-    "name": "distributor",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "governor",
     "outputs": [
       {
@@ -172,6 +172,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "staking",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -262,11 +275,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_distributor",
+        "name": "_staking",
         "type": "address"
       }
     ],
-    "name": "setDistributor",
+    "name": "setStaking",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -287,29 +300,36 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_from",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
       },
       {
         "internalType": "uint256",
-        "name": "_value",
+        "name": "_tokens",
         "type": "uint256"
+      }
+    ],
+    "name": "collect",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
       },
       {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
       }
     ],
-    "name": "tokensReceived",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "name": "stake",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

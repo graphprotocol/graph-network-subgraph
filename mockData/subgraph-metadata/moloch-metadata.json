@@ -2,9 +2,9 @@
   "displayName": "Moloch",
   "image": "http://localhost:8080/ipfs/QmSLfbgC7wrmufnr4ekLJtzYT1YfoQFPRsFpCRrHsxr8ED",
   "type": "owned",
-  "createdAt": 1565372702,
+  "network": "mainnet",
   "subtitle": "Moloch DAO",
   "description": "Decentralized asset allocation",
-  "githubURL": "https://github.com/MolochVentures/moloch-monorepo/",
+  "codeRepository": "https://github.com/MolochVentures/moloch-monorepo/",
   "websiteURL": "https://molochdao.com/"
 }

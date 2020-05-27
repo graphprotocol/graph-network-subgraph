@@ -6,95 +6,111 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GNS
-    network: ropsten
+    network: {{network}}
     source:
-      address: '0x0000000000000000000000000000000000000000'
+      address: '{{gns}}'
       abi: GNS
+      startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - NamedSubgraph
+        - SubgraphVersion
+        - Subgraph
       abis:
         - name: GNS
           file: ./abis/GNS.json
       eventHandlers:
-        - event: DomainAdded(indexed bytes32,indexed address,string)
-          handler: handleDomainAdded
-        - event: DomainTransferred(indexed bytes32,indexed address)
-          handler: handleDomainTransferred
-        - event: DomainDeleted(indexed bytes32)
-          handler: handleDomainDeleted
-        - event: SubgraphCreated(indexed bytes32,indexed bytes32,string,indexed address)
-          handler: handleSubgraphCreated
-        - event: SubgraphIDUpdated(indexed bytes32,indexed bytes32)
-          handler: handleSubgraphIDUpdated
-        - event: AccountMetadataChanged(indexed address,indexed bytes32)
-          handler: handleAccountMetadataChanged
-        - event: SubgraphMetadataChanged(indexed bytes32,indexed bytes32)
-          handler: handleSubgraphMetadataChanged
+        - event: SubgraphPublished(string,address,bytes32,bytes32)
+          handler: handleSubgraphPublished
+        - event: SubgraphUnpublished(bytes32)
+          handler: handleSubgraphUnpublished
+        - event: SubgraphTransferred(bytes32,address,address)
+          handler: handleSubgraphTransferred
       file: ./src/mappings/gns.ts
   - kind: ethereum/contract
     name: ServiceRegistry
-    network: ropsten
+    network: {{network}}
     source:
-      address: "0x0000000000000000000000000000000000000000" 
+      address: '{{serviceRegistry}}'
       abi: ServiceRegistry
+      startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Indexer
       abis:
         - name: ServiceRegistry
           file: ./abis/ServiceRegistry.json
       eventHandlers:
-        - event: ServiceUrlSet(indexed address,string)
-          handler: handleServiceUrlSet
-      file: ./src/mappings/service-registry.ts
+        - event: ServiceRegistered(indexed address,string,string)
+          handler: handleServiceRegistered
+        - event: ServiceUnregistered(indexed address)
+          handler: handleServiceUnregistered
+      file: ./src/mappings/serviceRegistry.ts
   - kind: ethereum/contract
     name: Staking
-    network: ropsten
+    network: {{network}}
     source:
-      address: "0x0000000000000000000000000000000000000000"
+      address: '{{staking}}'
       abi: Staking
+      startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Channel
+        - Indexer
+        - Allocation
+        - Subgraph
+        - GraphNetwork
+        - Pool
       abis:
         - name: Staking
           file: ./abis/Staking.json
+        - name: GraphToken
+          file: ./abis/GraphToken.json
+        - name: EpochManager
+          file: ./abis/EpochManager.json
       eventHandlers:
-        - event: StakeUpdate(indexed address,uint256,uint256)
-          handler: handleStakeUpdate
+        - event: StakeDeposited(indexed address,uint256)
+          handler: handleStakeDeposited
+        - event: StakeWithdrawn(indexed address,uint256)
+          handler: handleStakeWithdrawn
         - event: StakeLocked(indexed address,uint256,uint256)
           handler: handleStakeLocked
-        - event: AllocationUpdated(indexed address,indexed bytes32,uint256,uint256,address)
-          handler: handleAllocationUpdated
-        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address)
+        - event: StakeSlashed(indexed address,uint256,uint256,address)
+          handler: handleStakeSlashed          
+        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes)
+          handler: handleAllocationCreated
+        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256,uint256)
           handler: handleAllocationSettled
-        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256)
+        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
-        - event: SlasherUpdate(indexed address,indexed address,bool)
-          handler: handleSlasherUpdate
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
       file: ./src/mappings/staking.ts
   - kind: ethereum/contract
     name: Curation
-    network: ropsten
+    network: {{network}}
     source:
-      address: "0x0000000000000000000000000000000000000000"
+      address: '{{curation}}'
       abi: Curation
+      startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Curator
+        - GraphNetwork
+        - Signal
+        - Subgraph
       abis:
         - name: Curation
           file: ./abis/Curation.json
@@ -105,19 +121,23 @@ dataSources:
           handler: handleRedeemed
         - event: Collected(indexed bytes32,uint256)
           handler: handleCollected
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
       file: ./src/mappings/curation.ts
   - kind: ethereum/contract
     name: GraphToken
-    network: ropsten
+    network: {{network}}
     source:
-      address: "0x0000000000000000000000000000000000000000"
+      address: '{{graphToken}}'
       abi: GraphToken
+      startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - TODO
+        - Account
+        - GraphNetwork
       abis:
         - name: GraphToken
           file: ./abis/GraphToken.json
@@ -126,4 +146,4 @@ dataSources:
           handler: handleTransfer
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
-      file: ./src/mappings/graphtoken.ts
+      file: ./src/mappings/graphToken.ts
