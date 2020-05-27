@@ -134,7 +134,7 @@ type Identity @entity {
 
 """A name and a name system. An identity can own many names from many systems"""
 type IdentityName @entity {
-  "ID of the name, unique to the name system"
+  "ID of the name. Unique to the name system"
   id: ID!
   "Name system for this name"
   nameSystem: NameSystem!
@@ -150,7 +150,7 @@ enum NameSystem {
 
 """All the information related to the name that is in the GNS"""
 type Subgraph @entity {
-  "Subgraph ID, derived from the Organization/Identity ID"
+  "Subgraph ID derived from the Organization/Identity ID"
   id: ID!
   "Owner of this subgraph"
   owner: Account!
@@ -221,7 +221,7 @@ type SubgraphVersion @entity {
   tag: String
 }
 
-"""The immutable subgraph defined by a subgraph manifest, that Indexers stake on and Curators signal on"""
+"""The immutable subgraph defined by a subgraph manifest that Indexers stake on and Curators signal on"""
 type SubgraphDeployment @entity {
   "Subgraph Deployment ID"
   id: ID!
@@ -310,7 +310,7 @@ type Indexer @entity {
   forcedSettlements: Int!
 }
 
-"""Allocation represents the continuous stake of an Indexer on a Subgraph, which is the accumulation of Channels between an indexer and a subgraph"""
+"""Allocation represents the continuous stake of an Indexer on a Subgraph which is the accumulation of Channels between an indexer and a subgraph"""
 type Allocation @entity {
   "Indexer ID concatenated with the Subgraph Deployment ID"
   id: ID!
@@ -338,7 +338,7 @@ type Channel @entity {
   tokensAllocated: BigInt!
   "Epoch this channel was created"
   createdAtEpoch: Int!
-  "Fees this channel collected upon closing, excluding curator reward"
+  "Fees this channel collected upon closing. Excludes curator reward"
   feesCollected: BigInt!
   "Curator rewards deposited to the curating bonding curve"
   curatorReward: BigInt!
