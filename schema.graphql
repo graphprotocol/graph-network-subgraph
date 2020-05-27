@@ -82,19 +82,23 @@ type GraphNetwork @entity {
 
 """Account type is a user in the front end which could be doing any actions"""
 type Account @entity {
-  # From GNS
   "Eth address"
   id: ID!
-  "IPFS hash with account metadata details"
-  metadataHash: Bytes
-  "Name of the account"
-  name: String!
-  "Named subgraphs this account owns"
-  namedSubgraphs: [NamedSubgraph!]! @derivedFrom(field: "owner")
+  "Subgraphs this account owns"
+  subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
 
   # From Graph Token
   "Graph token balance"
   balance: BigInt!
+
+  # Identities
+  "Identities this account owns"
+  ownerOf: [Identity!]!
+  "Identities this account owns"
+  organizationMemberOf: [Identity!]!
+  "Identities this account owns"
+  delegateOf: [Identity!]!
+
 
   # From Staking and Curating and Delegating
   "Subgraphs this account curates"
@@ -105,15 +109,49 @@ type Account @entity {
   delegator: Delegator
 }
 
-"""All the information related the name that is in the GNS"""
-type NamedSubgraph @entity {
-  # From GNS
-  "Hash of the domain name"
+"""A unique identity which is owned by an account. An identity can own multiple names from multiple name systems"""
+type Identity @entity {
+  "Organization identity or user identity"
   id: ID!
-  "System used for naming"
-  nameSystem: String!
-  "Name of the subgraph"
+  "Resolved ens name from the graphs custom text record. Null if none"
+  names: [NameSystem!]!
+  "Default name system to show up in the Graph Explorer. Null if not specified"
+  defaultName: NameSystem
+  "Owner of this identity"
+  owner: Account!
+  "True if it is an organization. False if it is an individual"
+  isOrganization: Boolean!
+
+  "IPFS hash with account metadata details"
+  metadataHash: Bytes
+  "Description of the identity"
+  description: String!
+  "Website URL"
+  website: String
+  "Image in string format"
+  image: String
+}
+
+"""A name and a name system. An identity can own many names from many systems"""
+type IdentityName @entity {
+  "ID of the name, unique to the name system"
+  id: ID!
+  "Name system for this name"
+  nameSystem: NameSystem!
+  "Name resolved from whatever system is used"
   name: String!
+}
+
+enum NameSystem {
+  ENS,
+  Everest,
+  Github,
+}
+
+"""All the information related to the name that is in the GNS"""
+type Subgraph @entity {
+  "Subgraph ID, derived from the Organization/Identity ID"
+  id: ID!
   "Owner of this subgraph"
   owner: Account!
   "Current version"
@@ -121,13 +159,35 @@ type NamedSubgraph @entity {
   "Past versions"
   pastVersions: [SubgraphVersion!]!
 
+  # From Curation, the name specific bonding curve 
+  "Total signal of all curators"
+  totalSignaledGRT: BigInt!
+  "Total curation signal on this subgraph"
+  totalSignalMinted: BigInt!
+
+  # Metadata from IPFS linked in GNS
+  "Subgraph metadata"
+  metadataHash: Bytes!
+  "Short description of the subgraph"
+  description: String!
+  "Image in string format"
+  image: String!
+  "Name of the subgraph"
+  name: String!
+  "Location of the code for this project"
+  codeRepository: String!
+  "Project's website"
+  websiteURL: String!
+  "Network that the subgraph is indexing"
+  networks: [String!]!
+
   # TODO - add these later in the event that this is implemented :
   # https://www.notion.so/thegraph/Graph-Name-Service-Signaling-30e72e7f1b3c46a4a6b224155e5a6612#a379698b83c241208b6929a1788bcf4e 
 
   # Aggregate data
-  # "Total inflation rewards earned all time by this named subgraph"
+  # "Total inflation rewards earned all time by this subgraph"
   # totalSubgraphIndexingRewards: BigInt!
-  # "Total query fees earned by this named subgraph"
+  # "Total query fees earned by this subgraph"
   # totalQueryFeesCollected: BigInt! 
   # "Total stake of all indexers on all subgraph versions"
   # totalStake: BigInt!
@@ -137,12 +197,12 @@ type NamedSubgraph @entity {
 
 """Contains all the version metadata"""
 type SubgraphVersion @entity {
-  "Concatenation of named subgraph, subgraph, and version ID"
+  "Concatenation of subgraph, subgraph deployment, and version ID"
   id: ID!
-  "Named subgraph of this version"
-  namedSubgraph: NamedSubgraph!
   "Subgraph of this version"
   subgraph: Subgraph!
+  "Subgraph depolyment of this version"
+  subgraphDeployment: SubgraphDeployment!
   "Version number"
   version: Int!
   "Creation timestamp"
@@ -153,26 +213,17 @@ type SubgraphVersion @entity {
   unpublished: Boolean!
 
   # Metadata from IPFS linked in GNS
-  "Subgraph metadata"
+  "Subgraph version metadata content address"
   metadataHash: Bytes!
-  "Short description of the subgraph"
+  "Short description of the version"
   description: String!
-  "Image in string format"
-  image: String!
-  "Display name for subgraph"
-  displayName: String!
-  "Location of the code for this project"
-  codeRepository: String!
-  "Project's website"
-  websiteURL: String!
-  "Network that the subgraph is indexing"
-  networks: [String!]!
-
+  "A human readable name. Not required"
+  tag: String
 }
 
 """The immutable subgraph defined by a subgraph manifest, that Indexers stake on and Curators signal on"""
-type Subgraph @entity {
-  "Subgraph ID"
+type SubgraphDeployment @entity {
+  "Subgraph Deployment ID"
   id: ID!
   "The versions this subgraph relates to"
   versions: [SubgraphVersion!]! @derivedFrom(field: "subgraph")
@@ -184,20 +235,20 @@ type Subgraph @entity {
   totalStake: BigInt!
   "Indexers of this subgraph"
   indexers: [Channel!]! @derivedFrom(field: "subgraph")
-  "Total fees accrued all time by this subgraph version"
+  "Total fees accrued all time by this subgraph deployment"
   totalSubraphIndexingRewards: BigInt!
-  "Total query fees earned by this subgraph version"
+  "Total query fees earned by this subgraph deployment"
   totalQueryFeesCollected: BigInt!
 
-  # From Curation
+  # From Curation, the deployment specific bonding curve 
   "Total signal of all curators"
   totalSignaledGRT: BigInt!
-  "Total curation signal on this subgraph version"
+  "Total curation signal on this subgraph deployment"
   totalSignalMinted: BigInt!
   "Total curator reward from fees"
   totalCuratorFeeReward: BigInt!
 
-  "Curators of this subgraph version"
+  "Curators of this subgraph deployment"
   curators: [Signal!]! @derivedFrom(field: "subgraph")
   "Bonding curve reserve ratio"
   reserveRatio: BigInt
@@ -261,12 +312,12 @@ type Indexer @entity {
 
 """Allocation represents the continuous stake of an Indexer on a Subgraph, which is the accumulation of Channels between an indexer and a subgraph"""
 type Allocation @entity {
-  "Indexer ID concatenated with the Subgraph ID"
+  "Indexer ID concatenated with the Subgraph Deployment ID"
   id: ID!
   "Indexer of this Allocation"
   indexer: Indexer!
   "Subgraph of this Allocation"
-  subgraph: Subgraph!
+  subgraph: SubgraphDeployment!
   "Active Channel. Null if this Indexer is no longer indexing this subgraph"
   activeChannel: Channel
   "Past channels and active channel for this Allocation"
@@ -280,7 +331,7 @@ type Channel @entity {
   "Indexer of this channel"
   indexer: Indexer!
   "Subgraph that is being staked on with an open channel"
-  subgraph: Subgraph!
+  subgraph: SubgraphDeployment!
   "Allocation this channel is a part of"
   allocation: Allocation!
   "Tokens associated with the channel"
@@ -324,7 +375,7 @@ type IndexingReward @entity {
   "Total allocation settled in this epoch"
   allocation: BigInt!
   "Subgraph that won durning this epoch"
-  subgraph: Subgraph!
+  subgraph: SubgraphDeployment!
   "Winning Indexer"
   indexer: Indexer!
   "True if reward has been claimed"
@@ -370,14 +421,14 @@ type Curator @entity {
 
 }
 
-"""Curator signal for a single Subgraph"""
+"""Curator signal for a single Subgraph deployment"""
 type Signal @entity {
-  "Eth address + subgraph ID"
+  "Eth address + subgraph deployment ID"
   id: ID!
   "Eth address of the curator"
   curator: Curator!
   "Subgraph being signaled"
-  subgraph: Subgraph!
+  subgraph: SubgraphDeployment!
   "Cumulative number of tokens the curator has signaled"
   tokensSignaled: BigInt!
   "Cumulative number of tokens the curator has redeemed"
@@ -391,7 +442,7 @@ type Dispute @entity {
   "Dispute ID"
   id: ID!
   "Subgraph of the dispute"
-  subgraph: Subgraph!
+  subgraph: SubgraphDeployment!
   "Indexer disputed. If an attestation dispute there will be 2 indexers"
   indexers: [Indexer!]!
   "Fisherman address"
@@ -414,8 +465,8 @@ type Dispute @entity {
 type Attestation @entity {
   "Concatenation of the requestCID and responseCID"
   id: ID!
-  "Subgraph of the subgraph being disputed"
-  subgraph: Subgraph!
+  "Subgraph being disputed"
+  subgraph: SubgraphDeployment!
   "RequestCID"
   requestCID: String!
   "ResponseCID"
