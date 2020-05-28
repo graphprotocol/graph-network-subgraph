@@ -91,10 +91,9 @@ type EthereumAccount @entity {
 
   # Identities
   "Graph accounts this ethereum account is an owner of"
-  ownerOf: [GraphAccount!]!
+  ownerOf: [GraphAccount!]! @derivedFrom(field: "owner")
   "Graph account organizations this ethereum account is a member of"
-  organizationMemberOf: [GraphAccount!]!
-
+  organizationMemberOf: [GraphAccount!]! @derivedFrom(field: "members")
 
   # From Staking and Curating and Delegating
   "Subgraphs this account curates"
@@ -117,6 +116,8 @@ type GraphAccount @entity {
   owner: EthereumAccount!
   "True if it is an organization. False if it is an individual"
   isOrganization: Boolean!
+  "Members of the organization"
+  members: [EthereumAccount!]!
   "Subgraphs the graph account owns"
   subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
 
