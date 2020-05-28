@@ -80,24 +80,20 @@ type GraphNetwork @entity {
   # slashingPercentage: BigInt!
 }
 
-"""Account type is a user in the front end which could be doing any actions"""
-type Account @entity {
+"""EthereumAccount is a user in the front end which could be doing any actions"""
+type EthereumAccount @entity {
   "Eth address"
   id: ID!
-  "Subgraphs this account owns"
-  subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
 
   # From Graph Token
   "Graph token balance"
   balance: BigInt!
 
   # Identities
-  "Identities this account owns"
-  ownerOf: [Identity!]!
-  "Identities this account owns"
-  organizationMemberOf: [Identity!]!
-  "Identities this account owns"
-  delegateOf: [Identity!]!
+  "Graph accounts this ethereum account is an owner of"
+  ownerOf: [GraphAccount!]!
+  "Graph account organizations this ethereum account is a member of"
+  organizationMemberOf: [GraphAccount!]!
 
 
   # From Staking and Curating and Delegating
@@ -109,22 +105,24 @@ type Account @entity {
   delegator: Delegator
 }
 
-"""A unique identity which is owned by an account. An identity can own multiple names from multiple name systems"""
-type Identity @entity {
-  "Organization identity or user identity"
+"""An account within the graph network. An account can own multiple names from multiple name systems"""
+type GraphAccount @entity {
+  "Graph account ID" # TBD how this is figured out
   id: ID!
-  "Resolved ens name from the graphs custom text record. Null if none"
-  names: [NameSystem!]!
+  "All names this graph account has claimed from all name systems"
+  names: [GraphAccountName!]!
   "Default name system to show up in the Graph Explorer. Null if not specified"
-  defaultName: NameSystem
-  "Owner of this identity"
-  owner: Account!
+  defaultName: GraphAccountName
+  "Owner of this graph account"
+  owner: EthereumAccount!
   "True if it is an organization. False if it is an individual"
   isOrganization: Boolean!
+  "Subgraphs the graph account owns"
+  subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
 
   "IPFS hash with account metadata details"
   metadataHash: Bytes
-  "Description of the identity"
+  "Description of the graph account"
   description: String!
   "Website URL"
   website: String
@@ -132,14 +130,16 @@ type Identity @entity {
   image: String
 }
 
-"""A name and a name system. An identity can own many names from many systems"""
-type IdentityName @entity {
+"""A name and a name system. A graph account can own many names from many systems"""
+type GraphAccountName @entity {
   "ID of the name. Unique to the name system"
   id: ID!
   "Name system for this name"
   nameSystem: NameSystem!
   "Name resolved from whatever system is used"
   name: String!
+  "The graph account this name is a part of"
+  graphAccount: GraphAccount!
 }
 
 enum NameSystem {
@@ -150,10 +150,10 @@ enum NameSystem {
 
 """All the information related to the name that is in the GNS"""
 type Subgraph @entity {
-  "Subgraph ID derived from the Organization/Identity ID"
+  "Subgraph ID derived from the Organization/Individual graph accountID"
   id: ID!
-  "Owner of this subgraph"
-  owner: Account!
+  "Graph account that owns this subgraph"
+  owner: GraphAccount!
   "Current version"
   currentVersion: SubgraphVersion
   "Past versions"
@@ -178,8 +178,6 @@ type Subgraph @entity {
   codeRepository: String!
   "Project's website"
   websiteURL: String!
-  "Network that the subgraph is indexing"
-  networks: [String!]!
 
   # TODO - add these later in the event that this is implemented :
   # https://www.notion.so/thegraph/Graph-Name-Service-Signaling-30e72e7f1b3c46a4a6b224155e5a6612#a379698b83c241208b6929a1788bcf4e 
@@ -218,23 +216,23 @@ type SubgraphVersion @entity {
   "Short description of the version"
   description: String!
   "A human readable name. Not required"
-  tag: String
+  label: String
 }
 
-"""The immutable subgraph defined by a subgraph manifest that Indexers stake on and Curators signal on"""
+"""The immutable subgraph deployment defined by a subgraph manifest that Indexers stake on and Curators signal on"""
 type SubgraphDeployment @entity {
   "Subgraph Deployment ID"
   id: ID!
-  "The versions this subgraph relates to"
-  versions: [SubgraphVersion!]! @derivedFrom(field: "subgraph")
+  "The versions this subgraph deployment relates to"
+  versions: [SubgraphVersion!]! @derivedFrom(field: "subgraphDeployment")
   "Creation timestamp"
   createdAt: Int!
 
   # From Staking
-  "Total stake of all indexers on this Subgraph"
+  "Total stake of all indexers on this Subgraph deployment"
   totalStake: BigInt!
-  "Indexers of this subgraph"
-  indexers: [Channel!]! @derivedFrom(field: "subgraph")
+  "Indexers of this subgraph deployment"
+  indexers: [Channel!]! @derivedFrom(field: "subgraphDeployment")
   "Total fees accrued all time by this subgraph deployment"
   totalSubraphIndexingRewards: BigInt!
   "Total query fees earned by this subgraph deployment"
@@ -249,24 +247,34 @@ type SubgraphDeployment @entity {
   totalCuratorFeeReward: BigInt!
 
   "Curators of this subgraph deployment"
-  curators: [Signal!]! @derivedFrom(field: "subgraph")
+  curators: [Signal!]! @derivedFrom(field: "subgraphDeployment")
   "Bonding curve reserve ratio"
   reserveRatio: BigInt
 
   # From Subgraph Manifest
-  # dataSources: [DataSource!]! # TODO - add a ! when we have the ability to parse data sources
+  dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
 }
 
-# TODO - add when we can parse this
-# """Data source obtained from the subgraph manifest"""
-# type DataSource @entity {
-#   "Unique identifier of the data source. Such as contract address"
-#   id: ID!
-#   "Data source name in the manifest"
-#   name: String!
-#   "Network "
-#   network: String!  
-# }
+"""Data source obtained from the subgraph manifest"""
+type DataSource @entity {
+  "Unique identifier of the data source. Such as contract address"
+  id: ID!
+  "Data source name in the manifest"
+  name: String!
+  "Networks that the subgraph deployment is indexing"
+  networks: [String!]!
+  "Contract"
+  contract: Contract!
+  "ABI of the contract"
+  abi: String!
+}
+
+type Contract @entity {
+  "Address of the contract"
+  id: ID!
+  "Contract name"
+  name: String
+}
 
 """Indexer represents metadata of the indexer all of its stake and delegator stake"""
 type Indexer @entity {
@@ -274,8 +282,8 @@ type Indexer @entity {
   id: ID!
   "Time this indexer was created"
   createdAt: Int!
-  "Account of this indexer"
-  account: Account!
+  "Ethereum account of this indexer"
+  account: EthereumAccount!
   "Service registry URL string"
   urlString: String
   "Geohash of the indexer"
@@ -310,28 +318,28 @@ type Indexer @entity {
   forcedSettlements: Int!
 }
 
-"""Allocation represents the continuous stake of an Indexer on a Subgraph which is the accumulation of Channels between an indexer and a subgraph"""
+"""Allocation represents the continuous stake of an Indexer on a Subgraph deployment which is the accumulation of Channels between an indexer and a subgraph"""
 type Allocation @entity {
   "Indexer ID concatenated with the Subgraph Deployment ID"
   id: ID!
   "Indexer of this Allocation"
   indexer: Indexer!
   "Subgraph of this Allocation"
-  subgraph: SubgraphDeployment!
-  "Active Channel. Null if this Indexer is no longer indexing this subgraph"
+  subgraphDeployment: SubgraphDeployment!
+  "Active Channel. Null if this Indexer is no longer indexing this subgraph deployment"
   activeChannel: Channel
   "Past channels and active channel for this Allocation"
   channels: [Channel!]! @derivedFrom(field: "allocation")
 }
 
-"""State channel allocation representing Indexer-Subgraph stake"""
+"""State channel allocation representing Indexer-SubgraphDeployment stake"""
 type Channel @entity {
   "Channel Address"
   id: ID!
   "Indexer of this channel"
   indexer: Indexer!
-  "Subgraph that is being staked on with an open channel"
-  subgraph: SubgraphDeployment!
+  "Subgraph deployment that is being staked on with an open channel"
+  subgraphDeployment: SubgraphDeployment!
   "Allocation this channel is a part of"
   allocation: Allocation!
   "Tokens associated with the channel"
@@ -374,8 +382,8 @@ type IndexingReward @entity {
   epoch: Int!
   "Total allocation settled in this epoch"
   allocation: BigInt!
-  "Subgraph that won durning this epoch"
-  subgraph: SubgraphDeployment!
+  "Subgraph deployment that won durning this epoch"
+  subgraphDeployment: SubgraphDeployment!
   "Winning Indexer"
   indexer: Indexer!
   "True if reward has been claimed"
@@ -408,8 +416,8 @@ type Curator @entity {
   id: ID!
   "Time this curator was created"
   createdAt: Int!
-  "Account of this curator"
-  account: Account!
+  "Ethereum account of this curator"
+  account: EthereumAccount!
   "Total minted signal this curator has on all subgraphs"
   totalSignal: BigInt!
   "Total GRT signaled on all the subgraphs"
@@ -428,7 +436,7 @@ type Signal @entity {
   "Eth address of the curator"
   curator: Curator!
   "Subgraph being signaled"
-  subgraph: SubgraphDeployment!
+  subgraphDeployment: SubgraphDeployment!
   "Cumulative number of tokens the curator has signaled"
   tokensSignaled: BigInt!
   "Cumulative number of tokens the curator has redeemed"
@@ -441,8 +449,8 @@ type Signal @entity {
 type Dispute @entity {
   "Dispute ID"
   id: ID!
-  "Subgraph of the dispute"
-  subgraph: SubgraphDeployment!
+  "Subgraph deployment being disputed"
+  subgraphDeployment: SubgraphDeployment!
   "Indexer disputed. If an attestation dispute there will be 2 indexers"
   indexers: [Indexer!]!
   "Fisherman address"
@@ -465,8 +473,8 @@ type Dispute @entity {
 type Attestation @entity {
   "Concatenation of the requestCID and responseCID"
   id: ID!
-  "Subgraph being disputed"
-  subgraph: SubgraphDeployment!
+  "Subgraph deployment being disputed"
+  subgraphDeployment: SubgraphDeployment!
   "RequestCID"
   requestCID: String!
   "ResponseCID"
