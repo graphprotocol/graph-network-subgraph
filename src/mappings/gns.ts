@@ -107,6 +107,9 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 export function handleSubgraphUnpublished(event: SubgraphUnpublished): void {
   // update named subgraph
   let subgraph = Subgraph.load(event.params.nameHash.toHexString())
+
+  // do nothing if this subgraph was never published before
+  // if (subgraph != null)
   let subgraphVersionID = subgraph.currentVersion
   subgraph.currentVersion = null
   subgraph.save()

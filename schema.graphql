@@ -154,7 +154,7 @@ type Subgraph @entity {
   "Subgraph ID derived from the Organization/Individual graph accountID"
   id: ID!
   "Graph account that owns this subgraph"
-  owner: GraphAccount!
+  owner: GraphAccount#! TODO - make ! when GNS is fixed
   "Current version"
   currentVersion: SubgraphVersion
   "Past versions"
