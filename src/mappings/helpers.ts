@@ -21,22 +21,26 @@ export function createSubgraph(
   versionID: string,
 ): Subgraph {
   let subgraph = new Subgraph(nameHash.toHexString())
+  subgraph.createdAt = timestamp.toI32()
   subgraph.owner = owner.toHexString()
   subgraph.currentVersion = versionID
   subgraph.pastVersions = []
   subgraph.totalNameSignaledGRT = BigInt.fromI32(0)
   subgraph.totalNameSignalMinted = BigInt.fromI32(0)
   subgraph.metadataHash = Bytes.fromI32(0) as Bytes
-  subgraph.description = ""
-  subgraph.image = ""
-  subgraph.name = ""
-  subgraph.codeRepository = ""
-  subgraph.website = ""
+  subgraph.description = ''
+  subgraph.image = ''
+  subgraph.name = ''
+  subgraph.codeRepository = ''
+  subgraph.website = ''
   subgraph.save()
   return subgraph
 }
 
-export function createSubgraphDeployment(subgraphID: string, timestamp: BigInt): SubgraphDeployment {
+export function createSubgraphDeployment(
+  subgraphID: string,
+  timestamp: BigInt,
+): SubgraphDeployment {
   let deployment = new SubgraphDeployment(subgraphID)
   deployment.createdAt = timestamp.toI32()
   deployment.totalStake = BigInt.fromI32(0)

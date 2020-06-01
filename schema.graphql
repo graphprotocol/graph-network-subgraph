@@ -159,8 +159,10 @@ type Subgraph @entity {
   currentVersion: SubgraphVersion
   "Past versions"
   pastVersions: [SubgraphVersion!]!
+  "Creation timestamp"
+  createdAt: Int!
 
-  # From Curation, the name specific bonding curve 
+  # From Curation, the name specific bonding curve
   "Total GRT signaled for the name"
   totalNameSignaledGRT: BigInt!
   "Total name signal minted for this subgraph"
