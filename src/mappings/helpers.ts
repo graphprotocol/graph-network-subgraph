@@ -1,45 +1,52 @@
-import { BigInt, ByteArray, Address } from '@graphprotocol/graph-ts'
+import { BigInt, ByteArray, Address, Bytes } from '@graphprotocol/graph-ts'
 import {
-  Subgraph,
+  SubgraphDeployment,
   GraphNetwork,
   Indexer,
-  Account,
+  EthereumAccount,
   Pool,
   Curator,
   Signal,
   SubgraphVersion,
-  NamedSubgraph,
+  Subgraph,
+  GraphAccount
 } from '../types/schema'
 import { GraphToken } from '../types/GraphToken/GraphToken'
 import { addresses } from '../../config/addresses'
 
-export function createNamedSubgraph(
+export function createSubgraph(
   nameHash: ByteArray,
   name: string,
   owner: Address,
   versionID: string,
-): NamedSubgraph {
-  let namedSubgraph = new NamedSubgraph(nameHash.toHexString())
-  namedSubgraph.nameSystem = 'GNS'
-  namedSubgraph.name = name
-  namedSubgraph.owner = owner.toHexString()
-  namedSubgraph.currentVersion = versionID
-  namedSubgraph.pastVersions = []
-  namedSubgraph.save()
-  return namedSubgraph
-}
-
-export function createSubgraph(subgraphID: string, timestamp: BigInt): Subgraph {
-  let subgraph = new Subgraph(subgraphID)
-  subgraph.createdAt = timestamp.toI32()
-  subgraph.totalStake = BigInt.fromI32(0)
-  subgraph.totalSubraphIndexingRewards = BigInt.fromI32(0)
-  subgraph.totalSignaledGRT = BigInt.fromI32(0)
-  subgraph.totalSignalMinted = BigInt.fromI32(0)
-  subgraph.totalQueryFeesCollected = BigInt.fromI32(0)
-  subgraph.totalCuratorFeeReward = BigInt.fromI32(0)
+): Subgraph {
+  let subgraph = new Subgraph(nameHash.toHexString())
+  subgraph.owner = owner.toHexString()
+  subgraph.currentVersion = versionID
+  subgraph.pastVersions = []
+  subgraph.totalNameSignaledGRT = BigInt.fromI32(0)
+  subgraph.totalNameSignalMinted = BigInt.fromI32(0)
+  subgraph.metadataHash = Bytes.fromI32(0) as Bytes
+  subgraph.description = ""
+  subgraph.image = ""
+  subgraph.name = ""
+  subgraph.codeRepository = ""
+  subgraph.website = ""
   subgraph.save()
   return subgraph
+}
+
+export function createSubgraphDeployment(subgraphID: string, timestamp: BigInt): SubgraphDeployment {
+  let deployment = new SubgraphDeployment(subgraphID)
+  deployment.createdAt = timestamp.toI32()
+  deployment.totalStake = BigInt.fromI32(0)
+  deployment.totalSubraphIndexingRewards = BigInt.fromI32(0)
+  deployment.totalSignaledGRT = BigInt.fromI32(0)
+  deployment.totalSignalMinted = BigInt.fromI32(0)
+  deployment.totalQueryFeesCollected = BigInt.fromI32(0)
+  deployment.totalCuratorFeeReward = BigInt.fromI32(0)
+  deployment.save()
+  return deployment
 }
 
 export function createIndexer(id: string, timestamp: BigInt): Indexer {
@@ -74,7 +81,7 @@ export function createSignal(curator: string, subgraphID: string): Signal {
   let signalID = curator.concat('-').concat(subgraphID)
   let signal = new Signal(signalID)
   signal.curator = curator
-  signal.subgraph = subgraphID
+  signal.subgraphDeployment = subgraphID
   signal.tokensSignaled = BigInt.fromI32(0)
   signal.tokensRedeemed = BigInt.fromI32(0)
   signal.signal = BigInt.fromI32(0)
@@ -82,13 +89,25 @@ export function createSignal(curator: string, subgraphID: string): Signal {
   return signal
 }
 
-export function createAccount(id: string): Account {
-  let account = new Account(id)
-  account.metadataHash = null
-  account.name = ''
+export function createEthereumAccount(id: string): EthereumAccount {
+  let account = new EthereumAccount(id)
   account.balance = BigInt.fromI32(0) // gets set by transfers
   account.save()
   return account
+}
+
+export function createGraphAccount(id: string, owner: Bytes): GraphAccount {
+  let graphAccount = new GraphAccount(id)
+  graphAccount.names = []
+  graphAccount.owner = owner.toHexString()
+  graphAccount.isOrganization = false // TODO - how is this passed from front end?
+  graphAccount.subgraphs = []
+  graphAccount.metadataHash = Bytes.fromI32(0) as Bytes
+  graphAccount.description = ''
+  graphAccount.website = ''
+  graphAccount.image = ''
+  graphAccount.save()
+  return graphAccount
 }
 
 export function createPool(id: BigInt): Pool {

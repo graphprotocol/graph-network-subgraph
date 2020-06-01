@@ -161,10 +161,10 @@ type Subgraph @entity {
   pastVersions: [SubgraphVersion!]!
 
   # From Curation, the name specific bonding curve 
-  "Total signal of all curators"
-  totalSignaledGRT: BigInt!
-  "Total curation signal on this subgraph"
-  totalSignalMinted: BigInt!
+  "Total GRT signaled for the name"
+  totalNameSignaledGRT: BigInt!
+  "Total name signal minted for this subgraph"
+  totalNameSignalMinted: BigInt!
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
@@ -178,7 +178,7 @@ type Subgraph @entity {
   "Location of the code for this project"
   codeRepository: String!
   "Project's website"
-  websiteURL: String!
+  website: String!
 
   # TODO - add these later in the event that this is implemented :
   # https://www.notion.so/thegraph/Graph-Name-Service-Signaling-30e72e7f1b3c46a4a6b224155e5a6612#a379698b83c241208b6929a1788bcf4e 

@@ -1,7 +1,7 @@
 import { Approval, Transfer } from '../types/GraphToken/GraphToken'
-import { Account, GraphNetwork } from '../types/schema'
+import { EthereumAccount, GraphNetwork } from '../types/schema'
 import { BigInt } from '@graphprotocol/graph-ts'
-import { createAccount, createGraphNetwork } from './helpers'
+import { createGraphNetwork, createEthereumAccount } from './helpers'
 
 /**
  * @dev handleTransfer
@@ -21,13 +21,13 @@ export function handleTransfer(event: Transfer): void {
   }
 
 
-  let userTo = Account.load(to.toHexString())
+  let userTo = EthereumAccount.load(to.toHexString())
   if (userTo == null) {
-    userTo = createAccount(to.toHexString())
+    userTo = createEthereumAccount(to.toHexString())
   }
-  let userFrom = Account.load(from.toHexString())
+  let userFrom = EthereumAccount.load(from.toHexString())
   if (userFrom == null) {
-    userFrom = createAccount(from.toHexString())
+    userFrom = createEthereumAccount(from.toHexString())
   }
 
   // Mint Transfer
