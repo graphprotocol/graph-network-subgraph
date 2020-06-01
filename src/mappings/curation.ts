@@ -5,19 +5,19 @@ import {
   Curation,
   ParameterUpdated,
 } from '../types/Curation/Curation'
-import { Curator, GraphNetwork, Signal, Subgraph } from '../types/schema'
+import { Curator, GraphNetwork, Signal, SubgraphDeployment } from '../types/schema'
 import { Address } from '@graphprotocol/graph-ts'
 
-import { createCurator, createSignal, createSubgraph } from './helpers'
+import { createCurator, createSignal, createSubgraphDeployment } from './helpers'
 
 /**
  * @dev handleStaked
  * - updates curator, creates if needed
  * - updates signal, creates if needed
- * - updates subgraph, creates if needed
+ * - updates subgraph deployment, creates if needed
  */
 export function handleStaked(event: Staked): void {
-  // update curator
+  // Update curator
   let id = event.params.curator.toHexString()
   let curator = Curator.load(id)
   if (curator == null) {
@@ -26,7 +26,7 @@ export function handleStaked(event: Staked): void {
   curator.totalSignal = curator.totalSignal.plus(event.params.shares)
   curator.totalSignaledGRT = curator.totalSignaledGRT.plus(event.params.tokens)
 
-  // update signal
+  // Update signal
   let subgraphID = event.params.subgraphID.toHexString()
   let signalID = id.concat('-').concat(subgraphID)
   let signal = Signal.load(signalID)
@@ -37,17 +37,17 @@ export function handleStaked(event: Staked): void {
   signal.signal = signal.signal.plus(event.params.shares)
   signal.save()
 
-  // update subgraph
-  let subgraph = Subgraph.load(subgraphID)
-  if (subgraph == null) {
-    subgraph = createSubgraph(subgraphID, event.block.timestamp)
+  // Update subgraph deployment
+  let deployment = SubgraphDeployment.load(subgraphID)
+  if (deployment == null) {
+    deployment = createSubgraphDeployment(subgraphID, event.block.timestamp)
   }
-  subgraph.totalSignaledGRT = subgraph.totalSignaledGRT.plus(event.params.tokens)
-  subgraph.totalSignalMinted = subgraph.totalSignalMinted.plus(event.params.shares)
+  deployment.totalSignaledGRT = deployment.totalSignaledGRT.plus(event.params.tokens)
+  deployment.totalSignalMinted = deployment.totalSignalMinted.plus(event.params.shares)
 
   let curation = Curation.bind(event.address)
-  subgraph.reserveRatio = curation.subgraphs(event.params.subgraphID).value0
-  subgraph.save()
+  deployment.reserveRatio = curation.subgraphs(event.params.subgraphID).value0
+  deployment.save()
 }
 /**
  * @dev handleRedeemed
@@ -56,13 +56,13 @@ export function handleStaked(event: Staked): void {
  * - updates subgraph
  */
 export function handleRedeemed(event: Redeemed): void {
-  // update curator
+  // Update curator
   let id = event.params.curator.toHexString()
   let curator = Curator.load(id)
   curator.totalSignal = curator.totalSignal.minus(event.params.shares)
   curator.totalRedeemedGRT = curator.totalRedeemedGRT.plus(event.params.tokens)
 
-  // update signal
+  // Update signal
   let subgraphID = event.params.subgraphID.toHexString()
   let signalID = id.concat('-').concat(subgraphID)
   let signal = Signal.load(signalID)
@@ -70,11 +70,11 @@ export function handleRedeemed(event: Redeemed): void {
   signal.signal = signal.signal.minus(event.params.shares)
   signal.save()
 
-  // update subgraph
-  let subgraph = Subgraph.load(subgraphID)
-  subgraph.totalSignaledGRT = subgraph.totalSignaledGRT.minus(event.params.tokens)
-  subgraph.totalSignalMinted = subgraph.totalSignalMinted.minus(event.params.shares)
-  subgraph.save()
+  // Update subgraph
+  let deployment = SubgraphDeployment.load(subgraphID)
+  deployment.totalSignaledGRT = deployment.totalSignaledGRT.minus(event.params.tokens)
+  deployment.totalSignalMinted = deployment.totalSignalMinted.minus(event.params.shares)
+  deployment.save()
 }
 
 /**
@@ -86,10 +86,10 @@ export function handleRedeemed(event: Redeemed): void {
 export function handleCollected(event: Collected): void {
   // update subgraph
   let subgraphID = event.params.subgraphID.toHexString()
-  let subgraph = Subgraph.load(subgraphID)
-  subgraph.totalSignaledGRT = subgraph.totalSignaledGRT.plus(event.params.tokens)
-  subgraph.totalCuratorFeeReward = subgraph.totalCuratorFeeReward.plus(event.params.tokens)
-  subgraph.save()
+  let deployment = SubgraphDeployment.load(subgraphID)
+  deployment.totalSignaledGRT = deployment.totalSignaledGRT.plus(event.params.tokens)
+  deployment.totalCuratorFeeReward = deployment.totalCuratorFeeReward.plus(event.params.tokens)
+  deployment.save()
 }
 
 /**

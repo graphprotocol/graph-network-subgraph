@@ -10,10 +10,9 @@ import {
   ParameterUpdated,
   Staking,
 } from '../types/Staking/Staking'
-import { GraphToken } from '../types/Staking/GraphToken'
-import { Channel, Indexer, Allocation, Subgraph, GraphNetwork, Pool } from '../types/schema'
+import { Channel, Indexer, Allocation, Subgraph, GraphNetwork, Pool, SubgraphDeployment } from '../types/schema'
 
-import { createSubgraph, createIndexer, createPool } from './helpers'
+import { createSubgraphDeployment, createIndexer, createPool } from './helpers'
 
 /**
  * @dev handleStakeDeposited
@@ -124,26 +123,26 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   graphNetwork.save()
 
   // update subgraph
-  let subgraph = Subgraph.load(subgraphID)
-  if (subgraph == null) {
-    subgraph = createSubgraph(subgraphID, event.block.timestamp)
+  let deployment = SubgraphDeployment.load(subgraphID)
+  if (deployment == null) {
+    deployment = createSubgraphDeployment(subgraphID, event.block.timestamp)
   }
-  subgraph.totalStake = subgraph.totalStake.plus(event.params.tokens)
-  subgraph.save()
+  deployment.totalStake = deployment.totalStake.plus(event.params.tokens)
+  deployment.save()
 
   // update allocation
   let allocation = Allocation.load(allocationID)
   if (allocation == null) {
     allocation = new Allocation(allocationID)
   }
-  allocation.subgraph = subgraphID
+  allocation.subgraphDeployment = subgraphID
   allocation.activeChannel = channelID
   allocation.save()
 
   // create channel
   let channel = new Channel(channelID)
   channel.indexer = indexerID
-  channel.subgraph = subgraphID
+  channel.subgraphDeployment = subgraphID
   channel.allocation = allocationID
   channel.tokensAllocated = event.params.tokens
   channel.createdAtEpoch = event.params.epoch.toI32()
@@ -179,10 +178,10 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   graphNetwork.save()
 
   // update subgraph
-  let subgraph = Subgraph.load(subgraphID)
-  subgraph.totalStake = subgraph.totalStake.minus(event.params.tokens)
-  subgraph.totalQueryFeesCollected = subgraph.totalQueryFeesCollected.plus(event.params.rebateFees)
-  subgraph.save()
+  let deployment = SubgraphDeployment.load(subgraphID)
+  deployment.totalStake = deployment.totalStake.minus(event.params.tokens)
+  deployment.totalQueryFeesCollected = deployment.totalQueryFeesCollected.plus(event.params.rebateFees)
+  deployment.save()
 
   // update pool
   let pool = Pool.load(event.params.epoch.toString())
