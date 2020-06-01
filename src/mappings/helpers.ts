@@ -51,9 +51,12 @@ export function createSubgraphDeployment(subgraphID: string, timestamp: BigInt):
 
 export function createIndexer(id: string, timestamp: BigInt): Indexer {
   let indexer = new Indexer(id)
+  indexer.createdAt = timestamp.toI32()
+  indexer.account = id
   indexer.stakedTokens = BigInt.fromI32(0)
   indexer.tokensAllocated = BigInt.fromI32(0)
   indexer.tokensLocked = BigInt.fromI32(0)
+  indexer.tokensClaimable = BigInt.fromI32(0)
   indexer.tokensLockedUntil = 0
   indexer.tokensDelegated = BigInt.fromI32(0)
   indexer.tokenCapacity = BigInt.fromI32(0)
@@ -61,7 +64,6 @@ export function createIndexer(id: string, timestamp: BigInt): Indexer {
   indexer.queryFeeCut = 0
   indexer.delegatorParameterCooldown = 0
   indexer.forcedSettlements = 0
-  indexer.createdAt = timestamp.toI32()
   indexer.save()
   return indexer
 }
