@@ -19,6 +19,7 @@ export function createSubgraph(
   name: string,
   owner: Address,
   versionID: string,
+  timestamp: BigInt
 ): Subgraph {
   let subgraph = new Subgraph(nameHash.toHexString())
   subgraph.createdAt = timestamp.toI32()
@@ -102,6 +103,7 @@ export function createEthereumAccount(id: string): EthereumAccount {
   return account
 }
 
+// TODO - fix this whole thing when GNS is fixed
 export function createGraphAccount(id: string, owner: Bytes): GraphAccount {
   let graphAccount = new GraphAccount(id)
   graphAccount.names = []
