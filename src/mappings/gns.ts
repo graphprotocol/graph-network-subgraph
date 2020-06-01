@@ -37,7 +37,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   // Update subgraph
   let subgraph = Subgraph.load(nameHash.toHexString())
   if (subgraph == null) {
-    subgraph = createSubgraph(nameHash, name, event.params.owner, versionID)
+    subgraph = createSubgraph(nameHash, name, event.params.owner, versionID, event.block.timestamp)
   } else {
     // It could have been unpublished. This allows for implicit unpublishing
     if (subgraph.currentVersion != null) {
@@ -107,6 +107,9 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 export function handleSubgraphUnpublished(event: SubgraphUnpublished): void {
   // update named subgraph
   let subgraph = Subgraph.load(event.params.nameHash.toHexString())
+
+  // do nothing if this subgraph was never published before
+  // if (subgraph != null)
   let subgraphVersionID = subgraph.currentVersion
   subgraph.currentVersion = null
   subgraph.save()

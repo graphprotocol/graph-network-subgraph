@@ -19,24 +19,29 @@ export function createSubgraph(
   name: string,
   owner: Address,
   versionID: string,
+  timestamp: BigInt
 ): Subgraph {
   let subgraph = new Subgraph(nameHash.toHexString())
+  subgraph.createdAt = timestamp.toI32()
   subgraph.owner = owner.toHexString()
   subgraph.currentVersion = versionID
   subgraph.pastVersions = []
   subgraph.totalNameSignaledGRT = BigInt.fromI32(0)
   subgraph.totalNameSignalMinted = BigInt.fromI32(0)
   subgraph.metadataHash = Bytes.fromI32(0) as Bytes
-  subgraph.description = ""
-  subgraph.image = ""
-  subgraph.name = ""
-  subgraph.codeRepository = ""
-  subgraph.website = ""
+  subgraph.description = ''
+  subgraph.image = ''
+  subgraph.name = ''
+  subgraph.codeRepository = ''
+  subgraph.website = ''
   subgraph.save()
   return subgraph
 }
 
-export function createSubgraphDeployment(subgraphID: string, timestamp: BigInt): SubgraphDeployment {
+export function createSubgraphDeployment(
+  subgraphID: string,
+  timestamp: BigInt,
+): SubgraphDeployment {
   let deployment = new SubgraphDeployment(subgraphID)
   deployment.createdAt = timestamp.toI32()
   deployment.totalStake = BigInt.fromI32(0)
@@ -98,6 +103,7 @@ export function createEthereumAccount(id: string): EthereumAccount {
   return account
 }
 
+// TODO - fix this whole thing when GNS is fixed
 export function createGraphAccount(id: string, owner: Bytes): GraphAccount {
   let graphAccount = new GraphAccount(id)
   graphAccount.names = []
