@@ -37,7 +37,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   // Update subgraph
   let subgraph = Subgraph.load(nameHash.toHexString())
   if (subgraph == null) {
-    subgraph = createSubgraph(nameHash, name, event.params.owner, versionID)
+    subgraph = createSubgraph(nameHash, name, event.params.owner, versionID, event.block.timestamp)
   } else {
     // It could have been unpublished. This allows for implicit unpublishing
     if (subgraph.currentVersion != null) {
