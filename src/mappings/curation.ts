@@ -25,6 +25,7 @@ export function handleStaked(event: Staked): void {
   }
   curator.totalSignal = curator.totalSignal.plus(event.params.shares)
   curator.totalSignaledGRT = curator.totalSignaledGRT.plus(event.params.tokens)
+  curator.save()
 
   // Update signal
   let subgraphID = event.params.subgraphID.toHexString()

@@ -173,6 +173,8 @@ type Subgraph @entity {
   metadataHash: Bytes!
   "Short description of the subgraph"
   description: String!
+  "Display name for the subgraph"
+  displayName: String!
   "Image in string format"
   image: String!
   "Name of the subgraph"

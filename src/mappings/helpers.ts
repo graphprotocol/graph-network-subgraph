@@ -30,6 +30,7 @@ export function createSubgraph(
   subgraph.totalNameSignalMinted = BigInt.fromI32(0)
   subgraph.metadataHash = Bytes.fromI32(0) as Bytes
   subgraph.description = ''
+  subgraph.displayName = ''
   subgraph.image = ''
   subgraph.name = ''
   subgraph.codeRepository = ''
