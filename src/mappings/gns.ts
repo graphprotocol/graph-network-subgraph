@@ -1,4 +1,4 @@
-import { crypto, ByteArray, Bytes, ipfs, json, BigInt } from '@graphprotocol/graph-ts'
+import { crypto, ByteArray, Bytes, ipfs, json, BigInt, log } from '@graphprotocol/graph-ts'
 import { SubgraphPublished, SubgraphUnpublished, SubgraphTransferred } from '../types/GNS/GNS'
 import { Subgraph, SubgraphDeployment, SubgraphVersion, EthereumAccount } from '../types/schema'
 
@@ -57,16 +57,19 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let hexHash = addQm(event.params.metadataHash) as Bytes
   let base58Hash = hexHash.toBase58()
   let getVersionDataFromIPFS = ipfs.cat(base58Hash)
+  subgraph.metadataHash = event.params.metadataHash
   if (getVersionDataFromIPFS !== null) {
-    let data = json.fromBytes(getVersionDataFromIPFS as Bytes).toObject()
-    subgraph.metadataHash = event.params.metadataHash
-    subgraph.description = jsonToString(data.get('versionDesciption'))
-    subgraph.image = jsonToString(data.get('image'))
-    subgraph.name = jsonToString(data.get('name'))
-    subgraph.codeRepository = jsonToString(data.get('codeRepository'))
-    subgraph.website = jsonToString(data.get('website'))
-    versionDescription = jsonToString(data.get('versionDesciption'))
-    label = jsonToString(data.get('label'))
+    let tryData = json.try_fromBytes(getVersionDataFromIPFS as Bytes)
+    if (tryData.isOk) {
+      let data = tryData.value.toObject()
+      subgraph.description = jsonToString(data.get('versionDescription'))
+      subgraph.image = jsonToString(data.get('image'))
+      subgraph.name = jsonToString(data.get('name'))
+      subgraph.codeRepository = jsonToString(data.get('codeRepository'))
+      subgraph.website = jsonToString(data.get('website'))
+      versionDescription = jsonToString(data.get('versionDescription'))
+      label = jsonToString(data.get('label'))
+    }
   }
   subgraph.save()
 
