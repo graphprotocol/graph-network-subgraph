@@ -128,42 +128,19 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "",
+        "name": "_nameHash",
         "type": "bytes32"
       }
     ],
-    "name": "records",
+    "name": "isReserved",
     "outputs": [
       {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "enum GNS.RecordType",
-        "name": "nameSystem",
-        "type": "uint8"
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newGovernor",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -193,13 +170,29 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "_nameHash",
+        "name": "",
         "type": "bytes32"
       }
     ],
-    "name": "unpublish",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "records",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum GNS.RecordType",
+        "name": "nameSystem",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -223,20 +216,27 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_newGovernor",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "_nameHash",
         "type": "bytes32"
       }
     ],
-    "name": "isReserved",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "unpublish",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

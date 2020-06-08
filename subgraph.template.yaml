@@ -86,7 +86,7 @@ dataSources:
           handler: handleStakeLocked
         - event: StakeSlashed(indexed address,uint256,uint256,address)
           handler: handleStakeSlashed          
-        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes)
+        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes,uint256)
           handler: handleAllocationCreated
         - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256,uint256)
           handler: handleAllocationSettled
@@ -117,7 +117,7 @@ dataSources:
       eventHandlers:
         - event: Staked(indexed address,indexed bytes32,uint256,uint256)
           handler: handleStaked
-        - event: Redeemed(indexed address,indexed bytes32,uint256,uint256)
+        - event: Redeemed(indexed address,indexed bytes32,uint256,uint256,uint256)
           handler: handleRedeemed
         - event: Collected(indexed bytes32,uint256)
           handler: handleCollected

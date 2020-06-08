@@ -15,11 +15,6 @@
         "internalType": "address",
         "name": "_epochManager",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_curation",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -63,6 +58,12 @@
         "internalType": "bytes",
         "name": "channelPubKey",
         "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
       }
     ],
     "name": "AllocationCreated",
@@ -324,6 +325,39 @@
     "type": "event"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_channelPubKey",
+        "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "_channelProxy",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_price",
+        "type": "uint256"
+      }
+    ],
+    "name": "allocate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "channelDisputeEpochs",
     "outputs": [
@@ -358,6 +392,48 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "channelsProxy",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_epoch",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "_restake",
+        "type": "bool"
+      }
+    ],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -400,6 +476,107 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexer",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAllocation",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAtEpoch",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "channelID",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct Stakes.Allocation",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexer",
+        "type": "address"
+      }
+    ],
+    "name": "getIndexerStakedTokens",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_epoch",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_indexer",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSettlement",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "fees",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "allocation",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Rebates.Settlement",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "governor",
     "outputs": [
@@ -407,6 +584,44 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexer",
+        "type": "address"
+      }
+    ],
+    "name": "hasStake",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_channelID",
+        "type": "address"
+      }
+    ],
+    "name": "isChannel",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -457,6 +672,130 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_channelDisputeEpochs",
+        "type": "uint256"
+      }
+    ],
+    "name": "setChannelDisputeEpochs",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract Curation",
+        "name": "_curation",
+        "type": "address"
+      }
+    ],
+    "name": "setCuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_percentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "setCurationPercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_maxAllocationEpochs",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxAllocationEpochs",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_slasher",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_allowed",
+        "type": "bool"
+      }
+    ],
+    "name": "setSlasher",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_thawingPeriod",
+        "type": "uint256"
+      }
+    ],
+    "name": "setThawingPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "settle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexer",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_reward",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_beneficiary",
+        "type": "address"
+      }
+    ],
+    "name": "slash",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "",
         "type": "address"
@@ -471,6 +810,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "stake",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -549,228 +901,6 @@
   {
     "inputs": [
       {
-        "internalType": "contract Curation",
-        "name": "_curation",
-        "type": "address"
-      }
-    ],
-    "name": "setCuration",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_percentage",
-        "type": "uint256"
-      }
-    ],
-    "name": "setCurationPercentage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_channelDisputeEpochs",
-        "type": "uint256"
-      }
-    ],
-    "name": "setChannelDisputeEpochs",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_maxAllocationEpochs",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMaxAllocationEpochs",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_slasher",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_allowed",
-        "type": "bool"
-      }
-    ],
-    "name": "setSlasher",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_thawingPeriod",
-        "type": "uint256"
-      }
-    ],
-    "name": "setThawingPeriod",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_channelID",
-        "type": "address"
-      }
-    ],
-    "name": "isChannel",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_indexer",
-        "type": "address"
-      }
-    ],
-    "name": "hasStake",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_indexer",
-        "type": "address"
-      }
-    ],
-    "name": "getIndexerStakeTokens",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_indexer",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getAllocation",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokens",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "createdAtEpoch",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "channelID",
-            "type": "address"
-          }
-        ],
-        "internalType": "struct Stakes.Allocation",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_indexer",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_tokens",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_reward",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_beneficiary",
-        "type": "address"
-      }
-    ],
-    "name": "slash",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokens",
-        "type": "uint256"
-      }
-    ],
-    "name": "stake",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
         "name": "_tokens",
         "type": "uint256"
@@ -782,72 +912,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_tokens",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_channelPubKey",
-        "type": "bytes"
-      }
-    ],
-    "name": "allocate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_channelID",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_tokens",
-        "type": "uint256"
-      }
-    ],
-    "name": "settle",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "withdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_epoch",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bool",
-        "name": "_restake",
-        "type": "bool"
-      }
-    ],
-    "name": "claim",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
