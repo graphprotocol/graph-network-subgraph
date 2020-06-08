@@ -102,6 +102,12 @@
         "internalType": "uint256",
         "name": "shares",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "withdrawalFees",
+        "type": "uint256"
       }
     ],
     "name": "Redeemed",
@@ -139,8 +145,264 @@
     "type": "event"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_fromConnectorBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_fromConnectorWeight",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_toConnectorBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_toConnectorWeight",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateCrossConnectorReturn",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_fromReserveBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_fromReserveRatio",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_toReserveBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_toReserveRatio",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateCrossReserveReturn",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_supply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_reserveBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_totalRatio",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateFundCost",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_supply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_reserveBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_totalRatio",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateLiquidateReturn",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_supply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_reserveBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_reserveRatio",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_depositAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculatePurchaseReturn",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_supply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_reserveBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_reserveRatio",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_sellAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateSaleReturn",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "collect",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "defaultReserveRatio",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_curator",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getCuratorShares",
     "outputs": [
       {
         "internalType": "uint256",
@@ -165,6 +427,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isSubgraphCurated",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "minimumCurationStake",
     "outputs": [
@@ -175,6 +456,118 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_shares",
+        "type": "uint256"
+      }
+    ],
+    "name": "redeem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_defaultReserveRatio",
+        "type": "uint256"
+      }
+    ],
+    "name": "setDefaultReserveRatio",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_minimumCurationStake",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMinimumCurationStake",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_staking",
+        "type": "address"
+      }
+    ],
+    "name": "setStaking",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_percentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "setWithdrawalFeePercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_shares",
+        "type": "uint256"
+      }
+    ],
+    "name": "sharesToTokens",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_subgraphID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "stake",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -235,168 +628,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_newGovernor",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "version",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_defaultReserveRatio",
-        "type": "uint256"
-      }
-    ],
-    "name": "setDefaultReserveRatio",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_staking",
-        "type": "address"
-      }
-    ],
-    "name": "setStaking",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_minimumCurationStake",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMinimumCurationStake",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_tokens",
-        "type": "uint256"
-      }
-    ],
-    "name": "collect",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_tokens",
-        "type": "uint256"
-      }
-    ],
-    "name": "stake",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_shares",
-        "type": "uint256"
-      }
-    ],
-    "name": "redeem",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      }
-    ],
-    "name": "isSubgraphCurated",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_curator",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getCuratorShares",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "_subgraphID",
         "type": "bytes32"
@@ -421,17 +652,32 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "_subgraphID",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_shares",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_newGovernor",
+        "type": "address"
       }
     ],
-    "name": "sharesToTokens",
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "version",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "withdrawalFeePercentage",
     "outputs": [
       {
         "internalType": "uint256",

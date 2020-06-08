@@ -107,9 +107,9 @@ export function handleStakeSlashed(event: StakeSlashed): void {
  * - create a new channel
  */
 export function handleAllocationCreated(event: AllocationCreated): void {
-  let subgraphID = event.params.subgraphID.toString()
-  let indexerID = event.params.indexer.toString()
-  let channelID = event.params.channelID.toString()
+  let subgraphID = event.params.subgraphID.toHexString()
+  let indexerID = event.params.indexer.toHexString()
+  let channelID = event.params.channelID.toHexString()
   let allocationID = indexerID.concat('-').concat(subgraphID)
 
   // update indexer
@@ -134,8 +134,9 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let allocation = Allocation.load(allocationID)
   if (allocation == null) {
     allocation = new Allocation(allocationID)
+    allocation.subgraphDeployment = subgraphID
+    allocation.indexer = indexerID
   }
-  allocation.subgraphDeployment = subgraphID
   allocation.activeChannel = channelID
   allocation.save()
 
@@ -161,9 +162,9 @@ export function handleAllocationCreated(event: AllocationCreated): void {
  * - update and close the channel
  */
 export function handleAllocationSettled(event: AllocationSettled): void {
-  let subgraphID = event.params.subgraphID.toString()
-  let indexerID = event.params.indexer.toString()
-  let channelID = event.params.channelID.toString()
+  let subgraphID = event.params.subgraphID.toHexString()
+  let indexerID = event.params.indexer.toHexString()
+  let channelID = event.params.channelID.toHexString()
 
   // update indexer
   let indexer = Indexer.load(indexerID)
@@ -217,8 +218,8 @@ export function handleAllocationSettled(event: AllocationSettled): void {
  * - note - if rebate is transferred to indexer, that will be handled in graphToken.ts
  */
 export function handleRebateClaimed(event: RebateClaimed): void {
-  let subgraphID = event.params.subgraphID.toString()
-  let indexerID = event.params.indexer.toString()
+  let subgraphID = event.params.subgraphID.toHexString()
+  let indexerID = event.params.indexer.toHexString()
   let allocationID = indexerID.concat('-').concat(subgraphID)
 
   // update indexer
