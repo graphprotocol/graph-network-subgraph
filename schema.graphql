@@ -80,40 +80,39 @@ type GraphNetwork @entity {
   # slashingPercentage: BigInt!
 }
 
-"""EthereumAccount is a user in the front end which could be doing any actions"""
-type EthereumAccount @entity {
-  "Eth address"
-  id: ID!
+# """EthereumAccount is a user in the front end which could be doing any actions"""
+# type EthereumAccount @entity {
+#   "Eth address"
+#   id: ID!
 
-  # From Graph Token
-  "Graph token balance"
-  balance: BigInt!
+#   # From Graph Token
+#   "Graph token balance"
+#   balance: BigInt!
 
-  # Identities
-  "Graph accounts this ethereum account is an owner of"
-  ownerOf: [GraphAccount!]! @derivedFrom(field: "owner")
-  # "Graph account organizations this ethereum account is a member of" # add back when we support DAOS as contracts
-  # organizationMemberOf: [GraphAccount!]! @derivedFrom(field: "members")
+#   # Identities
+#   "Graph accounts this ethereum account is an owner of"
+#   ownerOf: [GraphAccount!]! @derivedFrom(field: "owner")
+#   # "Graph account organizations this ethereum account is a member of" # add back when we support DAOS as contracts
+#   # organizationMemberOf: [GraphAccount!]! @derivedFrom(field: "members")
 
-  # From Staking and Curating and Delegating
-  "Subgraphs this account curates"
-  curator: Curator
-  "Subgraphs this account indexes"
-  indexer: Indexer
-  "Subgraphs this account has delegated to"
-  delegator: Delegator
-}
+#   # From Staking and Curating and Delegating
+#   "Subgraphs this account curates"
+#   curator: Curator
+#   "Subgraphs this account indexes"
+#   indexer: Indexer
+#   "Subgraphs this account has delegated to"
+#   delegator: Delegator
+# }
 
 """An account within the graph network. An account can own multiple names from multiple name systems"""
 type GraphAccount @entity {
-  "Graph account ID" # TBD how this is figured out
+  "Graph account ID"
   id: ID!
   "All names this graph account has claimed from all name systems"
   names: [GraphAccountName!]!
   "Default name system to show up in the Graph Explorer. Null if not specified"
   defaultName: GraphAccountName
-  "Owner of this graph account"
-  owner: EthereumAccount!
+
   "True if it is an organization. False if it is an individual"
   isOrganization: Boolean!
   # "Members of the organization" # Add back when we support daos as contracts
@@ -129,6 +128,27 @@ type GraphAccount @entity {
   website: String
   "Image in string format"
   image: String
+
+  # Identities
+    "Owner of this graph account"
+  owner: EthereumAccount!
+  "Graph accounts this ethereum account is an owner of"
+  ownerOf: [GraphAccount!]! @derivedFrom(field: "owner")
+  "Delegate of"
+  delegateOf: [GraphAccount!]! @derivedFrom(field: "delegates")
+  "Delegates"
+  delegates: [GraphAccount!]!
+  # From Graph Token
+  "Graph token balance"
+  balance: BigInt!
+
+  # From Staking and Curating and Delegating
+  "Subgraphs this account curates"
+  curator: Curator
+  "Subgraphs this account indexes"
+  indexer: Indexer
+  "Subgraphs this account has delegated to"
+  delegator: Delegator
 }
 
 """A name and a name system. A graph account can own many names from many systems"""
@@ -168,6 +188,12 @@ type Subgraph @entity {
   "Total name signal minted for this subgraph"
   totalNameSignalMinted: BigInt!
 
+  # From GNS
+  "Name of the subgraph"
+  name: String
+  "Past names that has been associated with this subgraph, with version number"
+  pastVersionNames: [String!]!
+
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
   metadataHash: Bytes!
@@ -177,8 +203,6 @@ type Subgraph @entity {
   displayName: String!
   "Image in string format"
   image: String!
-  "Name of the subgraph"
-  name: String!
   "Location of the code for this project"
   codeRepository: String!
   "Project's website"
