@@ -22,13 +22,15 @@ dataSources:
       abis:
         - name: GNS
           file: ./abis/GNS.json
+        - name: ENS
+          file: ./abis/IENS.json
+        - name: ENSPublicResolver
+          file: ./abis/IPublicResolver.json
       eventHandlers:
-        - event: SubgraphPublished(string,address,bytes32,bytes32)
+        - event: SubgraphPublished(address,uint256,bytes32,bytes32,string,bytes32)
           handler: handleSubgraphPublished
-        - event: SubgraphUnpublished(bytes32)
-          handler: handleSubgraphUnpublished
-        - event: SubgraphTransferred(bytes32,address,address)
-          handler: handleSubgraphTransferred
+        - event: SubgraphDeprecated(address,uint256)
+          handler: handleSubgraphDeprecated
       file: ./src/mappings/gns.ts
   - kind: ethereum/contract
     name: ServiceRegistry

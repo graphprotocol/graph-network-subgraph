@@ -16,7 +16,7 @@ type GraphNetwork @entity {
   gns: Bytes!
   "Contract address"
   serviceRegistry: Bytes!
-  # "Set to true if the protocol is paused" TODO - add when implemente
+  # "Set to true if the protocol is paused" TODO - add when implemented
   # paused: Boolean!
 
   # Staking global variables
@@ -80,6 +80,7 @@ type GraphNetwork @entity {
   # slashingPercentage: BigInt!
 }
 
+# TODO - Will probably remove this after beta
 # """EthereumAccount is a user in the front end which could be doing any actions"""
 # type EthereumAccount @entity {
 #   "Eth address"
@@ -110,34 +111,36 @@ type GraphAccount @entity {
   id: ID!
   "All names this graph account has claimed from all name systems"
   names: [GraphAccountName!]!
-  "Default name system to show up in the Graph Explorer. Null if not specified"
-  defaultName: GraphAccountName
+  # "Default name system to show up in the Graph Explorer. Null if not specified"
+  # defaultName: GraphAccountName TODO - might delete, being renamed to name from erc-1056 set attribute
+  "From IPFS"
+  name: String!
 
-  "True if it is an organization. False if it is an individual"
-  isOrganization: Boolean!
+  # "True if it is an organization. False if it is an individual"
+  # isOrganization: Boolean!
   # "Members of the organization" # Add back when we support daos as contracts
   # members: [EthereumAccount!]!
   "Subgraphs the graph account owns"
   subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
 
   "IPFS hash with account metadata details"
-  metadataHash: Bytes
-  "Description of the graph account"
-  description: String!
-  "Website URL"
-  website: String
-  "Image in string format"
-  image: String
+  metadataHash: Bytes!
+  # "Description of the graph account" TODO - add these three after beta
+  # description: String
+  # "Website URL"
+  # website: String
+  # "Image in string format"
+  # image: String
 
-  # Identities
-    "Owner of this graph account"
-  owner: EthereumAccount!
-  "Graph accounts this ethereum account is an owner of"
-  ownerOf: [GraphAccount!]! @derivedFrom(field: "owner")
-  "Delegate of"
-  delegateOf: [GraphAccount!]! @derivedFrom(field: "delegates")
-  "Delegates"
-  delegates: [GraphAccount!]!
+  # Identities TODO - implement this after Beta. ERC-1056 changing of ownership
+  # "Owner of this graph account"
+  # owner: GraphAccount!
+  # "Graph accounts this ethereum account is an owner of"
+  # ownerOf: [GraphAccount!]! @derivedFrom(field: "owner")
+  # "Delegate of"
+  # delegateOf: [GraphAccount!]! @derivedFrom(field: "delegates")
+  # "Delegates"
+  # delegates: [GraphAccount!]!
   # From Graph Token
   "Graph token balance"
   balance: BigInt!
@@ -182,11 +185,11 @@ type Subgraph @entity {
   "Creation timestamp"
   createdAt: Int!
 
-  # From Curation, the name specific bonding curve
-  "Total GRT signaled for the name"
-  totalNameSignaledGRT: BigInt!
-  "Total name signal minted for this subgraph"
-  totalNameSignalMinted: BigInt!
+  # From Curation, the name specific bonding curve TODO - add when implemented
+  # "Total GRT signaled for the name"
+  # totalNameSignaledGRT: BigInt!
+  # "Total name signal minted for this subgraph"
+  # totalNameSignalMinted: BigInt!
 
   # From GNS
   "Name of the subgraph"
@@ -234,8 +237,6 @@ type SubgraphVersion @entity {
   version: Int!
   "Creation timestamp"
   createdAt: Int!
-  "Deploy timestamp"
-  updatedAt: Int! # TODO - when would someone update a SubgraphVersion, doesn't it just become a new version?
   "Unpublished"
   unpublished: Boolean!
 
@@ -244,8 +245,8 @@ type SubgraphVersion @entity {
   metadataHash: Bytes!
   "Short description of the version"
   description: String!
-  "A human readable name. Not required"
-  label: String
+  "A human readable name. If not set, blank string"
+  label: String!
 }
 
 """The immutable subgraph deployment defined by a subgraph manifest that Indexers stake on and Curators signal on"""
@@ -281,29 +282,30 @@ type SubgraphDeployment @entity {
   reserveRatio: BigInt
 
   # From Subgraph Manifest
-  dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
+  # dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
 }
 
-"""Data source obtained from the subgraph manifest"""
-type DataSource @entity {
-  "Unique identifier of the data source. Such as contract address"
-  id: ID!
-  "Data source name in the manifest"
-  name: String!
-  "Networks that the subgraph deployment is indexing"
-  networks: [String!]!
-  "Contract"
-  contract: Contract!
-  "ABI of the contract"
-  abi: String!
-}
+ # TODO - add when we have the ability to parse data sources
+# """Data source obtained from the subgraph manifest"""
+# type DataSource @entity {
+#   "Unique identifier of the data source. Such as contract address"
+#   id: ID!
+#   "Data source name in the manifest"
+#   name: String!
+#   "Networks that the subgraph deployment is indexing"
+#   networks: [String!]!
+#   "Contract"
+#   contract: Contract!
+#   "ABI of the contract"
+#   abi: String!
+# }
 
-type Contract @entity {
-  "Address of the contract"
-  id: ID!
-  "Contract name"
-  name: String
-}
+# type Contract @entity {
+#   "Address of the contract"
+#   id: ID!
+#   "Contract name"
+#   name: String
+# }
 
 """Indexer represents metadata of the indexer all of its stake and delegator stake"""
 type Indexer @entity {
@@ -311,8 +313,8 @@ type Indexer @entity {
   id: ID!
   "Time this indexer was created"
   createdAt: Int!
-  "Ethereum account of this indexer"
-  account: EthereumAccount!
+  "Graph account of this indexer"
+  account: GraphAccount!
   "Service registry URL string"
   urlString: String
   "Geohash of the indexer"
@@ -445,8 +447,8 @@ type Curator @entity {
   id: ID!
   "Time this curator was created"
   createdAt: Int!
-  "Ethereum account of this curator"
-  account: EthereumAccount!
+  "Graph account of this curator"
+  account: GraphAccount!
   "Total minted signal this curator has on all subgraphs"
   totalSignal: BigInt!
   "Total GRT signaled on all the subgraphs"

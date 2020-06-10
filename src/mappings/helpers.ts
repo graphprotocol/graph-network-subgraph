@@ -1,38 +1,38 @@
-import { BigInt, ByteArray, Address, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, ByteArray, Address, Bytes, crypto } from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
   GraphNetwork,
   Indexer,
-  EthereumAccount,
   Pool,
   Curator,
   Signal,
   SubgraphVersion,
   Subgraph,
-  GraphAccount
+  GraphAccount,
 } from '../types/schema'
 import { GraphToken } from '../types/GraphToken/GraphToken'
+import { ENS } from '../types/GNS/ENS'
+import { ENSPublicResolver } from '../types/GNS/ENSPublicResolver'
 import { addresses } from '../../config/addresses'
 
 export function createSubgraph(
-  nameHash: ByteArray,
-  name: string,
+  subgraphID: string,
   owner: Address,
   versionID: string,
-  timestamp: BigInt
+  timestamp: BigInt,
 ): Subgraph {
-  let subgraph = new Subgraph(nameHash.toHexString())
+  let subgraph = new Subgraph(subgraphID)
   subgraph.createdAt = timestamp.toI32()
   subgraph.owner = owner.toHexString()
   subgraph.currentVersion = versionID
   subgraph.pastVersions = []
-  subgraph.totalNameSignaledGRT = BigInt.fromI32(0)
-  subgraph.totalNameSignalMinted = BigInt.fromI32(0)
+  // subgraph.totalNameSignaledGRT = BigInt.fromI32(0)
+  // subgraph.totalNameSignalMinted = BigInt.fromI32(0)
   subgraph.metadataHash = Bytes.fromI32(0) as Bytes
   subgraph.description = ''
   subgraph.displayName = ''
   subgraph.image = ''
-  subgraph.name = ''
+  subgraph.name = null
   subgraph.codeRepository = ''
   subgraph.website = ''
   subgraph.save()
@@ -97,24 +97,18 @@ export function createSignal(curator: string, subgraphID: string): Signal {
   return signal
 }
 
-export function createEthereumAccount(id: string): EthereumAccount {
-  let account = new EthereumAccount(id)
-  account.balance = BigInt.fromI32(0) // gets set by transfers
-  account.save()
-  return account
-}
-
 // TODO - fix this whole thing when GNS is fixed
 export function createGraphAccount(id: string, owner: Bytes): GraphAccount {
   let graphAccount = new GraphAccount(id)
   graphAccount.names = []
-  graphAccount.owner = owner.toHexString()
-  graphAccount.isOrganization = false // TODO - how is this passed from front end?
-  graphAccount.subgraphs = []
+  graphAccount.name = ''
+  // graphAccount.owner = owner.toHexString()
+  // graphAccount.isOrganization = false
   graphAccount.metadataHash = Bytes.fromI32(0) as Bytes
-  graphAccount.description = ''
-  graphAccount.website = ''
-  graphAccount.image = ''
+  // graphAccount.description = ''
+  // graphAccount.website = ''
+  // graphAccount.image = ''
+  graphAccount.balance = BigInt.fromI32(0)
   graphAccount.save()
   return graphAccount
 }
@@ -157,7 +151,7 @@ export function createGraphNetwork(): GraphNetwork {
   graphNetwork.minimumCurationSignal = BigInt.fromI32(0)
   graphNetwork.totalGRTSignaled = BigInt.fromI32(0)
   graphNetwork.save()
-  
+
   return graphNetwork
 }
 
@@ -171,18 +165,70 @@ export function addQm(a: ByteArray): ByteArray {
   return out as ByteArray
 }
 
-export function getVersionNumber(name: string, subgraphID: string, versionNumber: BigInt): BigInt {
+export function getVersionNumber(
+  graphAccount: string,
+  subgraphNumber: string,
+  versionNumber: BigInt,
+): BigInt {
   // create versionID. start at version 1
-  let versionID = name
+  // TODO - should I start it at 0?
+  let versionID = graphAccount
     .concat('-')
-    .concat(subgraphID)
+    .concat(subgraphNumber)
     .concat('-')
     .concat(versionNumber.toString())
   let version = SubgraphVersion.load(versionID)
   // recursion until you get the right verison
   if (version != null) {
     versionNumber = versionNumber.plus(BigInt.fromI32(1))
-    getVersionNumber(name, subgraphID, versionNumber)
+    getVersionNumber(graphAccount, subgraphNumber, versionNumber)
   }
   return versionNumber
+}
+
+/*
+ * @dev Checks if it is a valid top level domains and that the name matches the name hash.
+ * Sub domains automatically return null
+ * Non matching names return null
+ */
+export function simpleNamehash(name: string, node: string): string | null {
+  if (name.includes('.') || name == '') return null
+
+  let firstHash = crypto.keccak256(ByteArray.fromUTF8(name)).toHexString()
+
+  // namehash('eth') = 0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae
+  let ethNode = '0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae'
+  let nameHash = crypto.keccak256(ByteArray.fromUTF8(ethNode + firstHash)).toHexString()
+
+  if (nameHash == node) {
+    return name
+  } else {
+    return node
+  }
+}
+
+/*
+ * @dev Checks if the name provided is actually owned by the graph account. Checks if the graph
+ * account has registered their account in the text record on the public resolver. If both are
+ * true, returns the name as valid. Otherwise returns null
+ */
+export function verifyName(graphAccount: string, name: string, node: Bytes): string | null {
+  let ens = ENS.bind(Address.fromHexString(addresses.ens) as Address)
+  let publicResolver = ENSPublicResolver.bind(
+    Address.fromHexString(addresses.ensPublicResolver) as Address,
+  )
+
+  let ownerOnENS = ens.owner(node)
+  if (ownerOnENS.toHexString() == graphAccount) {
+    let textRecord = publicResolver.text(node, 'GRAPH NAME SERVICE')
+    if (textRecord == graphAccount) {
+      return name
+    } else {
+      // They have not set the text record for graph account, return null
+      return null
+    }
+  } else {
+    // They aren't the real owner, return null
+    return null
+  }
 }

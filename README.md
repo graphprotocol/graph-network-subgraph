@@ -73,10 +73,24 @@ subgraph.
 #### Subgraph
 - Front end would check name and disallow. It can still be done directly to contract though. So the
   subgraph would cycle through all graph account subgraph names. It sees it exists. So it creates
-  a Subgraph, but with no name.
+  a new version, but keeps the old name
 - **Everything else the same as Scenario 2**
 
-###  Scenario 6 - Edge Case - Republishing an unpublished subgraph number
+
+###  Scenario 6 - Edge case - Publishing a brand new subgraph with a name you don't own
+#### Subgraph
+- Front end would check name and disallow. It can still be done directly to contract though.
+  Subgraph would check, see the name isn't owned, and would create an unnamed subgraph (like in
+  scenario 4)
+- **Everything else the same as Scenario 2**
+
+###  Scenario 7 - Edge case - Publishing a new version and name to an existing subgraph, but you don't own the name
+#### Subgraph
+- Front end would check name and disallow. It can still be done directly to contract though. So the
+  subgraph would check, see the name isn't owned. So it creates a new version, but keeps the old name
+- **Everything else the same as Scenario 2**
+
+###  Scenario 8 - Edge Case - Republishing an unpublished subgraph number
 #### Subgraph
 - Just take the existing subgraph, give it a new name, ensure it is not in use
 - Give it new metadata
