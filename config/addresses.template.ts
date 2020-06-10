@@ -9,6 +9,8 @@ class Addresses {
     rewardsManager: string
     serviceRegistry: string
     gns: string
+    ens: string
+    ensPublicResolver: string
 }
 
 export let addresses: Addresses = {
@@ -21,4 +23,6 @@ export let addresses: Addresses = {
     rewardsManager: "{{rewardsManager}}",
     serviceRegistry: "{{serviceRegistry}}",
     gns: "{{gns}}",
+    ens: "{{ens}}",
+    ensPublicResolver: "{{ensPublicResolver}}"
   }
