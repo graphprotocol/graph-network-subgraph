@@ -131,6 +131,7 @@ type GraphAccount @entity {
   # website: String
   # "Image in string format"
   # image: String
+  #
 
   # Identities TODO - implement this after Beta. ERC-1056 changing of ownership
   # "Owner of this graph account"
@@ -177,7 +178,7 @@ type Subgraph @entity {
   "Subgraph ID derived from the Organization/Individual graph accountID"
   id: ID!
   "Graph account that owns this subgraph"
-  owner: GraphAccount#! TODO - make ! when GNS is fixed
+  owner: GraphAccount!
   "Current version"
   currentVersion: SubgraphVersion
   "Past versions"
@@ -262,7 +263,7 @@ type SubgraphDeployment @entity {
   "Total stake of all indexers on this Subgraph deployment"
   totalStake: BigInt!
   "Indexers of this subgraph deployment"
-  indexers: [Channel!]! @derivedFrom(field: "subgraphDeployment")
+  indexerAllocations: [Channel!]! @derivedFrom(field: "subgraphDeployment")
   "Total fees accrued all time by this subgraph deployment"
   totalSubraphIndexingRewards: BigInt!
   "Total query fees earned by this subgraph deployment"
@@ -277,7 +278,7 @@ type SubgraphDeployment @entity {
   totalCuratorFeeReward: BigInt!
 
   "Curators of this subgraph deployment"
-  curators: [Signal!]! @derivedFrom(field: "subgraphDeployment")
+  curatorSignals: [Signal!]! @derivedFrom(field: "subgraphDeployment")
   "Bonding curve reserve ratio"
   reserveRatio: BigInt
 
