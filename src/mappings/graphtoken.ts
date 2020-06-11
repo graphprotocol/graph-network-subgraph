@@ -22,11 +22,11 @@ export function handleTransfer(event: Transfer): void {
 
   let userTo = GraphAccount.load(to.toHexString())
   if (userTo == null) {
-    userTo = createGraphAccount(to.toHexString(), to)
+    userTo = createGraphAccount(to.toHexString(), to, event.block.timestamp)
   }
   let userFrom = GraphAccount.load(from.toHexString())
   if (userFrom == null) {
-    userFrom = createGraphAccount(from.toHexString(), to)
+    userFrom = createGraphAccount(from.toHexString(), to, event.block.timestamp)
   }
 
   // Mint Transfer

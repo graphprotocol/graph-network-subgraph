@@ -16,7 +16,7 @@ export function handleServiceRegistered(event: ServiceRegistered): void {
   // Creates Graph Account, if needed
   let graphAccount = GraphAccount.load(id)
   if (graphAccount == null) {
-    graphAccount = createGraphAccount(id, event.params.indexer)
+    graphAccount = createGraphAccount(id, event.params.indexer, event.block.timestamp)
   }
 
   let indexer = Indexer.load(id)
