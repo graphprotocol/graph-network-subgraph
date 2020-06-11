@@ -115,7 +115,8 @@ type GraphAccount @entity {
   # defaultName: GraphAccountName TODO - might delete, being renamed to name from erc-1056 set attribute
   "From IPFS"
   name: String!
-
+  "Time the account was created"
+  createdAt: Int!
   # "True if it is an organization. False if it is an individual"
   # isOrganization: Boolean!
   # "Members of the organization" # Add back when we support daos as contracts
@@ -124,14 +125,14 @@ type GraphAccount @entity {
   subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
 
   "IPFS hash with account metadata details"
-  metadataHash: Bytes!
-  # "Description of the graph account" TODO - add these three after beta
-  # description: String
-  # "Website URL"
-  # website: String
-  # "Image in string format"
-  # image: String
-  #
+  metadataHash: Bytes
+  "Description of the graph account"
+  description: String
+  "Website URL"
+  website: String
+  "Image in string format"
+  image: String
+  
 
   # Identities TODO - implement this after Beta. ERC-1056 changing of ownership
   # "Owner of this graph account"
@@ -179,7 +180,7 @@ type Subgraph @entity {
   id: ID!
   "Graph account that owns this subgraph"
   owner: GraphAccount!
-  "Current version"
+  "Current version. Null if the subgraph is deprecated"
   currentVersion: SubgraphVersion
   "Past versions"
   pastVersions: [SubgraphVersion!]!
@@ -193,18 +194,16 @@ type Subgraph @entity {
   # totalNameSignalMinted: BigInt!
 
   # From GNS
-  "Name of the subgraph"
+  "Name of the subgraph. Name is set to null if subgraph is deprecated"
   name: String
   "Past names that has been associated with this subgraph, with version number"
-  pastVersionNames: [String!]!
+  pastNames: [String!]!
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
   metadataHash: Bytes!
   "Short description of the subgraph"
   description: String!
-  "Display name for the subgraph"
-  displayName: String!
   "Image in string format"
   image: String!
   "Location of the code for this project"
@@ -238,8 +237,6 @@ type SubgraphVersion @entity {
   version: Int!
   "Creation timestamp"
   createdAt: Int!
-  "Unpublished"
-  unpublished: Boolean!
 
   # Metadata from IPFS linked in GNS
   "Subgraph version metadata content address"

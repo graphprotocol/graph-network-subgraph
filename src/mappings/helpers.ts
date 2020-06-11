@@ -30,9 +30,9 @@ export function createSubgraph(
   // subgraph.totalNameSignalMinted = BigInt.fromI32(0)
   subgraph.metadataHash = Bytes.fromI32(0) as Bytes
   subgraph.description = ''
-  subgraph.displayName = ''
   subgraph.image = ''
   subgraph.name = null
+  subgraph.pastNames = [] 
   subgraph.codeRepository = ''
   subgraph.website = ''
   subgraph.save()
@@ -98,13 +98,13 @@ export function createSignal(curator: string, subgraphID: string): Signal {
 }
 
 // TODO - fix this whole thing when GNS is fixed
-export function createGraphAccount(id: string, owner: Bytes): GraphAccount {
+export function createGraphAccount(id: string, owner: Bytes, timeStamp: BigInt): GraphAccount {
   let graphAccount = new GraphAccount(id)
   graphAccount.names = []
   graphAccount.name = ''
+  graphAccount.createdAt = timeStamp.toI32()
   // graphAccount.owner = owner.toHexString()
   // graphAccount.isOrganization = false
-  graphAccount.metadataHash = Bytes.fromI32(0) as Bytes
   // graphAccount.description = ''
   // graphAccount.website = ''
   // graphAccount.image = ''

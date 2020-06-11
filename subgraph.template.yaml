@@ -28,7 +28,7 @@ dataSources:
         - name: ENSPublicResolver
           file: ./abis/IPublicResolver.json
       eventHandlers:
-        - event: SubgraphPublished(address,uint256,bytes32,bytes32,string,bytes32)
+        - event: SubgraphPublished(address,uint256,bytes32,uint256,bytes32,string,bytes32)
           handler: handleSubgraphPublished
         - event: SubgraphDeprecated(address,uint256)
           handler: handleSubgraphDeprecated

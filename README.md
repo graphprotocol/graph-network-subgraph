@@ -47,18 +47,17 @@ subgraph.
 #### SubgraphDeployment
 - Links the SubgraphDeployment to the SubgraphVersion 
 
-###  Scenario 3 - Unpublishing
+###  Scenario 3 - Deprecating
 #### Subgraph
 - Name is set to null. It must be set to null, as it is the only way that a user could use this
   name again
 - Old name is moved into pastNames array, with the final version number
-- To be unpublished means that the SubgraphVersion will be removed from currentVersion and into
-  past versions. currentVersion becomes null
+- To be deprecated means that the SubgraphVersion will be removed from currentVersion and into past versions. currentVersion becomes null
 - Metadata is left untouched since theres no upload to IPFS 
 - Curation
   - Pulls out vSignal and nSignal and returns GRT to all users
 #### SubgraphVersion
-- Sets unpublished to true
+- Does nothing
 #### SubgraphDeployment
 - Does nothing
 
@@ -90,7 +89,7 @@ subgraph.
   subgraph would check, see the name isn't owned. So it creates a new version, but keeps the old name
 - **Everything else the same as Scenario 2**
 
-###  Scenario 8 - Edge Case - Republishing an unpublished subgraph number
+###  Scenario 8 - Edge Case - Republishing an deprecated subgraph number
 #### Subgraph
 - Just take the existing subgraph, give it a new name, ensure it is not in use
 - Give it new metadata

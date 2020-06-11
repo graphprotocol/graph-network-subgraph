@@ -57,13 +57,13 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let subgraph = Subgraph.load(subgraphID)
   if (subgraph == null) {
     subgraph = createSubgraph(
-      subgraphNumber,
+      subgraphID,
       event.params.graphAccount,
       versionID,
       event.block.timestamp,
     )
   } else {
-    // If null, it is unpublished, and no need to push into past version
+    // If null, it is deprecated, and no need to push into past version
     if (subgraph.currentVersion != null) {
       let pastVersions = subgraph.pastVersions
       pastVersions.push(subgraph.currentVersion)
@@ -91,7 +91,6 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
       let data = tryData.value.toObject()
       subgraph.description = jsonToString(data.get('subgraphDescription'))
       subgraph.image = jsonToString(data.get('subgraphImage'))
-      subgraph.name = jsonToString(data.get('subgraphName'))
       subgraph.codeRepository = jsonToString(data.get('subgraphCodeRepository'))
       subgraph.website = jsonToString(data.get('subgraphWebsite'))
       versionDescription = jsonToString(data.get('versionDescription'))
@@ -107,7 +106,6 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   subgraphVersion.subgraphDeployment = subgraphDeploymentID
   subgraphVersion.version = versionNumber.toI32()
   subgraphVersion.createdAt = event.block.timestamp.toI32()
-  subgraphVersion.unpublished = false
   subgraphVersion.metadataHash = event.params.metadataHash
   subgraphVersion.description = versionDescription
   subgraphVersion.label = label
@@ -115,15 +113,15 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   // Create subgraph deployment, if needed
   // This can happen if the deployment has never been staked on
-  let deployment = SubgraphDeployment.load(subgraphID)
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   if (deployment == null) {
-    createSubgraphDeployment(subgraphID, event.block.timestamp)
+    createSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   }
 
   // Creates Graph Account, if needed
   let account = GraphAccount.load(graphAccount)
   if (account == null) {
-    account = createGraphAccount(graphAccount, event.params.graphAccount)
+    account = createGraphAccount(graphAccount, event.params.graphAccount, event.block.timestamp)
   }
 }
 
@@ -139,19 +137,13 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   let subgraph = Subgraph.load(subgraphID)
 
   // updates subgraph
-  let subgraphVersionID = subgraph.currentVersion
   subgraph.currentVersion = null
   let name = subgraph.name
   if (name != null) {
-    let pastNames = subgraph.pastVersionNames
+    let pastNames = subgraph.pastNames
     pastNames.push(name)
-    subgraph.pastVersionNames = pastNames
+    subgraph.pastNames = pastNames
   }
   subgraph.name = null
   subgraph.save()
-
-  // update subgraph version
-  let subgraphVersion = SubgraphVersion.load(subgraphVersionID)
-  subgraphVersion.unpublished = true
-  subgraphVersion.save()
 }

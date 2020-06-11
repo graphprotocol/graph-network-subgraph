@@ -89,6 +89,12 @@
       },
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "nameSystem",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "bytes32",
         "name": "nameIdentifier",
         "type": "bytes32"
