@@ -24,5 +24,6 @@ export let addresses: Addresses = {
     serviceRegistry: "{{serviceRegistry}}",
     gns: "{{gns}}",
     ens: "{{ens}}",
-    ensPublicResolver: "{{ensPublicResolver}}"
+    ensPublicResolver: "{{ensPublicResolver}}",
+    
   }

@@ -15,6 +15,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      file: ./src/mappings/gns.ts
       entities:
         - NamedSubgraph
         - SubgraphVersion
@@ -31,7 +32,6 @@ dataSources:
           handler: handleSubgraphPublished
         - event: SubgraphDeprecated(address,uint256)
           handler: handleSubgraphDeprecated
-      file: ./src/mappings/gns.ts
   - kind: ethereum/contract
     name: ServiceRegistry
     network: {{network}}
@@ -43,6 +43,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      file: ./src/mappings/serviceRegistry.ts
       entities:
         - Indexer
       abis:
@@ -53,7 +54,6 @@ dataSources:
           handler: handleServiceRegistered
         - event: ServiceUnregistered(indexed address)
           handler: handleServiceUnregistered
-      file: ./src/mappings/serviceRegistry.ts
   - kind: ethereum/contract
     name: Staking
     network: {{network}}
@@ -65,6 +65,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      file: ./src/mappings/staking.ts
       entities:
         - Channel
         - Indexer
@@ -96,7 +97,6 @@ dataSources:
           handler: handleRebateClaimed
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
-      file: ./src/mappings/staking.ts
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
@@ -108,6 +108,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      file: ./src/mappings/curation.ts
       entities:
         - Curator
         - GraphNetwork
@@ -125,7 +126,6 @@ dataSources:
           handler: handleCollected
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
-      file: ./src/mappings/curation.ts
   - kind: ethereum/contract
     name: GraphToken
     network: {{network}}
@@ -137,6 +137,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
+      file: ./src/mappings/graphToken.ts
       entities:
         - Account
         - GraphNetwork
@@ -148,4 +149,27 @@ dataSources:
           handler: handleTransfer
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
-      file: ./src/mappings/graphToken.ts
+  - kind: ethereum/contract
+    name: EthereumDIDRegistry
+    network: {{network}}
+    source:
+      address: '0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B'
+      abi: EthereumDIDRegistry
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings/ethereumDIDRegistry.ts
+      entities:
+        - GraphAccount
+      abis:
+        - name: EthereumDIDRegistry
+          file: ./abis/EthereumDIDRegistry.json
+      eventHandlers:
+        - event: DIDOwnerChanged(indexed address,address,uint256)
+          handler: handleDIDOwnerChanged
+        - event: DIDDelegateChanged(indexed address,bytes32,address,uint256,uint256)
+          handler: handleDIDDelegateChanged
+        - event: DIDAttributeChanged(indexed address,bytes32,bytes,uint256,uint256)
+          handler: handleDIDAttributeChanged
