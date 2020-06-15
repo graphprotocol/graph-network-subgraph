@@ -1,4 +1,4 @@
-import { BigInt, ByteArray, Address, Bytes, crypto } from '@graphprotocol/graph-ts'
+import { BigInt, ByteArray, Address, Bytes, crypto, log } from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
   GraphNetwork,
@@ -9,6 +9,7 @@ import {
   SubgraphVersion,
   Subgraph,
   GraphAccount,
+  GraphAccountName,
 } from '../types/schema'
 import { GraphToken } from '../types/GraphToken/GraphToken'
 import { ENS } from '../types/GNS/ENS'
@@ -32,7 +33,7 @@ export function createSubgraph(
   subgraph.description = ''
   subgraph.image = ''
   subgraph.name = null
-  subgraph.pastNames = [] 
+  subgraph.pastNames = []
   subgraph.codeRepository = ''
   subgraph.website = ''
   subgraph.save()
@@ -100,14 +101,13 @@ export function createSignal(curator: string, subgraphID: string): Signal {
 // TODO - fix this whole thing when GNS is fixed
 export function createGraphAccount(id: string, owner: Bytes, timeStamp: BigInt): GraphAccount {
   let graphAccount = new GraphAccount(id)
-  graphAccount.names = []
   graphAccount.name = ''
   graphAccount.createdAt = timeStamp.toI32()
   // graphAccount.owner = owner.toHexString()
-  // graphAccount.isOrganization = false
-  // graphAccount.description = ''
-  // graphAccount.website = ''
-  // graphAccount.image = ''
+  graphAccount.description = ''
+  graphAccount.website = ''
+  graphAccount.image = ''
+  graphAccount.codeRepository = ''
   graphAccount.balance = BigInt.fromI32(0)
   graphAccount.save()
   return graphAccount
@@ -165,6 +165,18 @@ export function addQm(a: ByteArray): ByteArray {
   return out as ByteArray
 }
 
+// Helper for concatenating two byte arrays
+export function concatByteArrays(a: ByteArray, b: ByteArray): ByteArray {
+  let out = new Uint8Array(a.length + b.length)
+  for (let i = 0; i < a.length; i++) {
+    out[i] = a[i]
+  }
+  for (let j = 0; j < b.length; j++) {
+    out[a.length + j] = b[j]
+  }
+  return out as ByteArray
+}
+
 export function getVersionNumber(
   graphAccount: string,
   subgraphNumber: string,
@@ -187,48 +199,104 @@ export function getVersionNumber(
 }
 
 /*
- * @dev Checks if it is a valid top level domains and that the name matches the name hash.
+ * @dev Checks 4 different requirements to resolve a name for a subgraph
+ * @returns GraphNameAccount ID or null
+ */
+export function resolveName(graphAccount: Address, name: string, node: Bytes): string | null {
+  let graphAccountString = graphAccount.toHexString()
+  if (checkTLD(name, node.toHexString())) {
+    if (verifyNameOwnership(graphAccountString, node)) {
+      if (checkTextRecord(graphAccountString, node)) {
+        let nameSystem = 'ENS'
+        let id = nameSystem.concat('-').concat(node.toHexString())
+        if (checkNoNameDuplicate(id, nameSystem, name, graphAccountString)) {
+          // all checks passed. save the new name, return the ID to be stored on the subgraph
+          return id
+        }
+      }
+    }
+  }
+  // one requirement failed, return null
+  return null
+}
+
+/*
+ * @dev Checks if it is a valid top level .eth domain and that the name matches the name hash.
  * Sub domains automatically return null
  * Non matching names return null
  */
-export function simpleNamehash(name: string, node: string): string | null {
-  if (name.includes('.') || name == '') return null
-
-  let firstHash = crypto.keccak256(ByteArray.fromUTF8(name)).toHexString()
+function checkTLD(name: string, node: string): boolean {
+  if (name.includes('.') || name == '') return false
+  let labelHash = crypto.keccak256(ByteArray.fromUTF8(name))
 
   // namehash('eth') = 0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae
-  let ethNode = '0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae'
-  let nameHash = crypto.keccak256(ByteArray.fromUTF8(ethNode + firstHash)).toHexString()
+  // namehash('test') = 0x04f740db81dc36c853ab4205bddd785f46e79ccedca351fc6dfcbd8cc9a33dd6
+  // NOTE - test registrar is in use for now for quick testing. TODO - switch when we are ready
+  let testNode = ByteArray.fromHexString(
+    '0x04f740db81dc36c853ab4205bddd785f46e79ccedca351fc6dfcbd8cc9a33dd6',
+  )
 
-  if (nameHash == node) {
-    return name
+  let nameHash = crypto.keccak256(concatByteArrays(testNode, labelHash)).toHexString()
+  return nameHash == node ? true : false
+}
+
+/*
+ * @dev Checks if the name provided is actually owned by the graph account.
+ * @param graphAccount - Graph Account ID
+ * @param node - ENS node (i.e. this function only works for ens right now)
+ * @returns - true if name is verified
+ */
+function verifyNameOwnership(graphAccount: string, node: Bytes): boolean {
+  let ens = ENS.bind(Address.fromHexString(addresses.ens) as Address)
+  let ownerOnENS = ens.try_owner(node)
+  if (ownerOnENS.reverted == true) {
+    log.warning('Try owner reverted for node: {}', [node.toHexString()])
+    return false
   } else {
-    return node
+    return ownerOnENS.value.toHexString() == graphAccount ? true : false
   }
 }
 
 /*
- * @dev Checks if the name provided is actually owned by the graph account. Checks if the graph
- * account has registered their account in the text record on the public resolver. If both are
- * true, returns the name as valid. Otherwise returns null
+ * @dev Checks if the graph account has registered their account in the text record on the public
+ * resolver
+ * @param graphAccount - Graph Account ID
+ * @param node - ENS node (i.e. this function only works for ens right now)
+ * @returns true is text record is set
  */
-export function verifyName(graphAccount: string, name: string, node: Bytes): string | null {
-  let ens = ENS.bind(Address.fromHexString(addresses.ens) as Address)
+function checkTextRecord(graphAccount: string, node: Bytes): boolean {
   let publicResolver = ENSPublicResolver.bind(
     Address.fromHexString(addresses.ensPublicResolver) as Address,
   )
-
-  let ownerOnENS = ens.owner(node)
-  if (ownerOnENS.toHexString() == graphAccount) {
-    let textRecord = publicResolver.text(node, 'GRAPH NAME SERVICE')
-    if (textRecord == graphAccount) {
-      return name
-    } else {
-      // They have not set the text record for graph account, return null
-      return null
-    }
+  let textRecord = publicResolver.try_text(node, 'GRAPH NAME SERVICE')
+  if (textRecord.reverted) {
+    log.warning('Try_text reverted for node: {}', [node.toHexString()])
+    return false
   } else {
-    // They aren't the real owner, return null
-    return null
+    let record = ByteArray.fromHexString(textRecord.value).toHexString()
+    return record == graphAccount ? true : false
   }
+}
+/*
+ * @dev Check this name isn't already being used by this account. Note, because there is only one
+ * system, we just check for the GraphAccountNameEntity. TODO - when multiple systems exist, we
+ * will need to iterate over the graph accounts subgraphs, or check all possible names by building
+ * each name system + name ID
+ */
+function checkNoNameDuplicate(
+  id: string,
+  nameSystem: string,
+  name: string,
+  graphAccount: string,
+): boolean {
+  let graphAccountName = GraphAccountName.load(id)
+  if (graphAccountName == null) {
+    graphAccountName = new GraphAccountName(id)
+    graphAccountName.nameSystem = nameSystem
+    graphAccountName.name = name
+    graphAccountName.graphAccount = graphAccount
+    graphAccountName.save()
+    return true
+  }
+  return false
 }
