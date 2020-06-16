@@ -101,14 +101,9 @@ export function createSignal(curator: string, subgraphID: string): Signal {
 // TODO - fix this whole thing when GNS is fixed
 export function createGraphAccount(id: string, owner: Bytes, timeStamp: BigInt): GraphAccount {
   let graphAccount = new GraphAccount(id)
-  graphAccount.name = ''
   graphAccount.createdAt = timeStamp.toI32()
-  // graphAccount.owner = owner.toHexString()
-  graphAccount.description = ''
-  graphAccount.website = ''
-  graphAccount.image = ''
-  graphAccount.codeRepository = ''
   graphAccount.balance = BigInt.fromI32(0)
+  // graphAccount.owner = owner.toHexString()
   graphAccount.save()
   return graphAccount
 }
@@ -198,8 +193,8 @@ export function getVersionNumber(
   return versionNumber
 }
 
-/*
- * @dev Checks 4 different requirements to resolve a name for a subgraph
+/**
+ * @dev Checks 4 different requirements to resolve a name for a subgraph. Only works with ENS
  * @returns GraphNameAccount ID or null
  */
 export function resolveName(graphAccount: Address, name: string, node: Bytes): string | null {
@@ -220,7 +215,7 @@ export function resolveName(graphAccount: Address, name: string, node: Bytes): s
   return null
 }
 
-/*
+/**
  * @dev Checks if it is a valid top level .eth domain and that the name matches the name hash.
  * Sub domains automatically return null
  * Non matching names return null
@@ -240,7 +235,7 @@ function checkTLD(name: string, node: string): boolean {
   return nameHash == node ? true : false
 }
 
-/*
+/**
  * @dev Checks if the name provided is actually owned by the graph account.
  * @param graphAccount - Graph Account ID
  * @param node - ENS node (i.e. this function only works for ens right now)
@@ -257,7 +252,7 @@ function verifyNameOwnership(graphAccount: string, node: Bytes): boolean {
   }
 }
 
-/*
+/**
  * @dev Checks if the graph account has registered their account in the text record on the public
  * resolver
  * @param graphAccount - Graph Account ID
@@ -277,7 +272,8 @@ function checkTextRecord(graphAccount: string, node: Bytes): boolean {
     return record == graphAccount ? true : false
   }
 }
-/*
+
+/**
  * @dev Check this name isn't already being used by this account. Note, because there is only one
  * system, we just check for the GraphAccountNameEntity. TODO - when multiple systems exist, we
  * will need to iterate over the graph accounts subgraphs, or check all possible names by building

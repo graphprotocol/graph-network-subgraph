@@ -1,20 +1,12 @@
-import { json, ipfs, Bytes, JSONValueKind, log } from '@graphprotocol/graph-ts'
+import { json, ipfs, Bytes } from '@graphprotocol/graph-ts'
 
 import {
-  DIDOwnerChanged,
-  DIDDelegateChanged,
   DIDAttributeChanged,
 } from '../types/EthereumDIDRegistry/EthereumDIDRegistry'
 
 import { GraphAccount } from '../types/schema'
 import { addQm } from './helpers'
 import { jsonToString } from './utils'
-
-// NOT IN USE
-export function handleDIDOwnerChanged(event: DIDOwnerChanged): void {}
-
-// NOT IN USE
-export function handleDIDDelegateChanged(event: DIDDelegateChanged): void {}
 
 export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
   let id = event.params.identity.toHexString()
@@ -35,16 +27,11 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
       let ipfsData = ipfs.cat(base58Hash)
       if (ipfsData != null) {
         let data = json.fromBytes(ipfsData as Bytes).toObject()
+        graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
+        graphAccount.description = jsonToString(data.get('description'))
+        graphAccount.image = jsonToString(data.get('image'))
         graphAccount.name = jsonToString(data.get('name'))
-        // TODO - not in beta, might need to remove
-        // graphAccount.description = jsonToString(data.get('description'))
-        // graphAccount.website = jsonToString(data.get('website'))
-        // graphAccount.image = jsonToString(data.get('image'))
-        // graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
-
-        // TODO, not sure if i need either
-        // graphAccount.createdAt = event.block.timestamp.toI32() TODO - THIS MIGHT NOT BELONG HERE
-        //   graphAccount.updatedAt = event.block.timestamp.toI32()
+        graphAccount.website = jsonToString(data.get('website'))
         graphAccount.save()
       }
     }

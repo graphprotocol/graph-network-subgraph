@@ -54,32 +54,6 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
     event.params.name,
     event.params.nameIdentifier,
   )
-  // let name = checkTLD(event.params.name, event.params.nameIdentifier.toHexString())
-
-  // // Verify name
-  // let graphAccountNameID: string
-  // if (name != null) {
-  //   graphAccountNameID = verifyNameOwnership(graphAccount, name, event.params.nameIdentifier)
-  // }
-  // // When name is not null, it is proven it is owned
-  // // Next, we must make sure that the name is not already in use
-  // // We can't check the ID, we need to check the actually STRING, to prevent the same
-  // // string being used for one account, but from two different name systems
-  // // If it is, name is set to null
-  // if (graphAccountNameID != null) {
-  //   const words = graphAccountNameID.split('-')
-  //   name = words[1]
-  //   let gns = GNS.bind(event.address)
-  //   let subgraphCount = gns.graphAccountSubgraphNumbers(event.params.graphAccount).toI32()
-  //   for (let i = 0; i < subgraphCount; i++) {
-  //     let counter = BigInt.fromI32(i).toString()
-  //     let checkSubgraph = Subgraph.load(graphAccount.concat('-').concat(counter))
-  //     if (checkSubgraph.name == name) {
-  //       name = null
-  //       break
-  //     }
-  //   }
-  // }
 
   // Set name
   subgraph.name = graphAccountNameID
