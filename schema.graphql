@@ -115,10 +115,7 @@ type GraphAccount @entity {
   id: ID!
   "All names this graph account has claimed from all name systems"
   names: [GraphAccountName!]! @derivedFrom(field: "graphAccount")
-  # "Default name system to show up in the Graph Explorer. Null if not specified"
-  # defaultName: GraphAccountName TODO - might delete, being renamed to name from erc-1056 set attribute
-  "From IPFS"
-  name: String!
+
   "Time the account was created"
   createdAt: Int!
   # "True if it is an organization. False if it is an individual"
@@ -134,7 +131,8 @@ type GraphAccount @entity {
   codeRepository: String
   "Description of the graph account"
   description: String
-
+  "Name of the graph account"
+  name: String
   "Image in string format"
   image: String
   "Website URL"
