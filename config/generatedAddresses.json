@@ -1,0 +1,14 @@
+{
+  "graphToken": "0x9db7918f1E54ab644ee438FAE5FC670B71E0d528",
+  "epochManager": "0xe18D453563d367984fb214d90BDCDd3743Ef5719",
+  "disputeManager": "0xCb3bA107b7096Fe8CF69d4b83b122e0e0BAEaACe",
+  "staking": "0xCDC02fBf4dc559923A82CfCf8116442b542e86c1",
+  "curation": "0x5A8b493f9cf79ca22452b4511b55e0Ff91C850d9",
+  "rewardsManager": "0x6304AE0C965B54724C0B34B2611c93c24Ed4B98d",
+  "serviceRegistry": "0x2538f2107222e45e2074A337C5f6a4e3dC44c5C6",
+  "gns": "0x094807C86162329eFF3d1781F46eF6Bd5580e766",
+  "ens": "0xB66B2f307B6e46a6D038a85997B401aE87455772",
+  "ensPublicResolver": "0xc30F6CCc48F1eA5374aC618dfe5243ddD1e264E7",
+  "blockNumber": "19102860",
+  "network": "kovan"
+}
