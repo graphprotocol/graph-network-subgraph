@@ -107,10 +107,10 @@ export function handleStakeSlashed(event: StakeSlashed): void {
  * - create a new channel
  */
 export function handleAllocationCreated(event: AllocationCreated): void {
-  let subgraphID = event.params.subgraphID.toHexString()
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let channelID = event.params.channelID.toHexString()
-  let allocationID = indexerID.concat('-').concat(subgraphID)
+  let allocationID = indexerID.concat('-').concat(subgraphDeploymentID)
 
   // update indexer
   let indexer = Indexer.load(indexerID)
@@ -123,9 +123,9 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   graphNetwork.save()
 
   // update subgraph
-  let deployment = SubgraphDeployment.load(subgraphID)
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   if (deployment == null) {
-    deployment = createSubgraphDeployment(subgraphID, event.block.timestamp)
+    deployment = createSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   }
   deployment.totalStake = deployment.totalStake.plus(event.params.tokens)
   deployment.save()
@@ -134,7 +134,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let allocation = Allocation.load(allocationID)
   if (allocation == null) {
     allocation = new Allocation(allocationID)
-    allocation.subgraphDeployment = subgraphID
+    allocation.subgraphDeployment = subgraphDeploymentID
     allocation.indexer = indexerID
   }
   allocation.activeChannel = channelID
@@ -143,7 +143,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // create channel
   let channel = new Channel(channelID)
   channel.indexer = indexerID
-  channel.subgraphDeployment = subgraphID
+  channel.subgraphDeployment = subgraphDeploymentID
   channel.allocation = allocationID
   channel.tokensAllocated = event.params.tokens
   channel.createdAtEpoch = event.params.epoch.toI32()
@@ -162,7 +162,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
  * - update and close the channel
  */
 export function handleAllocationSettled(event: AllocationSettled): void {
-  let subgraphID = event.params.subgraphID.toHexString()
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let channelID = event.params.channelID.toHexString()
 
@@ -179,7 +179,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   graphNetwork.save()
 
   // update subgraph
-  let deployment = SubgraphDeployment.load(subgraphID)
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   deployment.totalStake = deployment.totalStake.minus(event.params.tokens)
   deployment.totalQueryFeesCollected = deployment.totalQueryFeesCollected.plus(event.params.rebateFees)
   deployment.save()
@@ -195,7 +195,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   pool.save()
 
   // update allocation
-  let allocation = Allocation.load(indexerID.concat('-').concat(subgraphID))
+  let allocation = Allocation.load(indexerID.concat('-').concat(subgraphDeploymentID))
   let closedChannels = allocation.channels
   closedChannels.push(allocation.activeChannel)
   allocation.channels = closedChannels
@@ -218,9 +218,9 @@ export function handleAllocationSettled(event: AllocationSettled): void {
  * - note - if rebate is transferred to indexer, that will be handled in graphToken.ts
  */
 export function handleRebateClaimed(event: RebateClaimed): void {
-  let subgraphID = event.params.subgraphID.toHexString()
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
-  let allocationID = indexerID.concat('-').concat(subgraphID)
+  let allocationID = indexerID.concat('-').concat(subgraphDeploymentID)
 
   // update indexer
   let indexer = Indexer.load(indexerID)

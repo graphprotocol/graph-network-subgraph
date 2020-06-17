@@ -28,26 +28,26 @@ export function handleStaked(event: Staked): void {
   curator.save()
 
   // Update signal
-  let subgraphID = event.params.subgraphID.toHexString()
-  let signalID = id.concat('-').concat(subgraphID)
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let signalID = id.concat('-').concat(subgraphDeploymentID)
   let signal = Signal.load(signalID)
   if (signal == null) {
-    signal = createSignal(id, subgraphID)
+    signal = createSignal(id, subgraphDeploymentID)
   }
   signal.tokensSignaled = signal.tokensSignaled.plus(event.params.tokens)
   signal.signal = signal.signal.plus(event.params.shares)
   signal.save()
 
   // Update subgraph deployment
-  let deployment = SubgraphDeployment.load(subgraphID)
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   if (deployment == null) {
-    deployment = createSubgraphDeployment(subgraphID, event.block.timestamp)
+    deployment = createSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   }
   deployment.totalSignaledGRT = deployment.totalSignaledGRT.plus(event.params.tokens)
   deployment.totalSignalMinted = deployment.totalSignalMinted.plus(event.params.shares)
 
   let curation = Curation.bind(event.address)
-  deployment.reserveRatio = curation.subgraphs(event.params.subgraphID).value0
+  deployment.reserveRatio = curation.pools(event.params.subgraphDeploymentID).value0
   deployment.save()
 }
 /**
@@ -64,15 +64,15 @@ export function handleRedeemed(event: Redeemed): void {
   curator.totalRedeemedGRT = curator.totalRedeemedGRT.plus(event.params.tokens)
 
   // Update signal
-  let subgraphID = event.params.subgraphID.toHexString()
-  let signalID = id.concat('-').concat(subgraphID)
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let signalID = id.concat('-').concat(subgraphDeploymentID)
   let signal = Signal.load(signalID)
   signal.tokensRedeemed = signal.tokensRedeemed.plus(event.params.tokens)
   signal.signal = signal.signal.minus(event.params.shares)
   signal.save()
 
   // Update subgraph
-  let deployment = SubgraphDeployment.load(subgraphID)
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   deployment.totalSignaledGRT = deployment.totalSignaledGRT.minus(event.params.tokens)
   deployment.totalSignalMinted = deployment.totalSignalMinted.minus(event.params.shares)
   deployment.save()
@@ -86,8 +86,8 @@ export function handleRedeemed(event: Redeemed): void {
  */
 export function handleCollected(event: Collected): void {
   // update subgraph
-  let subgraphID = event.params.subgraphID.toHexString()
-  let deployment = SubgraphDeployment.load(subgraphID)
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   deployment.totalSignaledGRT = deployment.totalSignaledGRT.plus(event.params.tokens)
   deployment.totalCuratorFeeReward = deployment.totalCuratorFeeReward.plus(event.params.tokens)
   deployment.save()
