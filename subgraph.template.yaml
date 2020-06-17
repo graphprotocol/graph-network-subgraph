@@ -22,11 +22,11 @@ dataSources:
         - Subgraph
       abis:
         - name: GNS
-          file: ./abis/GNS.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GNS.json
         - name: ENS
-          file: ./abis/IENS.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/IENS.json
         - name: ENSPublicResolver
-          file: ./abis/IPublicResolver.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/IPublicResolver.json
       eventHandlers:
         - event: SubgraphPublished(address,uint256,bytes32,uint256,bytes32,string,bytes32)
           handler: handleSubgraphPublished
@@ -48,7 +48,7 @@ dataSources:
         - Indexer
       abis:
         - name: ServiceRegistry
-          file: ./abis/ServiceRegistry.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/ServiceRegistry.json
       eventHandlers:
         - event: ServiceRegistered(indexed address,string,string)
           handler: handleServiceRegistered
@@ -75,11 +75,11 @@ dataSources:
         - Pool
       abis:
         - name: Staking
-          file: ./abis/Staking.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/Staking.json
         - name: GraphToken
-          file: ./abis/GraphToken.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
         - name: EpochManager
-          file: ./abis/EpochManager.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: StakeDeposited(indexed address,uint256)
           handler: handleStakeDeposited
@@ -116,7 +116,7 @@ dataSources:
         - Subgraph
       abis:
         - name: Curation
-          file: ./abis/Curation.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/Curation.json
       eventHandlers:
         - event: Staked(indexed address,indexed bytes32,uint256,uint256)
           handler: handleStaked
@@ -143,7 +143,7 @@ dataSources:
         - GraphNetwork
       abis:
         - name: GraphToken
-          file: ./abis/GraphToken.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
@@ -165,7 +165,7 @@ dataSources:
         - GraphAccount
       abis:
         - name: EthereumDIDRegistry
-          file: ./abis/EthereumDIDRegistry.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EthereumDIDRegistry.json
       eventHandlers:
         - event: DIDOwnerChanged(indexed address,address,uint256)
           handler: handleDIDOwnerChanged
