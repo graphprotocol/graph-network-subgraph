@@ -49,7 +49,7 @@ export function createOrLoadSubgraphDeployment(
     deployment = new SubgraphDeployment(subgraphID)
     deployment.createdAt = timestamp.toI32()
     deployment.totalStake = BigInt.fromI32(0)
-    deployment.totalSubraphIndexingRewards = BigInt.fromI32(0)
+    deployment.totalSubgraphIndexingRewards = BigInt.fromI32(0)
     deployment.totalSignaledGRT = BigInt.fromI32(0)
     deployment.totalSignalMinted = BigInt.fromI32(0)
     deployment.totalQueryFeesCollected = BigInt.fromI32(0)
@@ -153,7 +153,7 @@ export function createOrLoadGraphNetwork(): GraphNetwork {
     graphNetwork.totalSupply = BigInt.fromI32(0) // gets set by mint
 
     // most of the parameters below are updated in the constructor, or else
-    // right after deployement
+    // right after deployment
     graphNetwork.curationPercentage = BigInt.fromI32(0)
     graphNetwork.channelDisputeEpochs = BigInt.fromI32(0)
     graphNetwork.maxAllocationEpochs = BigInt.fromI32(0)
@@ -205,7 +205,7 @@ export function getVersionNumber(
     .concat('-')
     .concat(versionNumber.toString())
   let version = SubgraphVersion.load(versionID)
-  // recursion until you get the right verison
+  // recursion until you get the right version
   if (version != null) {
     versionNumber = versionNumber.plus(BigInt.fromI32(1))
     getVersionNumber(graphAccount, subgraphNumber, versionNumber)

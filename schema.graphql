@@ -279,7 +279,7 @@ type SubgraphDeployment @entity {
   "Indexers of this subgraph deployment"
   indexerAllocations: [Channel!]! @derivedFrom(field: "subgraphDeployment")
   "Total fees accrued all time by this subgraph deployment"
-  totalSubraphIndexingRewards: BigInt!
+  totalSubgraphIndexingRewards: BigInt!
   "Total query fees earned by this subgraph deployment"
   totalQueryFeesCollected: BigInt!
 

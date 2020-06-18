@@ -7,8 +7,8 @@
   "scripts": {
     "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
-    "deploy-kovan": "yarn prepare:kovan && graph deploy graphprotocol/the-graph-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-kovan-testing": "yarn prepare:kovan && graph deploy davekaj/the-graph-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-beta": "yarn prepare:kovan && graph deploy graphprotocol/graph-network-beta --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-testing": "yarn prepare:kovan && graph deploy davekaj/the-graph-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "prepare:addresses:kovan": "ts-node config/addressScript.ts && mustache ./config/generatedAddresses.json ./config/kovanAddresses.template.ts > ./config/addresses.ts",
     "prepare:kovan": "yarn codegen && yarn prepare:addresses:kovan && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml",
     "lint": "yarn eslint .",
