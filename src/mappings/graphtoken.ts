@@ -1,6 +1,5 @@
 import { Approval, Transfer } from '../types/GraphToken/GraphToken'
-import { GraphAccount, GraphNetwork } from '../types/schema'
-import { createGraphNetwork, createGraphAccount } from './helpers'
+import { createOrLoadGraphNetwork, createOrLoadGraphAccount } from './helpers'
 
 /**
  * @dev handleTransfer
@@ -14,20 +13,10 @@ export function handleTransfer(event: Transfer): void {
 
   // The first transaction ever emitted in the network is the minting of GRT
   // And with this, we instantiate GraphNetwork
-  let graphNetwork = GraphNetwork.load("1")
-  if (graphNetwork == null){
-    graphNetwork = createGraphNetwork()
-  }
+  let graphNetwork = createOrLoadGraphNetwork()
 
-
-  let userTo = GraphAccount.load(to.toHexString())
-  if (userTo == null) {
-    userTo = createGraphAccount(to.toHexString(), to, event.block.timestamp)
-  }
-  let userFrom = GraphAccount.load(from.toHexString())
-  if (userFrom == null) {
-    userFrom = createGraphAccount(from.toHexString(), to, event.block.timestamp)
-  }
+  let userTo = createOrLoadGraphAccount(to.toHexString(), to, event.block.timestamp)
+  let userFrom = createOrLoadGraphAccount(from.toHexString(), to, event.block.timestamp)
 
   // Mint Transfer
   if (from.toHexString() == '0x0000000000000000000000000000000000000000') {

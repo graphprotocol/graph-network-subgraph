@@ -172,6 +172,8 @@ type GraphAccountName @entity {
   name: String!
   "The graph account that owned the name when it was linked in the graph network. May not match if the graph account proceeded to transfer away their name on that system"
   graphAccount: GraphAccount!
+  "Current subgraph that is using this name"
+  subgraph: Subgraph @derivedFrom(field: "name")
 }
 
 enum NameSystem {
@@ -196,16 +198,19 @@ type Subgraph @entity {
   createdAt: Int!
 
   # From Curation, the name specific bonding curve TODO - add when implemented
-  # "Total GRT signaled for the name"
-  # totalNameSignaledGRT: BigInt!
-  # "Total name signal minted for this subgraph"
-  # totalNameSignalMinted: BigInt!
+  "Total GRT signaled for the name"
+  totalNameSignaledGRT: BigInt!
+  "Total name signal minted for this subgraph"
+  totalNameSignalMinted: BigInt!
 
   # From GNS
   "Name of the subgraph. Name is set to null if subgraph is deprecated"
   name: GraphAccountName
   "Past names that has been associated with this subgraph, with version number"
   pastNames: [GraphAccountName!]!
+  # TODO - it is actually undetermined what we want to do with display name. Right now, it serves to help us order subgraphs by name since you can't do so on child fields
+  "Display name"
+  displayName: String
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"

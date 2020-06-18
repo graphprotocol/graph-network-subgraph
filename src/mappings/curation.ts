@@ -1,14 +1,8 @@
-import {
-  Staked,
-  Redeemed,
-  Collected,
-  Curation,
-  ParameterUpdated,
-} from '../types/Curation/Curation'
+import { Staked, Redeemed, Collected, Curation, ParameterUpdated } from '../types/Curation/Curation'
 import { Curator, GraphNetwork, Signal, SubgraphDeployment } from '../types/schema'
 import { Address } from '@graphprotocol/graph-ts'
 
-import { createCurator, createSignal, createSubgraphDeployment } from './helpers'
+import { createOrLoadSignal, createOrLoadSubgraphDeployment, createOrLoadCurator } from './helpers'
 
 /**
  * @dev handleStaked
@@ -19,30 +13,20 @@ import { createCurator, createSignal, createSubgraphDeployment } from './helpers
 export function handleStaked(event: Staked): void {
   // Update curator
   let id = event.params.curator.toHexString()
-  let curator = Curator.load(id)
-  if (curator == null) {
-    curator = createCurator(id, event.block.timestamp)
-  }
+  let curator = createOrLoadCurator(id, event.block.timestamp)
   curator.totalSignal = curator.totalSignal.plus(event.params.shares)
   curator.totalSignaledGRT = curator.totalSignaledGRT.plus(event.params.tokens)
   curator.save()
 
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let signalID = id.concat('-').concat(subgraphDeploymentID)
-  let signal = Signal.load(signalID)
-  if (signal == null) {
-    signal = createSignal(id, subgraphDeploymentID)
-  }
+  let signal = createOrLoadSignal(id, subgraphDeploymentID)
   signal.tokensSignaled = signal.tokensSignaled.plus(event.params.tokens)
   signal.signal = signal.signal.plus(event.params.shares)
   signal.save()
 
   // Update subgraph deployment
-  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
-  if (deployment == null) {
-    deployment = createSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-  }
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.totalSignaledGRT = deployment.totalSignaledGRT.plus(event.params.tokens)
   deployment.totalSignalMinted = deployment.totalSignalMinted.plus(event.params.shares)
 
