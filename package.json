@@ -12,9 +12,9 @@
     "prepare:addresses:kovan": "ts-node config/addressScript.ts && mustache ./config/generatedAddresses.json ./config/kovanAddresses.template.ts > ./config/addresses.ts",
     "prepare:kovan": "yarn codegen && yarn prepare:addresses:kovan && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml",
     "lint": "yarn eslint .",
-    "lint:fix": "eslint . --fix",
-    "prettier": "prettier 'src/**/*.ts'",
-    "prettier:write": "prettier --write 'src/**/*.ts'"
+    "lint-fix": "eslint . --fix",
+    "prettier": "prettier '**/*.ts'",
+    "prettier-write": "prettier --write '**/*.ts'"
   },
   "devDependencies": {
     "@graphprotocol/contracts": "^0.3.0-beta",

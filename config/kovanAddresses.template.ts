@@ -25,5 +25,5 @@ export let addresses: Addresses = {
   ens: '{{ens}}',
   ensPublicResolver: '{{ensPublicResolver}}',
   blockNumber: '{{blockNumber}}',
-  network : '{{network}}'
+  network: '{{network}}',
 }
