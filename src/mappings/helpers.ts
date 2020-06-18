@@ -11,143 +11,163 @@ import {
   GraphAccount,
   GraphAccountName,
 } from '../types/schema'
-import { GraphToken } from '../types/GraphToken/GraphToken'
 import { ENS } from '../types/GNS/ENS'
 import { ENSPublicResolver } from '../types/GNS/ENSPublicResolver'
 import { addresses } from '../../config/addresses'
 
-export function createSubgraph(
+export function createOrLoadSubgraph(
   subgraphID: string,
   owner: Address,
-  versionID: string,
   timestamp: BigInt,
 ): Subgraph {
-  let subgraph = new Subgraph(subgraphID)
-  subgraph.createdAt = timestamp.toI32()
-  subgraph.owner = owner.toHexString()
-  subgraph.currentVersion = versionID
-  subgraph.pastVersions = []
-  // subgraph.totalNameSignaledGRT = BigInt.fromI32(0)
-  // subgraph.totalNameSignalMinted = BigInt.fromI32(0)
-  subgraph.metadataHash = Bytes.fromI32(0) as Bytes
-  subgraph.description = ''
-  subgraph.image = ''
-  subgraph.name = null
-  subgraph.pastNames = []
-  subgraph.codeRepository = ''
-  subgraph.website = ''
-  subgraph.save()
-  return subgraph
+  let subgraph = Subgraph.load(subgraphID)
+  if (subgraph == null) {
+    subgraph = new Subgraph(subgraphID)
+    subgraph.createdAt = timestamp.toI32()
+    subgraph.owner = owner.toHexString()
+    subgraph.pastVersions = []
+    subgraph.totalNameSignaledGRT = BigInt.fromI32(0)
+    subgraph.totalNameSignalMinted = BigInt.fromI32(0)
+    subgraph.metadataHash = Bytes.fromI32(0) as Bytes
+    subgraph.description = ''
+    subgraph.image = ''
+    subgraph.name = null
+    subgraph.pastNames = []
+    subgraph.codeRepository = ''
+    subgraph.website = ''
+    subgraph.save()
+  }
+  return subgraph as Subgraph
 }
 
-export function createSubgraphDeployment(
+export function createOrLoadSubgraphDeployment(
   subgraphID: string,
   timestamp: BigInt,
 ): SubgraphDeployment {
-  let deployment = new SubgraphDeployment(subgraphID)
-  deployment.createdAt = timestamp.toI32()
-  deployment.totalStake = BigInt.fromI32(0)
-  deployment.totalSubraphIndexingRewards = BigInt.fromI32(0)
-  deployment.totalSignaledGRT = BigInt.fromI32(0)
-  deployment.totalSignalMinted = BigInt.fromI32(0)
-  deployment.totalQueryFeesCollected = BigInt.fromI32(0)
-  deployment.totalCuratorFeeReward = BigInt.fromI32(0)
-  deployment.save()
-  return deployment
+  let deployment = SubgraphDeployment.load(subgraphID)
+  if (deployment == null) {
+    deployment = new SubgraphDeployment(subgraphID)
+    deployment.createdAt = timestamp.toI32()
+    deployment.totalStake = BigInt.fromI32(0)
+    deployment.totalSubraphIndexingRewards = BigInt.fromI32(0)
+    deployment.totalSignaledGRT = BigInt.fromI32(0)
+    deployment.totalSignalMinted = BigInt.fromI32(0)
+    deployment.totalQueryFeesCollected = BigInt.fromI32(0)
+    deployment.totalCuratorFeeReward = BigInt.fromI32(0)
+    deployment.save()
+  }
+  return deployment as SubgraphDeployment
 }
 
-export function createIndexer(id: string, timestamp: BigInt): Indexer {
-  let indexer = new Indexer(id)
-  indexer.createdAt = timestamp.toI32()
-  indexer.account = id
-  indexer.stakedTokens = BigInt.fromI32(0)
-  indexer.tokensAllocated = BigInt.fromI32(0)
-  indexer.tokensLocked = BigInt.fromI32(0)
-  indexer.tokensClaimable = BigInt.fromI32(0)
-  indexer.tokensLockedUntil = 0
-  indexer.tokensDelegated = BigInt.fromI32(0)
-  indexer.tokenCapacity = BigInt.fromI32(0)
-  indexer.indexingRewardCut = 0
-  indexer.queryFeeCut = 0
-  indexer.delegatorParameterCooldown = 0
-  indexer.forcedSettlements = 0
-  indexer.save()
-  return indexer
+export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
+  let indexer = Indexer.load(id)
+  if (indexer == null) {
+    indexer = new Indexer(id)
+    indexer.createdAt = timestamp.toI32()
+    indexer.account = id
+    indexer.stakedTokens = BigInt.fromI32(0)
+    indexer.tokensAllocated = BigInt.fromI32(0)
+    indexer.tokensLocked = BigInt.fromI32(0)
+    indexer.tokensClaimable = BigInt.fromI32(0)
+    indexer.tokensLockedUntil = 0
+    indexer.tokensDelegated = BigInt.fromI32(0)
+    indexer.tokenCapacity = BigInt.fromI32(0)
+    indexer.indexingRewardCut = 0
+    indexer.queryFeeCut = 0
+    indexer.delegatorParameterCooldown = 0
+    indexer.forcedSettlements = 0
+    indexer.save()
+  }
+  return indexer as Indexer
 }
 
-export function createCurator(id: string, timestamp: BigInt): Curator {
-  let curator = new Curator(id)
-  curator.createdAt = timestamp.toI32()
-  curator.account = id
-  curator.totalSignal = BigInt.fromI32(0)
-  curator.totalSignaledGRT = BigInt.fromI32(0)
-  curator.totalRedeemedGRT = BigInt.fromI32(0)
-  curator.save()
-  return curator
+export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
+  let curator = Curator.load(id)
+  if (curator == null) {
+    curator = new Curator(id)
+    curator.createdAt = timestamp.toI32()
+    curator.account = id
+    curator.totalSignal = BigInt.fromI32(0)
+    curator.totalSignaledGRT = BigInt.fromI32(0)
+    curator.totalRedeemedGRT = BigInt.fromI32(0)
+    curator.save()
+  }
+  return curator as Curator
 }
 
-export function createSignal(curator: string, subgraphID: string): Signal {
+export function createOrLoadSignal(curator: string, subgraphID: string): Signal {
   let signalID = curator.concat('-').concat(subgraphID)
-  let signal = new Signal(signalID)
-  signal.curator = curator
-  signal.subgraphDeployment = subgraphID
-  signal.tokensSignaled = BigInt.fromI32(0)
-  signal.tokensRedeemed = BigInt.fromI32(0)
-  signal.signal = BigInt.fromI32(0)
-  signal.save()
-  return signal
+  let signal = Signal.load(signalID)
+  if (signal == null) {
+    signal = new Signal(signalID)
+    signal.curator = curator
+    signal.subgraphDeployment = subgraphID
+    signal.tokensSignaled = BigInt.fromI32(0)
+    signal.tokensRedeemed = BigInt.fromI32(0)
+    signal.signal = BigInt.fromI32(0)
+    signal.save()
+  }
+  return signal as Signal
 }
 
-// TODO - fix this whole thing when GNS is fixed
-export function createGraphAccount(id: string, owner: Bytes, timeStamp: BigInt): GraphAccount {
-  let graphAccount = new GraphAccount(id)
-  graphAccount.createdAt = timeStamp.toI32()
-  graphAccount.balance = BigInt.fromI32(0)
-  // graphAccount.owner = owner.toHexString()
-  graphAccount.save()
-  return graphAccount
+export function createOrLoadGraphAccount(
+  id: string,
+  owner: Bytes,
+  timeStamp: BigInt,
+): GraphAccount {
+  let graphAccount = GraphAccount.load(id)
+  if (graphAccount == null) {
+    graphAccount = new GraphAccount(id)
+    graphAccount.createdAt = timeStamp.toI32()
+    graphAccount.balance = BigInt.fromI32(0)
+    // graphAccount.owner = owner.toHexString()
+    graphAccount.save()
+  }
+  return graphAccount as GraphAccount
 }
 
-export function createPool(id: BigInt): Pool {
-  let pool = new Pool(id.toString())
-  pool.fees = BigInt.fromI32(0)
-  pool.allocation = BigInt.fromI32(0)
-  pool.feesClaimed = BigInt.fromI32(0)
-  pool.curatorReward = BigInt.fromI32(0)
-  pool.save()
-  return pool
+export function createOrLoadPool(id: BigInt): Pool {
+  let pool = Pool.load(id.toString())
+  if (pool == null) {
+    pool = new Pool(id.toString())
+    pool.fees = BigInt.fromI32(0)
+    pool.allocation = BigInt.fromI32(0)
+    pool.feesClaimed = BigInt.fromI32(0)
+    pool.curatorReward = BigInt.fromI32(0)
+    pool.save()
+  }
+  return pool as Pool
 }
 
-export function createGraphNetwork(): GraphNetwork {
-  let graphNetwork = new GraphNetwork('1')
-  graphNetwork.graphToken = Address.fromString(addresses.graphToken)
-  graphNetwork.epochManager = Address.fromString(addresses.epochManager)
-  graphNetwork.curation = Address.fromString(addresses.curation)
-  graphNetwork.staking = Address.fromString(addresses.staking)
-  graphNetwork.disputeManager = Address.fromString(addresses.disputeManager)
-  graphNetwork.gns = Address.fromString(addresses.gns)
-  graphNetwork.serviceRegistry = Address.fromString(addresses.serviceRegistry)
+export function createOrLoadGraphNetwork(): GraphNetwork {
+  let graphNetwork = GraphNetwork.load('1')
+  if (graphNetwork == null) {
+    graphNetwork = new GraphNetwork('1')
+    graphNetwork.graphToken = Address.fromString(addresses.graphToken)
+    graphNetwork.epochManager = Address.fromString(addresses.epochManager)
+    graphNetwork.curation = Address.fromString(addresses.curation)
+    graphNetwork.staking = Address.fromString(addresses.staking)
+    graphNetwork.disputeManager = Address.fromString(addresses.disputeManager)
+    graphNetwork.gns = Address.fromString(addresses.gns)
+    graphNetwork.serviceRegistry = Address.fromString(addresses.serviceRegistry)
+    graphNetwork.totalSupply = BigInt.fromI32(0) // gets set by mint
 
-  let graphTokenAddress = Address.fromString(addresses.graphToken)
-  let graphToken = GraphToken.bind(graphTokenAddress)
-  graphNetwork.totalSupply = BigInt.fromI32(0) // gets set by mint
-
-  // most of the parameters below are updated in the constructor, or else
-  // right after deployement
-  graphNetwork.curationPercentage = BigInt.fromI32(0)
-  graphNetwork.channelDisputeEpochs = BigInt.fromI32(0)
-  graphNetwork.maxAllocationEpochs = BigInt.fromI32(0)
-  graphNetwork.thawingPeriod = BigInt.fromI32(0)
-  graphNetwork.totalGRTStaked = BigInt.fromI32(0)
-  graphNetwork.totalGRTAllocated = BigInt.fromI32(0)
-  graphNetwork.totalGRTClaimable = BigInt.fromI32(0)
-  graphNetwork.totalGRTLocked = BigInt.fromI32(0)
-  graphNetwork.defaultReserveRatio = BigInt.fromI32(0)
-  graphNetwork.minimumCurationSignal = BigInt.fromI32(0)
-  graphNetwork.totalGRTSignaled = BigInt.fromI32(0)
-  graphNetwork.save()
-
-  return graphNetwork
+    // most of the parameters below are updated in the constructor, or else
+    // right after deployement
+    graphNetwork.curationPercentage = BigInt.fromI32(0)
+    graphNetwork.channelDisputeEpochs = BigInt.fromI32(0)
+    graphNetwork.maxAllocationEpochs = BigInt.fromI32(0)
+    graphNetwork.thawingPeriod = BigInt.fromI32(0)
+    graphNetwork.totalGRTStaked = BigInt.fromI32(0)
+    graphNetwork.totalGRTAllocated = BigInt.fromI32(0)
+    graphNetwork.totalGRTClaimable = BigInt.fromI32(0)
+    graphNetwork.totalGRTLocked = BigInt.fromI32(0)
+    graphNetwork.defaultReserveRatio = BigInt.fromI32(0)
+    graphNetwork.minimumCurationSignal = BigInt.fromI32(0)
+    graphNetwork.totalGRTSignaled = BigInt.fromI32(0)
+    graphNetwork.save()
+  }
+  return graphNetwork as GraphNetwork
 }
 
 export function addQm(a: ByteArray): ByteArray {

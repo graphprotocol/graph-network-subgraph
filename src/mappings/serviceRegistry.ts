@@ -1,10 +1,7 @@
-import {
-  ServiceRegistered,
-  ServiceUnregistered,
-} from '../types/ServiceRegistry/ServiceRegistry'
-import { Indexer, GraphAccount } from '../types/schema'
+import { ServiceRegistered, ServiceUnregistered } from '../types/ServiceRegistry/ServiceRegistry'
+import { Indexer } from '../types/schema'
 
-import { createIndexer, createGraphAccount } from './helpers'
+import { createOrLoadIndexer, createOrLoadGraphAccount } from './helpers'
 
 /**
  * @dev handleServiceRegistered
@@ -14,15 +11,9 @@ export function handleServiceRegistered(event: ServiceRegistered): void {
   let id = event.params.indexer.toHexString()
 
   // Creates Graph Account, if needed
-  let graphAccount = GraphAccount.load(id)
-  if (graphAccount == null) {
-    graphAccount = createGraphAccount(id, event.params.indexer, event.block.timestamp)
-  }
+  createOrLoadGraphAccount(id, event.params.indexer, event.block.timestamp)
 
-  let indexer = Indexer.load(id)
-  if (indexer == null) {
-    indexer = createIndexer(id, event.block.timestamp)
-  }
+  let indexer = createOrLoadIndexer(id, event.block.timestamp)
   indexer.urlString = event.params.url
   indexer.geoHash = event.params.geohash
   indexer.save()

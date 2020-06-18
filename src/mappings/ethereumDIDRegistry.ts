@@ -1,8 +1,6 @@
 import { json, ipfs, Bytes } from '@graphprotocol/graph-ts'
 
-import {
-  DIDAttributeChanged,
-} from '../types/EthereumDIDRegistry/EthereumDIDRegistry'
+import { DIDAttributeChanged } from '../types/EthereumDIDRegistry/EthereumDIDRegistry'
 
 import { GraphAccount } from '../types/schema'
 import { addQm } from './helpers'

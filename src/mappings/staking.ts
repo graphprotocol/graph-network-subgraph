@@ -10,9 +10,16 @@ import {
   ParameterUpdated,
   Staking,
 } from '../types/Staking/Staking'
-import { Channel, Indexer, Allocation, Subgraph, GraphNetwork, Pool, SubgraphDeployment } from '../types/schema'
+import {
+  Channel,
+  Indexer,
+  Allocation,
+  GraphNetwork,
+  Pool,
+  SubgraphDeployment,
+} from '../types/schema'
 
-import { createSubgraphDeployment, createIndexer, createPool } from './helpers'
+import { createOrLoadSubgraphDeployment, createOrLoadIndexer, createOrLoadPool } from './helpers'
 
 /**
  * @dev handleStakeDeposited
@@ -23,10 +30,7 @@ import { createSubgraphDeployment, createIndexer, createPool } from './helpers'
 export function handleStakeDeposited(event: StakeDeposited): void {
   // update indexer
   let id = event.params.indexer.toHexString()
-  let indexer = Indexer.load(id)
-  if (indexer == null) {
-    indexer = createIndexer(id, event.block.timestamp)
-  }
+  let indexer = createOrLoadIndexer(id, event.block.timestamp)
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
   indexer.save()
 
@@ -123,10 +127,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   graphNetwork.save()
 
   // update subgraph
-  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
-  if (deployment == null) {
-    deployment = createSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-  }
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.totalStake = deployment.totalStake.plus(event.params.tokens)
   deployment.save()
 
@@ -181,14 +182,13 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   // update subgraph
   let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   deployment.totalStake = deployment.totalStake.minus(event.params.tokens)
-  deployment.totalQueryFeesCollected = deployment.totalQueryFeesCollected.plus(event.params.rebateFees)
+  deployment.totalQueryFeesCollected = deployment.totalQueryFeesCollected.plus(
+    event.params.rebateFees,
+  )
   deployment.save()
 
   // update pool
-  let pool = Pool.load(event.params.epoch.toString())
-  if ((pool = null)) {
-    pool = createPool(event.params.epoch)
-  }
+  let pool = createOrLoadPool(event.params.epoch)
   pool.fees = pool.fees.plus(event.params.rebateFees)
   pool.allocation = pool.allocation.plus(event.params.effectiveAllocation)
   pool.curatorReward = pool.curatorReward.plus(event.params.curationFees)
