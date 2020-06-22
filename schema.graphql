@@ -388,6 +388,8 @@ State channel allocation representing Indexer-SubgraphDeployment stake
 type Channel @entity {
   "Channel Address"
   id: ID!
+  "Uncompressed public key of the channel"
+  publicKey: Bytes!
   "Indexer of this channel"
   indexer: Indexer!
   "Subgraph deployment that is being staked on with an open channel"

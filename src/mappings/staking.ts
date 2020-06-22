@@ -144,6 +144,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // create channel
   let channel = new Channel(channelID)
   channel.indexer = indexerID
+  channel.publicKey = event.params.channelPubKey
   channel.subgraphDeployment = subgraphDeploymentID
   channel.allocation = allocationID
   channel.tokensAllocated = event.params.tokens
