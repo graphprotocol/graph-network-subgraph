@@ -1,7 +1,7 @@
 import { Bytes, ipfs, json } from '@graphprotocol/graph-ts'
 import { SubgraphPublished, SubgraphDeprecated } from '../types/GNS/GNS'
 
-import { Subgraph, SubgraphVersion, GraphAccountName } from '../types/schema'
+import { Subgraph, SubgraphVersion } from '../types/schema'
 
 import { jsonToString } from './utils'
 import {
@@ -21,9 +21,9 @@ import {
  * - creates graph account, if needed
  */
 export function handleSubgraphPublished(event: SubgraphPublished): void {
-  let graphAccount = event.params.graphAccount.toHexString()
+  let graphAccountID = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
-  let subgraphID = graphAccount.concat('-').concat(subgraphNumber)
+  let subgraphID = graphAccountID.concat('-').concat(subgraphNumber)
   let versionID: string
   let versionNumber: number
 
@@ -40,19 +40,19 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   versionID = subgraphID.concat('-').concat(versionNumber.toString())
   subgraph.currentVersion = versionID
 
+  // Creates Graph Account, if needed
+  createOrLoadGraphAccount(
+    graphAccountID,
+    event.params.graphAccount,
+    event.block.timestamp,
+  )
+
   // Resolve name
-  let graphAccountNameID = resolveName(
+  resolveName(
     event.params.graphAccount,
     event.params.name,
     event.params.nameIdentifier,
   )
-
-  // Set name
-  subgraph.name = graphAccountNameID
-  if (graphAccountNameID != null) {
-    let graphAccountName = GraphAccountName.load(graphAccountNameID)
-    subgraph.displayName = graphAccountName.name
-  }
 
   // IPFS hash contains SubgraphVersion metadata, as well as Subgraph metadata
   // Subgraph metadata is always updated completely, with the JSON upload having
@@ -70,6 +70,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
       let data = tryData.value.toObject()
       subgraph.description = jsonToString(data.get('subgraphDescription'))
       subgraph.image = jsonToString(data.get('subgraphImage'))
+      subgraph.displayName = jsonToString(data.get('subgraphDisplayName'))
       subgraph.codeRepository = jsonToString(data.get('subgraphCodeRepository'))
       subgraph.website = jsonToString(data.get('subgraphWebsite'))
       versionDescription = jsonToString(data.get('versionDescription'))
@@ -92,8 +93,6 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-  // Creates Graph Account, if needed
-  createOrLoadGraphAccount(graphAccount, event.params.graphAccount, event.block.timestamp)
 }
 /**
  * @dev handleSubgraphDeprecated
@@ -111,11 +110,5 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   pastVersions.push(subgraph.currentVersion)
   subgraph.pastVersions = pastVersions
   subgraph.currentVersion = null
-  if (subgraph.name != null) {
-    let pastNames = subgraph.pastNames
-    pastNames.push(subgraph.name)
-    subgraph.pastNames = pastNames
-  }
-  subgraph.name = null
   subgraph.save()
 }

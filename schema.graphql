@@ -115,6 +115,8 @@ type GraphAccount @entity {
   id: ID!
   "All names this graph account has claimed from all name systems"
   names: [GraphAccountName!]! @derivedFrom(field: "graphAccount")
+  "Default name"
+  defaultName: GraphAccountName
 
   "Time the account was created"
   createdAt: Int!
@@ -132,7 +134,7 @@ type GraphAccount @entity {
   "Description of the graph account"
   description: String
   "Name of the graph account"
-  name: String
+  displayName: String
   "Image in string format"
   image: String
   "Website URL"
@@ -172,8 +174,6 @@ type GraphAccountName @entity {
   name: String!
   "The graph account that owned the name when it was linked in the graph network. May not match if the graph account proceeded to transfer away their name on that system"
   graphAccount: GraphAccount!
-  "Current subgraph that is using this name"
-  subgraph: Subgraph @derivedFrom(field: "name")
 }
 
 enum NameSystem {
@@ -203,15 +203,6 @@ type Subgraph @entity {
   "Total name signal minted for this subgraph"
   totalNameSignalMinted: BigInt!
 
-  # From GNS
-  "Name of the subgraph. Name is set to null if subgraph is deprecated"
-  name: GraphAccountName
-  "Past names that has been associated with this subgraph, with version number"
-  pastNames: [GraphAccountName!]!
-  # TODO - it is actually undetermined what we want to do with display name. Right now, it serves to help us order subgraphs by name since you can't do so on child fields
-  "Display name"
-  displayName: String
-
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
   metadataHash: Bytes!
@@ -223,6 +214,8 @@ type Subgraph @entity {
   codeRepository: String!
   "Project's website"
   website: String!
+  "Display name"
+  displayName: String!
 
   # TODO - add these later in the event that this is implemented :
   # https://www.notion.so/thegraph/Graph-Name-Service-Signaling-30e72e7f1b3c46a4a6b224155e5a6612#a379698b83c241208b6929a1788bcf4e

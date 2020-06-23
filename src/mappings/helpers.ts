@@ -31,8 +31,7 @@ export function createOrLoadSubgraph(
     subgraph.metadataHash = Bytes.fromI32(0) as Bytes
     subgraph.description = ''
     subgraph.image = ''
-    subgraph.name = null
-    subgraph.pastNames = []
+    subgraph.displayName = ''
     subgraph.codeRepository = ''
     subgraph.website = ''
     subgraph.save()
