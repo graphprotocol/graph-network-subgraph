@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer-subgraph",
-  "version": "0.3.0-beta",
+  "version": "0.3.1-beta",
   "description": "Subgraph for the Graph Network",
   "repository": "https://github.com/graphprotocol/graph-network-subgraph",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "prettier-write": "prettier --write '**/*.ts'"
   },
   "devDependencies": {
-    "@graphprotocol/contracts": "^0.3.0-beta",
+    "@graphprotocol/contracts": "^0.3.1-beta",
     "@graphprotocol/graph-cli": "^0.18.0",
     "@graphprotocol/graph-ts": "^0.18.1",
     "@types/node": "^14.0.13",
