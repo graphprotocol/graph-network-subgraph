@@ -28,7 +28,7 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
         graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
         graphAccount.description = jsonToString(data.get('description'))
         graphAccount.image = jsonToString(data.get('image'))
-        graphAccount.name = jsonToString(data.get('name'))
+        graphAccount.displayName = jsonToString(data.get('name'))
         graphAccount.website = jsonToString(data.get('website'))
         graphAccount.save()
       }
