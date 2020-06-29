@@ -197,9 +197,6 @@ export function handleAllocationSettled(event: AllocationSettled): void {
 
   // update allocation
   let allocation = Allocation.load(indexerID.concat('-').concat(subgraphDeploymentID))
-  let closedChannels = allocation.channels
-  closedChannels.push(allocation.activeChannel)
-  allocation.channels = closedChannels
   allocation.activeChannel = null
   allocation.save()
 
