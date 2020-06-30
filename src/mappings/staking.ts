@@ -19,7 +19,12 @@ import {
   SubgraphDeployment,
 } from '../types/schema'
 
-import { createOrLoadSubgraphDeployment, createOrLoadIndexer, createOrLoadPool } from './helpers'
+import {
+  createOrLoadSubgraphDeployment,
+  createOrLoadIndexer,
+  createOrLoadPool,
+  joinID,
+} from './helpers'
 
 /**
  * @dev handleStakeDeposited
@@ -114,7 +119,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let channelID = event.params.channelID.toHexString()
-  let allocationID = indexerID.concat('-').concat(subgraphDeploymentID)
+  let allocationID = joinID([indexerID, subgraphDeploymentID])
 
   // update indexer
   let indexer = Indexer.load(indexerID)
@@ -196,7 +201,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   pool.save()
 
   // update allocation
-  let allocation = Allocation.load(indexerID.concat('-').concat(subgraphDeploymentID))
+  let allocation = Allocation.load(joinID([indexerID, subgraphDeploymentID]))
   allocation.activeChannel = null
   allocation.save()
 
@@ -218,7 +223,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
 export function handleRebateClaimed(event: RebateClaimed): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
-  let allocationID = indexerID.concat('-').concat(subgraphDeploymentID)
+  let allocationID = joinID([indexerID, subgraphDeploymentID])
 
   // update indexer
   let indexer = Indexer.load(indexerID)

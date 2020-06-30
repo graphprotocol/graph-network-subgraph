@@ -95,7 +95,7 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
 }
 
 export function createOrLoadSignal(curator: string, subgraphID: string): Signal {
-  let signalID = curator.concat('-').concat(subgraphID)
+  let signalID = joinID([curator, subgraphID])
   let signal = Signal.load(signalID)
   if (signal == null) {
     signal = new Signal(signalID)
@@ -198,11 +198,7 @@ export function getVersionNumber(
 ): BigInt {
   // create versionID. start at version 1
   // TODO - should I start it at 0?
-  let versionID = graphAccount
-    .concat('-')
-    .concat(subgraphNumber)
-    .concat('-')
-    .concat(versionNumber.toString())
+  let versionID = joinID([graphAccount, subgraphNumber, versionNumber.toString()])
   let version = SubgraphVersion.load(versionID)
   // recursion until you get the right version
   if (version != null) {
@@ -222,7 +218,7 @@ export function resolveName(graphAccount: Address, name: string, node: Bytes): s
     if (verifyNameOwnership(graphAccountString, node)) {
       if (checkTextRecord(graphAccountString, node)) {
         let nameSystem = 'ENS'
-        let id = nameSystem.concat('-').concat(node.toHexString())
+        let id = joinID([nameSystem, node.toHexString()])
         if (checkNoNameDuplicate(id, nameSystem, name, graphAccountString)) {
           // all checks passed. save the new name, return the ID to be stored on the subgraph
           return id
@@ -314,4 +310,8 @@ function checkNoNameDuplicate(
     return true
   }
   return false
+}
+
+export function joinID(pieces: Array<string>): string {
+  return pieces.join('-')
 }

@@ -2,7 +2,7 @@ import { Staked, Redeemed, Collected, Curation, ParameterUpdated } from '../type
 import { Curator, GraphNetwork, Signal, SubgraphDeployment } from '../types/schema'
 import { Address } from '@graphprotocol/graph-ts'
 
-import { createOrLoadSignal, createOrLoadSubgraphDeployment, createOrLoadCurator } from './helpers'
+import { createOrLoadSignal, createOrLoadSubgraphDeployment, createOrLoadCurator, joinID } from './helpers'
 
 /**
  * @dev handleStaked
@@ -49,7 +49,7 @@ export function handleRedeemed(event: Redeemed): void {
 
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let signalID = id.concat('-').concat(subgraphDeploymentID)
+  let signalID =  joinID([id, subgraphDeploymentID])
   let signal = Signal.load(signalID)
   signal.tokensRedeemed = signal.tokensRedeemed.plus(event.params.tokens)
   signal.signal = signal.signal.minus(event.params.shares)

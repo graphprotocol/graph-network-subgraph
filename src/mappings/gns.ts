@@ -10,6 +10,7 @@ import {
   addQm,
   resolveName,
   createOrLoadSubgraph,
+  joinID
 } from './helpers'
 
 /**
@@ -23,7 +24,7 @@ import {
 export function handleSubgraphPublished(event: SubgraphPublished): void {
   let graphAccountID = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
-  let subgraphID = graphAccountID.concat('-').concat(subgraphNumber)
+  let subgraphID = joinID([graphAccountID, subgraphNumber])
   let versionID: string
   let versionNumber: number
 
@@ -37,7 +38,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
     subgraph.pastVersions = pastVersions
   }
   versionNumber = subgraph.pastVersions.length
-  versionID = subgraphID.concat('-').concat(versionNumber.toString())
+  versionID = joinID([subgraphID, versionNumber.toString()])
   subgraph.currentVersion = versionID
 
   // Creates Graph Account, if needed
@@ -102,7 +103,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
-  let subgraphID = graphAccount.concat('-').concat(subgraphNumber)
+  let subgraphID = joinID([graphAccount, subgraphNumber])
   let subgraph = Subgraph.load(subgraphID)
 
   // updates subgraph
