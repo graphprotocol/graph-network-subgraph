@@ -114,7 +114,7 @@ type GraphAccount @entity {
   "Description of the graph account"
   description: String
   "Name of the graph account"
-  displayName: String # TODO - ask nena if she still wants this
+  displayName: String
   "Image in string format"
   image: String
   "Website URL"
@@ -130,9 +130,9 @@ type GraphAccount @entity {
   "Subgraphs the graph account owns"
   subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
   "Time that this graph account became a developer"
-  firstSubgraphCreatedAt: Int!
+  developerCreatedAt: Int!
   "Total query fees the subgraphs created by this account have accumulated"
-  queryFeesEarnedFromSubgraphs: BigInt! # Phase 1 this will always be 0
+  subgraphQueryFees: BigInt! # Phase 1 this will always be 0
 
   #Staking and Curating and Delegating
   "Subgraphs this account curates"
@@ -255,7 +255,7 @@ type SubgraphDeployment @entity {
   "Total fees accrued all time by this subgraph deployment"
   totalSubgraphIndexingRewards: BigInt!
   "Total query fees earned by this subgraph deployment"
-  totalQueryFeesCollected: BigInt!
+  totalQueryFees: BigInt!
 
   # Subgraph deplyoment bonding curve
   "Total signaled GRT"
@@ -349,9 +349,9 @@ type Indexer @entity {
 
   # Metrics
   "Total return this indexer has earned"
-  return: BigDecimal!
+  return: BigDecimal! # Will probably be 0 for phase 1
   "Annualized rate of return for the indexer"
-  annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage
+  annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage # Will probably be 0 for phase 1
   "Staking efficiency of the indexer"
   stakingEfficiency: BigDecimal! # Phase 1 this will always be 0
 }
@@ -375,7 +375,7 @@ type Allocation @entity {
   "Fees this allocation collected upon closing. Excludes curator reward"
   feesCollected: BigInt!
   "Curator rewards deposited to the curating bonding curve"
-  curatorReward: BigInt!
+  curatorReward: BigInt! # Will probably be 0 for phase 1
   "Epoch number of the Pool it was settled in"
   poolSettled: Pool
   "Whether or not the allocation has been claimed"
@@ -386,9 +386,9 @@ type Allocation @entity {
   allocationStatus: AllocationStatus!
 
   # Metrics
-  return: BigDecimal!
+  return: BigDecimal! # Will probably be 0 for phase 1
   "Yearly annualzied return"
-  annualizedReturn: BigDecimal!
+  annualizedReturn: BigDecimal! # Will probably be 0 for phase 1
 }
 
 enum AllocationStatus {
@@ -490,14 +490,13 @@ type Curator @entity {
   "Subgraphs the curator is curating"
   signals: [Signal!]! @derivedFrom(field: "curator")
 
-
   # Metrics
   "Summation of realized rewards from all Signals"
   realizedRewards: BigInt!
   "Annualized rate of return on curator signal"
-  annualizedReturn: BigDecimal! # Multiple by 100 to get percentage
+  annualizedReturn: BigDecimal! # Multiple by 100 to get percentage # Will probably be 0 for phase 1
   "Total return of the curator"
-  return: BigInt!
+  return: BigInt! # Will probably be 0 for phase 1
   "Signaling efficiency of the curator"
   signalingEfficiency: BigInt! # Phase 1 this will always be 0
 }
@@ -525,7 +524,7 @@ type Signal @entity {
   # These are summed up and added whenever curator enters or exists the curve. Then we must calculate
   # unrealized gains for their current balance, based on the time since the last exit/entry of the curve
   "Summation of realized rewards from before the last time the curator entered the curation curve"
-  realizedRewards: BigInt!
+  realizedRewards: BigInt! # Will probably be 0 for phase 1
 }
 
 """
