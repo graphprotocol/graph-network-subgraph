@@ -91,12 +91,20 @@ dataSources:
           handler: handleStakeSlashed          
         - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes,uint256)
           handler: handleAllocationCreated
-        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256,uint256)
+        - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
+          handler: handleAllocationCollected
+        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,uint256)
           handler: handleAllocationSettled
-        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256,uint256)
+        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
+        - event: DelegationParametersUpdated(indexed address,uint256,uint256,uint256)
+          handler: handleDelegationParametersUpdated
+        - event: StakeDelegated(indexed address,indexed address,uint256,uint256)
+          handler: handleStakeDelegated
+        - event: StakeUndelegated(indexed address,indexed address,uint256,uint256)
+          handler: handleStakeUndelegated
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
@@ -173,3 +181,25 @@ dataSources:
           handler: handleDIDDelegateChanged
         - event: DIDAttributeChanged(indexed address,bytes32,bytes,uint256,uint256)
           handler: handleDIDAttributeChanged
+  - kind: ethereum/contract
+    name: EpochManager
+    network: {{network}}
+    source:
+      address: '{{graphToken}}'
+      abi: EpochManager
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/epochManager.ts
+      entities:
+        - TODO
+      abis:
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: EpochRun(indexed uint256,address)
+          handler: handleEpochRun
+        - event: EpochLengthUpdate(indexed uint256,uint256)
+          handler: handleEpochLengthUpdate
