@@ -30,10 +30,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@graphprotocol/contracts@^0.3.1-beta":
-  version "0.3.1-beta"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-0.3.1-beta.tgz#e5638162a07c1e153d791c6cbe91a610e7cdfa39"
-  integrity sha512-C0ZItfPig+CpmB+iU06mBPHPxOgYuj/JXJkkJed40YhEE6Bv3G83fxaMXmlMpxNF6sYLW4a4xH1oNCMkSFRPqQ==
+"@graphprotocol/contracts@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-0.4.1.tgz#722c0226df8b4484d3ba37011d5d522b7b9dd367"
+  integrity sha512-c7vjxLIhPo+RGg8IG4YrCshsJ7rdaKA0WT0JmZbeTfK7Su51gLb4XrY4r20h/6jWtVTmPCiYG5vnVhRF29sU3A==
 
 "@graphprotocol/graph-cli@^0.18.0":
   version "0.18.0"

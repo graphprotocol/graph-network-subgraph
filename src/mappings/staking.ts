@@ -160,6 +160,8 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   channel.save()
 }
 
+// export function handleAllocationCollected(event: AllocationCollected): void {}
+
 /**
  * @dev handleAllocationSettled
  * - update the indexers stake
@@ -279,3 +281,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 
   graphNetwork.save()
 }
+
+export function handleDelegationParametersUpdated():void {}
+export function handleStakeDelegated():void {}
+export function handleStakeUndelegated(): void {}
