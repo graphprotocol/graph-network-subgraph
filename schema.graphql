@@ -37,7 +37,7 @@ type GraphNetwork @entity {
   # "All addresses that have slashing privileges" TODO - add when implemented
   # slashers: [Bytes!]!
   "Minimum time an Indexer must use for resetting their Delegation parameters"
-  minDelegationParameterCooldown: Int!
+  delegationParametersCooldown: Int!
   "The number of times indexing rewards are handed out each epoch"
   indexingRewardsPerEpoch: Int!
   "The issuance rate that GRT is minted at to be rewarded to staked Indexers"
@@ -46,8 +46,8 @@ type GraphNetwork @entity {
   totalGRTStaked: BigInt!
   "Total tokens that are settled and waiting to be claimed"
   totalGRTClaimable: BigInt!
-  "Total tokens that are currently locked in the network"
-  totalGRTLocked: BigInt!
+  "Total tokens that are currently locked in the network from unstaking"
+  totalUnstakedGRTLocked: BigInt!
   "Total GRT currertly in allocation"
   totalGRTAllocated: BigInt!
   "Total query fees collected in the network"
@@ -120,9 +120,9 @@ type GraphAccount @entity {
   "Website URL"
   website: String
   "Delegate of other Graph Accounts"
-  delegateOf: [GraphAccount!]! @derivedFrom(field: "delegates")
+  operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
   "Delegates of this Graph Accounts"
-  delegates: [GraphAccount!]!
+  operators: [GraphAccount!]!
   "Graph token balance"
   balance: BigInt!
 
@@ -257,7 +257,7 @@ type SubgraphDeployment @entity {
   "Total query fees earned by this subgraph deployment"
   totalQueryFees: BigInt!
 
-  # Subgraph deplyoment bonding curve
+  # Subgraph deployment bonding curve
   "Total signaled GRT"
   totalSignaledGRT: BigInt!
   "Total curation signal created for this subgraph deployment"
@@ -343,7 +343,7 @@ type Indexer @entity {
   "Time delegator decides to wait for changing of their parameters"
   delegatorParameterCooldown: Int!
   "Block number for the last time the delegator updated their parameters"
-  lastDelgationParameterUpdate: Int!
+  lastDelegationParameterUpdate: Int!
   "Count of how many times this indexer has been forced to settle"
   forcedSettlements: Int!
 
@@ -597,11 +597,13 @@ type Epoch @entity {
   "End block of the epoch"
   endBlock: Int!
   "Signal created during this epoch"
-  signalCreated: Int! # sum(signal - unsignaled)
+  signalCreated: BigInt! # sum(signal - unsignaled)
   "Stake deposited during this epoch"
-  stakeDeposited: Int! # sum(stake - unstake)
+  stakeDeposited: BigInt! # sum(stake - unstake)
   "Query fees collected during this epoch"
-  totalQueryFees: Int!
+  totalQueryFees: BigInt!
+  "Total rewards earned in this epoch"
+  totalRewards: BigInt!
   "Status of the Epoch"
   status: EpochStatus!
 }
