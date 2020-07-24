@@ -28,10 +28,24 @@ dataSources:
         - name: ENSPublicResolver
           file: ./node_modules/@graphprotocol/contracts/dist/abis/IPublicResolver.json
       eventHandlers:
-        - event: SubgraphPublished(address,uint256,bytes32,uint256,bytes32,string,bytes32)
+        - event: SubgraphPublished(address,uint256,bytes32,bytes32)
           handler: handleSubgraphPublished
         - event: SubgraphDeprecated(address,uint256)
           handler: handleSubgraphDeprecated
+        - event: SetDefaultName(address,uint256,bytes32,string)
+          handler: handleSetDefaultName
+        - event: SubgraphMetadataUpdated(address,uint256,bytes32)
+          handler: handleSubgraphMetadataUpdated
+        - event: NameSignalCreated(address,uint256,uint256,uint256,bytes32,uint256)
+          handler: handleNameSignalCreated
+        - event: DepositIntoNameSignalPool(address,uint256,address,uint256,uint256)
+          handler: handleDepositIntoNameSignalPool
+        - event: WithdrawFromNameSignalPool(address,uint256,address,uint256,uint256,uint256)
+          handler: handleWithdrawFromNameSignalPool
+        - event: NameSignalDeprecated(address,uint256,uint256)
+          handler: handleNameSignalDeprecated
+        - event: GRTWithdrawn(address,uint256,address,uint256,uint256)
+          handler: handleGRTWithdrawn
   - kind: ethereum/contract
     name: ServiceRegistry
     network: {{network}}
@@ -126,9 +140,9 @@ dataSources:
         - name: Curation
           file: ./node_modules/@graphprotocol/contracts/dist/abis/Curation.json
       eventHandlers:
-        - event: Staked(indexed address,indexed bytes32,uint256,uint256)
+        - event: Signalled(indexed address,indexed bytes32,uint256,uint256)
           handler: handleStaked
-        - event: Redeemed(indexed address,indexed bytes32,uint256,uint256,uint256)
+        - event: Burned(indexed address,indexed bytes32,uint256,uint256,uint256)
           handler: handleRedeemed
         - event: Collected(indexed bytes32,uint256)
           handler: handleCollected
@@ -177,8 +191,6 @@ dataSources:
       eventHandlers:
         - event: DIDOwnerChanged(indexed address,address,uint256)
           handler: handleDIDOwnerChanged
-        - event: DIDDelegateChanged(indexed address,bytes32,address,uint256,uint256)
-          handler: handleDIDDelegateChanged
         - event: DIDAttributeChanged(indexed address,bytes32,bytes,uint256,uint256)
           handler: handleDIDAttributeChanged
   - kind: ethereum/contract
