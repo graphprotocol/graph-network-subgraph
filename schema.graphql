@@ -417,7 +417,7 @@ type Pool @entity {
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorRewards: BigInt!
   "Allocations that were settled during this epoch"
-  settledAllocations: [Allocation!]! @derivedFrom(field: "poolSettled")
+  settledAllocations: [Allocation!]! @derivedFrom(field: "poolSettledIn")
 }
 
 """
