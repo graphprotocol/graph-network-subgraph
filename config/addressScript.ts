@@ -37,7 +37,7 @@ export let addresses: Addresses = {
 const main = (): void => {
   try {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
-    output.blockNumber = '19102860'
+    output.blockNumber = '19750000'
     output.network = 'kovan' // Todo - make dynamic
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {

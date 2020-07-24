@@ -36,14 +36,14 @@ dataSources:
           handler: handleSetDefaultName
         - event: SubgraphMetadataUpdated(address,uint256,bytes32)
           handler: handleSubgraphMetadataUpdated
-        - event: NameSignalCreated(address,uint256,uint256,uint256,bytes32,uint256)
-          handler: handleNameSignalCreated
-        - event: DepositIntoNameSignalPool(address,uint256,address,uint256,uint256)
-          handler: handleDepositIntoNameSignalPool
-        - event: WithdrawFromNameSignalPool(address,uint256,address,uint256,uint256,uint256)
-          handler: handleWithdrawFromNameSignalPool
-        - event: NameSignalDeprecated(address,uint256,uint256)
-          handler: handleNameSignalDeprecated
+        - event: NameSignalEnabled(address,uint256,uint256,uint256,bytes32,uint32)
+          handler: handleNameSignalEnabled
+        - event: NSignalMinted(address,uint256,address,uint256,uint256)
+          handler: handleNSignalMinted
+        - event: NSignalBurned(address,uint256,address,uint256,uint256,uint256)
+          handler: handleNSignalBurned
+        - event: NameSignalDisabled(address,uint256,uint256)
+          handler: handleNameSignalDisabled
         - event: GRTWithdrawn(address,uint256,address,uint256,uint256)
           handler: handleGRTWithdrawn
   - kind: ethereum/contract
@@ -113,12 +113,14 @@ dataSources:
           handler: handleRebateClaimed
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
-        - event: DelegationParametersUpdated(indexed address,uint256,uint256,uint256)
+        - event: DelegationParametersUpdated(indexed address,uint32,uint32,uint32)
           handler: handleDelegationParametersUpdated
         - event: StakeDelegated(indexed address,indexed address,uint256,uint256)
           handler: handleStakeDelegated
-        - event: StakeUndelegated(indexed address,indexed address,uint256,uint256)
-          handler: handleStakeUndelegated
+        - event: StakeDelegatedLocked(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleStakeDelegatedLocked
+        - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
+          handler: handleStakeDelegatedWithdrawn
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
