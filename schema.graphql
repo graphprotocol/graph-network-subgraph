@@ -4,64 +4,62 @@ Graph Network global parameters
 type GraphNetwork @entity {
   "ID is set to 1"
   id: ID!
-  "Contract address"
+  "Graph token address"
   graphToken: Bytes!
-  "Contract address"
+  "Epoch manager address"
   epochManager: Bytes!
-  "Contract address"
+  "Curation address"
   curation: Bytes!
-  "Contract address"
+  "Staking address"
   staking: Bytes!
-  "Contract address"
+  "Dispute manager address"
   disputeManager: Bytes!
-  "Contract address"
+  "GNS address"
   gns: Bytes!
-  "Contract address"
+  "Service registry address"
   serviceRegistry: Bytes!
-  # "Set to true if the protocol is paused" TODO - add when implemented
+  # "Set to true if the protocol is paused" - add when implemented
   # paused: Boolean!
 
   # Staking global variables
   "Percentage of fees going to curators"
-  curationPercentage: BigInt!
+  curationPercentage: Int!
   "Percentage of fees burn as protocol fee"
-  protocolPercentage: BigInt!
-  "Ratio of staked delegation tokens to indexers stake"
+  protocolFeePercentage: Int!
+  "Ratio of max staked delegation tokens to indexers stake that earns rewards"
   delegationCapacity: Int!
   "Period to wait before fees can be claimed in rebate pool"
-  channelDisputeEpochs: BigInt!
+  channelDisputeEpochs: Int!
   "Period to wait before delegators can settle"
-  maxAllocationEpochs: BigInt!
+  maxAllocationEpochs: Int!
   "Time in blocks needed to wait to unstake"
-  thawingPeriod: BigInt!
-  # "All addresses that have slashing privileges" TODO - add when implemented
-  # slashers: [Bytes!]!
+  thawingPeriod: Int!
   "Minimum time an Indexer must use for resetting their Delegation parameters"
   delegationParametersCooldown: Int!
   "The number of times indexing rewards are handed out each epoch"
   indexingRewardsPerEpoch: Int!
-  "The issuance rate that GRT is minted at to be rewarded to staked Indexers"
+  "The issuance rate that GRT is minted at for rewards to staked Indexers"
   networkGRTIssuance: Int!
   "The total amount of GRT staked in the staking contract"
-  totalGRTStaked: BigInt!
+  totalTokensStaked: BigInt!
   "Total tokens that are settled and waiting to be claimed"
-  totalGRTClaimable: BigInt!
-  "Total tokens that are currently locked in the network from unstaking"
-  totalUnstakedGRTLocked: BigInt!
-  "Total GRT currertly in allocation"
-  totalGRTAllocated: BigInt!
-  "Total query fees collected in the network"
+  totalTokensClaimable: BigInt!
+  "Total tokens that are currently locked or withdrawable in the network from unstaking"
+  totalUnstakedTokensLocked: BigInt!
+  "Total GRT currently in allocation"
+  totalTokensAllocated: BigInt!
+  "Total query fees collected all time in the network in GRT"
   totalQueryFees: BigInt!
 
   # Curation global variables
   "Default reserve ratio for all subgraphs"
-  defaultReserveRatio: BigInt!
+  defaultReserveRatio: Int!
   "Minimum amount of tokens needed to start curating"
   minimumCurationSignal: BigInt!
-  "The total amount of GRT staked in the Curation contract"
-  totalGRTSignaled: BigInt!
-  "The fee charged when a curator withdraws stake"
-  withdrawalFeePercentage: BigInt!
+  "The total amount of GRT signaled in the Curation contract"
+  totalTokensSignaled: BigInt!
+  "The fee charged when a curator withdraws signal"
+  withdrawalFeePercentage: Int!
 
   # Graph Token global variables
   "Graph Token supply"
@@ -81,11 +79,17 @@ type GraphNetwork @entity {
   "Block when epoch length was last updated"
   lastLengthUpdateBlock: Int!
 
-  # Dispute Manager global variables TODO - add in later on in testnet
+  # Counts
+  "Total current indexers"
+  indexerCount: Int!
+  "Total current curators"
+  curatorCount: Int!
+  "Total current subgraphs"
+  subgraphCount: Int!
+
+  # Dispute Manager global variables - add when implemented
   "Penalty to Indexer on successful disputes"
   slashingPercentage: BigInt!
-  # "Address with permission to verify or reject disputes"
-  # arbitrator: Bytes!
   # "Minimum deposit to create a dispute"
   # minimumDisputeDeposit: BigInt!
   # "Reward to Fisherman on successful disputes"
@@ -113,15 +117,13 @@ type GraphAccount @entity {
   codeRepository: String
   "Description of the graph account"
   description: String
-  "Name of the graph account"
-  displayName: String
-  "Image in string format"
+  "Image URL"
   image: String
   "Website URL"
   website: String
-  "Delegate of other Graph Accounts"
+  "Operator of other Graph Accounts"
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
-  "Delegates of this Graph Accounts"
+  "Operators of this Graph Accounts"
   operators: [GraphAccount!]!
   "Graph token balance"
   balance: BigInt!
@@ -131,10 +133,10 @@ type GraphAccount @entity {
   subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
   "Time that this graph account became a developer"
   developerCreatedAt: Int!
-  "Total query fees the subgraphs created by this account have accumulated"
-  subgraphQueryFees: BigInt! # Phase 1 this will always be 0
+  "Total query fees the subgraphs created by this account have accumulated in GRT"
+  subgraphQueryFees: BigInt!
 
-  #Staking and Curating and Delegating
+  # Staking and Curating and Delegating
   "Subgraphs this account curates"
   curator: Curator
   "Subgraphs this account indexes"
@@ -144,7 +146,7 @@ type GraphAccount @entity {
 }
 
 """
-A name and a name system. A graph account can own many names from many systems
+A name chose by a Graph Account from a Name System
 """
 type GraphAccountName @entity {
   "Name system concatenated with the unique ID of the name system"
@@ -168,7 +170,7 @@ enum NameSystem {
 Named subgraph data
 """
 type Subgraph @entity {
-  "Subgraph ID derived from the Organization/Individual graph accountID"
+  "Subgraph ID - which is derived from the Organization/Individual graph accountID"
   id: ID!
   "Graph account that owns this subgraph"
   owner: GraphAccount!
@@ -180,12 +182,12 @@ type Subgraph @entity {
   createdAt: Int!
 
   # Name curation data
-  "Total GRT signaled for the name"
-  totalNameSignaledGRTStaked: BigInt!
-  "Total GRT signaled for the name"
-  totalNameSignaledGRTRedeemed: BigInt!
-  "Total name signal minted for this subgraph"
-  totalNameSignalMinted: BigInt!
+  "Tokens signaled for the name all time"
+  tokensSignaledOnName: BigInt!
+  "Tokens signaled for the name"
+  tokensUnsignaledOnName: BigInt!
+  "Current name signal amount for this subgraph"
+  nameSignalAmount: BigInt!
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
@@ -196,14 +198,14 @@ type Subgraph @entity {
   image: String!
   "Location of the code for this project"
   codeRepository: String!
-  "Project's website"
+  "Projects website"
   website: String!
   "Display name"
   displayName: String!
 
   # Aggregate data, by combining all versions, and all deployments those versions point to 
   "Total inflation rewards earned all time by this subgraph"
-  totalSubgraphIndexingRewards: BigInt!
+  totalIndexingRewards: BigInt!
   "Total query fees earned by this subgraph"
   totalQueryFeesCollected: BigInt!
   "Total stake of all indexers on all subgraph versions. Includes delegation"
@@ -213,14 +215,14 @@ type Subgraph @entity {
 }
 
 """
-Contains all the version metadata
+Contains subgraph version metadata
 """
 type SubgraphVersion @entity {
   "Concatenation of subgraph, subgraph deployment, and version ID"
   id: ID!
   "Subgraph of this version"
   subgraph: Subgraph!
-  "Subgraph depolyment of this version"
+  "Subgraph deployments of this version"
   subgraphDeployment: SubgraphDeployment!
   "Version number"
   version: Int!
@@ -232,12 +234,12 @@ type SubgraphVersion @entity {
   metadataHash: Bytes!
   "Short description of the version"
   description: String!
-  "A human readable name. If not set, blank string"
+  "A human readable name"
   label: String!
 }
 
 """
-The immutable subgraph deployment defined by a subgraph manifest that gets staked and signaled on
+The immutable subgraph deployment defined by a subgraph manifest
 """
 type SubgraphDeployment @entity {
   "Subgraph Deployment ID"
@@ -249,32 +251,32 @@ type SubgraphDeployment @entity {
 
   # From Staking
   "Total stake of all indexers on this Subgraph deployment"
-  totalStake: BigInt!
+  stakedTokens: BigInt!
   "Allocations created by indexers for this subgraph"
   indexerAllocations: [Allocation!]! @derivedFrom(field: "subgraphDeployment")
-  "Total fees accrued all time by this subgraph deployment"
-  totalSubgraphIndexingRewards: BigInt!
+  "Total rewards accrued all time by this subgraph deployment"
+  indexingRewardAmount: BigInt!
   "Total query fees earned by this subgraph deployment"
-  totalQueryFees: BigInt!
+  queryFeesAmount: BigInt!
 
-  # Subgraph deployment bonding curve
-  "Total signaled GRT"
-  totalSignaledGRT: BigInt!
-  "Total curation signal created for this subgraph deployment"
-  totalSignalMinted: BigInt!
-  "Total curator reward from fees"
-  totalCuratorFeeReward: BigInt!
+  # Subgraph deployment curationbonding curve
+  "Signaled tokens"
+  signaledTokens: BigInt!
+  "Current curation signal for this subgraph deployment"
+  signalAmount: BigInt!
+  "Total curator rewards from fees"
+  curatorFeeRewards: BigInt!
 
   "Curators of this subgraph deployment"
   curatorSignals: [Signal!]! @derivedFrom(field: "subgraphDeployment")
   "Bonding curve reserve ratio"
-  reserveRatio: BigInt
+  reserveRatio: Int!
 
   # From Subgraph Manifest
-  # dataSources: [DataSource!] # TODO - add a ! when we have the ability to parse data sources
+  # dataSources: [DataSource!] # - add a ! when we have the ability to parse data sources
 }
 
-# TODO - add when we have the ability to parse data sources
+# - add when we have the ability to parse data sources
 # """Data source obtained from the subgraph manifest"""
 # type DataSource @entity {
 #   "Unique identifier of the data source. Such as contract address"
@@ -297,7 +299,7 @@ type SubgraphDeployment @entity {
 # }
 
 """
-Metadata for the indexer along with its parameters stake and delegator stake
+Metadata for the indexer along with parameters and stake information
 """
 type Indexer @entity {
   "Eth address of Indexer"
@@ -310,28 +312,28 @@ type Indexer @entity {
   url: String
   "Geohash of the indexer"
   geoHash: String
-  "Total tokens staked"
-  tokensStaked: BigInt!
-  "Total tokens allocated"
-  tokensAllocated: BigInt!
-  "Total tokens locked"
-  tokensLocked: BigInt!
-  "Tokens settled and waiting to be claimed"
-  tokensClaimable: BigInt!
+  "Current tokens staked in the protocol"
+  stakedTokens: BigInt!
+  "Total tokens allocated on all subgraphs"
+  allocatedTokens: BigInt!
+  "Current tokens locked"
+  lockedTokens: BigInt!
+  "Current tokens settled and waiting to be claimed"
+  claimableTokens: BigInt!
   "Time when Indexers tokens unlock"
   tokensLockedUntil: Int!
-  "Allocations this indexer is currently staked on"
+  "Active allocations of stake for this Indexer"
   allocations: [Allocation!]! @derivedFrom(field: "indexer")
   "Total query fees earned by this indexer"
   queryFeesEarned: BigInt!
-  "Total rewards earned bu this indexer"
+  "Total rewards earned by this indexer"
   rewardsEarned: BigInt!
 
   # Delegation Pool
   "Delegators to this Indexer"
   delegators: [DelegatedStake!]! @derivedFrom(field: "indexer")
   "Total tokens delegated to the indexer"
-  tokensDelegated: BigInt!
+  delegatedTokens: BigInt!
   "Total shares of the delegator pool"
   delegatorShares: BigInt!
   "Total tokens available to be delegated"
@@ -349,11 +351,11 @@ type Indexer @entity {
 
   # Metrics
   "Total return this indexer has earned"
-  return: BigDecimal! # Will probably be 0 for phase 1
+  return: BigDecimal!
   "Annualized rate of return for the indexer"
-  annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage # Will probably be 0 for phase 1
+  annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage
   "Staking efficiency of the indexer"
-  stakingEfficiency: BigDecimal! # Phase 1 this will always be 0
+  stakingEfficiency: BigDecimal!
 }
 
 """
@@ -366,29 +368,30 @@ type Allocation @entity {
   publicKey: Bytes!
   "Indexer of this allocation"
   indexer: Indexer!
-  "Subgraph deployment that is being staked on with an open allocation"
+  "Subgraph deployment that is being allocated"
   subgraphDeployment: SubgraphDeployment!
   "Tokens associated with the allocation"
-  tokensAllocated: BigInt!
+  allocatedTokens: BigInt!
   "Epoch this allocation was created"
   createdAtEpoch: Int!
   "Fees this allocation collected upon closing. Excludes curator reward"
   feesCollected: BigInt!
   "Curator rewards deposited to the curating bonding curve"
-  curatorReward: BigInt! # Will probably be 0 for phase 1
-  "Epoch number of the Pool it was settled in"
-  poolSettled: Pool
+  curatorRewards: BigInt!
+  "Pool in which this allocation was settled"
+  poolSettledIn: Pool
   "Whether or not the allocation has been claimed"
-  claimed: Boolean!
+  isClaimed: Boolean!
   "Fees paid out to delegators"
   delegationFees: BigInt!
   "Status of the allocation"
   allocationStatus: AllocationStatus!
 
   # Metrics
-  return: BigDecimal! # Will probably be 0 for phase 1
+  "Return for this allocation"
+  return: BigDecimal!
   "Yearly annualzied return"
-  annualizedReturn: BigDecimal! # Will probably be 0 for phase 1
+  annualizedReturn: BigDecimal!
 }
 
 enum AllocationStatus {
@@ -400,7 +403,7 @@ enum AllocationStatus {
 }
 
 """
-Global pool of query fees for settled state channels. One pool per epoch
+Global pool of query fees for settled state channels. There is one pool per epoch
 """
 type Pool @entity {
   "Epoch number of the pool"
@@ -408,13 +411,13 @@ type Pool @entity {
   "Total effective allocation settled in this epoch"
   allocation: BigInt!
   "Total fees in this epoch"
-  fees: BigInt!
+  totalFees: BigInt!
   "Total fees claimed in this epoch"
-  feesClaimed: BigInt!
+  claimedFees: BigInt!
   "Total rewards deposited to all curator bonding curves during the epoch"
-  curatorReward: BigInt!
+  curatorRewards: BigInt!
   "Allocations that were settled during this epoch"
-  settled: [Allocation!]! @derivedFrom(field: "poolSettled")
+  settledAllocations: [Allocation!]! @derivedFrom(field: "poolSettled")
 }
 
 """
@@ -423,18 +426,18 @@ All data regarding an Indexing Reward
 type IndexingReward @entity {
   "Reward ID"
   id: ID!
-  "Minted GRT in this epoch"
-  mintedGRT: BigInt!
+  "Minted tokens in this epoch"
+  mintedTokens: BigInt!
   "Epoch the reward was handed out"
   epoch: Int!
   "Total allocation settled in this epoch"
-  allocation: BigInt!
+  settledTokenAllocation: BigInt!
   "Subgraph deployment that won durning this epoch"
   subgraphDeployment: SubgraphDeployment!
   "Winning Indexer"
   indexer: Indexer!
   "True if reward has been claimed"
-  claimed: Boolean!
+  isClaimed: Boolean!
 }
 
 """
@@ -446,9 +449,9 @@ type Delegator @entity {
   "Stakes of this delegator"
   stakes: [DelegatedStake!]! @derivedFrom(field: "delegator")
   "Summation of all staked amounts in DelegatorStakes of this Delegator"
-  totalStaked: BigInt!
+  totalStakedTokens: BigInt!
   "Summation of all unstaked amounts in DelegatorStakes of this Delegator"
-  totalUnstaked: BigInt!
+  totalUnstakedTokens: BigInt!
   "Time created at"
   createdAt: Int!
 }
@@ -464,15 +467,15 @@ type DelegatedStake @entity {
   "Delegator"
   delegator: Delegator!
   "Amount delegated"
-  stake: BigInt!
+  stakedTokens: BigInt!
   "Amount un-delegated"
-  unstaked: BigInt!
+  unstakedTokens: BigInt!
   "Shares owned in the delegator pool"
-  shares: BigInt!
+  shareAmount: BigInt!
 }
 
 """
-Curator with all their signals
+Curator with all Signals and metrics
 """
 type Curator @entity {
   "Eth address of the Curator"
@@ -481,12 +484,10 @@ type Curator @entity {
   createdAt: Int!
   "Graph account of this curator"
   account: GraphAccount!
-  "Total minted signal this curator has on all subgraphs"
-  totalSignal: BigInt!
-  "Total GRT signaled on all the subgraphs"
-  totalSignaledGRT: BigInt!
-  "Total GRT redeemed on all the subgraphs"
-  totalRedeemedGRT: BigInt!
+  "Total tokens signaled on all the subgraphs"
+  totalSignaledTokens: BigInt!
+  "Total tokens unsignaled on all the subgraphs"
+  totalUnsignaledTokens: BigInt!
   "Subgraphs the curator is curating"
   signals: [Signal!]! @derivedFrom(field: "curator")
 
@@ -494,11 +495,11 @@ type Curator @entity {
   "Summation of realized rewards from all Signals"
   realizedRewards: BigInt!
   "Annualized rate of return on curator signal"
-  annualizedReturn: BigDecimal! # Multiple by 100 to get percentage # Will probably be 0 for phase 1
+  annualizedReturn: BigDecimal! # Multiple by 100 to get percentage
   "Total return of the curator"
-  return: BigInt! # Will probably be 0 for phase 1
+  return: BigDecimal!
   "Signaling efficiency of the curator"
-  signalingEfficiency: BigInt! # Phase 1 this will always be 0
+  signalingEfficiency: BigDecimal!
 }
 
 """
@@ -512,9 +513,9 @@ type Signal @entity {
   "Subgraph being signaled"
   subgraphDeployment: SubgraphDeployment!
   "Cumulative number of tokens the curator has signaled"
-  tokensSignaled: BigInt!
-  "Cumulative number of tokens the curator has redeemed"
-  tokensRedeemed: BigInt!
+  signaledTokens: BigInt!
+  "Cumulative number of tokens the curator has unsignaled"
+  unsignaledTokens: BigInt!
   "Signal that the curator has from signaling their GRT"
   signal: BigInt!
 
@@ -524,7 +525,7 @@ type Signal @entity {
   # These are summed up and added whenever curator enters or exists the curve. Then we must calculate
   # unrealized gains for their current balance, based on the time since the last exit/entry of the curve
   "Summation of realized rewards from before the last time the curator entered the curation curve"
-  realizedRewards: BigInt! # Will probably be 0 for phase 1
+  realizedRewards: BigInt!
 }
 
 """
@@ -597,7 +598,7 @@ type Epoch @entity {
   "End block of the epoch"
   endBlock: Int!
   "Signal created during this epoch"
-  signalCreated: BigInt! # sum(signal - unsignaled)
+  signaledTokens: BigInt! # sum(signal - unsignaled)
   "Stake deposited during this epoch"
   stakeDeposited: BigInt! # sum(stake - unstake)
   "Query fees collected during this epoch"
