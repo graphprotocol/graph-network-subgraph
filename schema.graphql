@@ -18,10 +18,12 @@ type GraphNetwork @entity {
   gns: Bytes!
   "Service registry address"
   serviceRegistry: Bytes!
+  "Rewards manager address"
+  rewardsManager: Bytes!
   # "Set to true if the protocol is paused" - add when implemented
   # paused: Boolean!
 
-  # Staking global variables
+  # Staking global parameters
   "Percentage of fees going to curators"
   curationPercentage: Int!
   "Percentage of fees burn as protocol fee"
@@ -40,6 +42,8 @@ type GraphNetwork @entity {
   indexingRewardsPerEpoch: Int!
   "The issuance rate that GRT is minted at for rewards to staked Indexers"
   networkGRTIssuance: Int!
+
+  # Staking global aggregate values
   "The total amount of GRT staked in the staking contract"
   totalTokensStaked: BigInt!
   "Total tokens that are settled and waiting to be claimed"
@@ -51,15 +55,17 @@ type GraphNetwork @entity {
   "Total query fees collected all time in the network in GRT"
   totalQueryFees: BigInt!
 
-  # Curation global variables
+  # Curation global parameters
   "Default reserve ratio for all subgraphs"
   defaultReserveRatio: Int!
   "Minimum amount of tokens needed to start curating"
   minimumCurationSignal: BigInt!
-  "The total amount of GRT signaled in the Curation contract"
-  totalTokensSignaled: BigInt!
   "The fee charged when a curator withdraws signal"
   withdrawalFeePercentage: Int!
+
+  # Curation global aggregate values
+  "The total amount of GRT signalled in the Curation contract"
+  totalTokensSignalled: BigInt!
 
   # Graph Token global variables
   "Graph Token supply"
@@ -78,23 +84,26 @@ type GraphNetwork @entity {
   lastLengthUpdateEpoch: Int!
   "Block when epoch length was last updated"
   lastLengthUpdateBlock: Int!
+  "Current epoch the protocol is in"
+  currentEpoch: Int!
 
-  # Counts
-  "Total current indexers"
+  # Count aggregate values. Note, deprecations or inactives not removed from counts
+  "Total indexers"
   indexerCount: Int!
-  "Total current curators"
+  "Total curators"
   curatorCount: Int!
-  "Total current subgraphs"
+  "Total subgraphs"
   subgraphCount: Int!
+  "Total subgraphs"
+  subgraphDeploymentCount: Int!
 
   # Dispute Manager global variables - add when implemented
   "Penalty to Indexer on successful disputes"
-  slashingPercentage: BigInt!
+  slashingPercentage: Int!
   # "Minimum deposit to create a dispute"
   # minimumDisputeDeposit: BigInt!
   # "Reward to Fisherman on successful disputes"
   # fishermanRewardPercentage: BigInt!
-
 }
 
 """
@@ -109,8 +118,10 @@ type GraphAccount @entity {
   defaultName: GraphAccountName
   "Time the account was created"
   createdAt: Int!
+
+  # IPFS Metadata
   "True if it is an organization. False if it is an individual"
-  isOrganization: Boolean!
+  isOrganization: Boolean
   "IPFS hash with account metadata details"
   metadataHash: Bytes
   "Main repository of code for the graph account"
@@ -121,18 +132,28 @@ type GraphAccount @entity {
   image: String
   "Website URL"
   website: String
+
+  # Operator info
   "Operator of other Graph Accounts"
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
   "Operators of this Graph Accounts"
   operators: [GraphAccount!]!
+
+  # GRT info
   "Graph token balance"
   balance: BigInt!
+  "Amount this account has approved staking to transfer their GRT"
+  curationApproval: BigInt!
+  "Amount this account has approved curation to transfer their GRT"
+  stakingApproval: BigInt!
+  "Amount this account has approved the GNS to transfer their GRT"
+  gnsApproval: BigInt!
 
   # Subgraphs
   "Subgraphs the graph account owns"
   subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
   "Time that this graph account became a developer"
-  developerCreatedAt: Int!
+  developerCreatedAt: Int
   "Total query fees the subgraphs created by this account have accumulated in GRT"
   subgraphQueryFees: BigInt!
 
@@ -157,7 +178,6 @@ type GraphAccountName @entity {
   name: String!
   "The graph account that owned the name when it was linked in the graph network"
   graphAccount: GraphAccount! # May not match if the graph account proceeded to transfer away their name on that system
-
 }
 
 enum NameSystem {
@@ -181,13 +201,25 @@ type Subgraph @entity {
   "Creation timestamp"
   createdAt: Int!
 
-  # Name curation data
-  "Tokens signaled for the name all time"
-  tokensSignaledOnName: BigInt!
-  "Tokens signaled for the name"
-  tokensUnsignaledOnName: BigInt!
+  # Name curation data for bonding curve
+  # Note that the Subgraphs V signal is actually stored in a Signal object, which
+  # considers the GNS as a curator updated on curation.ts 
+  "Tokens signalled for the name all time"
+  signalledTokens: BigInt!
+  "Tokens signalled for the name"
+  unsignalledTokens: BigInt!
   "Current name signal amount for this subgraph"
   nameSignalAmount: BigInt!
+  "Reserve ratio of the name curation curve"
+  reserveRatio: Int!
+  "Tokens that can be withdrawn once the name signal is deprecated"
+  withdrawableTokens: BigInt!
+  "Tokens the curators have withdrawn from the deprecated name signal"
+  withdrawnTokens: BigInt!
+  # "Total curator rewards from fees"
+  # curatorFeeRewards: BigInt! TODO - I think I can delete this
+  "Curators of this subgraph deployment"
+  nameSignals: [NameSignal!]! @derivedFrom(field: "subgraph")
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
@@ -203,15 +235,17 @@ type Subgraph @entity {
   "Display name"
   displayName: String!
 
-  # Aggregate data, by combining all versions, and all deployments those versions point to 
+  # Aggregate data, by combining all versions, and all deployments those versions point to
   "Total inflation rewards earned all time by this subgraph"
   totalIndexingRewards: BigInt!
   "Total query fees earned by this subgraph"
   totalQueryFeesCollected: BigInt!
-  "Total stake of all indexers on all subgraph versions. Includes delegation"
-  totalStake: BigInt!
-  "Total signal of all curators on all subgraph versions"
-  totalSignal: BigInt!
+
+  # DAVE NOTE - the two below are really complex to calculate, i don't even know if there is a way to do it efficiently. I would prefer to remove this unless there are strong convictions not to
+  # "Total stake of all indexers on all subgraph versions. Includes delegation"
+  # totalStake: BigInt!
+  # "Total signal of all curators on all subgraph versions"
+  # totalSignal: BigInt!
 }
 
 """
@@ -259,9 +293,11 @@ type SubgraphDeployment @entity {
   "Total query fees earned by this subgraph deployment"
   queryFeesAmount: BigInt!
 
-  # Subgraph deployment curationbonding curve
-  "Signaled tokens"
-  signaledTokens: BigInt!
+  # Subgraph deployment curation bonding curve
+  "Signalled tokens"
+  signalledTokens: BigInt!
+  "Unsignalled tokens"
+  unsignalledTokens: BigInt!
   "Current curation signal for this subgraph deployment"
   signalAmount: BigInt!
   "Total curator rewards from fees"
@@ -484,14 +520,21 @@ type Curator @entity {
   createdAt: Int!
   "Graph account of this curator"
   account: GraphAccount!
-  "Total tokens signaled on all the subgraphs"
-  totalSignaledTokens: BigInt!
-  "Total tokens unsignaled on all the subgraphs"
-  totalUnsignaledTokens: BigInt!
+  "Total tokens signalled on all the subgraphs"
+  totalsignalledTokens: BigInt!
+  "Total tokens unsignalled on all the subgraphs"
+  totalUnsignalledTokens: BigInt!
   "Subgraphs the curator is curating"
   signals: [Signal!]! @derivedFrom(field: "curator")
 
-  # Metrics
+  "Total tokens signalled on all names"
+  totalNamesignalledTokens: BigInt!
+  "Total tokens unsignalled on all names"
+  totalNameUnsignalledTokens: BigInt!
+  "Subgraphs the curator is curating"
+  nameSignals: [NameSignal!]! @derivedFrom(field: "curator")
+
+  # Metrics NOTE - will be hard to calculate these with the two types of signal
   "Summation of realized rewards from all Signals"
   realizedRewards: BigInt!
   "Annualized rate of return on curator signal"
@@ -510,18 +553,48 @@ type Signal @entity {
   id: ID!
   "Eth address of the curator"
   curator: Curator!
-  "Subgraph being signaled"
+  "Subgraph being signalled"
   subgraphDeployment: SubgraphDeployment!
-  "Cumulative number of tokens the curator has signaled"
-  signaledTokens: BigInt!
-  "Cumulative number of tokens the curator has unsignaled"
-  unsignaledTokens: BigInt!
+  "Cumulative number of tokens the curator has signalled"
+  signalledTokens: BigInt!
+  "Cumulative number of tokens the curator has unsignalled"
+  unsignalledTokens: BigInt!
   "Signal that the curator has from signaling their GRT"
   signal: BigInt!
 
   # Metrics
   "Block for which the curator last entered or exited the curve"
   lastSignalChange: Int!
+  # These are summed up and added whenever curator enters or exists the curve. Then we must calculate
+  # unrealized gains for their current balance, based on the time since the last exit/entry of the curve
+  "Summation of realized rewards from before the last time the curator entered the curation curve"
+  realizedRewards: BigInt!
+}
+
+"""
+Curator name signal for a single Subgraph
+"""
+type NameSignal @entity {
+  "Eth address + subgraph ID"
+  id: ID!
+  "Eth address of the curator"
+  curator: Curator!
+  "Subgraph being signalled"
+  subgraph: Subgraph!
+  "Cumulative number of tokens the curator has signalled"
+  signalledTokens: BigInt!
+  "Cumulative number of tokens the curator has unsignalled"
+  unsignalledTokens: BigInt!
+  "Tokens the curator has withdrawn from a deprecated name curve"
+  withdrawnTokens: BigInt!
+  "Signal that the curator has from signaling their GRT"
+  nameSignal: BigInt!
+  # Note , we don't show vSignal here. We could, but it has almost no value to display it.
+  # We can get away with using curator nameSignal, total n and v signal on the subgraph.
+
+  # Metrics
+  "Block for which the curator last entered or exited the curve"
+  lastNameSignalChange: Int!
   # These are summed up and added whenever curator enters or exists the curve. Then we must calculate
   # unrealized gains for their current balance, based on the time since the last exit/entry of the curve
   "Summation of realized rewards from before the last time the curator entered the curation curve"
@@ -592,13 +665,13 @@ Epoch data
 """
 type Epoch @entity {
   "Epoch number"
-  id: ID! 
+  id: ID!
   "Start block of the epoch"
   startBlock: Int!
   "End block of the epoch"
   endBlock: Int!
   "Signal created during this epoch"
-  signaledTokens: BigInt! # sum(signal - unsignaled)
+  signalledTokens: BigInt! # sum(signal - unsignalled)
   "Stake deposited during this epoch"
   stakeDeposited: BigInt! # sum(stake - unstake)
   "Query fees collected during this epoch"
@@ -610,7 +683,7 @@ type Epoch @entity {
 }
 
 enum EpochStatus {
-  Settling
   Rewarding
+  Settling
   Finalized
 }

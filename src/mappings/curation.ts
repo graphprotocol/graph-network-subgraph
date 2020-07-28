@@ -1,8 +1,20 @@
-import { Staked, Redeemed, Collected, Curation, ParameterUpdated } from '../types/Curation/Curation'
+import {
+  Signalled,
+  Burned,
+  Collected,
+  Curation,
+  ParameterUpdated,
+} from '../types/Curation/Curation'
 import { Curator, GraphNetwork, Signal, SubgraphDeployment } from '../types/schema'
 import { Address } from '@graphprotocol/graph-ts'
 
-import { createOrLoadSignal, createOrLoadSubgraphDeployment, createOrLoadCurator, joinID } from './helpers'
+import {
+  createOrLoadSignal,
+  createOrLoadSubgraphDeployment,
+  createOrLoadCurator,
+  createOrLoadEpoch,
+  joinID,
+} from './helpers'
 
 /**
  * @dev handleStaked
@@ -10,29 +22,38 @@ import { createOrLoadSignal, createOrLoadSubgraphDeployment, createOrLoadCurator
  * - updates signal, creates if needed
  * - updates subgraph deployment, creates if needed
  */
-export function handleStaked(event: Staked): void {
+export function handleSignalled(event: Signalled): void {
   // Update curator
   let id = event.params.curator.toHexString()
   let curator = createOrLoadCurator(id, event.block.timestamp)
-  curator.totalSignal = curator.totalSignal.plus(event.params.shares)
-  curator.totalSignaledGRT = curator.totalSignaledGRT.plus(event.params.tokens)
+  curator.totalsignalledTokens = curator.totalsignalledTokens.plus(event.params.tokens)
   curator.save()
 
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let signal = createOrLoadSignal(id, subgraphDeploymentID)
-  signal.tokensSignaled = signal.tokensSignaled.plus(event.params.tokens)
-  signal.signal = signal.signal.plus(event.params.shares)
+  signal.signalledTokens = signal.signalledTokens.plus(event.params.tokens)
+  signal.signal = signal.signal.plus(event.params.signal)
   signal.save()
 
   // Update subgraph deployment
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-  deployment.totalSignaledGRT = deployment.totalSignaledGRT.plus(event.params.tokens)
-  deployment.totalSignalMinted = deployment.totalSignalMinted.plus(event.params.shares)
+  deployment.signalledTokens = deployment.signalledTokens.plus(event.params.tokens)
+  deployment.signalAmount = deployment.signalAmount.plus(event.params.signal)
 
   let curation = Curation.bind(event.address)
   deployment.reserveRatio = curation.pools(event.params.subgraphDeploymentID).value0
   deployment.save()
+
+  // Update epoch
+  let epoch = createOrLoadEpoch(event.block.number)
+  epoch.signalledTokens = epoch.signalledTokens.plus(event.params.tokens)
+  epoch.save()
+
+  // Update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(event.params.tokens)
+  graphNetwork.save()
 }
 /**
  * @dev handleRedeemed
@@ -40,26 +61,36 @@ export function handleStaked(event: Staked): void {
  * - updates signal
  * - updates subgraph
  */
-export function handleRedeemed(event: Redeemed): void {
+export function handleBurned(event: Burned): void {
   // Update curator
   let id = event.params.curator.toHexString()
   let curator = Curator.load(id)
-  curator.totalSignal = curator.totalSignal.minus(event.params.shares)
-  curator.totalRedeemedGRT = curator.totalRedeemedGRT.plus(event.params.tokens)
+  curator.totalsignalledTokens = curator.totalsignalledTokens.minus(event.params.signal)
+  curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokens)
 
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let signalID =  joinID([id, subgraphDeploymentID])
+  let signalID = joinID([id, subgraphDeploymentID])
   let signal = Signal.load(signalID)
-  signal.tokensRedeemed = signal.tokensRedeemed.plus(event.params.tokens)
-  signal.signal = signal.signal.minus(event.params.shares)
+  signal.unsignalledTokens = signal.unsignalledTokens.plus(event.params.tokens)
+  signal.signal = signal.signal.minus(event.params.signal)
   signal.save()
 
   // Update subgraph
   let deployment = SubgraphDeployment.load(subgraphDeploymentID)
-  deployment.totalSignaledGRT = deployment.totalSignaledGRT.minus(event.params.tokens)
-  deployment.totalSignalMinted = deployment.totalSignalMinted.minus(event.params.shares)
+  deployment.signalledTokens = deployment.signalledTokens.minus(event.params.tokens)
+  deployment.signalAmount = deployment.signalAmount.minus(event.params.signal)
   deployment.save()
+
+  // Update epoch
+  let epoch = createOrLoadEpoch(event.block.number)
+  epoch.signalledTokens = epoch.signalledTokens.minus(event.params.tokens)
+  epoch.save()
+
+  // Update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.minus(event.params.tokens)
+  graphNetwork.save()
 }
 
 /**
@@ -72,8 +103,8 @@ export function handleCollected(event: Collected): void {
   // update subgraph
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let deployment = SubgraphDeployment.load(subgraphDeploymentID)
-  deployment.totalSignaledGRT = deployment.totalSignaledGRT.plus(event.params.tokens)
-  deployment.totalCuratorFeeReward = deployment.totalCuratorFeeReward.plus(event.params.tokens)
+  deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
+  deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.tokens)
   deployment.save()
 }
 
@@ -90,6 +121,8 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 
   if (parameter == 'defaultReserveRatio') {
     graphNetwork.defaultReserveRatio = curation.defaultReserveRatio()
+  } else if (parameter == 'withdrawalFeePercentage') {
+    graphNetwork.withdrawalFeePercentage = curation.withdrawalFeePercentage()
   } else if (parameter == 'staking') {
     // Not in use now, we are waiting till we have a controller contract that
     // houses all the addresses of all contracts. So that there aren't a bunch
@@ -100,6 +133,5 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
     // will have to update soon
     graphNetwork.minimumCurationSignal = curation.minimumCurationStake()
   }
-
   graphNetwork.save()
 }

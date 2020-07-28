@@ -36,7 +36,7 @@ dataSources:
           handler: handleSetDefaultName
         - event: SubgraphMetadataUpdated(address,uint256,bytes32)
           handler: handleSubgraphMetadataUpdated
-        - event: NameSignalEnabled(address,uint256,uint256,uint256,bytes32,uint32)
+        - event: NameSignalEnabled(address,uint256,bytes32,uint32)
           handler: handleNameSignalEnabled
         - event: NSignalMinted(address,uint256,address,uint256,uint256)
           handler: handleNSignalMinted
@@ -95,14 +95,22 @@ dataSources:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
+        - event: DelegationParametersUpdated(indexed address,uint32,uint32,uint32)
+          handler: handleDelegationParametersUpdated
         - event: StakeDeposited(indexed address,uint256)
           handler: handleStakeDeposited
-        - event: StakeWithdrawn(indexed address,uint256)
-          handler: handleStakeWithdrawn
         - event: StakeLocked(indexed address,uint256,uint256)
           handler: handleStakeLocked
+        - event: StakeWithdrawn(indexed address,uint256)
+          handler: handleStakeWithdrawn
         - event: StakeSlashed(indexed address,uint256,uint256,address)
-          handler: handleStakeSlashed          
+          handler: handleStakeSlashed   
+        - event: StakeDelegated(indexed address,indexed address,uint256,uint256)
+          handler: handleStakeDelegated
+        - event: StakeDelegatedLocked(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleStakeDelegatedLocked
+        - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
+          handler: handleStakeDelegatedWithdrawn       
         - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes,uint256)
           handler: handleAllocationCreated
         - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
@@ -113,14 +121,8 @@ dataSources:
           handler: handleRebateClaimed
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
-        - event: DelegationParametersUpdated(indexed address,uint32,uint32,uint32)
-          handler: handleDelegationParametersUpdated
-        - event: StakeDelegated(indexed address,indexed address,uint256,uint256)
-          handler: handleStakeDelegated
-        - event: StakeDelegatedLocked(indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleStakeDelegatedLocked
-        - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
-          handler: handleStakeDelegatedWithdrawn
+        - event: SetOperator(indexed address,address,bool)
+          handler: handleSetOperator
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
@@ -143,9 +145,9 @@ dataSources:
           file: ./node_modules/@graphprotocol/contracts/dist/abis/Curation.json
       eventHandlers:
         - event: Signalled(indexed address,indexed bytes32,uint256,uint256)
-          handler: handleStaked
+          handler: handleSignalled
         - event: Burned(indexed address,indexed bytes32,uint256,uint256,uint256)
-          handler: handleRedeemed
+          handler: handleBurned
         - event: Collected(indexed bytes32,uint256)
           handler: handleCollected
         - event: ParameterUpdated(string)
