@@ -14,7 +14,7 @@ export function handleServiceRegistered(event: ServiceRegistered): void {
   createOrLoadGraphAccount(id, event.params.indexer, event.block.timestamp)
 
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
-  indexer.urlString = event.params.url
+  indexer.url = event.params.url
   indexer.geoHash = event.params.geohash
   indexer.save()
 }
@@ -26,7 +26,7 @@ export function handleServiceRegistered(event: ServiceRegistered): void {
 export function handleServiceUnregistered(event: ServiceUnregistered): void {
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)
-  indexer.urlString = null
+  indexer.url = null
   indexer.geoHash = null
   indexer.save()
 }
