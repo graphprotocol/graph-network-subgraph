@@ -1,5 +1,6 @@
 import { Approval, Transfer } from '../types/GraphToken/GraphToken'
 import { createOrLoadGraphNetwork, createOrLoadGraphAccount } from './helpers'
+import { GraphNetwork, GraphAccount } from '../types/schema'
 
 /**
  * @dev handleTransfer
@@ -7,14 +8,16 @@ import { createOrLoadGraphNetwork, createOrLoadGraphAccount } from './helpers'
  * - updates accounts, creates if needed
  */
 export function handleTransfer(event: Transfer): void {
-  let to = event.params.to
-  let from = event.params.from
-  let value = event.params.value
-
   // The first transaction ever emitted in the network is the minting of GRT
   // And with this, we instantiate GraphNetwork
   let graphNetwork = createOrLoadGraphNetwork()
+  let staking = graphNetwork.staking
+  let curation = graphNetwork.curation
+  let gns = graphNetwork.gns
 
+  let to = event.params.to
+  let from = event.params.from
+  let value = event.params.value
   let userTo = createOrLoadGraphAccount(to.toHexString(), to, event.block.timestamp)
   let userFrom = createOrLoadGraphAccount(from.toHexString(), to, event.block.timestamp)
 
@@ -37,10 +40,38 @@ export function handleTransfer(event: Transfer): void {
     userFrom.balance = userFrom.balance.minus(value)
   }
 
+  // decrease approval , if it was a transferFrom from one of the core contracts
+  switch (to) {
+    case staking:
+      userFrom.stakingApproval = userFrom.stakingApproval.minus(value)
+    case curation:
+      userFrom.curationApproval = userFrom.curationApproval.minus(value)
+    case gns:
+      userFrom.gnsApproval = userFrom.gnsApproval.minus(value)
+  }
+
   userTo.save()
   userFrom.save()
 }
 
 export function handleApproval(event: Approval): void {
-  // Currently not in use, we may need in the future
+  let graphNetwork = GraphNetwork.load('1')
+  let staking = graphNetwork.staking
+  let curation = graphNetwork.curation
+  let gns = graphNetwork.gns
+  let spender = event.params.spender
+  let graphAccount = GraphAccount.load(event.params.owner.toHexString())
+
+  switch (spender) {
+    case staking:
+      graphAccount.stakingApproval = event.params.value
+    case curation:
+      graphAccount.curationApproval = event.params.value
+    case gns:
+      graphAccount.gnsApproval = event.params.value
+  }
+  graphAccount.save()
 }
+
+
+export function handleMint(event: Mint): void {}
