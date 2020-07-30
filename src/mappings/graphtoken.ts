@@ -59,7 +59,11 @@ export function handleApproval(event: Approval): void {
   let curation = graphNetwork.curation
   let gns = graphNetwork.gns
   let spender = event.params.spender
-  let graphAccount = GraphAccount.load(event.params.owner.toHexString())
+  let graphAccount = createOrLoadGraphAccount(
+    event.params.owner.toHexString(),
+    event.params.owner,
+    event.block.timestamp,
+  )
 
   if (spender == staking) {
     graphAccount.stakingApproval = event.params.value

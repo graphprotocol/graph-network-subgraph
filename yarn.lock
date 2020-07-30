@@ -30,10 +30,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@graphprotocol/contracts@^0.4.5-testnet-phase1":
-  version "0.4.5-testnet-phase1"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-0.4.5-testnet-phase1.tgz#790a94e507039a186d971be8354b465f7e962868"
-  integrity sha512-NuS6WXTPc6E2tGdDvjoBQWp3TaqdDbCENi3N/uBhkszDWdpHWaB2W+zlFOIEGTsBOeNROc8xcHNlB0gOkrdieA==
+"@graphprotocol/contracts@^0.4.7-testnet-phase1":
+  version "0.4.7-testnet-phase1"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-0.4.7-testnet-phase1.tgz#cd3e722c09d81634dbc3dbc483bbdd55ca90e234"
+  integrity sha512-/8QVOp4gdeDIxWe3giKjV/W5bZ9QUcl2LXJtItjYObXBck5whGUE7ynqi9N8u3lSR+WEIL32qE8emt6EaPWsbA==
 
 "@graphprotocol/graph-cli@^0.18.0":
   version "0.18.0"
