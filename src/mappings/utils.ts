@@ -12,16 +12,6 @@ export function jsonToString(val: JSONValue | null): string {
 }
 
 /**
- * Make sure the given JSONValue is a boolean and returns it or null if it was not there
- */
-export function jsonToBoolean(val: JSONValue | null): boolean | null {
-  if (val != null && val.kind === JSONValueKind.BOOL) {
-    return val.toBool()
-  }
-  return null
-}
-
-/**
  * Make sure the given JSONValue is an array of strings and returns
  * It optimistically skips over any values that are not string within the array
  * Returns blank array otherwise

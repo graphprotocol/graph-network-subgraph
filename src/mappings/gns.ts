@@ -143,7 +143,7 @@ export function handleNameSignalEnabled(event: NameSignalEnabled): void {
   let subgraph = Subgraph.load(subgraphID)
 
   // Right now we set deploymentID in SubgraphPublished, so only this is needed
-  subgraph.reserveRatio = event.params.reserveRatio
+  subgraph.reserveRatio = event.params.reserveRatio.toI32()
   subgraph.save()
 }
 
@@ -162,7 +162,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
   // TODO - add tokensDeposited here, when I re-deploy the contracts
   // nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
-  nameSignal.lastNameSignalChange = event.block.timestamp
+  nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
   nameSignal.save()
 }
 
@@ -179,7 +179,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   let nameSignal = createOrLoadNameSignal(event.params.nameCurator.toHexString(), subgraphID)
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalBurnt)
   nameSignal.unsignalledTokens = nameSignal.unsignalledTokens.plus(event.params.tokensReceived)
-  nameSignal.lastNameSignalChange = event.block.timestamp
+  nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
   nameSignal.save()
 }
 
@@ -220,6 +220,6 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   let nameSignal = createOrLoadNameSignal(event.params.nameCurator.toHexString(), subgraphID)
   nameSignal.withdrawnTokens = event.params.withdrawnGRT
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
-  nameSignal.lastNameSignalChange = event.block.timestamp
+  nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
   nameSignal.save()
 }

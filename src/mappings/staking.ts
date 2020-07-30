@@ -24,7 +24,7 @@ import {
   SubgraphDeployment,
   GraphAccount,
   Delegator,
-  DelegatedStake
+  DelegatedStake,
 } from '../types/schema'
 
 import {
@@ -40,10 +40,10 @@ import {
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
   let id = event.params.indexer.toHexString()
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
-  indexer.indexingRewardCut = event.params.indexingRewardCut
-  indexer.queryFeeCut = event.params.queryFeeCut
-  indexer.delegatorParameterCooldown = event.params.cooldownBlocks
-  indexer.lastDelegationParameterUpdate = event.block.timestamp
+  indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
+  indexer.queryFeeCut = event.params.queryFeeCut.toI32()
+  indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
+  indexer.lastDelegationParameterUpdate = event.block.timestamp.toI32()
   indexer.save()
 }
 
@@ -185,7 +185,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
   delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
-  delegatedStake.lockedUntil = event.params.until // until always updates and overwrites the past lockedUntil time
+  delegatedStake.lockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
   delegatedStake.save()
 
   // upgrade graph network
@@ -247,7 +247,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.curatorRewards = BigInt.fromI32(0)
   allocation.delegationFees = BigInt.fromI32(0)
   allocation.status = 'Active'
-  allocation.return = BigDecimal.fromString('0')
+  allocation.totalReturn = BigDecimal.fromString('0')
   allocation.annualizedReturn = BigDecimal.fromString('0')
   allocation.save()
 }
@@ -361,12 +361,10 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   // let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   // let indexerID = event.params.indexer.toHexString()
   // let allocationID = event.params.channelID.toHexString() // TODO fix this when the event gets updated AND UNCOMMENT!
-
   // // update indexer
   // let indexer = Indexer.load(indexerID)
   // indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   // indexer.save()
-
   // // update allocation
   // let allocation = Allocation.load(allocationID)
   // allocation.allocatedTokens = BigInt.fromI32(0)
@@ -374,18 +372,15 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   // allocation.delegationFees = event.params.delegationFees
   // allocation.status = 'Claimed'
   // allocation.save()
-
   // // Update epoch
   // let epoch = createOrLoadEpoch(event.block.number)
   // epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokens)
   // epoch.save()
-
   // // update pool
   // let pool = Pool.load(event.params.forEpoch.toString())
   // pool.claimedFees = pool.claimedFees.plus(event.params.tokens)
   // pool.save()
   // // update subgraph deployment - Nothing to update
-
   // // update graph network
   // let graphNetwork = GraphNetwork.load('1')
   // graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
@@ -408,21 +403,21 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
     // of different instances of the contract addresses across all contracts
     // graphNetwork.curation = staking.curation()
   } else if (parameter == 'thawingPeriod') {
-    graphNetwork.thawingPeriod = staking.thawingPeriod()
+    graphNetwork.thawingPeriod = staking.thawingPeriod().toI32()
   } else if (parameter == 'curationPercentage') {
-    graphNetwork.curationPercentage = staking.curationPercentage()
+    graphNetwork.curationPercentage = staking.curationPercentage().toI32()
   } else if (parameter == 'protocolPercentage') {
-    graphNetwork.protocolFeePercentage = staking.protocolPercentage()
+    graphNetwork.protocolFeePercentage = staking.protocolPercentage().toI32()
   } else if (parameter == 'channelDisputeEpochs') {
-    graphNetwork.channelDisputeEpochs = staking.channelDisputeEpochs()
+    graphNetwork.channelDisputeEpochs = staking.channelDisputeEpochs().toI32()
   } else if (parameter == 'maxAllocationEpochs') {
-    graphNetwork.maxAllocationEpochs = staking.maxAllocationEpochs()
+    graphNetwork.maxAllocationEpochs = staking.maxAllocationEpochs().toI32()
   } else if (parameter == 'delegationCapacity') {
-    graphNetwork.delegationCapacity = staking.delegationCapacity()
+    graphNetwork.delegationCapacity = staking.delegationCapacity().toI32()
   } else if (parameter == 'delegationParametersCooldown') {
-    graphNetwork.delegationParametersCooldown = staking.delegationParametersCooldown()
+    graphNetwork.delegationParametersCooldown = staking.delegationParametersCooldown().toI32()
   } else if (parameter == 'delegationUnbondingPeriod') {
-    graphNetwork.delegationParametersCooldown = staking.delegationUnbondingPeriod()
+    graphNetwork.delegationParametersCooldown = staking.delegationUnbondingPeriod().toI32()
   }
   graphNetwork.save()
 }
@@ -432,13 +427,12 @@ export function handleSetOperator(event: SetOperator): void {
   let operators = graphAccount.operators
   let index = operators.indexOf(event.params.operator.toHexString())
   if (index != -1) {
-    // true - it did not exist before, and we say add, so add
-    // false - it did not exist before, and we say remove, so do nothing
-    event.params.allowed ? operators.push(event.params.operator.toHexString()) : null
-  } else {
-    // true - It already is approved, and we approve again, so do nothing
     // false - it existed, and we set it to false, so remove from operators
-    event.params.allowed ? null : operators.splice(index, 1)
+    if (!event.params.allowed) operators.splice(index, 1)
+  } else {
+    // true - it did not exist before, and we say add, so add
+    if (event.params.allowed) operators.push(event.params.operator.toHexString())
   }
+  graphAccount.operators = operators
   graphAccount.save()
 }

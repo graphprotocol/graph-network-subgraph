@@ -67,7 +67,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.signalledTokens = BigInt.fromI32(0)
     deployment.signalAmount = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
-    deployment.reserveRatio = BigInt.fromI32(0)
+    deployment.reserveRatio = 0
     deployment.save()
 
     let graphNetwork = GraphNetwork.load('1')
@@ -101,7 +101,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.lastDelegationParameterUpdate = 0
     indexer.forcedSettlements = 0
 
-    indexer.return = BigDecimal.fromString('0')
+    indexer.totalReturn = BigDecimal.fromString('0')
     indexer.annualizedReturn = BigDecimal.fromString('0')
     indexer.stakingEfficiency = BigDecimal.fromString('0')
     indexer.save()
@@ -115,11 +115,11 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
 
 export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator {
   let delegator = Delegator.load(id)
-  if (delegator == null){
+  if (delegator == null) {
     delegator = new Delegator(id)
     delegator.totalStakedTokens = BigInt.fromI32(0)
     delegator.totalUnstakedTokens = BigInt.fromI32(0)
-    delegator.createdAt  = timestamp
+    delegator.createdAt = timestamp.toI32()
     delegator.save()
 
     let graphNetwork = GraphNetwork.load('1')
@@ -132,7 +132,7 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
 export function createOrLoadDelegatedStake(delegator: string, indexer: string): DelegatedStake {
   let id = joinID([delegator, indexer])
   let delegatedStake = DelegatedStake.load(id)
-  if (delegatedStake == null){
+  if (delegatedStake == null) {
     delegatedStake = new DelegatedStake(id)
     delegatedStake.indexer = indexer
     delegatedStake.delegator = delegator
@@ -153,7 +153,7 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.totalUnsignalledTokens = BigInt.fromI32(0)
     curator.realizedRewards = BigInt.fromI32(0)
     curator.annualizedReturn = BigDecimal.fromString('0')
-    curator.return = BigDecimal.fromString('0')
+    curator.totalReturn = BigDecimal.fromString('0')
     curator.signalingEfficiency = BigDecimal.fromString('0')
     curator.save()
 
@@ -255,7 +255,7 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     epoch.status = 'Rewarding'
     epoch.save()
   } else {
-    epoch = Epoch.load(graphNetwork.currentEpoch)
+    epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
   return epoch
 }
@@ -293,7 +293,7 @@ export function createOrLoadGraphNetwork(): GraphNetwork {
 
     graphNetwork.defaultReserveRatio = 0
     graphNetwork.minimumCurationSignal = BigInt.fromI32(0)
-    graphNetwork.totalTokenssignalled = BigInt.fromI32(0)
+    graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
     graphNetwork.withdrawalFeePercentage = 0
 
     graphNetwork.totalSupply = BigInt.fromI32(0) // gets set by mint

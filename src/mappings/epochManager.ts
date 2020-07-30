@@ -9,7 +9,7 @@ import { EpochRun, EpochLengthUpdate } from '../types/EpochManager/EpochManager'
  */
 export function handleEpochRun(event: EpochRun): void {
   let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.lastRunEpoch = event.params.epoch
+  graphNetwork.lastRunEpoch = event.params.epoch.toI32()
   graphNetwork.save()
 }
 
@@ -19,12 +19,12 @@ export function handleEpochRun(event: EpochRun): void {
  */
 export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
   let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.epochLength = event.params.epochLength
+  graphNetwork.epochLength = event.params.epochLength.toI32()
   graphNetwork.lastLengthUpdateEpoch = graphNetwork.lastRunEpoch
-  graphNetwork.lastLengthUpdateBlock = event.block.number
+  graphNetwork.lastLengthUpdateBlock = event.block.number.toI32()
   graphNetwork.save()
 
-  let epoch = Epoch.load(graphNetwork.currentEpoch.toString())
+  let epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString())
   epoch.endBlock = epoch.startBlock + graphNetwork.epochLength
   epoch.save()
 }

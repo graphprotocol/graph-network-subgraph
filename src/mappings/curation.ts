@@ -42,7 +42,7 @@ export function handleSignalled(event: Signalled): void {
   deployment.signalAmount = deployment.signalAmount.plus(event.params.signal)
 
   let curation = Curation.bind(event.address)
-  deployment.reserveRatio = curation.pools(event.params.subgraphDeploymentID).value0
+  deployment.reserveRatio = curation.pools(event.params.subgraphDeploymentID).value0.toI32()
   deployment.save()
 
   // Update epoch
@@ -120,9 +120,9 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   let curation = Curation.bind(curationAddress as Address)
 
   if (parameter == 'defaultReserveRatio') {
-    graphNetwork.defaultReserveRatio = curation.defaultReserveRatio()
+    graphNetwork.defaultReserveRatio = curation.defaultReserveRatio().toI32()
   } else if (parameter == 'withdrawalFeePercentage') {
-    graphNetwork.withdrawalFeePercentage = curation.withdrawalFeePercentage()
+    graphNetwork.withdrawalFeePercentage = curation.withdrawalFeePercentage().toI32()
   } else if (parameter == 'staking') {
     // Not in use now, we are waiting till we have a controller contract that
     // houses all the addresses of all contracts. So that there aren't a bunch
