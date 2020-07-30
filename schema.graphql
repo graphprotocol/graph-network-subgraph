@@ -547,14 +547,14 @@ type Curator @entity {
   "Graph account of this curator"
   account: GraphAccount!
   "Total tokens signalled on all the subgraphs"
-  totalsignalledTokens: BigInt!
+  totalSignalledTokens: BigInt!
   "Total tokens unsignalled on all the subgraphs"
   totalUnsignalledTokens: BigInt!
   "Subgraphs the curator is curating"
   signals: [Signal!]! @derivedFrom(field: "curator")
 
   "Total tokens signalled on all names"
-  totalNamesignalledTokens: BigInt!
+  totalNameSignalledTokens: BigInt!
   "Total tokens unsignalled on all names"
   totalNameUnsignalledTokens: BigInt!
   "Subgraphs the curator is curating"
@@ -708,7 +708,7 @@ type Epoch @entity {
   totalRewards: BigInt!
   "Status of the Epoch"
   status: EpochStatus!
-  # todo - DO I NEED totalQueryFees and Protocol rebates earned?
+  # todo - DO I NEED totalQueryFees / Protocol rebates earned?
 }
 
 enum EpochStatus {

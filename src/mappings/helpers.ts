@@ -35,6 +35,8 @@ export function createOrLoadSubgraph(
     subgraph.unsignalledTokens = BigInt.fromI32(0)
     subgraph.nameSignalAmount = BigInt.fromI32(0)
     subgraph.reserveRatio = 0
+    subgraph.withdrawableTokens = BigInt.fromI32(0)
+    subgraph.withdrawnTokens = BigInt.fromI32(0)
 
     subgraph.metadataHash = Bytes.fromI32(0) as Bytes
     subgraph.description = ''
@@ -42,8 +44,10 @@ export function createOrLoadSubgraph(
     subgraph.codeRepository = ''
     subgraph.website = ''
     subgraph.displayName = ''
+
     subgraph.totalIndexingRewards = BigInt.fromI32(0)
     subgraph.totalQueryFeesCollected = BigInt.fromI32(0)
+
     subgraph.save()
 
     let graphNetwork = GraphNetwork.load('1')
@@ -64,9 +68,11 @@ export function createOrLoadSubgraphDeployment(
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
     deployment.queryFeesAmount = BigInt.fromI32(0)
-    deployment.signalledTokens = BigInt.fromI32(0)
-    deployment.signalAmount = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
+
+    deployment.signalledTokens = BigInt.fromI32(0)
+    deployment.unsignalledTokens = BigInt.fromI32(0)
+    deployment.signalAmount = BigInt.fromI32(0)
     deployment.reserveRatio = 0
     deployment.save()
 
@@ -83,6 +89,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer = new Indexer(id)
     indexer.createdAt = timestamp.toI32()
     indexer.account = id
+
     indexer.stakedTokens = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
@@ -149,8 +156,12 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator = new Curator(id)
     curator.createdAt = timestamp.toI32()
     curator.account = id
-    curator.totalsignalledTokens = BigInt.fromI32(0)
+    curator.totalSignalledTokens = BigInt.fromI32(0)
     curator.totalUnsignalledTokens = BigInt.fromI32(0)
+
+    curator.totalNameSignalledTokens = BigInt.fromI32(0)
+    curator.totalNameUnsignalledTokens = BigInt.fromI32(0)
+
     curator.realizedRewards = BigInt.fromI32(0)
     curator.annualizedReturn = BigDecimal.fromString('0')
     curator.totalReturn = BigDecimal.fromString('0')
@@ -242,18 +253,28 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
   let epoch: Epoch
-  if (epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch) {
-    epoch = new Epoch(epochsSinceLastUpdate.toString())
+  if (
+    epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch ||
+    (graphNetwork.currentEpoch == 0 && epochsSinceLastUpdate.toI32() == 0) // edge case where no epochs exist
+  ) {
+    let newEpoch = graphNetwork.currentEpoch + epochsSinceLastUpdate.toI32()
+    if (newEpoch == 0){ // there is no 0 epoch. we start at 1
+      newEpoch = 1
+    }
+    epoch = new Epoch(BigInt.fromI32(newEpoch).toString())
     let startBlock =
       graphNetwork.lastLengthUpdateBlock + epochsSinceLastUpdate.toI32() * graphNetwork.epochLength
     epoch.startBlock = startBlock
     epoch.endBlock = startBlock + graphNetwork.epochLength
     epoch.signalledTokens = BigInt.fromI32(0)
-    epoch.signalledTokens = BigInt.fromI32(0)
-    epoch.signalledTokens = BigInt.fromI32(0)
-    epoch.signalledTokens = BigInt.fromI32(0)
+    epoch.stakeDeposited = BigInt.fromI32(0)
+    epoch.queryFeeRebates = BigInt.fromI32(0)
+    epoch.totalRewards = BigInt.fromI32(0)
     epoch.status = 'Rewarding'
     epoch.save()
+
+    graphNetwork.currentEpoch = newEpoch
+    graphNetwork.save()
   } else {
     epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
@@ -284,17 +305,20 @@ export function createOrLoadGraphNetwork(): GraphNetwork {
     graphNetwork.delegationParametersCooldown = 0
     graphNetwork.indexingRewardsPerEpoch = 0
     graphNetwork.networkGRTIssuance = 0
+    graphNetwork.delegationUnbondingPeriod = 0
 
     graphNetwork.totalTokensStaked = BigInt.fromI32(0)
     graphNetwork.totalTokensClaimable = BigInt.fromI32(0)
     graphNetwork.totalUnstakedTokensLocked = BigInt.fromI32(0)
     graphNetwork.totalTokensAllocated = BigInt.fromI32(0)
     graphNetwork.totalQueryFees = BigInt.fromI32(0)
+    graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
 
     graphNetwork.defaultReserveRatio = 0
     graphNetwork.minimumCurationSignal = BigInt.fromI32(0)
-    graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
     graphNetwork.withdrawalFeePercentage = 0
+
+    graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
 
     graphNetwork.totalSupply = BigInt.fromI32(0) // gets set by mint
     graphNetwork.GRTinUSD = BigDecimal.fromString('0')
@@ -307,8 +331,10 @@ export function createOrLoadGraphNetwork(): GraphNetwork {
     graphNetwork.currentEpoch = 0
 
     graphNetwork.indexerCount = 0
+    graphNetwork.delegatorCount = 0
     graphNetwork.curatorCount = 0
     graphNetwork.subgraphCount = 0
+    graphNetwork.subgraphDeploymentCount = 0
 
     graphNetwork.slashingPercentage = 0
 

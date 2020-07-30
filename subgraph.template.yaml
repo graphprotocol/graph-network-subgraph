@@ -17,9 +17,11 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/gns.ts
       entities:
-        - NamedSubgraph
-        - SubgraphVersion
         - Subgraph
+        - SubgraphVersion
+        - SubgraphDeployment
+        - GraphAccount
+        - NameSignal
       abis:
         - name: GNS
           file: ./node_modules/@graphprotocol/contracts/dist/abis/GNS.json
@@ -38,7 +40,7 @@ dataSources:
           handler: handleSubgraphMetadataUpdated
         - event: NameSignalEnabled(address,uint256,bytes32,uint32)
           handler: handleNameSignalEnabled
-        - event: NSignalMinted(address,uint256,address,uint256,uint256)
+        - event: NSignalMinted(address,uint256,address,uint256,uint256,uint256)
           handler: handleNSignalMinted
         - event: NSignalBurned(address,uint256,address,uint256,uint256,uint256)
           handler: handleNSignalBurned
@@ -81,12 +83,15 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/staking.ts
       entities:
-        - Channel
         - Indexer
         - Allocation
-        - Subgraph
         - GraphNetwork
         - Pool
+        - SubgraphDeployment
+        - GraphAccount
+        - Delegator
+        - DelegatedStake
+        - Epoch
       abis:
         - name: Staking
           file: ./node_modules/@graphprotocol/contracts/dist/abis/Staking.json
@@ -111,13 +116,13 @@ dataSources:
           handler: handleStakeDelegatedLocked
         - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
           handler: handleStakeDelegatedWithdrawn       
-        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes,uint256)
+        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes,uint256,address)
           handler: handleAllocationCreated
         - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
           handler: handleAllocationCollected
-        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,uint256)
+        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,uint256,address)
           handler: handleAllocationSettled
-        - event: RebateClaimed(indexed address,indexed bytes32,uint256,uint256,uint256,uint256,uint256)
+        - event: RebateClaimed(indexed address,indexed bytes32,address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
@@ -139,7 +144,8 @@ dataSources:
         - Curator
         - GraphNetwork
         - Signal
-        - Subgraph
+        - SubgraphDeployment
+        - Epoch
       abis:
         - name: Curation
           file: ./node_modules/@graphprotocol/contracts/dist/abis/Curation.json
@@ -165,7 +171,7 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/graphToken.ts
       entities:
-        - Account
+        - GraphAccount
         - GraphNetwork
       abis:
         - name: GraphToken
@@ -201,7 +207,7 @@ dataSources:
     name: EpochManager
     network: {{network}}
     source:
-      address: '{{graphToken}}'
+      address: '{{epochManager}}'
       abi: EpochManager
       startBlock: {{blockNumber}}
     mapping:
@@ -210,7 +216,8 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/epochManager.ts
       entities:
-        - TODO
+        - Epoch
+        - GraphNetwork
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
