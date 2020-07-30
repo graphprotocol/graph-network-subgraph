@@ -42,6 +42,8 @@ type GraphNetwork @entity {
   indexingRewardsPerEpoch: Int!
   "The issuance rate that GRT is minted at for rewards to staked Indexers"
   networkGRTIssuance: Int!
+  "Time in epochs a delegator needs to wait to withdraw delegated stake"
+  delegationUnbondingPeriod: Int!
 
   # Staking global aggregate values
   "The total amount of GRT staked in the staking contract"
@@ -54,6 +56,8 @@ type GraphNetwork @entity {
   totalTokensAllocated: BigInt!
   "Total query fees collected all time in the network in GRT"
   totalQueryFees: BigInt!
+  "Total delegated tokens in the protocol"
+  totalDelegatedTokens: BigInt!
 
   # Curation global parameters
   "Default reserve ratio for all subgraphs"
@@ -90,6 +94,8 @@ type GraphNetwork @entity {
   # Count aggregate values. Note, deprecations or inactives not removed from counts
   "Total indexers"
   indexerCount: Int!
+  "Total delegators"
+  delegatorCount: Int!
   "Total curators"
   curatorCount: Int!
   "Total subgraphs"
@@ -292,6 +298,10 @@ type SubgraphDeployment @entity {
   indexingRewardAmount: BigInt!
   "Total query fees earned by this subgraph deployment"
   queryFeesAmount: BigInt!
+  "Total rebates earned from the protocol by this subgraph deployment"
+  rebateAmount: BigInt!
+  "Total curator rewards from fees"
+  curatorFeeRewards: BigInt!
 
   # Subgraph deployment curation bonding curve
   "Signalled tokens"
@@ -300,8 +310,7 @@ type SubgraphDeployment @entity {
   unsignalledTokens: BigInt!
   "Current curation signal for this subgraph deployment"
   signalAmount: BigInt!
-  "Total curator rewards from fees"
-  curatorFeeRewards: BigInt!
+
 
   "Curators of this subgraph deployment"
   curatorSignals: [Signal!]! @derivedFrom(field: "subgraphDeployment")
@@ -348,21 +357,25 @@ type Indexer @entity {
   url: String
   "Geohash of the indexer"
   geoHash: String
+
+  # Staking data
   "Current tokens staked in the protocol"
   stakedTokens: BigInt!
   "Total tokens allocated on all subgraphs"
   allocatedTokens: BigInt!
+  "Current tokens settled and waiting to be claimed"
+  claimableTokens: BigInt! # TODO - might remove, seems this is calculated dynamically. i have some notes in the staking.ts
   "Current tokens locked"
   lockedTokens: BigInt!
-  "Current tokens settled and waiting to be claimed"
-  claimableTokens: BigInt!
   "Time when Indexers tokens unlock"
   tokensLockedUntil: Int!
   "Active allocations of stake for this Indexer"
   allocations: [Allocation!]! @derivedFrom(field: "indexer")
   "Total query fees earned by this indexer"
-  queryFeesEarned: BigInt!
-  "Total rewards earned by this indexer"
+  queryFeesCollected: BigInt!
+  "Query fee rebate amount claimed from the protocol"
+  queryFeeRebates: BigInt!
+  "Total rewards earned by this indexer from indexing inflation"
   rewardsEarned: BigInt!
 
   # Delegation Pool
@@ -402,26 +415,32 @@ type Allocation @entity {
   id: ID!
   "Uncompressed public key of the channel"
   publicKey: Bytes!
+  "Proxy of the channel"
+  proxy: Bytes!
+  "Price of the queries"
+  price: BigInt!
   "Indexer of this allocation"
   indexer: Indexer!
   "Subgraph deployment that is being allocated"
   subgraphDeployment: SubgraphDeployment!
   "Tokens associated with the allocation"
   allocatedTokens: BigInt!
+  "Effective allocation that is realized upon settling"
+  effectiveAllocation: BigInt!
   "Epoch this allocation was created"
   createdAtEpoch: Int!
-  "Fees this allocation collected upon closing. Excludes curator reward"
-  feesCollected: BigInt!
+  "Fees this allocation collected from query fees upon closing. Excludes curator reward and rebate claimed"
+  queryFeesCollected: BigInt!
+  "Rebate amount claimed from the protocol"
+  queryFeeRebates: BigInt!
   "Curator rewards deposited to the curating bonding curve"
   curatorRewards: BigInt!
   "Pool in which this allocation was settled"
   poolSettledIn: Pool
-  "Whether or not the allocation has been claimed"
-  isClaimed: Boolean!
   "Fees paid out to delegators"
   delegationFees: BigInt!
   "Status of the allocation"
-  allocationStatus: AllocationStatus!
+  status: AllocationStatus!
 
   # Metrics
   "Return for this allocation"
@@ -430,12 +449,15 @@ type Allocation @entity {
   annualizedReturn: BigDecimal!
 }
 
+# where we claim on the rebate pools. you essentially call a channel you claim funds from
+# you can restake these tokens, or you can take them back (emit Rebate Claimed)
+
 enum AllocationStatus {
-  Null
-  Claimed
-  Active
-  Finalized
-  Settled
+  Null # == indexer == address(0)
+  Active # == not Null && tokens > 0
+  Settled # == Active && settledAtEpoch != 0
+  Finalized # == Settling && settledAtEpoch + channelDisputeEpochs > now(). Note, this never happens in practice, because it is implied
+  Claimed # == not Null && tokens == 0 - i.e. finalized, and all tokens withdrawn
 }
 
 """
@@ -444,11 +466,11 @@ Global pool of query fees for settled state channels. There is one pool per epoc
 type Pool @entity {
   "Epoch number of the pool"
   id: ID!
-  "Total effective allocation settled in this epoch"
+  "Total allocation settled in this epoch - includes all effective allocation"
   allocation: BigInt!
-  "Total fees in this epoch"
+  "Total fees collected in this epoch"
   totalFees: BigInt!
-  "Total fees claimed in this epoch"
+  "Total fees claimed in this epoch. Can be larger than totalFees because of cobbs douglas function "
   claimedFees: BigInt!
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorRewards: BigInt!
@@ -506,6 +528,10 @@ type DelegatedStake @entity {
   stakedTokens: BigInt!
   "Amount un-delegated"
   unstakedTokens: BigInt!
+  "Amount currently locked"
+  lockedTokens: BigInt!
+  "Epoch the locked tokens are unlocked"
+  lockedUntil: Int!
   "Shares owned in the delegator pool"
   shareAmount: BigInt!
 }
@@ -674,12 +700,15 @@ type Epoch @entity {
   signalledTokens: BigInt! # sum(signal - unsignalled)
   "Stake deposited during this epoch"
   stakeDeposited: BigInt! # sum(stake - unstake)
-  "Query fees collected during this epoch"
-  totalQueryFees: BigInt!
-  "Total rewards earned in this epoch"
+  # "Query fees collected during this epoch" 
+  # totalQueryFees: BigInt! # Note - this is the exact same as pool.totalFees, so its removed
+  "Rebate amount claimed from the protocol in this epoch"
+  queryFeeRebates: BigInt!
+  "Total indexing rewards earned in this epoch"
   totalRewards: BigInt!
   "Status of the Epoch"
   status: EpochStatus!
+  # todo - DO I NEED totalQueryFees and Protocol rebates earned?
 }
 
 enum EpochStatus {

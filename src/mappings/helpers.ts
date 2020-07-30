@@ -12,6 +12,8 @@ import {
   GraphAccount,
   GraphAccountName,
   NameSignal,
+  Delegator,
+  DelegatedStake,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { ENSPublicResolver } from '../types/GNS/ENSPublicResolver'
@@ -86,7 +88,8 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.lockedTokens = BigInt.fromI32(0)
     indexer.claimableTokens = BigInt.fromI32(0)
     indexer.tokensLockedUntil = 0
-    indexer.queryFeesEarned = BigInt.fromI32(0)
+    indexer.queryFeesCollected = BigInt.fromI32(0)
+    indexer.queryFeeRebates = BigInt.fromI32(0)
     indexer.rewardsEarned = BigInt.fromI32(0)
 
     indexer.delegatedTokens = BigInt.fromI32(0)
@@ -110,6 +113,36 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
   return indexer as Indexer
 }
 
+export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator {
+  let delegator = Delegator.load(id)
+  if (delegator == null){
+    delegator = new Delegator(id)
+    delegator.totalStakedTokens = BigInt.fromI32(0)
+    delegator.totalUnstakedTokens = BigInt.fromI32(0)
+    delegator.createdAt  = timestamp
+    delegator.save()
+
+    let graphNetwork = GraphNetwork.load('1')
+    graphNetwork.curatorCount = graphNetwork.curatorCount + 1
+    graphNetwork.save()
+  }
+  return delegator as Delegator
+}
+
+export function createOrLoadDelegatedStake(delegator: string, indexer: string): DelegatedStake {
+  let id = joinID([delegator, indexer])
+  let delegatedStake = DelegatedStake.load(id)
+  if (delegatedStake == null){
+    delegatedStake = new DelegatedStake(id)
+    delegatedStake.indexer = indexer
+    delegatedStake.delegator = delegator
+    delegatedStake.stakedTokens = BigInt.fromI32(0)
+    delegatedStake.unstakedTokens = BigInt.fromI32(0)
+    delegatedStake.shareAmount = BigInt.fromI32(0)
+    delegatedStake.save()
+  }
+  return delegatedStake as DelegatedStake
+}
 export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
   let curator = Curator.load(id)
   if (curator == null) {

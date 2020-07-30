@@ -1,4 +1,4 @@
-import { BigInt, Address } from '@graphprotocol/graph-ts'
+import { BigInt, Address, BigDecimal } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -9,22 +9,43 @@ import {
   RebateClaimed,
   ParameterUpdated,
   Staking,
+  SetOperator,
+  StakeDelegated,
+  StakeDelegatedLocked,
+  StakeDelegatedWithdrawn,
+  AllocationCollected,
+  DelegationParametersUpdated,
 } from '../types/Staking/Staking'
 import {
-  Channel,
   Indexer,
   Allocation,
   GraphNetwork,
   Pool,
   SubgraphDeployment,
+  GraphAccount,
+  Delegator,
+  DelegatedStake
 } from '../types/schema'
 
 import {
   createOrLoadSubgraphDeployment,
   createOrLoadIndexer,
   createOrLoadPool,
+  createOrLoadEpoch,
   joinID,
+  createOrLoadDelegator,
+  createOrLoadDelegatedStake,
 } from './helpers'
+
+export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
+  let id = event.params.indexer.toHexString()
+  let indexer = createOrLoadIndexer(id, event.block.timestamp)
+  indexer.indexingRewardCut = event.params.indexingRewardCut
+  indexer.queryFeeCut = event.params.queryFeeCut
+  indexer.delegatorParameterCooldown = event.params.cooldownBlocks
+  indexer.lastDelegationParameterUpdate = event.block.timestamp
+  indexer.save()
+}
 
 /**
  * @dev handleStakeDeposited
@@ -41,7 +62,32 @@ export function handleStakeDeposited(event: StakeDeposited): void {
 
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.totalGRTStaked = graphNetwork.totalGRTStaked.plus(event.params.tokens)
+  graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.plus(event.params.tokens)
+  graphNetwork.save()
+
+  // Update epoch
+  let epoch = createOrLoadEpoch(event.block.number)
+  epoch.stakeDeposited = epoch.stakeDeposited.plus(event.params.tokens)
+  epoch.save()
+}
+
+/**
+ * @dev handleStakeLocked
+ * - updated the Indexers stake
+ */
+export function handleStakeLocked(event: StakeLocked): void {
+  // update indexer
+  let id = event.params.indexer.toHexString()
+  let indexer = Indexer.load(id)
+  indexer.lockedTokens = event.params.tokens
+  indexer.tokensLockedUntil = event.params.until.toI32()
+  indexer.save()
+
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.plus(
+    event.params.tokens,
+  )
   graphNetwork.save()
 }
 
@@ -55,32 +101,16 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)
   indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
-  indexer.tokensLocked = BigInt.fromI32(0) // always set to 0 when withdrawn
+  indexer.lockedTokens = indexer.lockedTokens.minus(event.params.tokens)
   indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
   indexer.save()
 
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.totalGRTStaked = graphNetwork.totalGRTStaked.minus(event.params.tokens)
-  graphNetwork.totalGRTLocked = graphNetwork.totalGRTLocked.minus(event.params.tokens)
-  graphNetwork.save()
-}
-
-/**
- * @dev handleStakeLocked
- * - updated the Indexers stake
- */
-export function handleStakeLocked(event: StakeLocked): void {
-  // update indexer
-  let id = event.params.indexer.toHexString()
-  let indexer = Indexer.load(id)
-  indexer.tokensLocked = event.params.tokens
-  indexer.tokensLockedUntil = event.params.until.toI32()
-  indexer.save()
-
-  // update graph network
-  let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.totalGRTLocked = graphNetwork.totalGRTLocked.plus(event.params.tokens)
+  graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.tokens)
+  graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.minus(
+    event.params.tokens,
+  )
   graphNetwork.save()
 }
 
@@ -96,15 +126,81 @@ export function handleStakeSlashed(event: StakeSlashed): void {
 
   // We need to call into stakes mapping, because locked tokens might have been
   // decremented, and this is not released in the event
+  // To fix this we would need to indicate in the event how many locked tokens were released
   let graphNetwork = GraphNetwork.load('1')
   let staking = Staking.bind(graphNetwork.staking as Address)
   let indexerStored = staking.stakes(event.params.indexer)
-  indexer.tokensLocked = indexerStored.value2
+  indexer.lockedTokens = indexerStored.value2
   indexer.save()
 
   // Update graph network
-  graphNetwork.totalGRTStaked = graphNetwork.totalGRTStaked.minus(event.params.tokens)
+  graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.tokens)
   graphNetwork.save()
+}
+
+export function handleStakeDelegated(event: StakeDelegated): void {
+  // update indexer
+  let indexerID = event.params.indexer.toHexString()
+  let indexer = Indexer.load(indexerID)
+  indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
+  indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
+  // TODO - call getIndexerCapacity to calculate it in subgraph . will need to do so on staking too.
+  indexer.save()
+
+  // update delegator
+  let delegatorID = event.params.delegator.toHexString()
+  let delegator = createOrLoadDelegator(delegatorID, event.block.timestamp)
+  delegator.totalStakedTokens = delegator.totalStakedTokens.plus(event.params.tokens)
+  delegator.save()
+
+  // update delegated stake
+  let delegatedStake = createOrLoadDelegatedStake(delegatorID, indexerID)
+  delegatedStake.stakedTokens = delegatedStake.stakedTokens.plus(event.params.tokens)
+  delegatedStake.shareAmount = delegatedStake.shareAmount.plus(event.params.shares)
+  delegatedStake.save()
+
+  // upgrade graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
+  graphNetwork.save()
+}
+export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
+  // update indexer
+  let indexerID = event.params.indexer.toHexString()
+  let indexer = Indexer.load(indexerID)
+  indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
+  indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
+  // TODO - call getIndexerCapacity to calculate it in subgraph . will need to do so on staking too.
+  indexer.save()
+
+  // update delegator
+  let delegatorID = event.params.delegator.toHexString()
+  let delegator = Delegator.load(delegatorID)
+  delegator.totalUnstakedTokens = delegator.totalUnstakedTokens.plus(event.params.tokens)
+  delegator.save()
+
+  // update delegated stake
+  let id = joinID([delegatorID, indexerID])
+  let delegatedStake = DelegatedStake.load(id)
+  delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
+  delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
+  delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
+  delegatedStake.lockedUntil = event.params.until // until always updates and overwrites the past lockedUntil time
+  delegatedStake.save()
+
+  // upgrade graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
+  graphNetwork.save()
+}
+export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): void {
+  let indexerID = event.params.indexer.toHexString()
+  let delegatorID = event.params.delegator.toHexString()
+  let id = joinID([delegatorID, indexerID])
+  let delegatedStake = DelegatedStake.load(id)
+  delegatedStake.lockedTokens = BigInt.fromI32(0)
+  delegatedStake.lockedTokens = BigInt.fromI32(0)
+  delegatedStake.save()
 }
 
 /**
@@ -119,48 +215,89 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let channelID = event.params.channelID.toHexString()
-  let allocationID = joinID([indexerID, subgraphDeploymentID])
+  let allocationID = channelID
 
   // update indexer
   let indexer = Indexer.load(indexerID)
-  indexer.tokensAllocated = indexer.tokensAllocated.plus(event.params.tokens)
+  indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
   indexer.save()
 
   // update graph network
   let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.totalGRTAllocated = graphNetwork.totalGRTAllocated.plus(event.params.tokens)
+  graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.plus(event.params.tokens)
   graphNetwork.save()
 
   // update subgraph
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-  deployment.totalStake = deployment.totalStake.plus(event.params.tokens)
+  deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
   deployment.save()
 
-  // update allocation
-  let allocation = Allocation.load(allocationID)
-  if (allocation == null) {
-    allocation = new Allocation(allocationID)
-    allocation.subgraphDeployment = subgraphDeploymentID
-    allocation.indexer = indexerID
-  }
-  allocation.activeChannel = channelID
+  // create allocation
+  let allocation = new Allocation(allocationID)
+  allocation.publicKey = event.params.channelPubKey
+  // allocation.proxy = event.params.channelProxy todo, add back in , when this is added to contract event
+  allocation.indexer = indexerID
+  allocation.price = event.params.price
+  allocation.subgraphDeployment = subgraphDeploymentID
+  allocation.allocatedTokens = event.params.tokens
+  allocation.effectiveAllocation = BigInt.fromI32(0)
+  allocation.createdAtEpoch = event.params.epoch.toI32()
+  allocation.queryFeesCollected = BigInt.fromI32(0)
+  allocation.queryFeeRebates = BigInt.fromI32(0)
+  allocation.curatorRewards = BigInt.fromI32(0)
+  allocation.delegationFees = BigInt.fromI32(0)
+  allocation.status = 'Active'
+  allocation.return = BigDecimal.fromString('0')
+  allocation.annualizedReturn = BigDecimal.fromString('0')
   allocation.save()
-
-  // create channel
-  let channel = new Channel(channelID)
-  channel.indexer = indexerID
-  channel.publicKey = event.params.channelPubKey
-  channel.subgraphDeployment = subgraphDeploymentID
-  channel.allocation = allocationID
-  channel.tokensAllocated = event.params.tokens
-  channel.createdAtEpoch = event.params.epoch.toI32()
-  channel.feesCollected = BigInt.fromI32(0)
-  channel.curatorReward = BigInt.fromI32(0)
-  channel.claimed = false
-  channel.save()
 }
 
-// export function handleAllocationCollected(event: AllocationCollected): void {}
+// Transfers tokens from a state channel to the staking contract
+// Burns fees if protocolPercentage > 0
+// Collects curationFees to go to curator rewards
+// calls collect() on curation, which is handled in curation.ts
+// adds to the allocations collected fees
+// if settled, it will add fees to the rebate pool
+// Note - the name event.param.rebateFees is confusing. Rebate fees are better described
+// as query Fees. rebate is from cobbs douglas, which we get from claim()
+export function handleAllocationCollected(event: AllocationCollected): void {
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let indexerID = event.params.indexer.toHexString()
+  let allocationID = event.params.channelID.toHexString()
+
+  // update indexer
+  let indexer = Indexer.load(indexerID)
+  indexer.queryFeesCollected = indexer.queryFeesCollected.plus(event.params.rebateFees)
+  indexer.save()
+
+  // update allocation
+  // rebateFees is the total token value minus the curation and protocol fees, as can be seen in the contracts
+  // note that event.params.tokens appears to not be needed anywhere. might need to think
+  // about this one more - TODO
+  let allocation = Allocation.load(allocationID)
+  allocation.queryFeesCollected = allocation.queryFeesCollected.plus(event.params.rebateFees)
+  allocation.curatorRewards = allocation.curatorRewards.plus(event.params.curationFees)
+  allocation.save()
+
+  // Update epoch - none
+
+  // update pool
+  let pool = createOrLoadPool(event.params.epoch)
+  pool.totalFees = pool.totalFees.plus(event.params.rebateFees)
+  pool.curatorRewards = pool.curatorRewards.plus(event.params.curationFees)
+  pool.save()
+
+  // update subgraph deployment
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
+  deployment.queryFeesAmount = deployment.queryFeesAmount.plus(event.params.rebateFees)
+  deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
+  deployment.save()
+
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalQueryFees = graphNetwork.totalQueryFees.plus(event.params.rebateFees)
+  graphNetwork.save()
+}
 
 /**
  * @dev handleAllocationSettled
@@ -171,48 +308,45 @@ export function handleAllocationCreated(event: AllocationCreated): void {
  * - update and close the channel
  */
 export function handleAllocationSettled(event: AllocationSettled): void {
-  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
-  let channelID = event.params.channelID.toHexString()
+  let allocationID = event.params.channelID.toHexString()
 
   // update indexer
   let indexer = Indexer.load(indexerID)
-  indexer.tokensAllocated = indexer.tokensAllocated.minus(event.params.tokens)
-  indexer.tokensClaimable = indexer.tokensAllocated.plus(event.params.tokens)
+  // TODO - add event.params.sender to see if forced settlement happened, and record
+
+  // Moved this down to inside of handleRebateClaimed. because these tokens are still techincally
+  // allocated, as it looks in the smart contract
+  // indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
+
+  // Pretty sure I DONT want this. Claimable tokens is actually calculated dynamically based off of
+  // effective allocation
+  // indexer.claimableTokens = indexer.claimableTokens.plus(event.params.tokens)
   indexer.save()
 
-  // update graph network
-  let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.totalGRTClaimable = graphNetwork.totalGRTClaimable.plus(event.params.tokens)
-  graphNetwork.totalGRTAllocated = graphNetwork.totalGRTAllocated.minus(event.params.tokens)
-  graphNetwork.save()
+  // update allocation
+  let allocation = Allocation.load(allocationID)
+  allocation.poolSettledIn = event.params.epoch.toString()
+  allocation.effectiveAllocation = event.params.effectiveAllocation
+  allocation.status = 'Settled'
+  allocation.save()
 
-  // update subgraph
-  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
-  deployment.totalStake = deployment.totalStake.minus(event.params.tokens)
-  deployment.totalQueryFeesCollected = deployment.totalQueryFeesCollected.plus(
-    event.params.rebateFees,
-  )
-  deployment.save()
+  // update epoch - I don't think there is any here to update. not 100% sure
 
   // update pool
   let pool = createOrLoadPool(event.params.epoch)
-  pool.fees = pool.fees.plus(event.params.rebateFees)
+  // effective allocation is the value stored in contracts, so we use it here
   pool.allocation = pool.allocation.plus(event.params.effectiveAllocation)
-  pool.curatorReward = pool.curatorReward.plus(event.params.curationFees)
   pool.save()
 
-  // update allocation
-  let allocation = Allocation.load(joinID([indexerID, subgraphDeploymentID]))
-  allocation.activeChannel = null
-  allocation.save()
+  // update subgraph deployment - Nothing to update
 
-  // update channel
-  let channel = Channel.load(channelID)
-  channel.feesCollected = event.params.rebateFees
-  channel.curatorReward = event.params.curationFees
-  channel.settled = event.params.epoch.toString()
-  channel.save()
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  // I believe i need to remove both of these as well, because I did for indexer above
+  // graphNetwork.totalTokensClaimable = graphNetwork.totalTokensClaimable.plus(event.params.tokens)
+  // graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
+  graphNetwork.save()
 }
 
 /**
@@ -220,38 +354,42 @@ export function handleAllocationSettled(event: AllocationSettled): void {
  * - update pool
  * - update settlement of channel in pool
  * - update pool
- * - note - if rebate is transferred to indexer, that will be handled in graphToken.ts
+ * - note - if rebate is transferred to indexer, that will be handled in graphToken.ts, and in
+ *          the other case, if it is restaked, it will be handled by handleStakeDeposited
  */
 export function handleRebateClaimed(event: RebateClaimed): void {
-  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let indexerID = event.params.indexer.toHexString()
-  let allocationID = joinID([indexerID, subgraphDeploymentID])
+  // let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  // let indexerID = event.params.indexer.toHexString()
+  // let allocationID = event.params.channelID.toHexString() // TODO fix this when the event gets updated AND UNCOMMENT!
 
-  // update indexer
-  let indexer = Indexer.load(indexerID)
-  indexer.tokensClaimable = indexer.tokensAllocated.minus(event.params.tokens)
-  indexer.save()
+  // // update indexer
+  // let indexer = Indexer.load(indexerID)
+  // indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
+  // indexer.save()
 
-  // update graph network
-  let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.totalGRTClaimable = graphNetwork.totalGRTClaimable.minus(event.params.tokens)
-  graphNetwork.save()
+  // // update allocation
+  // let allocation = Allocation.load(allocationID)
+  // allocation.allocatedTokens = BigInt.fromI32(0)
+  // allocation.queryFeeRebates = event.params.tokens
+  // allocation.delegationFees = event.params.delegationFees
+  // allocation.status = 'Claimed'
+  // allocation.save()
 
-  // update allocation
-  let allocation = Allocation.load(allocationID)
-  let channelID = allocation.activeChannel
-  allocation.activeChannel = null
-  allocation.save()
+  // // Update epoch
+  // let epoch = createOrLoadEpoch(event.block.number)
+  // epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokens)
+  // epoch.save()
 
-  // update channel
-  let channel = Channel.load(channelID)
-  channel.claimed = true
-  channel.save()
+  // // update pool
+  // let pool = Pool.load(event.params.forEpoch.toString())
+  // pool.claimedFees = pool.claimedFees.plus(event.params.tokens)
+  // pool.save()
+  // // update subgraph deployment - Nothing to update
 
-  // update pool
-  let pool = Pool.load(event.params.forEpoch.toString())
-  pool.feesClaimed = pool.feesClaimed.plus(event.params.tokens)
-  pool.save()
+  // // update graph network
+  // let graphNetwork = GraphNetwork.load('1')
+  // graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
+  // graphNetwork.save()
 }
 
 /**
@@ -269,19 +407,38 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
     // houses all the addresses of all contracts. So that there aren't a bunch
     // of different instances of the contract addresses across all contracts
     // graphNetwork.curation = staking.curation()
+  } else if (parameter == 'thawingPeriod') {
+    graphNetwork.thawingPeriod = staking.thawingPeriod()
   } else if (parameter == 'curationPercentage') {
     graphNetwork.curationPercentage = staking.curationPercentage()
+  } else if (parameter == 'protocolPercentage') {
+    graphNetwork.protocolFeePercentage = staking.protocolPercentage()
   } else if (parameter == 'channelDisputeEpochs') {
     graphNetwork.channelDisputeEpochs = staking.channelDisputeEpochs()
   } else if (parameter == 'maxAllocationEpochs') {
     graphNetwork.maxAllocationEpochs = staking.maxAllocationEpochs()
-  } else if (parameter == 'thawingPeriod') {
-    graphNetwork.thawingPeriod = staking.thawingPeriod()
+  } else if (parameter == 'delegationCapacity') {
+    graphNetwork.delegationCapacity = staking.delegationCapacity()
+  } else if (parameter == 'delegationParametersCooldown') {
+    graphNetwork.delegationParametersCooldown = staking.delegationParametersCooldown()
+  } else if (parameter == 'delegationUnbondingPeriod') {
+    graphNetwork.delegationParametersCooldown = staking.delegationUnbondingPeriod()
   }
-
   graphNetwork.save()
 }
 
-export function handleDelegationParametersUpdated():void {}
-export function handleStakeDelegated():void {}
-export function handleStakeUndelegated(): void {}
+export function handleSetOperator(event: SetOperator): void {
+  let graphAccount = GraphAccount.load(event.params.indexer.toHexString())
+  let operators = graphAccount.operators
+  let index = operators.indexOf(event.params.operator.toHexString())
+  if (index != -1) {
+    // true - it did not exist before, and we say add, so add
+    // false - it did not exist before, and we say remove, so do nothing
+    event.params.allowed ? operators.push(event.params.operator.toHexString()) : null
+  } else {
+    // true - It already is approved, and we approve again, so do nothing
+    // false - it existed, and we set it to false, so remove from operators
+    event.params.allowed ? null : operators.splice(index, 1)
+  }
+  graphAccount.save()
+}
