@@ -1,8 +1,8 @@
-import { json, ipfs, Bytes } from '@graphprotocol/graph-ts'
+import { json, ipfs, Bytes, JSONValueKind } from '@graphprotocol/graph-ts'
 import { DIDAttributeChanged } from '../types/EthereumDIDRegistry/EthereumDIDRegistry'
 
 import { addQm, createOrLoadGraphAccount } from './helpers'
-import { jsonToString, jsonToBoolean } from './utils'
+import { jsonToString } from './utils'
 
 export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
   let id = event.params.identity.toHexString()
@@ -25,7 +25,10 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
       graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
       graphAccount.description = jsonToString(data.get('description'))
       graphAccount.image = jsonToString(data.get('image'))
-      graphAccount.isOrganization = jsonToBoolean(data.get('isOrganization'))
+      let isOrganization = data.get('isOrganization')
+      if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
+        graphAccount.isOrganization = isOrganization.toBool()
+      }
       graphAccount.website = jsonToString(data.get('website'))
       graphAccount.save()
     }
