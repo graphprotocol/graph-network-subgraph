@@ -154,14 +154,12 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   let subgraph = Subgraph.load(subgraphID)
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
-  // TODO - add tokensDeposited here, when I re-deploy the contracts
-  // subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
+  subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
   subgraph.save()
 
   let nameSignal = createOrLoadNameSignal(event.params.nameCurator.toHexString(), subgraphID)
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
-  // TODO - add tokensDeposited here, when I re-deploy the contracts
-  // nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
+  nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
   nameSignal.save()
 }
@@ -192,8 +190,8 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
   // Weirdly here, we add the token amount to both, but also the name curator owner must
   // stake the withdrawal fees, so both balance fairly
   // TODO - will have to come back here and make sure my thinking is correct
-  subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensExchanged)
-  subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensExchanged)
+  subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensSignalled)
+  subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensSignalled)
   subgraph.save()
 }
 

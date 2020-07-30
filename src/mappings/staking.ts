@@ -235,9 +235,9 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // create allocation
   let allocation = new Allocation(allocationID)
   allocation.publicKey = event.params.channelPubKey
-  // allocation.proxy = event.params.channelProxy todo, add back in , when this is added to contract event
-  allocation.indexer = indexerID
+  allocation.proxy = event.params.proxy
   allocation.price = event.params.price
+  allocation.indexer = indexerID
   allocation.subgraphDeployment = subgraphDeploymentID
   allocation.allocatedTokens = event.params.tokens
   allocation.effectiveAllocation = BigInt.fromI32(0)
@@ -313,7 +313,9 @@ export function handleAllocationSettled(event: AllocationSettled): void {
 
   // update indexer
   let indexer = Indexer.load(indexerID)
-  // TODO - add event.params.sender to see if forced settlement happened, and record
+  if (event.params.sender != event.params.indexer) {
+    indexer.forcedSettlements = indexer.forcedSettlements + 1
+  }
 
   // Moved this down to inside of handleRebateClaimed. because these tokens are still techincally
   // allocated, as it looks in the smart contract
@@ -358,33 +360,34 @@ export function handleAllocationSettled(event: AllocationSettled): void {
  *          the other case, if it is restaked, it will be handled by handleStakeDeposited
  */
 export function handleRebateClaimed(event: RebateClaimed): void {
-  // let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  // let indexerID = event.params.indexer.toHexString()
-  // let allocationID = event.params.channelID.toHexString() // TODO fix this when the event gets updated AND UNCOMMENT!
-  // // update indexer
-  // let indexer = Indexer.load(indexerID)
-  // indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
-  // indexer.save()
-  // // update allocation
-  // let allocation = Allocation.load(allocationID)
-  // allocation.allocatedTokens = BigInt.fromI32(0)
-  // allocation.queryFeeRebates = event.params.tokens
-  // allocation.delegationFees = event.params.delegationFees
-  // allocation.status = 'Claimed'
-  // allocation.save()
-  // // Update epoch
-  // let epoch = createOrLoadEpoch(event.block.number)
-  // epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokens)
-  // epoch.save()
-  // // update pool
-  // let pool = Pool.load(event.params.forEpoch.toString())
-  // pool.claimedFees = pool.claimedFees.plus(event.params.tokens)
-  // pool.save()
-  // // update subgraph deployment - Nothing to update
-  // // update graph network
-  // let graphNetwork = GraphNetwork.load('1')
-  // graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
-  // graphNetwork.save()
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let indexerID = event.params.indexer.toHexString()
+  let allocationID = event.params.channelID.toHexString()
+
+  // update indexer
+  let indexer = Indexer.load(indexerID)
+  indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
+  indexer.save()
+  // update allocation
+  let allocation = Allocation.load(allocationID)
+  allocation.allocatedTokens = BigInt.fromI32(0)
+  allocation.queryFeeRebates = event.params.tokens
+  allocation.delegationFees = event.params.delegationFees
+  allocation.status = 'Claimed'
+  allocation.save()
+  // Update epoch
+  let epoch = createOrLoadEpoch(event.block.number)
+  epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokens)
+  epoch.save()
+  // update pool
+  let pool = Pool.load(event.params.forEpoch.toString())
+  pool.claimedFees = pool.claimedFees.plus(event.params.tokens)
+  pool.save()
+  // update subgraph deployment - Nothing to update
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
+  graphNetwork.save()
 }
 
 /**

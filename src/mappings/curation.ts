@@ -26,7 +26,7 @@ export function handleSignalled(event: Signalled): void {
   // Update curator
   let id = event.params.curator.toHexString()
   let curator = createOrLoadCurator(id, event.block.timestamp)
-  curator.totalsignalledTokens = curator.totalsignalledTokens.plus(event.params.tokens)
+  curator.totalSignalledTokens = curator.totalSignalledTokens.plus(event.params.tokens)
   curator.save()
 
   // Update signal
@@ -65,7 +65,7 @@ export function handleBurned(event: Burned): void {
   // Update curator
   let id = event.params.curator.toHexString()
   let curator = Curator.load(id)
-  curator.totalsignalledTokens = curator.totalsignalledTokens.minus(event.params.signal)
+  curator.totalSignalledTokens = curator.totalSignalledTokens.minus(event.params.signal)
   curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokens)
 
   // Update signal
@@ -131,7 +131,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   } else if (parameter == 'minimumCurationStake') {
     // TODO - it appears Curation contract still is using Stake as a term instead of signal
     // will have to update soon
-    graphNetwork.minimumCurationSignal = curation.minimumCurationStake()
+    graphNetwork.minimumCurationSignal = curation.minimumCurationDeposit()
   }
   graphNetwork.save()
 }

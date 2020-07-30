@@ -1,7 +1,6 @@
-import { BigInt, ByteArray, Address, Bytes, crypto, log, BigDecimal } from '@graphprotocol/graph-ts'
-import { Epoch, GraphNetwork } from '../types/schema'
-import { addresses } from '../../config/addresses'
+import { GraphNetwork } from '../types/schema'
 import { EpochRun, EpochLengthUpdate } from '../types/EpochManager/EpochManager'
+import { createOrLoadGraphNetwork, createOrLoadEpoch } from './helpers'
 
 /**
  * @dev handleEpochRun
@@ -18,13 +17,13 @@ export function handleEpochRun(event: EpochRun): void {
  * - updates the length and the last block and epoch it happened
  */
 export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = createOrLoadGraphNetwork()
   graphNetwork.epochLength = event.params.epochLength.toI32()
-  graphNetwork.lastLengthUpdateEpoch = graphNetwork.lastRunEpoch
+  graphNetwork.lastLengthUpdateEpoch = graphNetwork.currentEpoch
   graphNetwork.lastLengthUpdateBlock = event.block.number.toI32()
   graphNetwork.save()
 
-  let epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString())
+  let epoch = createOrLoadEpoch(event.block.number)
   epoch.endBlock = epoch.startBlock + graphNetwork.epochLength
   epoch.save()
 }
