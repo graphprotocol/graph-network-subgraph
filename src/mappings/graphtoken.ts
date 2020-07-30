@@ -41,13 +41,12 @@ export function handleTransfer(event: Transfer): void {
   }
 
   // decrease approval , if it was a transferFrom from one of the core contracts
-  switch (to) {
-    case staking:
-      userFrom.stakingApproval = userFrom.stakingApproval.minus(value)
-    case curation:
-      userFrom.curationApproval = userFrom.curationApproval.minus(value)
-    case gns:
-      userFrom.gnsApproval = userFrom.gnsApproval.minus(value)
+  if (to == staking) {
+    userFrom.stakingApproval = userFrom.stakingApproval.minus(value)
+  } else if (to == curation) {
+    userFrom.curationApproval = userFrom.curationApproval.minus(value)
+  } else if (to == gns) {
+    userFrom.gnsApproval = userFrom.gnsApproval.minus(value)
   }
 
   userTo.save()
@@ -62,16 +61,12 @@ export function handleApproval(event: Approval): void {
   let spender = event.params.spender
   let graphAccount = GraphAccount.load(event.params.owner.toHexString())
 
-  switch (spender) {
-    case staking:
-      graphAccount.stakingApproval = event.params.value
-    case curation:
-      graphAccount.curationApproval = event.params.value
-    case gns:
-      graphAccount.gnsApproval = event.params.value
+  if (spender == staking) {
+    graphAccount.stakingApproval = event.params.value
+  } else if (spender == curation) {
+    graphAccount.curationApproval = event.params.value
+  } else if (spender == gns) {
+    graphAccount.gnsApproval = event.params.value
   }
   graphAccount.save()
 }
-
-
-export function handleMint(event: Mint): void {}

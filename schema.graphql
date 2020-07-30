@@ -400,7 +400,7 @@ type Indexer @entity {
 
   # Metrics
   "Total return this indexer has earned"
-  return: BigDecimal!
+  totalReturn: BigDecimal!
   "Annualized rate of return for the indexer"
   annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage
   "Staking efficiency of the indexer"
@@ -444,7 +444,7 @@ type Allocation @entity {
 
   # Metrics
   "Return for this allocation"
-  return: BigDecimal!
+  totalReturn: BigDecimal!
   "Yearly annualzied return"
   annualizedReturn: BigDecimal!
 }
@@ -566,7 +566,7 @@ type Curator @entity {
   "Annualized rate of return on curator signal"
   annualizedReturn: BigDecimal! # Multiple by 100 to get percentage
   "Total return of the curator"
-  return: BigDecimal!
+  totalReturn: BigDecimal!
   "Signaling efficiency of the curator"
   signalingEfficiency: BigDecimal!
 }
