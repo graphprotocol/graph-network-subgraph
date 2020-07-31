@@ -121,7 +121,7 @@ type GraphAccount @entity {
   "All names this graph account has claimed from all name systems"
   names: [GraphAccountName!]! @derivedFrom(field: "graphAccount")
   "Default name the graph account has chosen"
-  defaultName: GraphAccountName
+  defaultName: GraphAccountName  # Can optimize in future by checking ENS & others to make sure they still own the name
   "Time the account was created"
   createdAt: Int!
 

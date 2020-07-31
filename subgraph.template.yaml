@@ -199,8 +199,6 @@ dataSources:
         - name: EthereumDIDRegistry
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EthereumDIDRegistry.json
       eventHandlers:
-        - event: DIDOwnerChanged(indexed address,address,uint256)
-          handler: handleDIDOwnerChanged
         - event: DIDAttributeChanged(indexed address,bytes32,bytes,uint256,uint256)
           handler: handleDIDAttributeChanged
   - kind: ethereum/contract
