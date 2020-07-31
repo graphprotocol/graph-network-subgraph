@@ -68,6 +68,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
     deployment.queryFeesAmount = BigInt.fromI32(0)
+    deployment.rebateAmount = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
 
     deployment.signalledTokens = BigInt.fromI32(0)
@@ -113,6 +114,10 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.stakingEfficiency = BigDecimal.fromString('0')
     indexer.save()
 
+    let graphAccount = GraphAccount.load(id)
+    graphAccount.indexer = id
+    graphAccount.save()
+
     let graphNetwork = GraphNetwork.load('1')
     graphNetwork.indexerCount = graphNetwork.indexerCount + 1
     graphNetwork.save()
@@ -128,6 +133,10 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
     delegator.totalUnstakedTokens = BigInt.fromI32(0)
     delegator.createdAt = timestamp.toI32()
     delegator.save()
+
+    let graphAccount = GraphAccount.load(id)
+    graphAccount.delegator = id
+    graphAccount.save()
 
     let graphNetwork = GraphNetwork.load('1')
     graphNetwork.curatorCount = graphNetwork.curatorCount + 1
@@ -167,6 +176,10 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.totalReturn = BigDecimal.fromString('0')
     curator.signalingEfficiency = BigDecimal.fromString('0')
     curator.save()
+
+    let graphAccount = GraphAccount.load(id)
+    graphAccount.curator = id
+    graphAccount.save()
 
     let graphNetwork = GraphNetwork.load('1')
     graphNetwork.curatorCount = graphNetwork.curatorCount + 1
@@ -390,14 +403,14 @@ export function resolveName(graphAccount: Address, name: string, node: Bytes): s
   let graphAccountString = graphAccount.toHexString()
   if (checkTLD(name, node.toHexString())) {
     if (verifyNameOwnership(graphAccountString, node)) {
-      if (checkTextRecord(graphAccountString, node)) {
+      // if (checkTextRecord(graphAccountString, node)) {
         let nameSystem = 'ENS'
         let id = joinID([nameSystem, node.toHexString()])
         if (checkNoNameDuplicate(id, nameSystem, name, graphAccountString)) {
           // all checks passed. save the new name, return the ID to be stored on the subgraph
           return id
         }
-      }
+      // }
     }
   }
   // one requirement failed, return null
