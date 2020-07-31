@@ -227,7 +227,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.plus(event.params.tokens)
   graphNetwork.save()
 
-  // update subgraph
+  // update subgraph deployment
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
   deployment.save()
