@@ -12,12 +12,13 @@ import {
   SetDefaultName,
 } from '../types/GNS/GNS'
 
-import { Subgraph, SubgraphVersion, GraphAccount } from '../types/schema'
+import { Subgraph, SubgraphVersion, GraphAccount, Curator } from '../types/schema'
 
 import { jsonToString } from './utils'
 import {
   createOrLoadSubgraphDeployment,
   createOrLoadGraphAccount,
+  createOrLoadCurator,
   addQm,
   resolveName,
   createOrLoadSubgraph,
@@ -26,7 +27,11 @@ import {
 } from './helpers'
 
 export function handleSetDefaultName(event: SetDefaultName): void {
-  let graphAccount = GraphAccount.load(event.params.graphAccount.toString())
+  let graphAccount = createOrLoadGraphAccount(
+    event.params.graphAccount.toHexString(),
+    event.params.graphAccount,
+    event.block.timestamp,
+  )
   graphAccount.defaultName = resolveName(
     event.params.graphAccount,
     event.params.name,
@@ -56,6 +61,7 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
       subgraph.website = jsonToString(data.get('subgraphWebsite'))
     }
   }
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 }
 
@@ -90,11 +96,14 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   // Creates Graph Account, if needed
   createOrLoadGraphAccount(graphAccountID, event.params.graphAccount, event.block.timestamp)
-
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
-  // Create subgraph version
+  // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+
+  // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
   subgraphVersion.subgraph = subgraphID
   subgraphVersion.subgraphDeployment = subgraphDeploymentID
@@ -114,8 +123,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   }
   subgraphVersion.save()
 
-  // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
-  createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+
 }
 /**
  * @dev handleSubgraphDeprecated
@@ -133,6 +141,7 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   pastVersions.push(subgraph.currentVersion)
   subgraph.pastVersions = pastVersions
   subgraph.currentVersion = null
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 }
 
@@ -157,7 +166,17 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
   subgraph.save()
 
-  let nameSignal = createOrLoadNameSignal(event.params.nameCurator.toHexString(), subgraphID)
+  let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+  curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
+    event.params.tokensDeposited,
+  )
+  curator.save()
+
+  let nameSignal = createOrLoadNameSignal(
+    event.params.nameCurator.toHexString(),
+    subgraphID,
+    event.block.timestamp,
+  )
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
   nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
@@ -174,8 +193,18 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensReceived)
   subgraph.save()
 
-  let nameSignal = createOrLoadNameSignal(event.params.nameCurator.toHexString(), subgraphID)
-  nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalBurnt)
+  let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+  curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
+    event.params.tokensReceived,
+  )
+  curator.save()
+
+  let nameSignal = createOrLoadNameSignal(
+    event.params.nameCurator.toHexString(),
+    subgraphID,
+    event.block.timestamp,
+  )
+  nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
   nameSignal.unsignalledTokens = nameSignal.unsignalledTokens.plus(event.params.tokensReceived)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
   nameSignal.save()
@@ -211,13 +240,22 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
   let subgraph = Subgraph.load(subgraphID)
+  subgraph.withdrawableTokens = subgraph.withdrawableTokens.minus(event.params.withdrawnGRT)
   subgraph.withdrawnTokens = subgraph.withdrawnTokens.plus(event.params.withdrawnGRT)
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
   subgraph.save()
 
-  let nameSignal = createOrLoadNameSignal(event.params.nameCurator.toHexString(), subgraphID)
+  let nameSignal = createOrLoadNameSignal(
+    event.params.nameCurator.toHexString(),
+    subgraphID,
+    event.block.timestamp,
+  )
   nameSignal.withdrawnTokens = event.params.withdrawnGRT
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
   nameSignal.save()
+
+  let curator = Curator.load(event.params.nameCurator.toHexString())
+  curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
+  curator.save()
 }

@@ -42,7 +42,7 @@ export function handleSignalled(event: Signalled): void {
   deployment.signalAmount = deployment.signalAmount.plus(event.params.signal)
 
   let curation = Curation.bind(event.address)
-  deployment.reserveRatio = curation.pools(event.params.subgraphDeploymentID).value0.toI32()
+  deployment.reserveRatio = curation.pools(event.params.subgraphDeploymentID).value1.toI32()
   deployment.save()
 
   // Update epoch
@@ -72,6 +72,8 @@ export function handleBurned(event: Burned): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let signalID = joinID([id, subgraphDeploymentID])
   let signal = Signal.load(signalID)
+  // Note - if you immediately deposited and then withdrew, you would lose 5%, and you were
+  // realize this loss by seeing unsignaled tokens being 95 and signalled 100
   signal.unsignalledTokens = signal.unsignalledTokens.plus(event.params.tokens)
   signal.signal = signal.signal.minus(event.params.signal)
   signal.save()
