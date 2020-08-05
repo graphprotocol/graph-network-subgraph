@@ -1,6 +1,6 @@
-import { Approval, Transfer } from '../types/GraphToken/GraphToken'
+import { Approval, Transfer, GraphToken } from '../types/GraphToken/GraphToken'
 import { createOrLoadGraphNetwork, createOrLoadGraphAccount } from './helpers'
-import { GraphNetwork, GraphAccount } from '../types/schema'
+import { GraphNetwork } from '../types/schema'
 
 /**
  * @dev handleTransfer
@@ -41,12 +41,13 @@ export function handleTransfer(event: Transfer): void {
   }
 
   // decrease approval , if it was a transferFrom from one of the core contracts
+  let graphToken = GraphToken.bind(event.address)
   if (to == staking) {
-    userFrom.stakingApproval = userFrom.stakingApproval.minus(value)
+    userFrom.stakingApproval = graphToken.allowance(event.params.from, event.params.to)
   } else if (to == curation) {
-    userFrom.curationApproval = userFrom.curationApproval.minus(value)
+    userFrom.curationApproval = graphToken.allowance(event.params.from, event.params.to)
   } else if (to == gns) {
-    userFrom.gnsApproval = userFrom.gnsApproval.minus(value)
+    userFrom.gnsApproval = graphToken.allowance(event.params.from, event.params.to)
   }
 
   userTo.save()

@@ -30,6 +30,7 @@ export function createOrLoadSubgraph(
     subgraph.owner = owner.toHexString()
     subgraph.pastVersions = []
     subgraph.createdAt = timestamp.toI32()
+    subgraph.updatedAt = timestamp.toI32()
 
     subgraph.signalledTokens = BigInt.fromI32(0)
     subgraph.unsignalledTokens = BigInt.fromI32(0)
@@ -170,6 +171,7 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
 
     curator.totalNameSignalledTokens = BigInt.fromI32(0)
     curator.totalNameUnsignalledTokens = BigInt.fromI32(0)
+    curator.totalWithdrawnTokens = BigInt.fromI32(0)
 
     curator.realizedRewards = BigInt.fromI32(0)
     curator.annualizedReturn = BigDecimal.fromString('0')
@@ -205,12 +207,13 @@ export function createOrLoadSignal(curator: string, subgraphDeploymentID: string
   return signal as Signal
 }
 
-export function createOrLoadNameSignal(curator: string, subgraphID: string): NameSignal {
+export function createOrLoadNameSignal(curator: string, subgraphID: string, timestamp: BigInt): NameSignal {
   let nameSignalID = joinID([curator, subgraphID])
   let nameSignal = NameSignal.load(nameSignalID)
   if (nameSignal == null) {
     nameSignal = new NameSignal(nameSignalID)
-    nameSignal.curator = curator
+    let underlyingCurator = createOrLoadCurator(curator, timestamp)
+    nameSignal.curator = underlyingCurator.id
     nameSignal.subgraph = subgraphID
     nameSignal.signalledTokens = BigInt.fromI32(0)
     nameSignal.unsignalledTokens = BigInt.fromI32(0)
@@ -270,6 +273,8 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch ||
     (graphNetwork.currentEpoch == 0 && epochsSinceLastUpdate.toI32() == 0) // edge case where no epochs exist
   ) {
+
+
     let newEpoch = graphNetwork.currentEpoch + epochsSinceLastUpdate.toI32()
     if (newEpoch == 0){ // there is no 0 epoch. we start at 1
       newEpoch = 1
@@ -283,7 +288,6 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     epoch.stakeDeposited = BigInt.fromI32(0)
     epoch.queryFeeRebates = BigInt.fromI32(0)
     epoch.totalRewards = BigInt.fromI32(0)
-    epoch.status = 'Rewarding'
     epoch.save()
 
     graphNetwork.currentEpoch = newEpoch
@@ -430,7 +434,7 @@ function checkTLD(name: string, node: string): boolean {
   // namehash('test') = 0x04f740db81dc36c853ab4205bddd785f46e79ccedca351fc6dfcbd8cc9a33dd6
   // NOTE - test registrar is in use for now for quick testing. TODO - switch when we are ready
   let testNode = ByteArray.fromHexString(
-    '0x04f740db81dc36c853ab4205bddd785f46e79ccedca351fc6dfcbd8cc9a33dd6',
+    '0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae',
   )
 
   let nameHash = crypto.keccak256(concatByteArrays(testNode, labelHash)).toHexString()

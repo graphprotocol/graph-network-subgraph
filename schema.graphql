@@ -206,6 +206,8 @@ type Subgraph @entity {
   pastVersions: [SubgraphVersion!]!
   "Creation timestamp"
   createdAt: Int!
+  "Updated timestamp"
+  updatedAt: Int!
 
   # Name curation data for bonding curve
   # Note that the Subgraphs V signal is actually stored in a Signal object, which
@@ -557,6 +559,8 @@ type Curator @entity {
   totalNameSignalledTokens: BigInt!
   "Total tokens unsignalled on all names"
   totalNameUnsignalledTokens: BigInt!
+  "Total withdrawn tokens from deprecated subgraphs"
+  totalWithdrawnTokens: BigInt!
   "Subgraphs the curator is curating"
   nameSignals: [NameSignal!]! @derivedFrom(field: "curator")
 
@@ -706,13 +710,6 @@ type Epoch @entity {
   queryFeeRebates: BigInt!
   "Total indexing rewards earned in this epoch"
   totalRewards: BigInt!
-  "Status of the Epoch"
-  status: EpochStatus!
   # todo - DO I NEED totalQueryFees / Protocol rebates earned?
 }
 
-enum EpochStatus {
-  Rewarding
-  Settling
-  Finalized
-}
