@@ -141,7 +141,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
 export function handleStakeDelegated(event: StakeDelegated): void {
   // update indexer
   let indexerID = event.params.indexer.toHexString()
-  let indexer = Indexer.load(indexerID)
+  let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
   // TODO - call getIndexerCapacity to calculate it in subgraph . will need to do so on staking too.
@@ -199,7 +199,7 @@ export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): v
   let id = joinID([delegatorID, indexerID])
   let delegatedStake = DelegatedStake.load(id)
   delegatedStake.lockedTokens = BigInt.fromI32(0)
-  delegatedStake.lockedTokens = BigInt.fromI32(0)
+  delegatedStake.lockedUntil = BigInt.fromI32(0)
   delegatedStake.save()
 }
 
@@ -249,6 +249,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.status = 'Active'
   allocation.totalReturn = BigDecimal.fromString('0')
   allocation.annualizedReturn = BigDecimal.fromString('0')
+  allocation.createdAt = event.block.timestamp.toI32()
   allocation.save()
 }
 
@@ -341,14 +342,15 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   pool.allocation = pool.allocation.plus(event.params.effectiveAllocation)
   pool.save()
 
-  // update subgraph deployment - Nothing to update
+  // update subgraph deployment. Pretty sure this should be done here, if not
+  // it would be done in handleRebateClaimed
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
+  deployment.save()
 
   // update graph network
-  let graphNetwork = GraphNetwork.load('1')
-  // I believe i need to remove both of these as well, because I did for indexer above
-  // graphNetwork.totalTokensClaimable = graphNetwork.totalTokensClaimable.plus(event.params.tokens)
-  // graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
-  graphNetwork.save()
+  // Note - you only minus graphNetwork.totalTokensAllocated  upon handleRebateClaimed
 }
 
 /**

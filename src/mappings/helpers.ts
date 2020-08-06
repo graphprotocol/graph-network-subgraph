@@ -140,7 +140,7 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
     graphAccount.save()
 
     let graphNetwork = GraphNetwork.load('1')
-    graphNetwork.curatorCount = graphNetwork.curatorCount + 1
+    graphNetwork.delegatorCount = graphNetwork.delegatorCount + 1
     graphNetwork.save()
   }
   return delegator as Delegator
@@ -155,6 +155,8 @@ export function createOrLoadDelegatedStake(delegator: string, indexer: string): 
     delegatedStake.delegator = delegator
     delegatedStake.stakedTokens = BigInt.fromI32(0)
     delegatedStake.unstakedTokens = BigInt.fromI32(0)
+    delegatedStake.lockedTokens =  BigInt.fromI32(0)
+    delegatedStake.lockedUntil = 0
     delegatedStake.shareAmount = BigInt.fromI32(0)
     delegatedStake.save()
   }
