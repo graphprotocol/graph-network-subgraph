@@ -443,6 +443,8 @@ type Allocation @entity {
   delegationFees: BigInt!
   "Status of the allocation"
   status: AllocationStatus!
+  "Timestamp this allocation was created at"
+  createdAt: Int!
 
   # Metrics
   "Return for this allocation"
