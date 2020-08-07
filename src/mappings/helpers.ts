@@ -461,27 +461,6 @@ function verifyNameOwnership(graphAccount: string, node: Bytes): boolean {
 }
 
 /**
- * @dev Checks if the graph account has registered their account in the text record on the public
- * resolver
- * @param graphAccount - Graph Account ID
- * @param node - ENS node (i.e. this function only works for ens right now)
- * @returns true is text record is set
- */
-function checkTextRecord(graphAccount: string, node: Bytes): boolean {
-  let publicResolver = ENSPublicResolver.bind(
-    Address.fromHexString(addresses.ensPublicResolver) as Address,
-  )
-  let textRecord = publicResolver.try_text(node, 'GRAPH NAME SERVICE')
-  if (textRecord.reverted) {
-    log.warning('Try_text reverted for node: {}', [node.toHexString()])
-    return false
-  } else {
-    let record = ByteArray.fromHexString(textRecord.value).toHexString()
-    return record == graphAccount ? true : false
-  }
-}
-
-/**
  * @dev Check this name isn't already being used by this account. Note, because there is only one
  * system, we just check for the GraphAccountNameEntity. TODO - when multiple systems exist, we
  * will need to iterate over the graph accounts subgraphs, or check all possible names by building

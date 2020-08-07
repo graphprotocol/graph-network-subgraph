@@ -317,14 +317,6 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   if (event.params.sender != event.params.indexer) {
     indexer.forcedSettlements = indexer.forcedSettlements + 1
   }
-
-  // Moved this down to inside of handleRebateClaimed. because these tokens are still techincally
-  // allocated, as it looks in the smart contract
-  // indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
-
-  // Pretty sure I DONT want this. Claimable tokens is actually calculated dynamically based off of
-  // effective allocation
-  // indexer.claimableTokens = indexer.claimableTokens.plus(event.params.tokens)
   indexer.save()
 
   // update allocation
@@ -349,7 +341,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
   deployment.save()
 
-  // update graph network
+  // update graph network - none
   // Note - you only minus graphNetwork.totalTokensAllocated  upon handleRebateClaimed
 }
 
@@ -362,7 +354,6 @@ export function handleAllocationSettled(event: AllocationSettled): void {
  *          the other case, if it is restaked, it will be handled by handleStakeDeposited
  */
 export function handleRebateClaimed(event: RebateClaimed): void {
-  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.channelID.toHexString()
 
@@ -385,7 +376,9 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   let pool = Pool.load(event.params.forEpoch.toString())
   pool.claimedFees = pool.claimedFees.plus(event.params.tokens)
   pool.save()
+
   // update subgraph deployment - Nothing to update
+  
   // update graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)

@@ -366,7 +366,7 @@ type Indexer @entity {
   "Total tokens allocated on all subgraphs"
   allocatedTokens: BigInt!
   "Current tokens settled and waiting to be claimed"
-  claimableTokens: BigInt! # TODO - might remove, seems this is calculated dynamically. i have some notes in the staking.ts
+  claimableTokens: BigInt! # TODO - I think i can remove. This is basically lockedTokens, when time has passed
   "Current tokens locked"
   lockedTokens: BigInt!
   "Time when Indexers tokens unlock"
