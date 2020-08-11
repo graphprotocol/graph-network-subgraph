@@ -199,7 +199,7 @@ export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): v
   let id = joinID([delegatorID, indexerID])
   let delegatedStake = DelegatedStake.load(id)
   delegatedStake.lockedTokens = BigInt.fromI32(0)
-  delegatedStake.lockedUntil = BigInt.fromI32(0)
+  delegatedStake.lockedUntil = 0
   delegatedStake.save()
 }
 
@@ -378,7 +378,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   pool.save()
 
   // update subgraph deployment - Nothing to update
-  
+
   // update graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
