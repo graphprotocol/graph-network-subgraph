@@ -12,7 +12,7 @@ import {
   SetDefaultName,
 } from '../types/GNS/GNS'
 
-import { Subgraph, SubgraphVersion, GraphAccount, Curator } from '../types/schema'
+import { Subgraph, SubgraphVersion, GraphAccount, Curator, GraphAccountName } from '../types/schema'
 
 import { jsonToString } from './utils'
 import {
@@ -32,6 +32,12 @@ export function handleSetDefaultName(event: SetDefaultName): void {
     event.params.graphAccount,
     event.block.timestamp,
   )
+  if (graphAccount.defaultName != null) {
+    let graphAccountName = GraphAccountName.load(graphAccount.defaultName)
+    if (graphAccountName.name == event.params.name) {
+      return
+    }
+  }
   graphAccount.defaultName = resolveName(
     event.params.graphAccount,
     event.params.name,
@@ -48,10 +54,10 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
 
   let hexHash = addQm(event.params.subgraphMetadata) as Bytes
   let base58Hash = hexHash.toBase58()
-  let getVersionDataFromIPFS = ipfs.cat(base58Hash)
+  let metadata = ipfs.cat(base58Hash)
   subgraph.metadataHash = event.params.subgraphMetadata
-  if (getVersionDataFromIPFS !== null) {
-    let tryData = json.try_fromBytes(getVersionDataFromIPFS as Bytes)
+  if (metadata !== null) {
+    let tryData = json.try_fromBytes(metadata as Bytes)
     if (tryData.isOk) {
       let data = tryData.value.toObject()
       subgraph.description = jsonToString(data.get('subgraphDescription'))
@@ -122,8 +128,6 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
     }
   }
   subgraphVersion.save()
-
-
 }
 /**
  * @dev handleSubgraphDeprecated
