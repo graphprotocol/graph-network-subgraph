@@ -155,7 +155,7 @@ export function createOrLoadDelegatedStake(delegator: string, indexer: string): 
     delegatedStake.delegator = delegator
     delegatedStake.stakedTokens = BigInt.fromI32(0)
     delegatedStake.unstakedTokens = BigInt.fromI32(0)
-    delegatedStake.lockedTokens =  BigInt.fromI32(0)
+    delegatedStake.lockedTokens = BigInt.fromI32(0)
     delegatedStake.lockedUntil = 0
     delegatedStake.shareAmount = BigInt.fromI32(0)
     delegatedStake.save()
@@ -209,7 +209,11 @@ export function createOrLoadSignal(curator: string, subgraphDeploymentID: string
   return signal as Signal
 }
 
-export function createOrLoadNameSignal(curator: string, subgraphID: string, timestamp: BigInt): NameSignal {
+export function createOrLoadNameSignal(
+  curator: string,
+  subgraphID: string,
+  timestamp: BigInt,
+): NameSignal {
   let nameSignalID = joinID([curator, subgraphID])
   let nameSignal = NameSignal.load(nameSignalID)
   if (nameSignal == null) {
@@ -275,10 +279,9 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch ||
     (graphNetwork.currentEpoch == 0 && epochsSinceLastUpdate.toI32() == 0) // edge case where no epochs exist
   ) {
-
-
     let newEpoch = graphNetwork.currentEpoch + epochsSinceLastUpdate.toI32()
-    if (newEpoch == 0){ // there is no 0 epoch. we start at 1
+    if (newEpoch == 0) {
+      // there is no 0 epoch. we start at 1
       newEpoch = 1
     }
     epoch = new Epoch(BigInt.fromI32(newEpoch).toString())
@@ -410,12 +413,12 @@ export function resolveName(graphAccount: Address, name: string, node: Bytes): s
   if (checkTLD(name, node.toHexString())) {
     if (verifyNameOwnership(graphAccountString, node)) {
       // if (checkTextRecord(graphAccountString, node)) {
-        let nameSystem = 'ENS'
-        let id = joinID([nameSystem, node.toHexString()])
-        if (checkNoNameDuplicate(id, nameSystem, name, graphAccountString)) {
-          // all checks passed. save the new name, return the ID to be stored on the subgraph
-          return id
-        }
+      let nameSystem = 'ENS'
+      let id = joinID([nameSystem, node.toHexString()])
+      if (checkNoNameDuplicate(id, nameSystem, name, graphAccountString)) {
+        // all checks passed. save the new name, return the ID to be stored on the subgraph
+        return id
+      }
       // }
     }
   }
