@@ -249,7 +249,9 @@ type Subgraph @entity {
   "Total query fees earned by this subgraph"
   totalQueryFeesCollected: BigInt!
 
-  # DAVE NOTE - the two below are really complex to calculate, i don't even know if there is a way to do it efficiently. I would prefer to remove this unless there are strong convictions not to
+  # DAVE NOTE - the two below are really complex to calculate, i don't even know if there is a 
+  # way to do it efficiently. I would prefer to remove this unless there are strong convictions not to
+  
   # "Total stake of all indexers on all subgraph versions. Includes delegation"
   # totalStake: BigInt!
   # "Total signal of all curators on all subgraph versions"
