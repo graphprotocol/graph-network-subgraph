@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer-subgraph",
-  "version": "0.3.1-beta",
+  "version": "v0.4.6-testnet-phase1",
   "description": "Subgraph for the Graph Network",
   "repository": "https://github.com/graphprotocol/graph-network-subgraph",
   "license": "MIT",
