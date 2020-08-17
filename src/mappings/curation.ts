@@ -123,17 +123,20 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 
   if (parameter == 'defaultReserveRatio') {
     graphNetwork.defaultReserveRatio = curation.defaultReserveRatio().toI32()
+    
   } else if (parameter == 'withdrawalFeePercentage') {
     graphNetwork.withdrawalFeePercentage = curation.withdrawalFeePercentage().toI32()
+    // TODO - i Hard coded this since these are set on deployment. Should fix this
+    // maybe emit an event in the constructor
+    graphNetwork.minimumCurationDeposit = curation.minimumCurationDeposit()
+    graphNetwork.defaultReserveRatio = curation.defaultReserveRatio().toI32()
   } else if (parameter == 'staking') {
     // Not in use now, we are waiting till we have a controller contract that
     // houses all the addresses of all contracts. So that there aren't a bunch
     // of different instances of the contract addresses across all contracts
     // graphNetwork.staking = staking.staking()
-  } else if (parameter == 'minimumCurationStake') {
-    // TODO - it appears Curation contract still is using Stake as a term instead of signal
-    // will have to update soon
-    graphNetwork.minimumCurationSignal = curation.minimumCurationDeposit()
+  } else if (parameter == 'minimumCurationDeposit') {
+    graphNetwork.minimumCurationDeposit = curation.minimumCurationDeposit()
   }
   graphNetwork.save()
 }
