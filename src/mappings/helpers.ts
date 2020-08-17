@@ -284,6 +284,10 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
       // there is no 0 epoch. we start at 1
       newEpoch = 1
     }
+    for (let i = graphNetwork.currentEpoch + 1; i < newEpoch; i++) {
+      createEmptyEpoch(i, graphNetwork.epochLength, graphNetwork.lastLengthUpdateBlock)
+    }
+
     epoch = new Epoch(BigInt.fromI32(newEpoch).toString())
     let startBlock =
       graphNetwork.lastLengthUpdateBlock + epochsSinceLastUpdate.toI32() * graphNetwork.epochLength
@@ -301,6 +305,19 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
   return epoch
+}
+
+// TODO - is there a bug here? What it the lastLengtUpdateBlock was changed midway?
+// will it cause me to estaimte epochs length wrong for half of them?
+function createEmptyEpoch(epochNumber: i32, epochLength: i32, lastUpdateBlock: i32): void {
+  let epoch = new Epoch(BigInt.fromI32(epochNumber).toString())
+  epoch.startBlock = lastUpdateBlock + epochNumber * epochLength
+  epoch.endBlock = epoch.startBlock + epochLength
+  epoch.signalledTokens = BigInt.fromI32(0)
+  epoch.stakeDeposited = BigInt.fromI32(0)
+  epoch.queryFeeRebates = BigInt.fromI32(0)
+  epoch.totalRewards = BigInt.fromI32(0)
+  epoch.save()
 }
 
 export function createOrLoadGraphNetwork(): GraphNetwork {
@@ -337,7 +354,7 @@ export function createOrLoadGraphNetwork(): GraphNetwork {
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
 
     graphNetwork.defaultReserveRatio = 0
-    graphNetwork.minimumCurationSignal = BigInt.fromI32(0)
+    graphNetwork.minimumCurationDeposit = BigInt.fromI32(0)
     graphNetwork.withdrawalFeePercentage = 0
 
     graphNetwork.totalTokensSignalled = BigInt.fromI32(0)

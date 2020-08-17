@@ -63,7 +63,7 @@ type GraphNetwork @entity {
   "Default reserve ratio for all subgraphs"
   defaultReserveRatio: Int!
   "Minimum amount of tokens needed to start curating"
-  minimumCurationSignal: BigInt!
+  minimumCurationDeposit: BigInt!
   "The fee charged when a curator withdraws signal"
   withdrawalFeePercentage: Int!
 
