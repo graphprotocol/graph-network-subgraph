@@ -214,7 +214,7 @@ export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): v
 export function handleAllocationCreated(event: AllocationCreated): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
-  let channelID = event.params.channelID.toHexString()
+  let channelID = event.params.allocationID.toHexString()
   let allocationID = channelID
 
   // update indexer
@@ -235,7 +235,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // create allocation
   let allocation = new Allocation(allocationID)
   allocation.publicKey = event.params.channelPubKey
-  allocation.proxy = event.params.proxy
+  allocation.assetHolder = event.params.assetHolder
   allocation.price = event.params.price
   allocation.indexer = indexerID
   allocation.subgraphDeployment = subgraphDeploymentID
@@ -264,7 +264,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
 export function handleAllocationCollected(event: AllocationCollected): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
-  let allocationID = event.params.channelID.toHexString()
+  let allocationID = event.params.allocationID.toHexString()
 
   // update indexer
   let indexer = Indexer.load(indexerID)
@@ -310,7 +310,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
  */
 export function handleAllocationSettled(event: AllocationSettled): void {
   let indexerID = event.params.indexer.toHexString()
-  let allocationID = event.params.channelID.toHexString()
+  let allocationID = event.params.allocationID.toHexString()
 
   // update indexer
   let indexer = Indexer.load(indexerID)
@@ -324,6 +324,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   allocation.poolSettledIn = event.params.epoch.toString()
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Settled'
+  allocation.poi = event.params.poi
   allocation.save()
 
   // update epoch - I don't think there is any here to update. not 100% sure
@@ -355,7 +356,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
  */
 export function handleRebateClaimed(event: RebateClaimed): void {
   let indexerID = event.params.indexer.toHexString()
-  let allocationID = event.params.channelID.toHexString()
+  let allocationID = event.params.allocationID.toHexString()
 
   // update indexer
   let indexer = Indexer.load(indexerID)

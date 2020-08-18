@@ -120,7 +120,7 @@ dataSources:
           handler: handleAllocationCreated
         - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
           handler: handleAllocationCollected
-        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,uint256,address)
+        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,uint256,address,bytes32)
           handler: handleAllocationSettled
         - event: RebateClaimed(indexed address,indexed bytes32,address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
@@ -224,3 +224,26 @@ dataSources:
           handler: handleEpochRun
         - event: EpochLengthUpdate(indexed uint256,uint256)
           handler: handleEpochLengthUpdate
+  - kind: ethereum/contract
+    name: RewardsManager
+    network: {{network}}
+    source:
+      address: '{{epochManager}}'
+      abi: RewardsManager
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/rewardsManager.ts
+      entities:
+        - TODO
+        - TODO
+      abis:
+        - name: RewardsManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/RewardsManager.json
+      eventHandlers:
+        - event: RewardsAssigned(indexed address,indexed address,uint256,uint256)
+          handler: handleRewardsAssigned
+        - event: RewardsClaimed(address,uint256)
+          handler: handleRewardsClaimed
