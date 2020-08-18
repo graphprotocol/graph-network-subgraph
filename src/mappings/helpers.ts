@@ -273,7 +273,8 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
   let epoch: Epoch
 
   // true if we need to create
-  let needsCreating = epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch
+  let needsCreating =
+    epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch - graphNetwork.lastLengthUpdateEpoch
   // true if its first epoch
   let isFirstEpoch = graphNetwork.currentEpoch == 0 && epochsSinceLastUpdate.toI32() == 0
 

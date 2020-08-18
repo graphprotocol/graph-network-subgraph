@@ -47,12 +47,12 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
   // Now we create the new epoch that starts fresh with the new length,
   // Update graphNetwork for the new epoch
   let newEpochNumber = graphNetwork.currentEpoch + 1
-  graphNetwork.lastLengthUpdateEpoch = graphNetwork.currentEpoch
 
   // create the new epoch, if not first epoch
   if (epoch.id != '1') {
     graphNetwork.currentEpoch = newEpochNumber
     createEpoch(event.block.number.toI32(), graphNetwork.epochLength, newEpochNumber)
   }
+  graphNetwork.lastLengthUpdateEpoch = graphNetwork.currentEpoch
   graphNetwork.save()
 }
