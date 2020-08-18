@@ -244,6 +244,8 @@ type Subgraph @entity {
   displayName: String!
 
   # Aggregate data, by combining all versions, and all deployments those versions point to
+  # TODO - i dont think these two are valid either. Since I can create my own subgraph of any project,
+  #        point it to their subgraph, and it looks like my subgraph has a ton of rewards
   "Total inflation rewards earned all time by this subgraph"
   totalIndexingRewards: BigInt!
   "Total query fees earned by this subgraph"
@@ -419,8 +421,8 @@ type Allocation @entity {
   id: ID!
   "Uncompressed public key of the channel"
   publicKey: Bytes!
-  "Proxy of the channel"
-  proxy: Bytes!
+  "Asset holder (proxy) of the channel"
+  assetHolder: Bytes!
   "Price of the queries"
   price: BigInt!
   "Indexer of this allocation"
@@ -447,6 +449,8 @@ type Allocation @entity {
   status: AllocationStatus!
   "Timestamp this allocation was created at"
   createdAt: Int!
+  "POI submitted with a settlement"
+  poi: Bytes!
 
   # Metrics
   "Return for this allocation"
@@ -482,26 +486,6 @@ type Pool @entity {
   curatorRewards: BigInt!
   "Allocations that were settled during this epoch"
   settledAllocations: [Allocation!]! @derivedFrom(field: "poolSettledIn")
-}
-
-"""
-All data regarding an Indexing Reward
-"""
-type IndexingReward @entity {
-  "Reward ID"
-  id: ID!
-  "Minted tokens in this epoch"
-  mintedTokens: BigInt!
-  "Epoch the reward was handed out"
-  epoch: Int!
-  "Total allocation settled in this epoch"
-  settledTokenAllocation: BigInt!
-  "Subgraph deployment that won durning this epoch"
-  subgraphDeployment: SubgraphDeployment!
-  "Winning Indexer"
-  indexer: Indexer!
-  "True if reward has been claimed"
-  isClaimed: Boolean!
 }
 
 """
