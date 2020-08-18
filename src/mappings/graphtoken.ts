@@ -10,7 +10,7 @@ import { GraphNetwork } from '../types/schema'
 export function handleTransfer(event: Transfer): void {
   // The first transaction ever emitted in the network is the minting of GRT
   // And with this, we instantiate GraphNetwork
-  let graphNetwork = createOrLoadGraphNetwork()
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number)
   let staking = graphNetwork.staking
   let curation = graphNetwork.curation
   let gns = graphNetwork.gns

@@ -266,7 +266,7 @@ export function createOrLoadPool(id: BigInt): Pool {
 }
 
 export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
-  let graphNetwork = createOrLoadGraphNetwork()
+  let graphNetwork = createOrLoadGraphNetwork(blockNumber)
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
@@ -278,33 +278,15 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
   let isFirstEpoch = graphNetwork.currentEpoch == 0 && epochsSinceLastUpdate.toI32() == 0
 
   if (needsCreating || isFirstEpoch) {
-    let newEpoch = graphNetwork.currentEpoch + epochsSinceLastUpdate.toI32()
+    let newEpoch = graphNetwork.lastLengthUpdateEpoch + epochsSinceLastUpdate.toI32()
     if (newEpoch == 0) {
       // there is no 0 epoch. we start at 1
       newEpoch = 1
     }
 
-    // Backfill epochs that were not created because there were no transactions
-    createEmptyEpochs(
-      graphNetwork.currentEpoch,
-      newEpoch,
-      graphNetwork.epochLength,
-      graphNetwork.lastLengthUpdateBlock,
-    )
     let startBlock =
       graphNetwork.lastLengthUpdateBlock + epochsSinceLastUpdate.toI32() * graphNetwork.epochLength
     epoch = createEpoch(startBlock, graphNetwork.epochLength, newEpoch)
-
-    // epoch = new Epoch(BigInt.fromI32(newEpoch).toString())
-    // let startBlock =
-    //   graphNetwork.lastLengthUpdateBlock + epochsSinceLastUpdate.toI32() * graphNetwork.epochLength
-    // epoch.startBlock = startBlock
-    // epoch.endBlock = startBlock + graphNetwork.epochLength
-    // epoch.signalledTokens = BigInt.fromI32(0)
-    // epoch.stakeDeposited = BigInt.fromI32(0)
-    // epoch.queryFeeRebates = BigInt.fromI32(0)
-    // epoch.totalRewards = BigInt.fromI32(0)
-    // epoch.save()
 
     graphNetwork.currentEpoch = newEpoch
     graphNetwork.save()
@@ -314,18 +296,6 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
   return epoch
-}
-
-export function createEmptyEpochs(
-  currentEpoch: i32,
-  newestEpoch: i32,
-  epochLength: i32,
-  lastUpdateBlock: i32,
-): void {
-  for (let i = currentEpoch + 1; i < newestEpoch; i++) {
-    let startBlock = lastUpdateBlock + i * epochLength
-    createEpoch(startBlock, epochLength, i)
-  }
 }
 
 export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32): Epoch {
@@ -340,7 +310,7 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
   return epoch
 }
 
-export function createOrLoadGraphNetwork(): GraphNetwork {
+export function createOrLoadGraphNetwork(blockNumber: BigInt): GraphNetwork {
   let graphNetwork = GraphNetwork.load('1')
   if (graphNetwork == null) {
     graphNetwork = new GraphNetwork('1')
@@ -386,7 +356,7 @@ export function createOrLoadGraphNetwork(): GraphNetwork {
     graphNetwork.epochLength = 0
     graphNetwork.lastRunEpoch = 0
     graphNetwork.lastLengthUpdateEpoch = 0
-    graphNetwork.lastLengthUpdateBlock = 0
+    graphNetwork.lastLengthUpdateBlock = blockNumber.toI32() // start it first block it was created
     graphNetwork.currentEpoch = 0
 
     graphNetwork.indexerCount = 0

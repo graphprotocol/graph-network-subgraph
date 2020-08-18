@@ -1,6 +1,7 @@
 import { GraphNetwork } from '../types/schema'
 import { EpochRun, EpochLengthUpdate } from '../types/EpochManager/EpochManager'
 import { createOrLoadGraphNetwork, createOrLoadEpoch, createEpoch } from './helpers'
+import { log, BigInt } from '@graphprotocol/graph-ts'
 
 /**
  * @dev handleEpochRun
@@ -17,31 +18,41 @@ export function handleEpochRun(event: EpochRun): void {
  * - updates the length and the last block and epoch it happened
  */
 export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
-  let graphNetwork = createOrLoadGraphNetwork()
-  let startingEpochLength = graphNetwork.epochLength
-  graphNetwork.epochLength = event.params.epochLength.toI32()
-  graphNetwork.lastLengthUpdateEpoch = graphNetwork.currentEpoch
-  graphNetwork.lastLengthUpdateBlock = event.block.number.toI32()
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number)
 
-  // Edge case where at the very start, we save it ahead, otherwise divide by zero error.
-  // related to the comment below
-  if (startingEpochLength == 0) {
+  // Edge case to handle when it is the first time, otherwise createOrLoadEpoch fails
+  // TODO = make this an event emitted in EpochManager constructor
+  // And have this event CLEARLY create the first epoch and update graphNetwork
+  if (graphNetwork.epochLength == 0) {
+    graphNetwork.epochLength = event.params.epochLength.toI32()
     graphNetwork.save()
   }
 
   // This returns a new epoch, or current epoch, with the old epoch length
   let epoch = createOrLoadEpoch(event.block.number)
-
   // We must take this epoch, update its blocks and end it, and make a new epoch
   // Since whenever we update epoch length we end the current epoch and create a new one
-  epoch.endBlock = event.block.number.toI32()
+  // UNLESS it is the first epoch
+  if (epoch.id != '1') {
+    epoch.endBlock = event.block.number.toI32()
+  }
   epoch.save()
-  createEpoch(
-    event.block.number.toI32(),
-    graphNetwork.epochLength,
-    graphNetwork.currentEpoch + 1,
-  )
 
-  // We now save the new length. If done earlier, if would back fill with the wrong epoch length
+  // Now it is safe to update graphNetwork, since the past epoch is completed
+  // But we must reload it, since its currentEpoch may have been updated in createOrLoadEpoch
+  graphNetwork = GraphNetwork.load('1') as GraphNetwork
+  graphNetwork.epochLength = event.params.epochLength.toI32()
+  graphNetwork.lastLengthUpdateBlock = event.block.number.toI32()
+
+  // Now we create the new epoch that starts fresh with the new length,
+  // Update graphNetwork for the new epoch
+  let newEpochNumber = graphNetwork.currentEpoch + 1
+  graphNetwork.lastLengthUpdateEpoch = graphNetwork.currentEpoch
+
+  // create the new epoch, if not first epoch
+  if (epoch.id != '1') {
+    graphNetwork.currentEpoch = newEpochNumber
+    createEpoch(event.block.number.toI32(), graphNetwork.epochLength, newEpochNumber)
+  }
   graphNetwork.save()
 }
