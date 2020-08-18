@@ -265,59 +265,79 @@ export function createOrLoadPool(id: BigInt): Pool {
   return pool as Pool
 }
 
-// EDGE CASE
-// - if no txs are done in an epoch, that epoch wont exist.
-// - i doubt this would ever happen. We might make blank epochs if we feel like it
-// but for now, not needed
 export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = createOrLoadGraphNetwork()
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
   let epoch: Epoch
-  if (
-    epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch ||
-    (graphNetwork.currentEpoch == 0 && epochsSinceLastUpdate.toI32() == 0) // edge case where no epochs exist
-  ) {
+
+  // true if we need to create
+  let needsCreating = epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch
+  // true if its first epoch
+  let isFirstEpoch = graphNetwork.currentEpoch == 0 && epochsSinceLastUpdate.toI32() == 0
+
+  if (needsCreating || isFirstEpoch) {
     let newEpoch = graphNetwork.currentEpoch + epochsSinceLastUpdate.toI32()
     if (newEpoch == 0) {
       // there is no 0 epoch. we start at 1
       newEpoch = 1
     }
-    for (let i = graphNetwork.currentEpoch + 1; i < newEpoch; i++) {
-      createEmptyEpoch(i, graphNetwork.epochLength, graphNetwork.lastLengthUpdateBlock)
-    }
 
-    epoch = new Epoch(BigInt.fromI32(newEpoch).toString())
+    // Backfill epochs that were not created because there were no transactions
+    createEmptyEpochs(
+      graphNetwork.currentEpoch,
+      newEpoch,
+      graphNetwork.epochLength,
+      graphNetwork.lastLengthUpdateBlock,
+    )
     let startBlock =
       graphNetwork.lastLengthUpdateBlock + epochsSinceLastUpdate.toI32() * graphNetwork.epochLength
-    epoch.startBlock = startBlock
-    epoch.endBlock = startBlock + graphNetwork.epochLength
-    epoch.signalledTokens = BigInt.fromI32(0)
-    epoch.stakeDeposited = BigInt.fromI32(0)
-    epoch.queryFeeRebates = BigInt.fromI32(0)
-    epoch.totalRewards = BigInt.fromI32(0)
-    epoch.save()
+    epoch = createEpoch(startBlock, graphNetwork.epochLength, newEpoch)
+
+    // epoch = new Epoch(BigInt.fromI32(newEpoch).toString())
+    // let startBlock =
+    //   graphNetwork.lastLengthUpdateBlock + epochsSinceLastUpdate.toI32() * graphNetwork.epochLength
+    // epoch.startBlock = startBlock
+    // epoch.endBlock = startBlock + graphNetwork.epochLength
+    // epoch.signalledTokens = BigInt.fromI32(0)
+    // epoch.stakeDeposited = BigInt.fromI32(0)
+    // epoch.queryFeeRebates = BigInt.fromI32(0)
+    // epoch.totalRewards = BigInt.fromI32(0)
+    // epoch.save()
 
     graphNetwork.currentEpoch = newEpoch
     graphNetwork.save()
+
+    // Just load and return
   } else {
     epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
   return epoch
 }
 
-// TODO - is there a bug here? What it the lastLengtUpdateBlock was changed midway?
-// will it cause me to estaimte epochs length wrong for half of them?
-function createEmptyEpoch(epochNumber: i32, epochLength: i32, lastUpdateBlock: i32): void {
+export function createEmptyEpochs(
+  currentEpoch: i32,
+  newestEpoch: i32,
+  epochLength: i32,
+  lastUpdateBlock: i32,
+): void {
+  for (let i = currentEpoch + 1; i < newestEpoch; i++) {
+    let startBlock = lastUpdateBlock + i * epochLength
+    createEpoch(startBlock, epochLength, i)
+  }
+}
+
+export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32): Epoch {
   let epoch = new Epoch(BigInt.fromI32(epochNumber).toString())
-  epoch.startBlock = lastUpdateBlock + epochNumber * epochLength
-  epoch.endBlock = epoch.startBlock + epochLength
+  epoch.startBlock = startBlock
+  epoch.endBlock = startBlock + epochLength
   epoch.signalledTokens = BigInt.fromI32(0)
   epoch.stakeDeposited = BigInt.fromI32(0)
   epoch.queryFeeRebates = BigInt.fromI32(0)
   epoch.totalRewards = BigInt.fromI32(0)
   epoch.save()
+  return epoch
 }
 
 export function createOrLoadGraphNetwork(): GraphNetwork {
