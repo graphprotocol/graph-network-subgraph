@@ -6,7 +6,7 @@ import * as mustache from 'mustache'
 // mustache doesn't like numbered object keys
 // TODO - get the contracts to not import with number from npm package
 let renameAddresses: any = networkAddresses
-renameAddresses['ourRinkeby'] = networkAddresses['4']
+renameAddresses['rinkeby'] = networkAddresses['4']
 
 export interface Addresses {
   graphToken: string
@@ -22,16 +22,16 @@ export interface Addresses {
 }
 
 export let addresses: Addresses = {
-  graphToken: '{{ourRinkeby.GraphToken.address}}',
-  epochManager: '{{ourRinkeby.EpochManager.address}}',
-  disputeManager: '{{ourRinkeby.DisputeManager.address}}',
-  staking: '{{ourRinkeby.Staking.address}}',
-  curation: '{{ourRinkeby.Curation.address}}',
-  rewardsManager: '{{ourRinkeby.RewardsManager.address}}',
-  serviceRegistry: '{{ourRinkeby.ServiceRegistry.address}}',
-  gns: '{{ourRinkeby.GNS.address}}',
-  ens: '{{rinkeby.ens}}',
-  ensPublicResolver: '{{rinkeby.ensPublicResolver}}',
+  graphToken: '{{rinkeby.GraphToken.address}}',
+  epochManager: '{{rinkeby.EpochManager.address}}',
+  disputeManager: '{{rinkeby.DisputeManager.address}}',
+  staking: '{{rinkeby.Staking.address}}',
+  curation: '{{rinkeby.Curation.address}}',
+  rewardsManager: '{{rinkeby.RewardsManager.address}}',
+  serviceRegistry: '{{rinkeby.ServiceRegistry.address}}',
+  gns: '{{rinkeby.GNS.address}}',
+  ens: '{{rinkeby.IENS.address}}',
+  ensPublicResolver: '{{rinkeby.IPublicResolver}}',
 }
 
 const main = (): void => {
