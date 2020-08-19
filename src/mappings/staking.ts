@@ -245,6 +245,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.queryFeesCollected = BigInt.fromI32(0)
   allocation.queryFeeRebates = BigInt.fromI32(0)
   allocation.curatorRewards = BigInt.fromI32(0)
+  allocation.indexingRewards = BigInt.fromI32(0)
   allocation.delegationFees = BigInt.fromI32(0)
   allocation.status = 'Active'
   allocation.totalReturn = BigDecimal.fromString('0')
@@ -284,7 +285,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
 
   // update pool
   let pool = createOrLoadPool(event.params.epoch)
-  pool.totalFees = pool.totalFees.plus(event.params.rebateFees)
+  pool.totalQueryFees = pool.totalQueryFees.plus(event.params.rebateFees)
   pool.curatorRewards = pool.curatorRewards.plus(event.params.curationFees)
   pool.save()
 
@@ -357,10 +358,12 @@ export function handleAllocationSettled(event: AllocationSettled): void {
 export function handleRebateClaimed(event: RebateClaimed): void {
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
 
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
+  indexer.queryFeeRebates = indexer.queryFeeRebates.plus(event.params.tokens)
   indexer.save()
   // update allocation
   let allocation = Allocation.load(allocationID)
@@ -378,7 +381,10 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   pool.claimedFees = pool.claimedFees.plus(event.params.tokens)
   pool.save()
 
-  // update subgraph deployment - Nothing to update
+  // update subgraph deployment
+  let subgraphDeployment = SubgraphDeployment.load(subgraphDeploymentID)
+  subgraphDeployment.queryFeeRebates = subgraphDeployment.queryFeeRebates.plus(event.params.tokens)
+  subgraphDeployment.save()
 
   // update graph network
   let graphNetwork = GraphNetwork.load('1')

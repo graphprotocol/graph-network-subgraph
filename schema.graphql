@@ -58,6 +58,8 @@ type GraphNetwork @entity {
   totalQueryFees: BigInt!
   "Total delegated tokens in the protocol"
   totalDelegatedTokens: BigInt!
+  "Total indexing rewards earned"
+  totalIndexingRewards: BigInt!
 
   # Curation global parameters
   "Default reserve ratio for all subgraphs"
@@ -304,8 +306,8 @@ type SubgraphDeployment @entity {
   indexingRewardAmount: BigInt!
   "Total query fees earned by this subgraph deployment"
   queryFeesAmount: BigInt!
-  "Total rebates earned from the protocol by this subgraph deployment"
-  rebateAmount: BigInt!
+  "Total query fee rebates earned from the protocol by this subgraph deployment"
+  queryFeeRebates: BigInt!
   "Total curator rewards from fees"
   curatorFeeRewards: BigInt!
 
@@ -381,8 +383,10 @@ type Indexer @entity {
   queryFeesCollected: BigInt!
   "Query fee rebate amount claimed from the protocol"
   queryFeeRebates: BigInt!
-  "Total rewards earned by this indexer from indexing inflation"
+  "Total indexing rewards earned by this indexer from inflation"
   rewardsEarned: BigInt!
+  "Total indexing rewards claimed by this indexer"
+  rewardsClaimed: BigInt!
 
   # Delegation Pool
   "Delegators to this Indexer"
@@ -441,6 +445,8 @@ type Allocation @entity {
   queryFeeRebates: BigInt!
   "Curator rewards deposited to the curating bonding curve"
   curatorRewards: BigInt!
+  "Indexing rewards earned by this allocation"
+  indexingRewards: BigInt!
   "Pool in which this allocation was settled"
   poolSettledIn: Pool
   "Fees paid out to delegators"
@@ -478,9 +484,9 @@ type Pool @entity {
   id: ID!
   "Total allocation settled in this epoch - includes all effective allocation"
   allocation: BigInt!
-  "Total fees collected in this epoch"
-  totalFees: BigInt!
-  "Total fees claimed in this epoch. Can be larger than totalFees because of cobbs douglas function "
+  "Total query fees collected in this epoch"
+  totalQueryFees: BigInt!
+  "Total query fees claimed in this epoch. Can be larger than totalFees because of cobbs douglas function "
   claimedFees: BigInt!
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorRewards: BigInt!

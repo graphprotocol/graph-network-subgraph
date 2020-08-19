@@ -69,7 +69,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
     deployment.queryFeesAmount = BigInt.fromI32(0)
-    deployment.rebateAmount = BigInt.fromI32(0)
+    deployment.queryFeeRebates = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
 
     deployment.signalledTokens = BigInt.fromI32(0)
@@ -100,6 +100,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.queryFeesCollected = BigInt.fromI32(0)
     indexer.queryFeeRebates = BigInt.fromI32(0)
     indexer.rewardsEarned = BigInt.fromI32(0)
+    indexer.rewardsClaimed = BigInt.fromI32(0)
 
     indexer.delegatedTokens = BigInt.fromI32(0)
     indexer.delegatorShares = BigInt.fromI32(0)
@@ -257,7 +258,7 @@ export function createOrLoadPool(id: BigInt): Pool {
   if (pool == null) {
     pool = new Pool(id.toString())
     pool.allocation = BigInt.fromI32(0)
-    pool.totalFees = BigInt.fromI32(0)
+    pool.totalQueryFees = BigInt.fromI32(0)
     pool.claimedFees = BigInt.fromI32(0)
     pool.curatorRewards = BigInt.fromI32(0)
     pool.save()
@@ -343,6 +344,7 @@ export function createOrLoadGraphNetwork(blockNumber: BigInt): GraphNetwork {
     graphNetwork.totalTokensAllocated = BigInt.fromI32(0)
     graphNetwork.totalQueryFees = BigInt.fromI32(0)
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
+    graphNetwork.totalIndexingRewards = BigInt.fromI32(0)
 
     graphNetwork.defaultReserveRatio = 0
     graphNetwork.minimumCurationDeposit = BigInt.fromI32(0)
