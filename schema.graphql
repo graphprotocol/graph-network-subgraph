@@ -456,7 +456,7 @@ type Allocation @entity {
   "Timestamp this allocation was created at"
   createdAt: Int!
   "POI submitted with a settlement"
-  poi: Bytes!
+  poi: Bytes
 
   # Metrics
   "Return for this allocation"
