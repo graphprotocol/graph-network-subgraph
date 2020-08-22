@@ -1,6 +1,6 @@
 {
   "name": "@graphprotocol/staging-testnet-subgraph",
-  "version": "v0.5.0-testnet-phase1",
+  "version": "v0.5.1-staging-testnet-phase1",
   "description": "Subgraph for the Graph Network",
   "repository": "https://github.com/graphprotocol/graph-network-subgraph",
   "license": "MIT",
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn build:ipfs",
     "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
-    "build:ipfs": "yarn && yarn prepare:addresses:kovan && graph build --ipfs https://testnet.thegraph.com/ipfs/",
+    "build:ipfs": "yarn && yarn prepare:addresses:rinkeby && graph build --ipfs https://testnet.thegraph.com/ipfs/",
     "deploy-beta": "yarn prepare:kovan && graph deploy graphprotocol/graph-network-beta --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-phase1": "yarn prepare:rinkeby && graph deploy graphprotocol/graph-network-rinkeby --ipfs https://testnet.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ && yarn build:ipfs",
     "deploy-testing": "yarn prepare:rinkeby && graph deploy davekaj/graph-network-rinkeby-practice --ipfs https://testnet.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ && yarn build:ipfs",
