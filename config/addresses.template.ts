@@ -1,4 +1,6 @@
-class Addresses {
+// AS compiler does not like interface
+export class Addresses {
+  controller: string
   graphToken: string
   epochManager: string
   disputeManager: string
@@ -13,7 +15,9 @@ class Addresses {
   network: string
 }
 
+// AS compiler does not like const
 export let addresses: Addresses = {
+  controller: '{{controller}}',
   graphToken: '{{graphToken}}',
   epochManager: '{{epochManager}}',
   disputeManager: '{{disputeManager}}',
