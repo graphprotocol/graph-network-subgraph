@@ -16,7 +16,8 @@ import {
   DelegatedStake,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
-import { ENSPublicResolver } from '../types/GNS/ENSPublicResolver'
+import { Controller } from '../types/Controller/Controller'
+
 import { addresses } from '../../config/addresses'
 
 export function createOrLoadSubgraph(
@@ -267,7 +268,7 @@ export function createOrLoadPool(id: BigInt): Pool {
 }
 
 export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
-  let graphNetwork = createOrLoadGraphNetwork(blockNumber)
+  let graphNetwork = GraphNetwork.load('1')
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
@@ -290,6 +291,7 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
       graphNetwork.lastLengthUpdateBlock + epochsSinceLastUpdate.toI32() * graphNetwork.epochLength
     epoch = createEpoch(startBlock, graphNetwork.epochLength, newEpoch)
 
+    graphNetwork.epochCount = graphNetwork.epochCount + 1
     graphNetwork.currentEpoch = newEpoch
     graphNetwork.save()
 
@@ -312,19 +314,34 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
   return epoch
 }
 
-export function createOrLoadGraphNetwork(blockNumber: BigInt): GraphNetwork {
+export function createOrLoadGraphNetwork(
+  blockNumber: BigInt,
+  controllerAddress: Bytes,
+): GraphNetwork {
   let graphNetwork = GraphNetwork.load('1')
   if (graphNetwork == null) {
     graphNetwork = new GraphNetwork('1')
-    graphNetwork.graphToken = Address.fromString(addresses.graphToken)
-    graphNetwork.epochManager = Address.fromString(addresses.epochManager)
-    graphNetwork.curation = Address.fromString(addresses.curation)
-    graphNetwork.staking = Address.fromString(addresses.staking)
-    graphNetwork.disputeManager = Address.fromString(addresses.disputeManager)
-    graphNetwork.gns = Address.fromString(addresses.gns)
-    graphNetwork.serviceRegistry = Address.fromString(addresses.serviceRegistry)
-    graphNetwork.rewardsManager = Address.fromString(addresses.rewardsManager)
 
+    let contract = Controller.bind(controllerAddress as Address)
+    let governor = contract.getGovernor()
+
+    // All of the 0x0000 addresses will be replaced in controller deployment calls
+    // Service registry is not stored in the Controller so we get it manually
+    graphNetwork.controller = controllerAddress
+    graphNetwork.graphToken = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.epochManager = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.curation = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.staking = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.disputeManager = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.gns = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.serviceRegistry = Address.fromString(addresses.serviceRegistry)
+    graphNetwork.rewardsManager = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.isPaused = false
+    graphNetwork.isPartialPaused = false
+    graphNetwork.governor = governor
+    graphNetwork.pauseGuardian = Address.fromString('0x0000000000000000000000000000000000000000')
+
+    // let contract = GraphNetwork.bind(event.params.a)
     // most of the parameters below are updated in the constructor, or else
     // right after deployment
     graphNetwork.curationPercentage = 0
@@ -361,6 +378,7 @@ export function createOrLoadGraphNetwork(blockNumber: BigInt): GraphNetwork {
     graphNetwork.lastLengthUpdateEpoch = 0
     graphNetwork.lastLengthUpdateBlock = blockNumber.toI32() // start it first block it was created
     graphNetwork.currentEpoch = 0
+    graphNetwork.epochCount = 0
 
     graphNetwork.indexerCount = 0
     graphNetwork.delegatorCount = 0
@@ -415,21 +433,19 @@ export function getVersionNumber(
 }
 
 /**
- * @dev Checks 4 different requirements to resolve a name for a subgraph. Only works with ENS
+ * @dev Checks 3 different requirements to resolve a name for a subgraph. Only works with ENS
  * @returns GraphNameAccount ID or null
  */
 export function resolveName(graphAccount: Address, name: string, node: Bytes): string | null {
   let graphAccountString = graphAccount.toHexString()
   if (checkTLD(name, node.toHexString())) {
     if (verifyNameOwnership(graphAccountString, node)) {
-      // if (checkTextRecord(graphAccountString, node)) {
       let nameSystem = 'ENS'
       let id = joinID([nameSystem, node.toHexString()])
       if (checkNoNameDuplicate(id, nameSystem, name, graphAccountString)) {
         // all checks passed. save the new name, return the ID to be stored on the subgraph
         return id
       }
-      // }
     }
   }
   // one requirement failed, return null
@@ -446,13 +462,11 @@ function checkTLD(name: string, node: string): boolean {
   let labelHash = crypto.keccak256(ByteArray.fromUTF8(name))
 
   // namehash('eth') = 0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae
-  // namehash('test') = 0x04f740db81dc36c853ab4205bddd785f46e79ccedca351fc6dfcbd8cc9a33dd6
-  // NOTE - test registrar is in use for now for quick testing. TODO - switch when we are ready
-  let testNode = ByteArray.fromHexString(
+  let nameNode = ByteArray.fromHexString(
     '0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae',
   )
 
-  let nameHash = crypto.keccak256(concatByteArrays(testNode, labelHash)).toHexString()
+  let nameHash = crypto.keccak256(concatByteArrays(nameNode, labelHash)).toHexString()
   return nameHash == node ? true : false
 }
 
@@ -491,6 +505,16 @@ function checkNoNameDuplicate(
     graphAccountName.nameSystem = nameSystem
     graphAccountName.name = name
     graphAccountName.graphAccount = graphAccount
+    graphAccountName.save()
+    return true
+    // check that this name is not already used by another graph account
+    // If so, remove the old one, and set the new one
+  } else if (graphAccountName.graphAccount == graphAccount) {
+    let graphAccount = GraphAccount.load(graphAccountName.graphAccount)
+    let oldGraphAccountName = GraphAccountName.load(graphAccount.defaultName)
+    oldGraphAccountName.graphAccount = null
+    oldGraphAccountName.save()
+    graphAccountName.graphAccount = graphAccount.id
     graphAccountName.save()
     return true
   }

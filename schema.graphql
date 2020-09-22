@@ -4,6 +4,8 @@ Graph Network global parameters
 type GraphNetwork @entity {
   "ID is set to 1"
   id: ID!
+  "Controller address"
+  controller: Bytes!
   "Graph token address"
   graphToken: Bytes!
   "Epoch manager address"
@@ -20,8 +22,14 @@ type GraphNetwork @entity {
   serviceRegistry: Bytes!
   "Rewards manager address"
   rewardsManager: Bytes!
-  # "Set to true if the protocol is paused" - add when implemented
-  # paused: Boolean!
+  "True if the protocol is paused"
+  isPaused: Boolean!
+  "True if the protocol is partially paused"
+  isPartialPaused: Boolean!
+  "Governor of the controller i.e. the whole protocol"
+  governor: Bytes!
+  "Pause guardian address"
+  pauseGuardian: Bytes!
 
   # Staking global parameters
   "Percentage of fees going to curators"
@@ -104,6 +112,8 @@ type GraphNetwork @entity {
   subgraphCount: Int!
   "Total subgraphs"
   subgraphDeploymentCount: Int!
+  "Total epochs"
+  epochCount: Int!
 
   # Dispute Manager global variables - add when implemented
   "Penalty to Indexer on successful disputes"
@@ -123,7 +133,7 @@ type GraphAccount @entity {
   "All names this graph account has claimed from all name systems"
   names: [GraphAccountName!]! @derivedFrom(field: "graphAccount")
   "Default name the graph account has chosen"
-  defaultName: GraphAccountName  # Can optimize in future by checking ENS & others to make sure they still own the name
+  defaultName: GraphAccountName # Can optimize in future by checking ENS & others to make sure they still own the name
   "Time the account was created"
   createdAt: Int!
 
@@ -185,7 +195,7 @@ type GraphAccountName @entity {
   "Name from the system"
   name: String!
   "The graph account that owned the name when it was linked in the graph network"
-  graphAccount: GraphAccount! # May not match if the graph account proceeded to transfer away their name on that system
+  graphAccount: GraphAccount # May not match if the graph account proceeded to transfer away their name on that system
 }
 
 enum NameSystem {
@@ -213,7 +223,7 @@ type Subgraph @entity {
 
   # Name curation data for bonding curve
   # Note that the Subgraphs V signal is actually stored in a Signal object, which
-  # considers the GNS as a curator updated on curation.ts 
+  # considers the GNS as a curator updated on curation.ts
   "Tokens signalled for the name all time"
   signalledTokens: BigInt!
   "Tokens signalled for the name"
@@ -253,9 +263,9 @@ type Subgraph @entity {
   "Total query fees earned by this subgraph"
   totalQueryFeesCollected: BigInt!
 
-  # DAVE NOTE - the two below are really complex to calculate, i don't even know if there is a 
+  # DAVE NOTE - the two below are really complex to calculate, i don't even know if there is a
   # way to do it efficiently. I would prefer to remove this unless there are strong convictions not to
-  
+
   # "Total stake of all indexers on all subgraph versions. Includes delegation"
   # totalStake: BigInt!
   # "Total signal of all curators on all subgraph versions"
@@ -318,7 +328,6 @@ type SubgraphDeployment @entity {
   unsignalledTokens: BigInt!
   "Current curation signal for this subgraph deployment"
   signalAmount: BigInt!
-
 
   "Curators of this subgraph deployment"
   curatorSignals: [Signal!]! @derivedFrom(field: "subgraphDeployment")
@@ -698,7 +707,7 @@ type Epoch @entity {
   signalledTokens: BigInt! # sum(signal - unsignalled)
   "Stake deposited during this epoch"
   stakeDeposited: BigInt! # sum(stake - unstake)
-  # "Query fees collected during this epoch" 
+  # "Query fees collected during this epoch"
   # totalQueryFees: BigInt! # Note - this is the exact same as pool.totalFees, so its removed
   "Rebate amount claimed from the protocol in this epoch"
   queryFeeRebates: BigInt!
@@ -706,4 +715,3 @@ type Epoch @entity {
   totalRewards: BigInt!
   # todo - DO I NEED totalQueryFees / Protocol rebates earned?
 }
-

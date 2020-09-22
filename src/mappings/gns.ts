@@ -34,15 +34,22 @@ export function handleSetDefaultName(event: SetDefaultName): void {
   )
   if (graphAccount.defaultName != null) {
     let graphAccountName = GraphAccountName.load(graphAccount.defaultName)
+    // If trying to set the same name, do nothing
     if (graphAccountName.name == event.params.name) {
       return
     }
   }
-  graphAccount.defaultName = resolveName(
+  let newDefaultName = resolveName(
     event.params.graphAccount,
     event.params.name,
     event.params.nameIdentifier,
   )
+
+  // Edge case - a user sets a correct ID, and then sets an incorrect ID. It should not overwrite
+  // the good name with null
+  if (newDefaultName != null) {
+    graphAccount.defaultName = newDefaultName
+  }
   graphAccount.save()
 }
 

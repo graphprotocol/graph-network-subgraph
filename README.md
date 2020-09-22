@@ -24,6 +24,8 @@ yarn deploy-production
 Then you must inform jannis of the new subgraph ID. This should be done by releasing a new NPM
 package! (See below)
 
+> NOTE - you must also update `deployment.json` with the new ID
+
 # NPM package
 
 There are two npm packages for the subgraph. This is so we can maintain one that is used with the

@@ -5,7 +5,7 @@ import {
   StakeLocked,
   StakeSlashed,
   AllocationCreated,
-  AllocationSettled,
+  AllocationClosed,
   RebateClaimed,
   ParameterUpdated,
   Staking,
@@ -236,7 +236,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let allocation = new Allocation(allocationID)
   allocation.publicKey = event.params.channelPubKey
   allocation.assetHolder = event.params.assetHolder
-  allocation.price = event.params.price
+  allocation.price = BigInt.fromI32(0) // TODO - fix, this doesnt exist anymore
   allocation.indexer = indexerID
   allocation.subgraphDeployment = subgraphDeploymentID
   allocation.allocatedTokens = event.params.tokens
@@ -309,7 +309,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
  * - update the specific allocation
  * - update and close the channel
  */
-export function handleAllocationSettled(event: AllocationSettled): void {
+export function handleAllocationClosed(event: AllocationClosed): void {
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
 
@@ -318,6 +318,7 @@ export function handleAllocationSettled(event: AllocationSettled): void {
   if (event.params.sender != event.params.indexer) {
     indexer.forcedSettlements = indexer.forcedSettlements + 1
   }
+  indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.save()
 
   // update allocation
@@ -362,12 +363,10 @@ export function handleRebateClaimed(event: RebateClaimed): void {
 
   // update indexer
   let indexer = Indexer.load(indexerID)
-  indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.queryFeeRebates = indexer.queryFeeRebates.plus(event.params.tokens)
   indexer.save()
   // update allocation
   let allocation = Allocation.load(allocationID)
-  allocation.allocatedTokens = BigInt.fromI32(0)
   allocation.queryFeeRebates = event.params.tokens
   allocation.delegationFees = event.params.delegationFees
   allocation.status = 'Claimed'

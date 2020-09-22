@@ -1,5 +1,5 @@
 import { Indexer, Allocation, GraphNetwork, Epoch, SubgraphDeployment } from '../types/schema'
-import { RewardsAssigned, RewardsClaimed } from '../types/RewardsManager/RewardsManager'
+import { RewardsAssigned } from '../types/RewardsManager/RewardsManager'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {
   let indexerID = event.params.indexer.toHexString()
@@ -33,12 +33,12 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   graphNetwork.save()
 }
 
-export function handleRewardsClaimed(event: RewardsClaimed): void {
-  // Only indexer has a "claimed" amount - since in the UI we would want to show
-  // an indexer can claim. The the other 4 entities in RewardsAssigned, there
-  // is no need to add a difference for claimed vs assigned. (...yet)
-  let indexerID = event.params.indexer.toHexString()
-  let indexer = Indexer.load(indexerID)
-  indexer.rewardsClaimed = indexer.rewardsClaimed.plus(event.params.amount)
-  indexer.save()
-}
+// export function handleRewardsClaimed(event: RewardsClaimed): void {
+//   // Only indexer has a "claimed" amount - since in the UI we would want to show
+//   // an indexer can claim. The the other 4 entities in RewardsAssigned, there
+//   // is no need to add a difference for claimed vs assigned. (...yet)
+//   let indexerID = event.params.indexer.toHexString()
+//   let indexer = Indexer.load(indexerID)
+//   indexer.rewardsClaimed = indexer.rewardsClaimed.plus(event.params.amount)
+//   indexer.save()
+// }

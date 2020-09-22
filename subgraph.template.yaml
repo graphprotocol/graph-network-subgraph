@@ -5,6 +5,34 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
+    name: Controller
+    network: {{network}}
+    source:
+      address: '{{controller}}'
+      abi: Controller
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/controller.ts
+      entities:
+        - Indexer
+      abis:
+        - name: Controller
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/Controller.json
+      eventHandlers:
+        - event: SetContractProxy(bytes32,address)
+          handler: handleSetContractProxy
+        - event: NewOwnership(indexed address,indexed address)
+          handler: handleNewOwnership
+        - event: PartialPauseChanged(bool)
+          handler: handlePartialPauseChanged
+        - event: PauseChanged(bool)
+          handler: handlePauseChanged
+        - event: NewPauseGuardian(address,address)
+          handler: handleNewPauseGuardian
+  - kind: ethereum/contract
     name: GNS
     network: {{network}}
     source:
@@ -116,11 +144,11 @@ dataSources:
           handler: handleStakeDelegatedLocked
         - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
           handler: handleStakeDelegatedWithdrawn       
-        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes,uint256,address)
+        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes,bytes32,address)
           handler: handleAllocationCreated
         - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
           handler: handleAllocationCollected
-        - event: AllocationSettled(indexed address,indexed bytes32,uint256,uint256,address,uint256,address,bytes32)
+        - event: AllocationClosed(indexed address,indexed bytes32,uint256,uint256,address,uint256,address,bytes32)
           handler: handleAllocationSettled
         - event: RebateClaimed(indexed address,indexed bytes32,address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
@@ -245,5 +273,5 @@ dataSources:
       eventHandlers:
         - event: RewardsAssigned(indexed address,indexed address,uint256,uint256)
           handler: handleRewardsAssigned
-        - event: RewardsClaimed(address,uint256)
-          handler: handleRewardsClaimed
+        # - event: RewardsClaimed(address,uint256)
+        #   handler: handleRewardsClaimed
