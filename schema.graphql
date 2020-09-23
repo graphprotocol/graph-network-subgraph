@@ -10,10 +10,16 @@ type GraphNetwork @entity {
   graphToken: Bytes!
   "Epoch manager address"
   epochManager: Bytes!
+  "Epoch Manager implementations. Last in the array is current"
+  epochManagerImplementations: [Bytes!]!
   "Curation address"
   curation: Bytes!
+  "Curation implementations. Last in the array is current"
+  curationImplementations: [Bytes!]!
   "Staking address"
   staking: Bytes!
+  "Graph token implementations. Last in the array is current"
+  stakingImplementations: [Bytes!]!
   "Dispute manager address"
   disputeManager: Bytes!
   "GNS address"
@@ -22,6 +28,8 @@ type GraphNetwork @entity {
   serviceRegistry: Bytes!
   "Rewards manager address"
   rewardsManager: Bytes!
+  "Rewards Manager implementations. Last in the array is current"
+  rewardsManagerImplementations: [Bytes!]!
   "True if the protocol is paused"
   isPaused: Boolean!
   "True if the protocol is partially paused"
@@ -48,8 +56,7 @@ type GraphNetwork @entity {
   delegationParametersCooldown: Int!
   "The number of times indexing rewards are handed out each epoch"
   indexingRewardsPerEpoch: Int!
-  "The issuance rate that GRT is minted at for rewards to staked Indexers"
-  networkGRTIssuance: Int!
+
   "Time in epochs a delegator needs to wait to withdraw delegated stake"
   delegationUnbondingPeriod: Int!
 
@@ -68,6 +75,12 @@ type GraphNetwork @entity {
   totalDelegatedTokens: BigInt!
   "Total indexing rewards earned"
   totalIndexingRewards: BigInt!
+
+  # Rewards manager global parameters
+  "The issuance rate that GRT is minted at for rewards to staked Indexers"
+  networkGRTIssuance: Int!
+  "Address of the availability oracle"
+  subgraphAvailabilityOracle: Bytes!
 
   # Curation global parameters
   "Default reserve ratio for all subgraphs"
@@ -394,8 +407,6 @@ type Indexer @entity {
   queryFeeRebates: BigInt!
   "Total indexing rewards earned by this indexer from inflation"
   rewardsEarned: BigInt!
-  "Total indexing rewards claimed by this indexer"
-  rewardsClaimed: BigInt!
 
   # Delegation Pool
   "Delegators to this Indexer"
