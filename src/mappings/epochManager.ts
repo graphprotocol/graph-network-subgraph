@@ -1,5 +1,9 @@
 import { GraphNetwork } from '../types/schema'
-import { EpochRun, EpochLengthUpdate } from '../types/EpochManager/EpochManager'
+import {
+  EpochRun,
+  EpochLengthUpdate,
+  ImplementationUpdated,
+} from '../types/EpochManager/EpochManager'
 import { createOrLoadEpoch, createEpoch } from './helpers'
 import { log, BigInt } from '@graphprotocol/graph-ts'
 
@@ -18,7 +22,7 @@ export function handleEpochRun(event: EpochRun): void {
  * - updates the length and the last block and epoch it happened
  */
 export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
-  let graphNetwork = GraphNetwork.load("1")
+  let graphNetwork = GraphNetwork.load('1')
 
   // Edge case to handle when it is the first time, otherwise createOrLoadEpoch fails
   // TODO = make this an event emitted in EpochManager constructor
@@ -54,5 +58,13 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
     createEpoch(event.block.number.toI32(), graphNetwork.epochLength, newEpochNumber)
   }
   graphNetwork.lastLengthUpdateEpoch = graphNetwork.currentEpoch
+  graphNetwork.save()
+}
+
+export function handleImplementationUpdated(event: ImplementationUpdated): void {
+  let graphNetwork = GraphNetwork.load('1')
+  let implementations = graphNetwork.epochManagerImplementations
+  implementations.push(event.params.newImplementation)
+  graphNetwork.epochManagerImplementations = implementations
   graphNetwork.save()
 }

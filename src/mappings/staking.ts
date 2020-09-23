@@ -15,6 +15,7 @@ import {
   StakeDelegatedWithdrawn,
   AllocationCollected,
   DelegationParametersUpdated,
+  ImplementationUpdated
 } from '../types/Staking/Staking'
 import {
   Indexer,
@@ -439,4 +440,12 @@ export function handleSetOperator(event: SetOperator): void {
   }
   graphAccount.operators = operators
   graphAccount.save()
+}
+
+export function handleImplementationUpdated(event: ImplementationUpdated): void {
+  let graphNetwork = GraphNetwork.load('1')
+  let implementations = graphNetwork.stakingImplementations
+  implementations.push(event.params.newImplementation)
+  graphNetwork.stakingImplementations = implementations
+  graphNetwork.save()
 }

@@ -156,6 +156,8 @@ dataSources:
           handler: handleParameterUpdated
         - event: SetOperator(indexed address,address,bool)
           handler: handleSetOperator
+        - event: ImplementationUpdated(address,address)
+          handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
@@ -186,6 +188,8 @@ dataSources:
           handler: handleCollected
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
+        - event: ImplementationUpdated(address,address)
+          handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: GraphToken
     network: {{network}}
@@ -252,6 +256,8 @@ dataSources:
           handler: handleEpochRun
         - event: EpochLengthUpdate(indexed uint256,uint256)
           handler: handleEpochLengthUpdate
+        - event: ImplementationUpdated(address,address)
+          handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: RewardsManager
     network: {{network}}
@@ -273,5 +279,7 @@ dataSources:
       eventHandlers:
         - event: RewardsAssigned(indexed address,indexed address,uint256,uint256)
           handler: handleRewardsAssigned
-        # - event: RewardsClaimed(address,uint256)
-        #   handler: handleRewardsClaimed
+        - event: ImplementationUpdated(address,address)
+          handler: handleImplementationUpdated
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated

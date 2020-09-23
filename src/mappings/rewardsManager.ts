@@ -1,5 +1,11 @@
+import { Address } from '@graphprotocol/graph-ts'
 import { Indexer, Allocation, GraphNetwork, Epoch, SubgraphDeployment } from '../types/schema'
-import { RewardsAssigned } from '../types/RewardsManager/RewardsManager'
+import {
+  RewardsAssigned,
+  ImplementationUpdated,
+  ParameterUpdated,
+  RewardsManager,
+} from '../types/RewardsManager/RewardsManager'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {
   let indexerID = event.params.indexer.toHexString()
@@ -33,12 +39,27 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   graphNetwork.save()
 }
 
-// export function handleRewardsClaimed(event: RewardsClaimed): void {
-//   // Only indexer has a "claimed" amount - since in the UI we would want to show
-//   // an indexer can claim. The the other 4 entities in RewardsAssigned, there
-//   // is no need to add a difference for claimed vs assigned. (...yet)
-//   let indexerID = event.params.indexer.toHexString()
-//   let indexer = Indexer.load(indexerID)
-//   indexer.rewardsClaimed = indexer.rewardsClaimed.plus(event.params.amount)
-//   indexer.save()
-// }
+/**
+ * @dev handleParameterUpdated
+ * - handlers updating all parameters
+ */
+export function handleParameterUpdated(event: ParameterUpdated): void {
+  let parameter = event.params.param
+  let graphNetwork = GraphNetwork.load('1')
+  let rewardsManager = RewardsManager.bind(graphNetwork.rewardsManager as Address)
+
+  if (parameter == 'issuanceRate') {
+    graphNetwork.networkGRTIssuance = rewardsManager.issuanceRate().toI32()
+  } else if (parameter == 'subgraphAvailabilityOracle') {
+    graphNetwork.subgraphAvailabilityOracle = rewardsManager.subgraphAvailabilityOracle()
+  }
+  graphNetwork.save()
+}
+
+export function handleImplementationUpdated(event: ImplementationUpdated): void {
+  let graphNetwork = GraphNetwork.load('1')
+  let implementations = graphNetwork.rewardsManagerImplementations
+  implementations.push(event.params.newImplementation)
+  graphNetwork.rewardsManagerImplementations = implementations
+  graphNetwork.save()
+}

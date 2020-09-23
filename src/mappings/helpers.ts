@@ -101,7 +101,6 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.queryFeesCollected = BigInt.fromI32(0)
     indexer.queryFeeRebates = BigInt.fromI32(0)
     indexer.rewardsEarned = BigInt.fromI32(0)
-    indexer.rewardsClaimed = BigInt.fromI32(0)
 
     indexer.delegatedTokens = BigInt.fromI32(0)
     indexer.delegatorShares = BigInt.fromI32(0)
@@ -330,12 +329,16 @@ export function createOrLoadGraphNetwork(
     graphNetwork.controller = controllerAddress
     graphNetwork.graphToken = Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.epochManager = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.epochManagerImplementations = []
     graphNetwork.curation = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.curationImplementations = []
     graphNetwork.staking = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.stakingImplementations = []
     graphNetwork.disputeManager = Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.gns = Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.serviceRegistry = Address.fromString(addresses.serviceRegistry)
     graphNetwork.rewardsManager = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.rewardsManagerImplementations = []
     graphNetwork.isPaused = false
     graphNetwork.isPartialPaused = false
     graphNetwork.governor = governor
@@ -352,7 +355,6 @@ export function createOrLoadGraphNetwork(
     graphNetwork.thawingPeriod = 0
     graphNetwork.delegationParametersCooldown = 0
     graphNetwork.indexingRewardsPerEpoch = 0
-    graphNetwork.networkGRTIssuance = 0
     graphNetwork.delegationUnbondingPeriod = 0
 
     graphNetwork.totalTokensStaked = BigInt.fromI32(0)
@@ -362,6 +364,11 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalQueryFees = BigInt.fromI32(0)
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
     graphNetwork.totalIndexingRewards = BigInt.fromI32(0)
+
+    graphNetwork.networkGRTIssuance = 0
+    graphNetwork.subgraphAvailabilityOracle = Address.fromString(
+      '0x0000000000000000000000000000000000000000',
+    )
 
     graphNetwork.defaultReserveRatio = 0
     graphNetwork.minimumCurationDeposit = BigInt.fromI32(0)
