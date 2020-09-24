@@ -1,4 +1,4 @@
-import { BigInt, Address, BigDecimal } from '@graphprotocol/graph-ts'
+import { BigInt, Address, BigDecimal, Bytes, ipfs } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -15,7 +15,7 @@ import {
   StakeDelegatedWithdrawn,
   AllocationCollected,
   DelegationParametersUpdated,
-  ImplementationUpdated
+  ImplementationUpdated,
 } from '../types/Staking/Staking'
 import {
   Indexer,
@@ -36,6 +36,7 @@ import {
   joinID,
   createOrLoadDelegator,
   createOrLoadDelegatedStake,
+  addQm,
 } from './helpers'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
@@ -233,6 +234,11 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
   deployment.save()
 
+  // TODO - we haven't really spec'd out what we want to do with metadata
+  // ideas are gasPrice, bytesPrice, and geoHash
+  // we will implement in the subgraph when we actually decide on it
+  // for now, price is always 0, and the others aren't implemented.
+
   // create allocation
   let allocation = new Allocation(allocationID)
   allocation.publicKey = event.params.channelPubKey
@@ -330,8 +336,11 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.poi = event.params.poi
   allocation.save()
 
-  // update epoch - I don't think there is any here to update. not 100% sure
-
+  // update epoch - We do it here to have more epochs created, instead of seeing none created
+  // Likely this problem would go away with a live network with long epochs
+  // But we keep it here anyway. We might think of adding data in the future, like epoch.tokensClosed
+  let epoch = createOrLoadEpoch(event.block.number)
+  epoch.save()
   // update pool
   let pool = createOrLoadPool(event.params.epoch)
   // effective allocation is the value stored in contracts, so we use it here

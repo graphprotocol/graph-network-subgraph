@@ -5,6 +5,7 @@ import {
   ImplementationUpdated,
   ParameterUpdated,
   RewardsManager,
+  RewardsDenylistUpdated,
 } from '../types/RewardsManager/RewardsManager'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {
@@ -62,4 +63,14 @@ export function handleImplementationUpdated(event: ImplementationUpdated): void 
   implementations.push(event.params.newImplementation)
   graphNetwork.rewardsManagerImplementations = implementations
   graphNetwork.save()
+}
+
+export function handleRewardsDenyListUpdated(event: RewardsDenylistUpdated): void {
+  let subgraphDeployment = SubgraphDeployment.load(event.params.subgraphDeploymentID.toHexString())
+  if (event.params.sinceBlock.toI32() == 0) {
+    subgraphDeployment.deniedAt = null
+  } else {
+    subgraphDeployment.deniedAt = event.params.sinceBlock.toI32()
+  }
+  subgraphDeployment.save()
 }
