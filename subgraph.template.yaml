@@ -271,8 +271,11 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/rewardsManager.ts
       entities:
-        - TODO
-        - TODO
+        - Indexer
+        - Allocation
+        - GraphNetwork
+        - Epoch
+        - SubgraphDeployment
       abis:
         - name: RewardsManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/RewardsManager.json

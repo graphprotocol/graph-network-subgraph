@@ -96,7 +96,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.stakedTokens = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
-    indexer.claimableTokens = BigInt.fromI32(0)
+    indexer.unstakedTokens = BigInt.fromI32(0)
     indexer.tokensLockedUntil = 0
     indexer.queryFeesCollected = BigInt.fromI32(0)
     indexer.queryFeeRebates = BigInt.fromI32(0)
@@ -131,6 +131,7 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
   let delegator = Delegator.load(id)
   if (delegator == null) {
     delegator = new Delegator(id)
+    delegator.account = id
     delegator.totalStakedTokens = BigInt.fromI32(0)
     delegator.totalUnstakedTokens = BigInt.fromI32(0)
     delegator.createdAt = timestamp.toI32()

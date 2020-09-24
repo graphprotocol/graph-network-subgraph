@@ -319,6 +319,8 @@ type SubgraphDeployment @entity {
   versions: [SubgraphVersion!]! @derivedFrom(field: "subgraphDeployment")
   "Creation timestamp"
   createdAt: Int!
+  "The block at which this deployment was denied for rewards. Null if not denied"
+  deniedAt: Int
 
   # From Staking
   "Total stake of all indexers on this Subgraph deployment"
@@ -393,8 +395,8 @@ type Indexer @entity {
   stakedTokens: BigInt!
   "Total tokens allocated on all subgraphs"
   allocatedTokens: BigInt!
-  "Current tokens settled and waiting to be claimed"
-  claimableTokens: BigInt! # TODO - I think i can remove. This is basically lockedTokens, when time has passed
+  "Tokens that have been unstaked and withdrawn"
+  unstakedTokens: BigInt!
   "Current tokens locked"
   lockedTokens: BigInt!
   "The block when Indexers tokens unlock"
@@ -520,6 +522,8 @@ Delegator with all their stakes
 type Delegator @entity {
   "Delegator address"
   id: ID!
+  "Graph account of the delegator"
+  account: GraphAccount!
   "Stakes of this delegator"
   stakes: [DelegatedStake!]! @derivedFrom(field: "delegator")
   "Summation of all staked amounts in DelegatorStakes of this Delegator"
