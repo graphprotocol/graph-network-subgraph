@@ -188,6 +188,11 @@ type GraphAccount @entity {
   "Total query fees the subgraphs created by this account have accumulated in GRT"
   subgraphQueryFees: BigInt!
 
+  # Disputes
+  "Disputes this graph account has created"
+  createdDisputes: [Dispute!]! @derivedFrom(field: "fisherman")
+  "Disputes agaisnt this graph account"
+  disputesAgainst: [Dispute!]! @derivedFrom(field: "indexers")
   # Staking and Curating and Delegating
   "Subgraphs this account curates"
   curator: Curator
@@ -650,29 +655,40 @@ type NameSignal @entity {
 }
 
 """
-Dispute of a query. Includes both normal and attestation Disputes
+Dispute of a query. Includes single query, conflicting attestation, and indexing dispute
 """
 type Dispute @entity {
   "Dispute ID"
   id: ID!
   "Subgraph deployment being disputed"
   subgraphDeployment: SubgraphDeployment!
-  "Indexer disputed. If an attestation dispute there will be 2 indexers"
-  indexers: [Indexer!]!
   "Fisherman address"
-  fisherman: Bytes!
+  fisherman: GraphAccount!
   "Fisherman deposit"
   deposit: BigInt!
-  "Attestation disputed. If an attestation dispute there will be 2 attestation"
-  attestation: [Attestation!]!
+
   "Time dispute was created"
   createdAt: Int!
-  "Result of either type of dispute"
-  result: DisputeResult!
+  "Time dispute was closed at"
+  closedAt: Int
+  "Status of the dispute"
+  status: DisputeStatus!
   "Tokens slashed"
   tokensSlashed: BigInt!
   "Tokens rewarded"
   tokensRewarded: BigInt!
+
+  # Type specific data below
+  "Type of dispute"
+  type: DisputeType!
+  "Indexer(s) disputed. Conflicting disputes have 2 indexers. Others have 1"
+  indexers: [GraphAccount!]!
+  "Attestation 1. Only for single query and conflicting attestation"
+  attestation1: Attestation
+  "Attestation 2. Only for conflicting attestation"
+  attestation2: Attestation
+  "Allocation ID. Only for Indexing Disputes"
+  allocation: Allocation
 }
 
 """
@@ -699,7 +715,13 @@ type Attestation @entity {
   s: Bytes!
 }
 
-enum DisputeResult {
+enum DisputeType {
+  SingleQuery
+  Conflicting
+  Indexing
+}
+
+enum DisputeStatus {
   Undecided
   Accepted
   Rejected
