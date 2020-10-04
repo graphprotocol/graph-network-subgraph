@@ -12,7 +12,7 @@ import {
   SetDefaultName,
 } from '../types/GNS/GNS'
 
-import { Subgraph, SubgraphVersion, GraphAccount, Curator, GraphAccountName } from '../types/schema'
+import { Subgraph, SubgraphVersion, GraphAccount, Curator, GraphAccountName, SubgraphDeployment } from '../types/schema'
 
 import { jsonToString } from './utils'
 import {
@@ -67,15 +67,27 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
     let tryData = json.try_fromBytes(metadata as Bytes)
     if (tryData.isOk) {
       let data = tryData.value.toObject()
-      subgraph.description = jsonToString(data.get('subgraphDescription'))
-      subgraph.image = jsonToString(data.get('subgraphImage'))
-      subgraph.displayName = jsonToString(data.get('subgraphDisplayName'))
-      subgraph.codeRepository = jsonToString(data.get('subgraphCodeRepository'))
-      subgraph.website = jsonToString(data.get('subgraphWebsite'))
+      subgraph.description = jsonToString(data.get('description'))
+      subgraph.image = jsonToString(data.get('image'))
+      subgraph.displayName = jsonToString(data.get('displayName'))
+      subgraph.codeRepository = jsonToString(data.get('codeRepository'))
+      subgraph.website = jsonToString(data.get('website'))
     }
   }
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
+
+  // Add the original subgraph name to the subgraph deployment
+  // This is a temporary solution until we can filter on nested queries
+  let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion)
+  let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)
+  // Not super robust, someone could deploy blank, then point a subgraph to here
+  // It is more appropriate to say this is the first name 'claimed' for the deployment
+  if (subgraphDeployment.originalName == null) {
+    subgraphDeployment.originalName = subgraph.displayName
+    subgraphDeployment.save()
+  }
+
 }
 
 /**
@@ -115,7 +127,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-
+  
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
   subgraphVersion.subgraph = subgraphID

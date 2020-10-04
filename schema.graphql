@@ -326,6 +326,8 @@ type SubgraphDeployment @entity {
   createdAt: Int!
   "The block at which this deployment was denied for rewards. Null if not denied"
   deniedAt: Int
+  "The original Subgraph that was deployed through GNS. Can be null if never created through GNS"
+  originalName: String
 
   # From Staking
   "Total stake of all indexers on this Subgraph deployment"
