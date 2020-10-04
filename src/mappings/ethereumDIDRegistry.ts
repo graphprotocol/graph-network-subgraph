@@ -25,6 +25,7 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
       graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
       graphAccount.description = jsonToString(data.get('description'))
       graphAccount.image = jsonToString(data.get('image'))
+      graphAccount.displayName = jsonToString(data.get('displayName'))
       let isOrganization = data.get('isOrganization')
       if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
         graphAccount.isOrganization = isOrganization.toBool()
