@@ -68,7 +68,7 @@ export function handleImplementationUpdated(event: ImplementationUpdated): void 
 export function handleRewardsDenyListUpdated(event: RewardsDenylistUpdated): void {
   let subgraphDeployment = SubgraphDeployment.load(event.params.subgraphDeploymentID.toHexString())
   if (event.params.sinceBlock.toI32() == 0) {
-    subgraphDeployment.deniedAt = null
+    subgraphDeployment.deniedAt = 0
   } else {
     subgraphDeployment.deniedAt = event.params.sinceBlock.toI32()
   }

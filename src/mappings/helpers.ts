@@ -77,6 +77,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.unsignalledTokens = BigInt.fromI32(0)
     deployment.signalAmount = BigInt.fromI32(0)
     deployment.reserveRatio = 0
+    deployment.deniedAt = 0
     deployment.save()
 
     let graphNetwork = GraphNetwork.load('1')

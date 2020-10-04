@@ -163,6 +163,8 @@ type GraphAccount @entity {
   image: String
   "Website URL"
   website: String
+  "Display name. Not unique"
+  displayName: String
 
   # Operator info
   "Operator of other Graph Accounts"
@@ -325,7 +327,7 @@ type SubgraphDeployment @entity {
   "Creation timestamp"
   createdAt: Int!
   "The block at which this deployment was denied for rewards. Null if not denied"
-  deniedAt: Int
+  deniedAt: Int!
   "The original Subgraph that was deployed through GNS. Can be null if never created through GNS"
   originalName: String
 
@@ -754,3 +756,11 @@ type Epoch @entity {
   totalRewards: BigInt!
   # todo - DO I NEED totalQueryFees / Protocol rebates earned?
 }
+
+type _Schema_
+  @fulltext(
+    name: "subgraphSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "Subgraph", fields: [{ name: "displayName" }, { name: "description" }] }]
+  )
