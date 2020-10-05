@@ -2,7 +2,6 @@ import { Address } from '@graphprotocol/graph-ts'
 import { Indexer, Allocation, GraphNetwork, Epoch, SubgraphDeployment } from '../types/schema'
 import {
   RewardsAssigned,
-  ImplementationUpdated,
   ParameterUpdated,
   RewardsManager,
   RewardsDenylistUpdated,
@@ -57,13 +56,13 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   graphNetwork.save()
 }
 
-export function handleImplementationUpdated(event: ImplementationUpdated): void {
-  let graphNetwork = GraphNetwork.load('1')
-  let implementations = graphNetwork.rewardsManagerImplementations
-  implementations.push(event.params.newImplementation)
-  graphNetwork.rewardsManagerImplementations = implementations
-  graphNetwork.save()
-}
+// export function handleImplementationUpdated(event: ImplementationUpdated): void {
+//   let graphNetwork = GraphNetwork.load('1')
+//   let implementations = graphNetwork.rewardsManagerImplementations
+//   implementations.push(event.params.newImplementation)
+//   graphNetwork.rewardsManagerImplementations = implementations
+//   graphNetwork.save()
+// }
 
 export function handleRewardsDenyListUpdated(event: RewardsDenylistUpdated): void {
   let subgraphDeployment = SubgraphDeployment.load(event.params.subgraphDeploymentID.toHexString())

@@ -4,7 +4,6 @@ import {
   Collected,
   Curation,
   ParameterUpdated,
-  ImplementationUpdated
 } from '../types/Curation/Curation'
 import { Curator, GraphNetwork, Signal, SubgraphDeployment } from '../types/schema'
 import { Address } from '@graphprotocol/graph-ts'
@@ -142,10 +141,10 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   graphNetwork.save()
 }
 
-export function handleImplementationUpdated(event: ImplementationUpdated): void {
-  let graphNetwork = GraphNetwork.load('1')
-  let implementations = graphNetwork.curationImplementations
-  implementations.push(event.params.newImplementation)
-  graphNetwork.curationImplementations = implementations
-  graphNetwork.save()
-}
+// export function handleImplementationUpdated(event: ImplementationUpdated): void {
+//   let graphNetwork = GraphNetwork.load('1')
+//   let implementations = graphNetwork.curationImplementations
+//   implementations.push(event.params.newImplementation)
+//   graphNetwork.curationImplementations = implementations
+//   graphNetwork.save()
+// }

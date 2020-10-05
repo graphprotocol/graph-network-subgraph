@@ -144,7 +144,7 @@ dataSources:
           handler: handleStakeDelegatedLocked
         - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
           handler: handleStakeDelegatedWithdrawn       
-        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes,bytes32,address)
+        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes32)
           handler: handleAllocationCreated
         - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
           handler: handleAllocationCollected
@@ -156,8 +156,8 @@ dataSources:
           handler: handleParameterUpdated
         - event: SetOperator(indexed address,address,bool)
           handler: handleSetOperator
-        - event: ImplementationUpdated(address,address)
-          handler: handleImplementationUpdated
+        # - event: ImplementationUpdated(address,address)
+        #   handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
@@ -188,8 +188,8 @@ dataSources:
           handler: handleCollected
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
-        - event: ImplementationUpdated(address,address)
-          handler: handleImplementationUpdated
+        # - event: ImplementationUpdated(address,address)
+        #   handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: GraphToken
     network: {{network}}
@@ -256,8 +256,8 @@ dataSources:
           handler: handleEpochRun
         - event: EpochLengthUpdate(indexed uint256,uint256)
           handler: handleEpochLengthUpdate
-        - event: ImplementationUpdated(address,address)
-          handler: handleImplementationUpdated
+        # - event: ImplementationUpdated(address,address)
+        #   handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: RewardsManager
     network: {{network}}
@@ -282,7 +282,7 @@ dataSources:
       eventHandlers:
         - event: RewardsAssigned(indexed address,indexed address,uint256,uint256)
           handler: handleRewardsAssigned
-        - event: ImplementationUpdated(address,address)
-          handler: handleImplementationUpdated
+        # - event: ImplementationUpdated(address,address)
+        #   handler: handleImplementationUpdated
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated

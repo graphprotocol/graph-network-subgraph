@@ -454,10 +454,6 @@ State channel allocation representing Indexer-SubgraphDeployment stake
 type Allocation @entity {
   "Channel Address"
   id: ID!
-  "Uncompressed public key of the channel"
-  publicKey: Bytes!
-  "Asset holder (proxy) of the channel"
-  assetHolder: Bytes!
   "Price of the queries"
   price: BigInt!
   "Indexer of this allocation"
@@ -535,9 +531,9 @@ type Delegator @entity {
   account: GraphAccount!
   "Stakes of this delegator"
   stakes: [DelegatedStake!]! @derivedFrom(field: "delegator")
-  "Summation of all staked amounts in DelegatorStakes of this Delegator"
+  "Summation of all staked tokens in DelegatorStakes of this Delegator"
   totalStakedTokens: BigInt!
-  "Summation of all unstaked amounts in DelegatorStakes of this Delegator"
+  "Summation of all unstaked tokens in DelegatorStakes of this Delegator"
   totalUnstakedTokens: BigInt!
   "Time created at"
   createdAt: Int!
@@ -553,15 +549,15 @@ type DelegatedStake @entity {
   indexer: Indexer!
   "Delegator"
   delegator: Delegator!
-  "Amount delegated"
+  "Amount delegated all time (static)"
   stakedTokens: BigInt!
-  "Amount un-delegated"
+  "Amount un-delegated all time (static)"
   unstakedTokens: BigInt!
   "Amount currently locked"
   lockedTokens: BigInt!
   "Epoch the locked tokens are unlocked"
   lockedUntil: Int!
-  "Shares owned in the delegator pool"
+  "Shares owned in the delegator pool. Used to calculate total amount delegated"
   shareAmount: BigInt!
 }
 
