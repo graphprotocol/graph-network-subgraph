@@ -1,6 +1,6 @@
 {
   "name": "@graphprotocol/staging-testnet-subgraph",
-  "version": "v0.5.0-testnet-phase1",
+  "version": "v0.7.1-testnet-phase2",
   "description": "Subgraph for the Graph Network",
   "repository": "https://github.com/graphprotocol/graph-network-subgraph",
   "license": "MIT",
@@ -26,7 +26,7 @@
     "prettier-write": "prettier --write '**/*.ts'"
   },
   "devDependencies": {
-    "@graphprotocol/contracts": "^0.7.0-testnet-phase2",
+    "@graphprotocol/contracts": "^0.7.1-testnet-phase2-staging",
     "@graphprotocol/graph-cli": "^0.18.0",
     "@graphprotocol/graph-ts": "^0.18.1",
     "@types/node": "^14.0.13",

@@ -15,7 +15,6 @@ import {
   StakeDelegatedWithdrawn,
   AllocationCollected,
   DelegationParametersUpdated,
-  ImplementationUpdated,
 } from '../types/Staking/Staking'
 import {
   Indexer,
@@ -242,8 +241,6 @@ export function handleAllocationCreated(event: AllocationCreated): void {
 
   // create allocation
   let allocation = new Allocation(allocationID)
-  allocation.publicKey = event.params.channelPubKey
-  allocation.assetHolder = event.params.assetHolder
   allocation.price = BigInt.fromI32(0) // TODO - fix, this doesnt exist anymore
   allocation.indexer = indexerID
   allocation.subgraphDeployment = subgraphDeploymentID
@@ -428,7 +425,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   } else if (parameter == 'maxAllocationEpochs') {
     graphNetwork.maxAllocationEpochs = staking.maxAllocationEpochs().toI32()
   } else if (parameter == 'delegationCapacity') {
-    graphNetwork.delegationCapacity = staking.delegationCapacity().toI32()
+    graphNetwork.delegationCapacity = staking.delegationRatio().toI32()
   } else if (parameter == 'delegationParametersCooldown') {
     graphNetwork.delegationParametersCooldown = staking.delegationParametersCooldown().toI32()
   } else if (parameter == 'delegationUnbondingPeriod') {
@@ -462,10 +459,10 @@ export function handleSetOperator(event: SetOperator): void {
   graphAccount.save()
 }
 
-export function handleImplementationUpdated(event: ImplementationUpdated): void {
-  let graphNetwork = GraphNetwork.load('1')
-  let implementations = graphNetwork.stakingImplementations
-  implementations.push(event.params.newImplementation)
-  graphNetwork.stakingImplementations = implementations
-  graphNetwork.save()
-}
+// export function handleImplementationUpdated(event: ImplementationUpdated): void {
+//   let graphNetwork = GraphNetwork.load('1')
+//   let implementations = graphNetwork.stakingImplementations
+//   implementations.push(event.params.newImplementation)
+//   graphNetwork.stakingImplementations = implementations
+//   graphNetwork.save()
+// }

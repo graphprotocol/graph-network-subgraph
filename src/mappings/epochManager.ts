@@ -2,7 +2,6 @@ import { GraphNetwork } from '../types/schema'
 import {
   EpochRun,
   EpochLengthUpdate,
-  ImplementationUpdated,
 } from '../types/EpochManager/EpochManager'
 import { createOrLoadEpoch, createEpoch } from './helpers'
 import { log, BigInt } from '@graphprotocol/graph-ts'
@@ -61,10 +60,10 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
   graphNetwork.save()
 }
 
-export function handleImplementationUpdated(event: ImplementationUpdated): void {
-  let graphNetwork = GraphNetwork.load('1')
-  let implementations = graphNetwork.epochManagerImplementations
-  implementations.push(event.params.newImplementation)
-  graphNetwork.epochManagerImplementations = implementations
-  graphNetwork.save()
-}
+// export function handleImplementationUpdated(event: ImplementationUpdated): void {
+//   let graphNetwork = GraphNetwork.load('1')
+//   let implementations = graphNetwork.epochManagerImplementations
+//   implementations.push(event.params.newImplementation)
+//   graphNetwork.epochManagerImplementations = implementations
+//   graphNetwork.save()
+// }
