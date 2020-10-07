@@ -247,6 +247,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.allocatedTokens = event.params.tokens
   allocation.effectiveAllocation = BigInt.fromI32(0)
   allocation.createdAtEpoch = event.params.epoch.toI32()
+  allocation.createdAtBlockHash = event.block.hash
   allocation.queryFeesCollected = BigInt.fromI32(0)
   allocation.queryFeeRebates = BigInt.fromI32(0)
   allocation.curatorRewards = BigInt.fromI32(0)
