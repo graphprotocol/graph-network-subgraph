@@ -468,6 +468,8 @@ type Allocation @entity {
   createdAtEpoch: Int!
   "Block at which this allocation was created"
   createdAtBlockHash: Bytes!
+  "Epoch this allocation was closed in"
+  closedAtEpoch: Int!
   "Fees this allocation collected from query fees upon closing. Excludes curator reward and rebate claimed"
   queryFeesCollected: BigInt!
   "Rebate amount claimed from the protocol"
