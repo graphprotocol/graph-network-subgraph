@@ -332,6 +332,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   let allocation = Allocation.load(allocationID)
   allocation.poolSettledIn = event.params.epoch.toString()
   allocation.closedAtEpoch = event.params.epoch
+  allocation.closedAtBlock = event.block.hash
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Settled'
   allocation.poi = event.params.poi
