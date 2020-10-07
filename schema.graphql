@@ -466,6 +466,8 @@ type Allocation @entity {
   effectiveAllocation: BigInt!
   "Epoch this allocation was created"
   createdAtEpoch: Int!
+  "Block at which this allocation was created"
+  createdAtBlockHash: Bytes!
   "Fees this allocation collected from query fees upon closing. Excludes curator reward and rebate claimed"
   queryFeesCollected: BigInt!
   "Rebate amount claimed from the protocol"
