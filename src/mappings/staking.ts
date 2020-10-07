@@ -247,6 +247,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.allocatedTokens = event.params.tokens
   allocation.effectiveAllocation = BigInt.fromI32(0)
   allocation.createdAtEpoch = event.params.epoch.toI32()
+  allocation.closedAtEpoch = 0
   allocation.createdAtBlockHash = event.block.hash
   allocation.queryFeesCollected = BigInt.fromI32(0)
   allocation.queryFeeRebates = BigInt.fromI32(0)
@@ -330,6 +331,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   // update allocation
   let allocation = Allocation.load(allocationID)
   allocation.poolSettledIn = event.params.epoch.toString()
+  allocation.closedAtEpoch = event.params.epoch
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Settled'
   allocation.poi = event.params.poi
