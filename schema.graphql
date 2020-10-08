@@ -498,13 +498,10 @@ type Allocation @entity {
   annualizedReturn: BigDecimal!
 }
 
-# where we claim on the rebate pools. you essentially call a channel you claim funds from
-# you can restake these tokens, or you can take them back (emit Rebate Claimed)
-
 enum AllocationStatus {
   Null # == indexer == address(0)
   Active # == not Null && tokens > 0
-  Closed # == Active && closedAtEpoch != 0
+  Closed # == Active && closedAtEpoch != 0. Still can collect, while you are waiting to be finalized
   Finalized # == Closing && closedAtEpoch + channelDisputeEpochs > now(). Note, this never happens in practice, because it is implied
   Claimed # == not Null && tokens == 0 - i.e. finalized, and all tokens withdrawn
 }
