@@ -110,7 +110,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.queryFeeCut = 0
     indexer.delegatorParameterCooldown = 0
     indexer.lastDelegationParameterUpdate = 0
-    indexer.forcedSettlements = 0
+    indexer.forcedClosures = 0
 
     indexer.totalReturn = BigDecimal.fromString('0')
     indexer.annualizedReturn = BigDecimal.fromString('0')

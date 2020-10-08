@@ -99,7 +99,7 @@ export function handleBurned(event: Burned): void {
  * @dev handleCollected
  *  - updates subgraph - TODO - we might add curator earned to this. but it seems really hard
  *  - @note - we do not update totalQueryFeesCollected here, because it is already updated in
- *    staking.handleAllocationSettled()
+ *    staking.handleAllocationClosed()
  */
 export function handleCollected(event: Collected): void {
   // update subgraph
