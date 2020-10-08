@@ -320,7 +320,7 @@ type SubgraphVersion @entity {
 The immutable subgraph deployment defined by a subgraph manifest
 """
 type SubgraphDeployment @entity {
-  "Subgraph Deployment ID"
+  "Subgraph Deployment ID. The IPFS hash with Qm removed to fit into 32 bytes"
   id: ID!
   "The versions this subgraph deployment relates to"
   versions: [SubgraphVersion!]! @derivedFrom(field: "subgraphDeployment")
@@ -436,8 +436,8 @@ type Indexer @entity {
   delegatorParameterCooldown: Int!
   "Block number for the last time the delegator updated their parameters"
   lastDelegationParameterUpdate: Int!
-  "Count of how many times this indexer has been forced to settle"
-  forcedSettlements: Int!
+  "Count of how many times this indexer has been forced to close an allocation"
+  forcedClosures: Int!
 
   # Metrics
   "Total return this indexer has earned"
@@ -462,7 +462,7 @@ type Allocation @entity {
   subgraphDeployment: SubgraphDeployment!
   "Tokens associated with the allocation"
   allocatedTokens: BigInt!
-  "Effective allocation that is realized upon settling"
+  "Effective allocation that is realized upon closing"
   effectiveAllocation: BigInt!
   "Epoch this allocation was created"
   createdAtEpoch: Int!
@@ -471,7 +471,7 @@ type Allocation @entity {
   "Epoch this allocation was closed in"
   closedAtEpoch: Int!
   "Block at which this allocation was closed"
-  closedAtBlock: Bytes
+  closedAtBlockHash: Bytes
   "Fees this allocation collected from query fees upon closing. Excludes curator reward and rebate claimed"
   queryFeesCollected: BigInt!
   "Rebate amount claimed from the protocol"
@@ -480,15 +480,15 @@ type Allocation @entity {
   curatorRewards: BigInt!
   "Indexing rewards earned by this allocation"
   indexingRewards: BigInt!
-  "Pool in which this allocation was settled"
-  poolSettledIn: Pool
+  "Pool in which this allocation was closed"
+  poolClosedIn: Pool
   "Fees paid out to delegators"
   delegationFees: BigInt!
   "Status of the allocation"
   status: AllocationStatus!
   "Timestamp this allocation was created at"
   createdAt: Int!
-  "POI submitted with a settlement"
+  "POI submitted with a closed allocation"
   poi: Bytes
 
   # Metrics
@@ -504,18 +504,18 @@ type Allocation @entity {
 enum AllocationStatus {
   Null # == indexer == address(0)
   Active # == not Null && tokens > 0
-  Settled # == Active && settledAtEpoch != 0
-  Finalized # == Settling && settledAtEpoch + channelDisputeEpochs > now(). Note, this never happens in practice, because it is implied
+  Closed # == Active && closedAtEpoch != 0
+  Finalized # == Closing && closedAtEpoch + channelDisputeEpochs > now(). Note, this never happens in practice, because it is implied
   Claimed # == not Null && tokens == 0 - i.e. finalized, and all tokens withdrawn
 }
 
 """
-Global pool of query fees for settled state channels. There is one pool per epoch
+Global pool of query fees for closed state channels. There is one pool per epoch
 """
 type Pool @entity {
   "Epoch number of the pool"
   id: ID!
-  "Total allocation settled in this epoch - includes all effective allocation"
+  "Total allocations closed in this epoch - includes all effective allocation"
   allocation: BigInt!
   "Total query fees collected in this epoch"
   totalQueryFees: BigInt!
@@ -523,8 +523,8 @@ type Pool @entity {
   claimedFees: BigInt!
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorRewards: BigInt!
-  "Allocations that were settled during this epoch"
-  settledAllocations: [Allocation!]! @derivedFrom(field: "poolSettledIn")
+  "Allocations that were closed during this epoch"
+  closedAllocations: [Allocation!]! @derivedFrom(field: "poolClosedIn")
 }
 
 """

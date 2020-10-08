@@ -266,7 +266,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
 // Collects curationFees to go to curator rewards
 // calls collect() on curation, which is handled in curation.ts
 // adds to the allocations collected fees
-// if settled, it will add fees to the rebate pool
+// if closed, it will add fees to the rebate pool
 // Note - the name event.param.rebateFees is confusing. Rebate fees are better described
 // as query Fees. rebate is from cobbs douglas, which we get from claim()
 export function handleAllocationCollected(event: AllocationCollected): void {
@@ -309,7 +309,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
 }
 
 /**
- * @dev handleAllocationSettled
+ * @dev handleAllocationClosed
  * - update the indexers stake
  * - update the subgraph total stake
  * - update the named subgraph aggregate stake
@@ -323,18 +323,18 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   if (event.params.sender != event.params.indexer) {
-    indexer.forcedSettlements = indexer.forcedSettlements + 1
+    indexer.forcedClosures = indexer.forcedClosures + 1
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.save()
 
   // update allocation
   let allocation = Allocation.load(allocationID)
-  allocation.poolSettledIn = event.params.epoch.toString()
-  allocation.closedAtEpoch = event.params.epoch
-  allocation.closedAtBlock = event.block.hash
+  allocation.poolClosedIn = event.params.epoch.toString()
+  allocation.closedAtEpoch = event.params.epoch.toI32()
+  allocation.closedAtBlockHash = event.block.hash
   allocation.effectiveAllocation = event.params.effectiveAllocation
-  allocation.status = 'Settled'
+  allocation.status = 'Closed'
   allocation.poi = event.params.poi
   allocation.save()
 
@@ -363,7 +363,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 /**
  * @dev handleRebateClaimed
  * - update pool
- * - update settlement of channel in pool
+ * - update closure of channel in pool
  * - update pool
  * - note - if rebate is transferred to indexer, that will be handled in graphToken.ts, and in
  *          the other case, if it is restaked, it will be handled by handleStakeDeposited
