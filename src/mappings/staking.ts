@@ -49,6 +49,23 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
   indexer.save()
 }
 
+// TODO - this is broken if we change the delegatio ratio
+// Need to remove, or find a fix
+function calculateCapacities(indexer: Indexer): Indexer {
+  let graphNetwork = GraphNetwork.load('1')
+  let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
+
+  // Eligible to add to the capacity
+  indexer.delegatedCapacity =
+    indexer.delegatedTokens < tokensDelegatedMax ? indexer.delegatedTokens : tokensDelegatedMax
+
+  indexer.tokenCapacity = indexer.stakedTokens.plus(indexer.delegatedCapacity)
+  indexer.availableStake = indexer.tokenCapacity
+    .minus(indexer.allocatedTokens)
+    .minus(indexer.lockedTokens)
+  return indexer
+}
+
 /**
  * @dev handleStakeDeposited
  * - creates an Indexer if it is the first time they have staked
@@ -60,6 +77,7 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   let id = event.params.indexer.toHexString()
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
+  indexer = calculateCapacities(indexer)
   indexer.save()
 
   // Update graph network
@@ -76,6 +94,8 @@ export function handleStakeDeposited(event: StakeDeposited): void {
 /**
  * @dev handleStakeLocked
  * - updated the Indexers stake
+ * - note - the contracts work by not changing the tokensStaked amount, so here, capacity does not
+ *          get changed
  */
 export function handleStakeLocked(event: StakeLocked): void {
   // update indexer
@@ -83,6 +103,7 @@ export function handleStakeLocked(event: StakeLocked): void {
   let indexer = Indexer.load(id)
   indexer.lockedTokens = event.params.tokens
   indexer.tokensLockedUntil = event.params.until.toI32()
+  indexer = calculateCapacities(indexer)
   indexer.save()
 
   // update graph network
@@ -105,6 +126,7 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
   indexer.lockedTokens = indexer.lockedTokens.minus(event.params.tokens)
   indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
+  indexer = calculateCapacities(indexer)
   indexer.save()
 
   // Update graph network
@@ -133,6 +155,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   let staking = Staking.bind(graphNetwork.staking as Address)
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.lockedTokens = indexerStored.value2
+  indexer = calculateCapacities(indexer)
   indexer.save()
 
   // Update graph network
@@ -146,7 +169,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
-  // TODO - call getIndexerCapacity to calculate it in subgraph . will need to do so on staking too.
+  indexer = calculateCapacities(indexer)
   indexer.save()
 
   // update delegator
@@ -172,7 +195,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let indexer = Indexer.load(indexerID)
   indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
-  // TODO - call getIndexerCapacity to calculate it in subgraph . will need to do so on staking too.
+  indexer = calculateCapacities(indexer)
   indexer.save()
 
   // update delegator
@@ -222,6 +245,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
+  indexer = calculateCapacities(indexer)
   indexer.save()
 
   // update graph network
@@ -326,6 +350,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     indexer.forcedClosures = indexer.forcedClosures + 1
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
+  indexer = calculateCapacities(indexer)
   indexer.save()
 
   // update allocation
@@ -428,8 +453,8 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
     graphNetwork.channelDisputeEpochs = staking.channelDisputeEpochs().toI32()
   } else if (parameter == 'maxAllocationEpochs') {
     graphNetwork.maxAllocationEpochs = staking.maxAllocationEpochs().toI32()
-  } else if (parameter == 'delegationCapacity') {
-    graphNetwork.delegationCapacity = staking.delegationRatio().toI32()
+  } else if (parameter == 'delegationRatio') {
+    graphNetwork.delegationRatio = staking.delegationRatio().toI32()
   } else if (parameter == 'delegationParametersCooldown') {
     graphNetwork.delegationParametersCooldown = staking.delegationParametersCooldown().toI32()
   } else if (parameter == 'delegationUnbondingPeriod') {

@@ -45,7 +45,7 @@ type GraphNetwork @entity {
   "Percentage of fees burn as protocol fee"
   protocolFeePercentage: Int!
   "Ratio of max staked delegation tokens to indexers stake that earns rewards"
-  delegationCapacity: Int!
+  delegationRatio: Int!
   "Period to wait before fees can be claimed in rebate pool"
   channelDisputeEpochs: Int!
   "Period to wait before delegators can settle"
@@ -419,6 +419,14 @@ type Indexer @entity {
   "Total indexing rewards earned by this indexer from inflation"
   rewardsEarned: BigInt!
 
+  # Capacity data
+  "Amount of delegated tokens that can be eligible for rewards"
+  delegatedCapacity: BigInt!
+  "Total token capacity = delegatedCapacity + stakedTokens"
+  tokenCapacity: BigInt!
+  "Stake available to earn rewards. tokenCapacity - allocationTokens - lockedTokens"
+  availableStake: BigInt!
+
   # Delegation Pool
   "Delegators to this Indexer"
   delegators: [DelegatedStake!]! @derivedFrom(field: "indexer")
@@ -426,8 +434,7 @@ type Indexer @entity {
   delegatedTokens: BigInt!
   "Total shares of the delegator pool"
   delegatorShares: BigInt!
-  "Total tokens available to be delegated"
-  tokenCapacity: BigInt!
+
   "The percent the Indexer agrees to share with delegators"
   indexingRewardCut: Int!
   "The percent of query rebate rewards the Indexer agrees to share with delegators"

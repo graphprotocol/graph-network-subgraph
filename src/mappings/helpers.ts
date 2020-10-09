@@ -103,6 +103,10 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.queryFeeRebates = BigInt.fromI32(0)
     indexer.rewardsEarned = BigInt.fromI32(0)
 
+    indexer.delegatedCapacity = BigInt.fromI32(0)
+    indexer.tokenCapacity = BigInt.fromI32(0)
+    indexer.availableStake = BigInt.fromI32(0)
+
     indexer.delegatedTokens = BigInt.fromI32(0)
     indexer.delegatorShares = BigInt.fromI32(0)
     indexer.tokenCapacity = BigInt.fromI32(0)
@@ -351,7 +355,7 @@ export function createOrLoadGraphNetwork(
     // right after deployment
     graphNetwork.curationPercentage = 0
     graphNetwork.protocolFeePercentage = 0
-    graphNetwork.delegationCapacity = 0
+    graphNetwork.delegationRatio = 0
     graphNetwork.channelDisputeEpochs = 0
     graphNetwork.maxAllocationEpochs = 0
     graphNetwork.thawingPeriod = 0
