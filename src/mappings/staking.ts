@@ -77,7 +77,7 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   let id = event.params.indexer.toHexString()
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
-  indexer = calculateCapacities(indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // Update graph network
@@ -103,7 +103,7 @@ export function handleStakeLocked(event: StakeLocked): void {
   let indexer = Indexer.load(id)
   indexer.lockedTokens = event.params.tokens
   indexer.tokensLockedUntil = event.params.until.toI32()
-  indexer = calculateCapacities(indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update graph network
@@ -126,7 +126,7 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
   indexer.lockedTokens = indexer.lockedTokens.minus(event.params.tokens)
   indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
-  indexer = calculateCapacities(indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // Update graph network
@@ -155,7 +155,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   let staking = Staking.bind(graphNetwork.staking as Address)
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.lockedTokens = indexerStored.value2
-  indexer = calculateCapacities(indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // Update graph network
@@ -169,7 +169,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
-  indexer = calculateCapacities(indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update delegator
@@ -195,7 +195,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let indexer = Indexer.load(indexerID)
   indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
-  indexer = calculateCapacities(indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update delegator
@@ -245,7 +245,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
-  indexer = calculateCapacities(indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update graph network
@@ -316,7 +316,14 @@ export function handleAllocationCollected(event: AllocationCollected): void {
 
   // update pool
   let pool = createOrLoadPool(event.params.epoch)
-  pool.totalQueryFees = pool.totalQueryFees.plus(event.params.rebateFees)
+  // ONLY if allocation is closed. Otherwise it gets collected into an allocation, and it will
+  // get added to the pool where the allocation gets closed
+  if (allocation.status == 'Closed') {
+    pool.totalQueryFees = pool.totalQueryFees.plus(event.params.rebateFees)
+  }
+  // Curator rewards in pool is not stored in the contract, so we take the actual value of it
+  // happening. Every time an allocation is collected, curator rewards get transferred into
+  // bonding curves. Hence why it is not dependant on status being closed
   pool.curatorRewards = pool.curatorRewards.plus(event.params.curationFees)
   pool.save()
 
@@ -350,7 +357,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     indexer.forcedClosures = indexer.forcedClosures + 1
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
-  indexer = calculateCapacities(indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update allocation
@@ -408,10 +415,12 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   allocation.delegationFees = event.params.delegationFees
   allocation.status = 'Claimed'
   allocation.save()
+
   // Update epoch
   let epoch = createOrLoadEpoch(event.block.number)
   epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokens)
   epoch.save()
+  
   // update pool
   let pool = Pool.load(event.params.forEpoch.toString())
   pool.claimedFees = pool.claimedFees.plus(event.params.tokens)
