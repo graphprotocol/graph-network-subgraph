@@ -17,7 +17,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   indexer.save()
 
   // update allocation
-  // Hmm - TODO - should allocation have another status udpate here, for when this happens?
+  // no status updated, Claimed happens when RebateClaimed, and it is done
   let allocation = Allocation.load(allocationID)
   allocation.indexingRewards = allocation.indexingRewards.plus(event.params.amount)
   allocation.save()
@@ -30,7 +30,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   // update subgraph deployment
   let subgraphDeploymentID = allocation.subgraphDeployment
   let subgraphDeployment = SubgraphDeployment.load(subgraphDeploymentID)
-  subgraphDeployment.queryFeeRebates = subgraphDeployment.queryFeeRebates.plus(event.params.amount)
+  subgraphDeployment.indexingRewardAmount = subgraphDeployment.indexingRewardAmount.plus(event.params.amount)
   subgraphDeployment.save()
 
   // update graph network

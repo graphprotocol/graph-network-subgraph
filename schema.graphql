@@ -412,7 +412,7 @@ type Indexer @entity {
   tokensLockedUntil: Int!
   "Active allocations of stake for this Indexer"
   allocations: [Allocation!]! @derivedFrom(field: "indexer")
-  "Total query fees earned by this indexer"
+  "Total query fees collected by this indexer"
   queryFeesCollected: BigInt!
   "Query fee rebate amount claimed from the protocol"
   queryFeeRebates: BigInt!
@@ -437,6 +437,10 @@ type Indexer @entity {
 
   "The percent the Indexer agrees to share with delegators"
   indexingRewardCut: Int!
+  "The total amount of indexing rewards given to delegators"
+  delegatorIndexingRewards: BigInt!
+  "The total amount of query fees given to delegators"
+  delegatorQueryFees: BigInt!
   "The percent of query rebate rewards the Indexer agrees to share with delegators"
   queryFeeCut: Int!
   "Time delegator decides to wait for changing of their parameters"
@@ -523,7 +527,7 @@ type Pool @entity {
   allocation: BigInt!
   "Total query fees collected in this epoch"
   totalQueryFees: BigInt!
-  "Total query fees claimed in this epoch. Can be larger than totalFees because of cobbs douglas function "
+  "Total query fees claimed in this epoch. Can be smaller than totalFees because of cobbs douglas function "
   claimedFees: BigInt!
   "Total rewards deposited to all curator bonding curves during the epoch"
   curatorRewards: BigInt!
@@ -569,6 +573,10 @@ type DelegatedStake @entity {
   lockedUntil: Int!
   "Shares owned in the delegator pool. Used to calculate total amount delegated"
   shareAmount: BigInt!
+
+  averageSharePurchasePrice: BigInt!
+  averageShareSellPrice: BigInt!
+  realizedIncome: BigInt!
 }
 
 """
