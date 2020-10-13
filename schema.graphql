@@ -437,10 +437,10 @@ type Indexer @entity {
 
   "The percent the Indexer agrees to share with delegators"
   indexingRewardCut: Int!
-  "The total amount of indexing rewards given to delegators"
-  delegatorIndexingRewards: BigInt!
-  "The total amount of query fees given to delegators"
-  delegatorQueryFees: BigInt!
+  # "The total amount of indexing rewards given to delegators"
+  # delegatorIndexingRewards: BigInt!
+  # "The total amount of query fees given to delegators"
+  # delegatorQueryFees: BigInt!
   "The percent of query rebate rewards the Indexer agrees to share with delegators"
   queryFeeCut: Int!
   "Time delegator decides to wait for changing of their parameters"
@@ -574,9 +574,9 @@ type DelegatedStake @entity {
   "Shares owned in the delegator pool. Used to calculate total amount delegated"
   shareAmount: BigInt!
 
-  averageSharePurchasePrice: BigInt!
-  averageShareSellPrice: BigInt!
-  realizedIncome: BigInt!
+  # averageSharePurchasePrice: BigInt!
+  # averageShareSellPrice: BigInt!
+  # realizedIncome: BigInt!
 }
 
 """
