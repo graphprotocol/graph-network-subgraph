@@ -461,7 +461,7 @@ export function resolveName(graphAccount: Address, name: string, node: Bytes): s
     if (verifyNameOwnership(graphAccountString, node)) {
       let nameSystem = 'ENS'
       let id = joinID([nameSystem, node.toHexString()])
-      if (checkNoNameDuplicate(id, nameSystem, name, graphAccountString)) {
+      if (createGraphAccountName(id, nameSystem, name, graphAccountString)) {
         // all checks passed. save the new name, return the ID to be stored on the subgraph
         return id
       }
@@ -507,18 +507,18 @@ function verifyNameOwnership(graphAccount: string, node: Bytes): boolean {
 }
 
 /**
- * @dev Check this name isn't already being used by this account. Note, because there is only one
- * system, we just check for the GraphAccountNameEntity. TODO - when multiple systems exist, we
- * will need to iterate over the graph accounts subgraphs, or check all possible names by building
- * each name system + name ID
+ * @dev Create the graph account name if it has not been created. 
+ * In the future when there are multiple name systems, de-duplication will have
+ * to be added to the resolver
  */
-function checkNoNameDuplicate(
+function createGraphAccountName(
   id: string,
   nameSystem: string,
   name: string,
   graphAccount: string,
 ): boolean {
   let graphAccountName = GraphAccountName.load(id)
+  // This name is new, so lets register it
   if (graphAccountName == null) {
     graphAccountName = new GraphAccountName(id)
     graphAccountName.nameSystem = nameSystem
@@ -526,18 +526,14 @@ function checkNoNameDuplicate(
     graphAccountName.graphAccount = graphAccount
     graphAccountName.save()
     return true
-    // check that this name is not already used by another graph account
-    // If so, remove the old one, and set the new one
-  } else if (graphAccountName.graphAccount == graphAccount) {
-    let graphAccount = GraphAccount.load(graphAccountName.graphAccount)
-    let oldGraphAccountName = GraphAccountName.load(graphAccount.defaultName)
-    oldGraphAccountName.graphAccount = null
-    oldGraphAccountName.save()
-    graphAccountName.graphAccount = graphAccount.id
+    // check that this name is not already used by another graph account (changing ownership)
+    // If so, remove the old owner, and set the new one
+  } else if (graphAccountName.graphAccount != graphAccount) {
+    graphAccountName.graphAccount = graphAccount
     graphAccountName.save()
     return true
   }
-  return false
+  return true
 }
 
 export function joinID(pieces: Array<string>): string {

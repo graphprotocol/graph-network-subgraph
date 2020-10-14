@@ -32,6 +32,8 @@ export function handleSetDefaultName(event: SetDefaultName): void {
     event.params.graphAccount,
     event.block.timestamp,
   )
+
+  // A name has already been registered
   if (graphAccount.defaultName != null) {
     let graphAccountName = GraphAccountName.load(graphAccount.defaultName)
     // If trying to set the same name, do nothing
