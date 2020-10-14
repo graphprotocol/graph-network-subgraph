@@ -109,8 +109,11 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
 
     indexer.delegatedTokens = BigInt.fromI32(0)
     indexer.delegatorShares = BigInt.fromI32(0)
+    indexer.delegationExchangeRate = BigDecimal.fromString('0')
     indexer.tokenCapacity = BigInt.fromI32(0)
     indexer.indexingRewardCut = 0
+    indexer.delegatorIndexingRewards = BigInt.fromI32(0)
+    indexer.delegatorQueryFees = BigInt.fromI32(0)
     indexer.queryFeeCut = 0
     indexer.delegatorParameterCooldown = 0
     indexer.lastDelegationParameterUpdate = 0
@@ -140,6 +143,7 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
     delegator.totalStakedTokens = BigInt.fromI32(0)
     delegator.totalUnstakedTokens = BigInt.fromI32(0)
     delegator.createdAt = timestamp.toI32()
+    delegator.totalRealizedRewards = BigDecimal.fromString('0')
     delegator.save()
 
     let graphAccount = GraphAccount.load(id)
@@ -165,6 +169,8 @@ export function createOrLoadDelegatedStake(delegator: string, indexer: string): 
     delegatedStake.lockedTokens = BigInt.fromI32(0)
     delegatedStake.lockedUntil = 0
     delegatedStake.shareAmount = BigInt.fromI32(0)
+    delegatedStake.personalExchangeRate = BigDecimal.fromString('0')
+    delegatedStake.realizedRewards = BigDecimal.fromString('0')
     delegatedStake.save()
   }
   return delegatedStake as DelegatedStake

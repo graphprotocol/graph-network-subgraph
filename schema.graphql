@@ -416,8 +416,10 @@ type Indexer @entity {
   queryFeesCollected: BigInt!
   "Query fee rebate amount claimed from the protocol"
   queryFeeRebates: BigInt!
-  "Total indexing rewards earned by this indexer from inflation"
+  "Total indexing rewards earned by this indexer from inflation. Including delegation rewards"
   rewardsEarned: BigInt!
+  "The total amount of indexing rewards given to delegators"
+  delegatorIndexingRewards: BigInt!
 
   # Capacity data
   "Amount of delegated tokens that can be eligible for rewards"
@@ -434,13 +436,14 @@ type Indexer @entity {
   delegatedTokens: BigInt!
   "Total shares of the delegator pool"
   delegatorShares: BigInt!
+  "Exchange rate of of tokens received for each share"
+  delegationExchangeRate: BigDecimal
 
   "The percent the Indexer agrees to share with delegators"
   indexingRewardCut: Int!
-  # "The total amount of indexing rewards given to delegators"
-  # delegatorIndexingRewards: BigInt!
-  # "The total amount of query fees given to delegators"
-  # delegatorQueryFees: BigInt!
+
+  "The total amount of query fees given to delegators"
+  delegatorQueryFees: BigInt!
   "The percent of query rebate rewards the Indexer agrees to share with delegators"
   queryFeeCut: Int!
   "Time delegator decides to wait for changing of their parameters"
@@ -545,12 +548,14 @@ type Delegator @entity {
   account: GraphAccount!
   "Stakes of this delegator"
   stakes: [DelegatedStake!]! @derivedFrom(field: "delegator")
-  "Summation of all staked tokens in DelegatorStakes of this Delegator"
+  "Summation of all staked tokens in DelegatorStakes of this Delegator. Not equivalent to balance"
   totalStakedTokens: BigInt!
   "Summation of all unstaked tokens in DelegatorStakes of this Delegator"
   totalUnstakedTokens: BigInt!
   "Time created at"
   createdAt: Int!
+  "Total realized rewards on all delegated stakes"
+  totalRealizedRewards: BigDecimal!
 }
 
 """
@@ -573,10 +578,10 @@ type DelegatedStake @entity {
   lockedUntil: Int!
   "Shares owned in the delegator pool. Used to calculate total amount delegated"
   shareAmount: BigInt!
-
-  # averageSharePurchasePrice: BigInt!
-  # averageShareSellPrice: BigInt!
-  # realizedIncome: BigInt!
+  "The rate this delegator paid for their shares, calculated using average cost basis. Used for rewards calculations"
+  personalExchangeRate: BigDecimal!
+  "Realized rewards from selling delegated stake that accumulated rewards"
+  realizedRewards: BigDecimal!
 }
 
 """

@@ -169,6 +169,9 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
+  indexer.delegationExchangeRate = indexer.delegatedTokens
+    .toBigDecimal()
+    .div(indexer.delegatorShares.toBigDecimal())
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -180,6 +183,17 @@ export function handleStakeDelegated(event: StakeDelegated): void {
 
   // update delegated stake
   let delegatedStake = createOrLoadDelegatedStake(delegatorID, indexerID)
+  let previousExchangeRate = delegatedStake.personalExchangeRate
+  let previousShares = delegatedStake.shareAmount
+
+  let averageCostBasisTokens = previousExchangeRate
+    .times(previousShares.toBigDecimal())
+    .plus(event.params.tokens.toBigDecimal())
+  let averageCostBasisShares = previousShares.plus(event.params.shares)
+  delegatedStake.personalExchangeRate = averageCostBasisTokens.div(
+    averageCostBasisShares.toBigDecimal(),
+  )
+
   delegatedStake.stakedTokens = delegatedStake.stakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.plus(event.params.shares)
   delegatedStake.save()
@@ -195,23 +209,33 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let indexer = Indexer.load(indexerID)
   indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
+
+  indexer.delegationExchangeRate = indexer.delegatedTokens
+    .toBigDecimal()
+    .div(indexer.delegatorShares.toBigDecimal())
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
-  // update delegator
-  let delegatorID = event.params.delegator.toHexString()
-  let delegator = Delegator.load(delegatorID)
-  delegator.totalUnstakedTokens = delegator.totalUnstakedTokens.plus(event.params.tokens)
-  delegator.save()
-
   // update delegated stake
+  let delegatorID = event.params.delegator.toHexString()
   let id = joinID([delegatorID, indexerID])
   let delegatedStake = DelegatedStake.load(id)
   delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
   delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
   delegatedStake.lockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
+
+  let realizedRewards = event.params.shares
+    .toBigDecimal()
+    .times(indexer.delegationExchangeRate.minus(delegatedStake.personalExchangeRate))
+  delegatedStake.realizedRewards = delegatedStake.realizedRewards.plus(realizedRewards)
   delegatedStake.save()
+
+  // update delegator
+  let delegator = Delegator.load(delegatorID)
+  delegator.totalUnstakedTokens = delegator.totalUnstakedTokens.plus(event.params.tokens)
+  delegator.totalRealizedRewards = delegator.totalRealizedRewards.plus(realizedRewards)
+  delegator.save()
 
   // upgrade graph network
   let graphNetwork = GraphNetwork.load('1')
@@ -408,6 +432,13 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.queryFeeRebates = indexer.queryFeeRebates.plus(event.params.tokens)
+  indexer.delegatorQueryFees = indexer.delegatorQueryFees.plus(event.params.delegationFees)
+  indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.delegationFees)
+
+  if (indexer.delegatorShares != BigInt.fromI32(0))
+    indexer.delegationExchangeRate = indexer.delegatedTokens
+      .toBigDecimal()
+      .div(indexer.delegatorShares.toBigDecimal())
   indexer.save()
   // update allocation
   let allocation = Allocation.load(allocationID)
@@ -420,7 +451,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   let epoch = createOrLoadEpoch(event.block.number)
   epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokens)
   epoch.save()
-  
+
   // update pool
   let pool = Pool.load(event.params.forEpoch.toString())
   pool.claimedFees = pool.claimedFees.plus(event.params.tokens)
