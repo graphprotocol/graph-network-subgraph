@@ -1,4 +1,4 @@
-import { Address } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 import { Indexer, Allocation, GraphNetwork, Epoch, SubgraphDeployment } from '../types/schema'
 import {
   RewardsAssigned,
@@ -14,6 +14,14 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.rewardsEarned = indexer.rewardsEarned.plus(event.params.amount)
+  let delegationRewards = event.params.amount
+    .times(BigInt.fromI32(indexer.indexingRewardCut))
+    .div(BigInt.fromI32(1000000))
+  indexer.delegatorIndexingRewards = indexer.delegatorIndexingRewards.plus(delegationRewards)
+  indexer.delegatedTokens = indexer.delegatedTokens.plus(delegationRewards)
+  indexer.delegationExchangeRate = indexer.delegatedTokens
+    .toBigDecimal()
+    .div(indexer.delegatorShares.toBigDecimal())
   indexer.save()
 
   // update allocation
@@ -30,7 +38,9 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   // update subgraph deployment
   let subgraphDeploymentID = allocation.subgraphDeployment
   let subgraphDeployment = SubgraphDeployment.load(subgraphDeploymentID)
-  subgraphDeployment.indexingRewardAmount = subgraphDeployment.indexingRewardAmount.plus(event.params.amount)
+  subgraphDeployment.indexingRewardAmount = subgraphDeployment.indexingRewardAmount.plus(
+    event.params.amount,
+  )
   subgraphDeployment.save()
 
   // update graph network
