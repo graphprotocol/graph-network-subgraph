@@ -25,7 +25,7 @@
     "prettier-write": "prettier --write '**/*.ts'"
   },
   "devDependencies": {
-    "@graphprotocol/contracts": "0.7.7-testnet-staging-phase2",
+    "@graphprotocol/contracts": "0.7.8-testnet-staging-phase2",
     "@graphprotocol/graph-cli": "^0.18.0",
     "@graphprotocol/graph-ts": "^0.18.1",
     "@types/node": "^14.0.13",
