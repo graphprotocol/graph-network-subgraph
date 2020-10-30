@@ -19,9 +19,11 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
     .div(BigInt.fromI32(1000000))
   indexer.delegatorIndexingRewards = indexer.delegatorIndexingRewards.plus(delegationRewards)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(delegationRewards)
-  indexer.delegationExchangeRate = indexer.delegatedTokens
-    .toBigDecimal()
-    .div(indexer.delegatorShares.toBigDecimal())
+  if (indexer.delegatorShares != BigInt.fromI32(0)) {
+    indexer.delegationExchangeRate = indexer.delegatedTokens
+      .toBigDecimal()
+      .div(indexer.delegatorShares.toBigDecimal())
+  }
   indexer.save()
 
   // update allocation
