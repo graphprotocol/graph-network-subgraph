@@ -1,4 +1,4 @@
-import { Bytes, ipfs, json } from '@graphprotocol/graph-ts'
+import { BigDecimal, Bytes, ipfs, json } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphDeprecated,
@@ -12,7 +12,14 @@ import {
   SetDefaultName,
 } from '../types/GNS/GNS'
 
-import { Subgraph, SubgraphVersion, GraphAccount, Curator, GraphAccountName, SubgraphDeployment } from '../types/schema'
+import {
+  Subgraph,
+  SubgraphVersion,
+  GraphAccount,
+  Curator,
+  GraphAccountName,
+  SubgraphDeployment,
+} from '../types/schema'
 
 import { jsonToString } from './utils'
 import {
@@ -89,7 +96,6 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
     subgraphDeployment.originalName = subgraph.displayName
     subgraphDeployment.save()
   }
-
 }
 
 /**
@@ -129,7 +135,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-  
+
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
   subgraphVersion.subgraph = subgraphID
@@ -195,6 +201,12 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
   )
+  curator.totalNameSignalMintedAllTime = curator.totalNameSignalMintedAllTime.plus(
+    event.params.nSignalCreated,
+  )
+  curator.totalNameSignalCostBasis = curator.totalNameSignalledTokens
+    .toBigDecimal()
+    .div(curator.totalNameSignalMintedAllTime.toBigDecimal())
   curator.save()
 
   let nameSignal = createOrLoadNameSignal(
@@ -205,6 +217,13 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
   nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
+  nameSignal.nameSignalMintedAllTime = nameSignal.nameSignalMintedAllTime.plus(
+    event.params.nSignalCreated,
+  )
+
+  nameSignal.costBasis = nameSignal.signalledTokens
+    .toBigDecimal()
+    .div(nameSignal.nameSignalMintedAllTime.toBigDecimal())
   nameSignal.save()
 }
 

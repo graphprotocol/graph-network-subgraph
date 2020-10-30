@@ -192,6 +192,8 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.annualizedReturn = BigDecimal.fromString('0')
     curator.totalReturn = BigDecimal.fromString('0')
     curator.signalingEfficiency = BigDecimal.fromString('0')
+    curator.totalNameSignalCostBasis = BigDecimal.fromString('0')
+    curator.totalNameSignalMintedAllTime = BigInt.fromI32(0)
     curator.save()
 
     let graphAccount = GraphAccount.load(id)
@@ -240,6 +242,8 @@ export function createOrLoadNameSignal(
     nameSignal.nameSignal = BigInt.fromI32(0)
     nameSignal.lastNameSignalChange = 0
     nameSignal.realizedRewards = BigInt.fromI32(0)
+    nameSignal.costBasis = BigDecimal.fromString('0')
+    nameSignal.nameSignalMintedAllTime = BigInt.fromI32(0)
     nameSignal.save()
   }
   return nameSignal as NameSignal
@@ -507,7 +511,7 @@ function verifyNameOwnership(graphAccount: string, node: Bytes): boolean {
 }
 
 /**
- * @dev Create the graph account name if it has not been created. 
+ * @dev Create the graph account name if it has not been created.
  * In the future when there are multiple name systems, de-duplication will have
  * to be added to the resolver
  */
