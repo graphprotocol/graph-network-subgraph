@@ -262,7 +262,7 @@ dataSources:
     name: RewardsManager
     network: {{network}}
     source:
-      address: '{{epochManager}}'
+      address: '{{rewardsManager}}'
       abi: RewardsManager
       startBlock: {{blockNumber}}
     mapping:
