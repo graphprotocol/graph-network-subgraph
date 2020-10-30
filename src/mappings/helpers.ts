@@ -381,7 +381,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
     graphNetwork.totalIndexingRewards = BigInt.fromI32(0)
 
-    graphNetwork.networkGRTIssuance = 0
+    graphNetwork.networkGRTIssuance = BigInt.fromI32(0)
     graphNetwork.subgraphAvailabilityOracle = Address.fromString(
       '0x0000000000000000000000000000000000000000',
     )

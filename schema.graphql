@@ -78,7 +78,7 @@ type GraphNetwork @entity {
 
   # Rewards manager global parameters
   "The issuance rate that GRT is minted at for rewards to staked Indexers"
-  networkGRTIssuance: Int!
+  networkGRTIssuance: BigInt!
   "Address of the availability oracle"
   subgraphAvailabilityOracle: Bytes!
 
