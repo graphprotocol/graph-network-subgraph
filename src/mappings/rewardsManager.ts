@@ -6,6 +6,7 @@ import {
   RewardsManager,
   RewardsDenylistUpdated,
 } from '../types/RewardsManager/RewardsManager'
+import {createOrLoadSubgraphDeployment, createOrLoadEpoch, } from './helpers'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {
   let indexerID = event.params.indexer.toHexString()
@@ -33,13 +34,13 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   allocation.save()
 
   // Update epoch
-  let epoch = Epoch.load(event.params.epoch.toString())
+  let epoch = createOrLoadEpoch(event.block.number)
   epoch.totalRewards = epoch.totalRewards.plus(event.params.amount)
   epoch.save()
 
   // update subgraph deployment
   let subgraphDeploymentID = allocation.subgraphDeployment
-  let subgraphDeployment = SubgraphDeployment.load(subgraphDeploymentID)
+  let subgraphDeployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   subgraphDeployment.indexingRewardAmount = subgraphDeployment.indexingRewardAmount.plus(
     event.params.amount,
   )
