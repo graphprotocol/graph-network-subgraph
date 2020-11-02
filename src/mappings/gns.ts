@@ -15,7 +15,7 @@ import {
 import {
   Subgraph,
   SubgraphVersion,
-  GraphAccount,
+  NSignalTransaction,
   Curator,
   GraphAccountName,
   SubgraphDeployment,
@@ -225,6 +225,20 @@ export function handleNSignalMinted(event: NSignalMinted): void {
     .toBigDecimal()
     .div(nameSignal.nameSignalMintedAllTime.toBigDecimal())
   nameSignal.save()
+
+  // Create n signal tx
+  let nSignalTransaction = new NSignalTransaction(
+    event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
+  )
+  nSignalTransaction.blockNumber = event.block.number.toI32()
+  nSignalTransaction.timestamp = event.block.timestamp.toI32()
+  nSignalTransaction.signer = event.params.nameCurator.toHexString()
+  nSignalTransaction.type = 'MintNSignal'
+  nSignalTransaction.nSignal = event.params.nSignalCreated
+  nSignalTransaction.vSignal = event.params.vSignalCreated
+  nSignalTransaction.tokens = event.params.tokensDeposited
+  nSignalTransaction.subgraph = subgraphID
+  nSignalTransaction.save()
 }
 
 export function handleNSignalBurned(event: NSignalBurned): void {
@@ -252,6 +266,20 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nameSignal.unsignalledTokens = nameSignal.unsignalledTokens.plus(event.params.tokensReceived)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
   nameSignal.save()
+
+  // Create n signal tx
+  let nSignalTransaction = new NSignalTransaction(
+    event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
+  )
+  nSignalTransaction.blockNumber = event.block.number.toI32()
+  nSignalTransaction.timestamp = event.block.timestamp.toI32()
+  nSignalTransaction.signer = event.params.nameCurator.toHexString()
+  nSignalTransaction.type = 'BurnNSignal'
+  nSignalTransaction.nSignal = event.params.nSignalBurnt
+  nSignalTransaction.vSignal = event.params.vSignalBurnt
+  nSignalTransaction.tokens = event.params.tokensReceived
+  nSignalTransaction.subgraph = subgraphID
+  nSignalTransaction.save()
 }
 
 export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {

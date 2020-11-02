@@ -785,6 +785,41 @@ type Epoch @entity {
   # todo - DO I NEED totalQueryFees / Protocol rebates earned?
 }
 
+interface Transaction {
+  "Transaction hash concatenated with event log index"
+  id: ID!
+  blockNumber: Int!
+  timestamp: Int!
+  signer: GraphAccount!
+  type: TransactionType!
+
+  # to add in future - epoch number, 
+
+}
+
+type NSignalTransaction implements Transaction @entity {
+  id: ID!
+  blockNumber: Int!
+  timestamp: Int!
+  signer: GraphAccount!
+  type: TransactionType!
+  nSignal: BigInt!
+  vSignal: BigInt!
+  tokens: BigInt!
+  subgraph: Subgraph!
+}
+
+
+
+enum TransactionType {
+  Stake
+  Unstake
+  MintSignal
+  BurnSignal
+  MintNSignal
+  BurnNSignal
+} 
+
 type _Schema_
   @fulltext(
     name: "subgraphSearch"
