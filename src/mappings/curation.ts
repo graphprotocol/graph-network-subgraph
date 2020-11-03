@@ -5,8 +5,14 @@ import {
   Curation,
   ParameterUpdated,
 } from '../types/Curation/Curation'
-import { Curator, GraphNetwork, Signal, SubgraphDeployment } from '../types/schema'
-import { Address } from '@graphprotocol/graph-ts'
+import {
+  Curator,
+  GraphNetwork,
+  Signal,
+  SubgraphDeployment,
+  SignalTransaction,
+} from '../types/schema'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 
 import {
   createOrLoadSignal,
@@ -54,6 +60,20 @@ export function handleSignalled(event: Signalled): void {
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(event.params.tokens)
   graphNetwork.save()
+
+  // Create n signal tx
+  let signalTransaction = new SignalTransaction(
+    event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
+  )
+  signalTransaction.blockNumber = event.block.number.toI32()
+  signalTransaction.timestamp = event.block.timestamp.toI32()
+  signalTransaction.signer = event.params.curator.toHexString()
+  signalTransaction.type = 'MintSignal'
+  signalTransaction.signal = event.params.signal
+  signalTransaction.tokens = event.params.tokens
+  signalTransaction.withdrawalFees = BigInt.fromI32(0)
+  signalTransaction.subgraphDeployment = event.params.subgraphDeploymentID.toHexString()
+  signalTransaction.save()
 }
 /**
  * @dev handleRedeemed
@@ -93,6 +113,20 @@ export function handleBurned(event: Burned): void {
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.minus(event.params.tokens)
   graphNetwork.save()
+
+  // Create n signal tx
+  let signalTransaction = new SignalTransaction(
+    event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
+  )
+  signalTransaction.blockNumber = event.block.number.toI32()
+  signalTransaction.timestamp = event.block.timestamp.toI32()
+  signalTransaction.signer = event.params.curator.toHexString()
+  signalTransaction.type = 'BurnSignal'
+  signalTransaction.signal = event.params.signal
+  signalTransaction.tokens = event.params.tokens
+  signalTransaction.withdrawalFees = event.params.withdrawalFees
+  signalTransaction.subgraphDeployment = event.params.subgraphDeploymentID.toHexString()
+  signalTransaction.save()
 }
 
 /**
@@ -123,7 +157,6 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 
   if (parameter == 'defaultReserveRatio') {
     graphNetwork.defaultReserveRatio = curation.defaultReserveRatio().toI32()
-    
   } else if (parameter == 'withdrawalFeePercentage') {
     graphNetwork.withdrawalFeePercentage = curation.withdrawalFeePercentage().toI32()
     // TODO - i Hard coded this since these are set on deployment. Should fix this
