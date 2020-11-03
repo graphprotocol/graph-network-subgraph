@@ -234,8 +234,8 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   nSignalTransaction.timestamp = event.block.timestamp.toI32()
   nSignalTransaction.signer = event.params.nameCurator.toHexString()
   nSignalTransaction.type = 'MintNSignal'
-  nSignalTransaction.nSignal = event.params.nSignalCreated
-  nSignalTransaction.vSignal = event.params.vSignalCreated
+  nSignalTransaction.nameSignal = event.params.nSignalCreated
+  nSignalTransaction.versionSignal = event.params.vSignalCreated
   nSignalTransaction.tokens = event.params.tokensDeposited
   nSignalTransaction.subgraph = subgraphID
   nSignalTransaction.save()
@@ -275,8 +275,8 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nSignalTransaction.timestamp = event.block.timestamp.toI32()
   nSignalTransaction.signer = event.params.nameCurator.toHexString()
   nSignalTransaction.type = 'BurnNSignal'
-  nSignalTransaction.nSignal = event.params.nSignalBurnt
-  nSignalTransaction.vSignal = event.params.vSignalBurnt
+  nSignalTransaction.nameSignal = event.params.nSignalBurnt
+  nSignalTransaction.versionSignal = event.params.vSignalBurnt
   nSignalTransaction.tokens = event.params.tokensReceived
   nSignalTransaction.subgraph = subgraphID
   nSignalTransaction.save()
