@@ -803,8 +803,8 @@ type NSignalTransaction implements Transaction @entity {
   timestamp: Int!
   signer: GraphAccount!
   type: TransactionType!
-  nSignal: BigInt!
-  vSignal: BigInt!
+  nameSignal: BigInt!
+  versionSignal: BigInt!
   tokens: BigInt!
   subgraph: Subgraph!
 }
