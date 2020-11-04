@@ -15,7 +15,7 @@ import {
 import {
   Subgraph,
   SubgraphVersion,
-  NSignalTransaction,
+  NameSignalTransaction,
   Curator,
   GraphAccountName,
   SubgraphDeployment,
@@ -227,7 +227,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   nameSignal.save()
 
   // Create n signal tx
-  let nSignalTransaction = new NSignalTransaction(
+  let nSignalTransaction = new NameSignalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
   nSignalTransaction.blockNumber = event.block.number.toI32()
@@ -268,7 +268,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nameSignal.save()
 
   // Create n signal tx
-  let nSignalTransaction = new NSignalTransaction(
+  let nSignalTransaction = new NameSignalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
   nSignalTransaction.blockNumber = event.block.number.toI32()
