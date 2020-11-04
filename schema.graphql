@@ -202,6 +202,9 @@ type GraphAccount @entity {
   indexer: Indexer
   "Subgraphs this account has delegated to"
   delegator: Delegator
+
+  # Transactions / activity feed
+  nameSignalTransactions: [NameSignalTransaction]! @derivedFrom(field: "signer")
 }
 
 """
@@ -798,7 +801,7 @@ interface Transaction {
 }
 
 # For Curation made through the GNS
-type NSignalTransaction implements Transaction @entity {
+type NameSignalTransaction implements Transaction @entity {
   id: ID!
   blockNumber: Int!
   timestamp: Int!

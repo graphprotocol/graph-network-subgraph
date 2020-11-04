@@ -35,7 +35,6 @@ import {
   joinID,
   createOrLoadDelegator,
   createOrLoadDelegatedStake,
-  addQm,
   createOrLoadGraphAccount,
 } from './helpers'
 
