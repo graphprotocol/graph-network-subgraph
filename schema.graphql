@@ -615,17 +615,17 @@ type Curator @entity {
 
   # Metrics NOTE - will be hard to calculate these with the two types of signal
   "Summation of realized rewards from all Signals"
-  realizedRewards: BigInt!
+  realizedRewards: BigInt! # Current 0
   "Annualized rate of return on curator signal"
-  annualizedReturn: BigDecimal! # Multiple by 100 to get percentage
+  annualizedReturn: BigDecimal! # Currently 0
   "Total return of the curator"
-  totalReturn: BigDecimal!
+  totalReturn: BigDecimal! # Currently 0
   "Signaling efficiency of the curator"
-  signalingEfficiency: BigDecimal!
-  "Total curator cost basis of name signal all shares purchases"
-  totalNameSignalCostBasis: BigDecimal! # note we ONLY do name signal. This is okay for the protocol for now
-  "Total name signal minted all time. Used for cost basis"
-  totalNameSignalMintedAllTime: BigInt!
+  signalingEfficiency: BigDecimal! # Currently 0
+  # "Total curator cost basis of name signal all shares purchases"
+  # totalNameSignalCostBasis: BigDecimal! # We don't use this right now, might delete - DK
+  "totalNameSignalCostBasis / nameSignal"
+  averageCostBasisPerNameSignal: BigDecimal!
 }
 
 """
@@ -673,8 +673,6 @@ type NameSignal @entity {
   withdrawnTokens: BigInt!
   "Signal that the curator has from signaling their GRT"
   nameSignal: BigInt!
-  "Name signal minted all time. Used for cost basis calculations"
-  nameSignalMintedAllTime: BigInt!
   # Note , we don't show vSignal here. We could, but it has almost no value to display it.
   # We can get away with using curator nameSignal, total n and v signal on the subgraph.
 
@@ -685,8 +683,10 @@ type NameSignal @entity {
   # unrealized gains for their current balance, based on the time since the last exit/entry of the curve
   "Summation of realized rewards from before the last time the curator entered the curation curve"
   realizedRewards: BigInt!
-  "Curator cost basis for this name signal on this subgraph"
-  costBasis: BigDecimal! # note this is ONLY name signal. This is okay for the protocol for now
+  "Curator average cost basis for this name signal on this subgraph"
+  averageCostBasis: BigDecimal! # note this is ONLY name signal. This is okay for the protocol for now
+  "averageCostBasis / nameSignal"
+  averageCostBasisPerSignal: BigDecimal!
 }
 
 """
