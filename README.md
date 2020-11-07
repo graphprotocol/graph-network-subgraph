@@ -6,30 +6,18 @@ The Graph Network Subgraph.
 
 ## Testing
 ```
-yarn
 yarn deploy-testing
 ```
 
 ### Staging
 ```
-yarn
 yarn deploy-staging
 ```
 
 ## Production
+When deploying production, make sure everyone is aware before it happens, in case something breaks.
+The new production subgraph ID should be shared with Jannis. 
+
 ```
-yarn
 yarn deploy-production
 ```
-Then you must inform jannis of the new subgraph ID. This should be done by releasing a new NPM
-package! (See below)
-
-> NOTE - you must also update `deployment.json` with the new ID
-
-# NPM package
-
-The npm package lives at:
-- `@graphprotocol/testnet-subgraph`
-
-When there is a new subgraph, that is stable, release a new package, and inform the team to update
-the NPM package, and then they will have the correct subgraph deployment ID for the network.

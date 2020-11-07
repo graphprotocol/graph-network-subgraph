@@ -156,6 +156,8 @@ dataSources:
           handler: handleParameterUpdated
         - event: SetOperator(indexed address,address,bool)
           handler: handleSetOperator
+        - event: SlasherUpdate(indexed address,indexed address,bool)
+          handler: handleSlasherUpdate
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
   - kind: ethereum/contract
@@ -284,5 +286,37 @@ dataSources:
           handler: handleRewardsAssigned
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
+  - kind: ethereum/contract
+    name: DisputeManager
+    network: {{network}}
+    source:
+      address: '{{disputeManager}}'
+      abi: DisputeManager
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/disputeManager.ts
+      entities:
+        - TODO
+      abis:
+        - name: DisputeManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/DisputeManager.json
+      eventHandlers:
+        - event: QueryDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,bytes32,bytes)
+          handler: handleQueryDisputeCreated
+        - event: IndexingDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,address)
+          handler: handleIndexingDisputeCreated
+        - event: DisputeAccepted(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleDisputeAccepted
+        - event: DisputeRejected(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleDisputeRejected
+        - event: DisputeDrawn(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleDisputeDrawn
+        - event: DisputeLinked(bytes32,bytes32)
+          handler: handleDisputeLinked
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
