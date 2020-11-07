@@ -15,6 +15,7 @@ import {
   StakeDelegatedWithdrawn,
   AllocationCollected,
   DelegationParametersUpdated,
+  SlasherUpdate,
 } from '../types/Staking/Staking'
 import {
   Indexer,
@@ -525,6 +526,33 @@ export function handleSetOperator(event: SetOperator): void {
   }
   graphAccount.operators = operators
   graphAccount.save()
+}
+
+export function handleSlasherUpdate(event: SlasherUpdate): void {
+  let graphNetwork = GraphNetwork.load('1')
+  let slashers = graphNetwork.slashers
+  if (slashers == null) {
+    slashers = []
+  }
+  let index = slashers.indexOf(event.params.slasher)
+
+  // It was not there before
+  if (index == -1) {
+    // Lets add it in
+    if (event.params.allowed) {
+      slashers.push(event.params.slasher)
+    }
+    // If false was passed, we do nothing
+    // It was there before
+  } else {
+    // We are revoking access
+    if (!event.params.allowed) {
+      slashers.splice(index, 1)
+    }
+    // Otherwise do nothing
+  }
+  graphNetwork.slashers = slashers
+  graphNetwork.save()
 }
 
 // export function handleImplementationUpdated(event: ImplementationUpdated): void {

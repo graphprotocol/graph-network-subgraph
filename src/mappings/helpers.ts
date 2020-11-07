@@ -409,7 +409,10 @@ export function createOrLoadGraphNetwork(
     graphNetwork.subgraphCount = 0
     graphNetwork.subgraphDeploymentCount = 0
 
+    graphNetwork.arbitrator = Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.slashingPercentage = 0
+    graphNetwork.minimumDisputeDeposit = BigInt.fromI32(0)
+    graphNetwork.fishermanRewardPercentage = 0
 
     graphNetwork.save()
   }

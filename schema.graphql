@@ -56,6 +56,7 @@ type GraphNetwork @entity {
   delegationParametersCooldown: Int!
   "The number of times indexing rewards are handed out each epoch"
   indexingRewardsPerEpoch: Int!
+  slashers: [Bytes!]
 
   "Time in epochs a delegator needs to wait to withdraw delegated stake"
   delegationUnbondingPeriod: Int!
@@ -129,12 +130,14 @@ type GraphNetwork @entity {
   epochCount: Int!
 
   # Dispute Manager global variables - add when implemented
+  "Dispute arbitrator"
+  arbitrator: Bytes!
   "Penalty to Indexer on successful disputes"
   slashingPercentage: Int!
-  # "Minimum deposit to create a dispute"
-  # minimumDisputeDeposit: BigInt!
-  # "Reward to Fisherman on successful disputes"
-  # fishermanRewardPercentage: BigInt!
+  "Minimum deposit to create a dispute"
+  minimumDisputeDeposit: BigInt!
+  "Reward to Fisherman on successful disputes"
+  fishermanRewardPercentage: Int!
 }
 
 """
@@ -193,8 +196,8 @@ type GraphAccount @entity {
   # Disputes
   "Disputes this graph account has created"
   createdDisputes: [Dispute!]! @derivedFrom(field: "fisherman")
-  "Disputes agaisnt this graph account"
-  disputesAgainst: [Dispute!]! @derivedFrom(field: "indexers")
+  "Disputes against this graph account"
+  disputesAgainst: [Dispute!]! @derivedFrom(field: "indexer")
   # Staking and Curating and Delegating
   "Subgraphs this account curates"
   curator: Curator
@@ -673,6 +676,8 @@ type NameSignal @entity {
   withdrawnTokens: BigInt!
   "Signal that the curator has from signaling their GRT"
   nameSignal: BigInt!
+  "Name signal minted all time. Used for cost basis calculations"
+  nameSignalMintedAllTime: BigInt!
   # Note , we don't show vSignal here. We could, but it has almost no value to display it.
   # We can get away with using curator nameSignal, total n and v signal on the subgraph.
 
@@ -705,11 +710,11 @@ type Dispute @entity {
   "Time dispute was created"
   createdAt: Int!
   "Time dispute was closed at"
-  closedAt: Int
-  "Status of the dispute"
+  closedAt: Int!
+  "Status of the dispute. Accepted means the Indexer was slashed."
   status: DisputeStatus!
   "Tokens slashed"
-  tokensSlashed: BigInt!
+  tokensSlashed: BigDecimal!
   "Tokens rewarded"
   tokensRewarded: BigInt!
 
@@ -717,11 +722,11 @@ type Dispute @entity {
   "Type of dispute"
   type: DisputeType!
   "Indexer(s) disputed. Conflicting disputes have 2 indexers. Others have 1"
-  indexers: [GraphAccount!]!
-  "Attestation 1. Only for single query and conflicting attestation"
-  attestation1: Attestation
-  "Attestation 2. Only for conflicting attestation"
-  attestation2: Attestation
+  indexer: GraphAccount!
+  "Only for single query and conflicting attestation"
+  attestation: Attestation
+  "Only for conflicting attestation"
+  linkedDispute: Dispute
   "Allocation ID. Only for Indexing Disputes"
   allocation: Allocation
 }
@@ -739,15 +744,15 @@ type Attestation @entity {
   "ResponseCID"
   responseCID: String!
   "Gas used by the attested query"
-  gasUsed: BigInt!
+  gasUsed: BigInt # Get from Allocation metadata when available
   "Bytes of attested query"
-  responseNumBytes: BigInt!
+  responseNumBytes: BigInt # Get from Allocation metadata when available
   "V of the indexers signature"
   v: Int!
   "R of the indexers signature"
-  r: Bytes!
+  r: String!
   "S of the indexers signature"
-  s: Bytes!
+  s: String!
 }
 
 enum DisputeType {
@@ -761,8 +766,6 @@ enum DisputeStatus {
   Accepted
   Rejected
   Draw
-  Indexer1Correct
-  Indexer2Correct
 }
 
 """
