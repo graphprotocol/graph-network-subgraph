@@ -676,8 +676,6 @@ type NameSignal @entity {
   withdrawnTokens: BigInt!
   "Signal that the curator has from signaling their GRT"
   nameSignal: BigInt!
-  "Name signal minted all time. Used for cost basis calculations"
-  nameSignalMintedAllTime: BigInt!
   # Note , we don't show vSignal here. We could, but it has almost no value to display it.
   # We can get away with using curator nameSignal, total n and v signal on the subgraph.
 
