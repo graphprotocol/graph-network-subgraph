@@ -1,4 +1,4 @@
-import { BigDecimal, Bytes, ipfs, json } from '@graphprotocol/graph-ts'
+import { BigDecimal, BigInt, Bytes, ipfs, json } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphDeprecated,
@@ -226,7 +226,9 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   // note: totalDifference could be negative as well.
   let newACBPerShare = nameSignal.averageCostBasisPerSignal
   let totalDifference = newACBPerShare.minus(oldACBPerShare)
-  curator.averageCostBasisPerNameSignal = curator.averageCostBasisPerNameSignal.plus(totalDifference)
+  curator.averageCostBasisPerNameSignal = curator.averageCostBasisPerNameSignal.plus(
+    totalDifference,
+  )
   curator.save()
 
   // Create n signal tx
@@ -258,7 +260,6 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
     event.params.tokensReceived,
   )
-  curator.save()
 
   let nameSignal = createOrLoadNameSignal(
     event.params.nameCurator.toHexString(),
@@ -275,10 +276,17 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nameSignal.averageCostBasis = nameSignal.averageCostBasis
     .times(oldNameSignal.minus(event.params.nSignalBurnt).toBigDecimal())
     .div(oldNameSignal.toBigDecimal())
-  nameSignal.save()
 
-  // Note - whenever burning, the averageCostBasisPerShare does not change. So we do not
-  // do any calculations for nameSignal.averageCostBasisPerShare
+  // Note - whenever burning, the averageCostBasisPerShare does not change.
+  // EXCEPT when nameSignal == 0. They sold all their shares ACB becomes 0, and so ACB/signal should too
+  // And thus we must minus it from the curator total amount
+  if (nameSignal.averageCostBasis == BigDecimal.fromString('0')) {
+    let oldACBPerSignal = nameSignal.averageCostBasisPerSignal
+    nameSignal.averageCostBasisPerSignal = BigDecimal.fromString('0')
+    curator.averageCostBasisPerNameSignal = curator.averageCostBasisPerNameSignal.minus(oldACBPerSignal)
+  }
+  nameSignal.save()
+  curator.save()
 
   // Create n signal tx
   let nSignalTransaction = new NameSignalTransaction(
