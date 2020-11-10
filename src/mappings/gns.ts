@@ -261,6 +261,9 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   curator.totalNameSignalAverageCostBasis = curator.totalNameSignal.times(
     curator.totalAverageCostBasisPerNameSignal,
   )
+  if (curator.totalNameSignalAverageCostBasis == BigDecimal.fromString('0')){
+    curator.totalAverageCostBasisPerNameSignal = BigDecimal.fromString('0')
+  }
   curator.save()
 
   // update name signal
@@ -277,6 +280,9 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nameSignal.averageCostBasis = nameSignal.nameSignal
     .toBigDecimal()
     .times(nameSignal.averageCostBasisPerSignal)
+    if (nameSignal.averageCostBasis == BigDecimal.fromString('0')){
+      nameSignal.averageCostBasisPerSignal = BigDecimal.fromString('0')
+    }
   nameSignal.save()
 
   // Create n signal tx
