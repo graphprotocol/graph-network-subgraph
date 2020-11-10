@@ -205,10 +205,9 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
   nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
-
-  let oldACBPerShare = nameSignal.averageCostBasisPerSignal
-  let newACB = nameSignal.averageCostBasis.plus(event.params.tokensDeposited.toBigDecimal())
-  nameSignal.averageCostBasis = newACB
+  nameSignal.averageCostBasis = nameSignal.averageCostBasis.plus(
+    event.params.tokensDeposited.toBigDecimal(),
+  )
   nameSignal.averageCostBasisPerSignal = nameSignal.averageCostBasis.div(
     nameSignal.nameSignal.toBigDecimal(),
   )
@@ -219,15 +218,12 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
   )
-
-  // We add in the difference of this one n signal into the total
-  // ex: if total was 70, this signal was 10 of that 70. it is now 12. so we end up adding 2
-  //     This is similar to storing every value uniquely
-  // note: totalDifference could be negative as well.
-  let newACBPerShare = nameSignal.averageCostBasisPerSignal
-  let totalDifference = newACBPerShare.minus(oldACBPerShare)
-  curator.averageCostBasisPerNameSignal = curator.averageCostBasisPerNameSignal.plus(
-    totalDifference,
+  curator.totalNameSignalAverageCostBasis = curator.totalNameSignalAverageCostBasis.plus(
+    event.params.tokensDeposited.toBigDecimal(),
+  )
+  curator.totalNameSignal = curator.totalNameSignal.plus(event.params.nSignalCreated.toBigDecimal())
+  curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis.div(
+    curator.totalNameSignal,
   )
   curator.save()
 
@@ -256,37 +252,32 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensReceived)
   subgraph.save()
 
+  // update curator
   let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
   curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
     event.params.tokensReceived,
   )
+  curator.totalNameSignal = curator.totalNameSignal.minus(event.params.nSignalBurnt.toBigDecimal())
+  curator.totalNameSignalAverageCostBasis = curator.totalNameSignal.times(
+    curator.totalAverageCostBasisPerNameSignal,
+  )
+  curator.save()
 
+  // update name signal
   let nameSignal = createOrLoadNameSignal(
     event.params.nameCurator.toHexString(),
     subgraphID,
     event.block.timestamp,
   )
-  let oldNameSignal = nameSignal.nameSignal
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
   nameSignal.unsignalledTokens = nameSignal.unsignalledTokens.plus(event.params.tokensReceived)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
 
-  // formula: newCostBasis = previousCostBasis * (oldNameSignal - nSignalBurnt) / oldNameSignal
-  // note: averageCostBasisPerSignal stays the same, selling does not change the per signal
-  nameSignal.averageCostBasis = nameSignal.averageCostBasis
-    .times(oldNameSignal.minus(event.params.nSignalBurnt).toBigDecimal())
-    .div(oldNameSignal.toBigDecimal())
-
-  // Note - whenever burning, the averageCostBasisPerShare does not change.
-  // EXCEPT when nameSignal == 0. They sold all their shares ACB becomes 0, and so ACB/signal should too
-  // And thus we must minus it from the curator total amount
-  if (nameSignal.averageCostBasis == BigDecimal.fromString('0')) {
-    let oldACBPerSignal = nameSignal.averageCostBasisPerSignal
-    nameSignal.averageCostBasisPerSignal = BigDecimal.fromString('0')
-    curator.averageCostBasisPerNameSignal = curator.averageCostBasisPerNameSignal.minus(oldACBPerSignal)
-  }
+  // update acb to reflect new name signal balance
+  nameSignal.averageCostBasis = nameSignal.nameSignal
+    .toBigDecimal()
+    .times(nameSignal.averageCostBasisPerSignal)
   nameSignal.save()
-  curator.save()
 
   // Create n signal tx
   let nSignalTransaction = new NameSignalTransaction(

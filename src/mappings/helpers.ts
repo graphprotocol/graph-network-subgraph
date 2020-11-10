@@ -192,8 +192,9 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.annualizedReturn = BigDecimal.fromString('0')
     curator.totalReturn = BigDecimal.fromString('0')
     curator.signalingEfficiency = BigDecimal.fromString('0')
-    // curator.totalNameSignalCostBasis = BigDecimal.fromString('0')
-    curator.averageCostBasisPerNameSignal = BigDecimal.fromString('0')
+    curator.totalNameSignalAverageCostBasis = BigDecimal.fromString('0')
+    curator.totalNameSignal = BigDecimal.fromString('0')
+    curator.totalAverageCostBasisPerNameSignal = BigDecimal.fromString('0')
     curator.save()
 
     let graphAccount = GraphAccount.load(id)

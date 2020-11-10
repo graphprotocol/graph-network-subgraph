@@ -625,10 +625,12 @@ type Curator @entity {
   totalReturn: BigDecimal! # Currently 0
   "Signaling efficiency of the curator"
   signalingEfficiency: BigDecimal! # Currently 0
-  # "Total curator cost basis of name signal all shares purchases"
-  # totalNameSignalCostBasis: BigDecimal! # We don't use this right now, might delete - DK
-  "totalNameSignalCostBasis / nameSignal"
-  averageCostBasisPerNameSignal: BigDecimal!
+  "Total name signal summed for all bonding curves"
+  totalNameSignal: BigDecimal!
+  "Total curator cost basis of all shares purchased on all bonding curves"
+  totalNameSignalAverageCostBasis: BigDecimal!
+  "totalNameSignalCostBasis / totalNameSignal"
+  totalAverageCostBasisPerNameSignal: BigDecimal!
 }
 
 """
@@ -655,7 +657,6 @@ type Signal @entity {
   # unrealized gains for their current balance, based on the time since the last exit/entry of the curve
   "Summation of realized rewards from before the last time the curator entered the curation curve"
   realizedRewards: BigInt!
-
 }
 
 """
@@ -797,8 +798,7 @@ interface Transaction {
   signer: GraphAccount!
   type: TransactionType!
 
-  # to add in future - epoch number, 
-
+  # to add in future - epoch number,
 }
 
 # For Curation made through the GNS
@@ -827,8 +827,6 @@ type SignalTransaction implements Transaction @entity {
   withdrawalFees: BigInt! # only for burn tx, 0 for mint tx
 }
 
-
-
 enum TransactionType {
   Stake
   Unstake
@@ -836,7 +834,7 @@ enum TransactionType {
   BurnSignal
   MintNSignal
   BurnNSignal
-} 
+}
 
 type _Schema_
   @fulltext(
