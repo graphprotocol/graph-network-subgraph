@@ -45,7 +45,7 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
   indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
   indexer.queryFeeCut = event.params.queryFeeCut.toI32()
   indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
-  indexer.lastDelegationParameterUpdate = event.block.timestamp.toI32()
+  indexer.lastDelegationParameterUpdate = event.block.number.toI32()
   indexer.save()
 }
 
@@ -78,6 +78,13 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
   indexer = calculateCapacities(indexer as Indexer)
+
+  // TODO - remove this once new contracts are deployed, as they have an event that emits this
+  if (indexer.lastDelegationParameterUpdate == 0) {
+    indexer.queryFeeCut = 1000000
+    indexer.indexingRewardCut = 1000000
+    indexer.lastDelegationParameterUpdate = event.block.number.toI32()
+  }
   indexer.save()
 
   // Update graph network
@@ -182,7 +189,11 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   delegator.save()
 
   // update delegated stake
-  let delegatedStake = createOrLoadDelegatedStake(delegatorID, indexerID)
+  let delegatedStake = createOrLoadDelegatedStake(
+    delegatorID,
+    indexerID,
+    event.block.timestamp.toI32(),
+  )
   let previousExchangeRate = delegatedStake.personalExchangeRate
   let previousShares = delegatedStake.shareAmount
 

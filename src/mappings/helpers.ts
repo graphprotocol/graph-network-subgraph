@@ -157,7 +157,7 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
   return delegator as Delegator
 }
 
-export function createOrLoadDelegatedStake(delegator: string, indexer: string): DelegatedStake {
+export function createOrLoadDelegatedStake(delegator: string, indexer: string, timestamp: i32): DelegatedStake {
   let id = joinID([delegator, indexer])
   let delegatedStake = DelegatedStake.load(id)
   if (delegatedStake == null) {
@@ -171,6 +171,8 @@ export function createOrLoadDelegatedStake(delegator: string, indexer: string): 
     delegatedStake.shareAmount = BigInt.fromI32(0)
     delegatedStake.personalExchangeRate = BigDecimal.fromString('0')
     delegatedStake.realizedRewards = BigDecimal.fromString('0')
+    delegatedStake.createdAt = timestamp
+
     delegatedStake.save()
   }
   return delegatedStake as DelegatedStake

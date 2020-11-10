@@ -444,15 +444,13 @@ type Indexer @entity {
   delegatorShares: BigInt!
   "Exchange rate of of tokens received for each share"
   delegationExchangeRate: BigDecimal
-
-  "The percent the Indexer agrees to share with delegators"
+  "The percent the Indexer agrees to share with delegators. In parts per million"
   indexingRewardCut: Int!
-
   "The total amount of query fees given to delegators"
   delegatorQueryFees: BigInt!
-  "The percent of query rebate rewards the Indexer agrees to share with delegators"
+  "The percent of query rebate rewards the Indexer agrees to share with delegators. In parts per million"
   queryFeeCut: Int!
-  "Time delegator decides to wait for changing of their parameters"
+  "Amount of blocks a delegator chooses for the waiting period for changing their params"
   delegatorParameterCooldown: Int!
   "Block number for the last time the delegator updated their parameters"
   lastDelegationParameterUpdate: Int!
@@ -588,6 +586,8 @@ type DelegatedStake @entity {
   personalExchangeRate: BigDecimal!
   "Realized rewards from selling delegated stake that accumulated rewards"
   realizedRewards: BigDecimal!
+  "Time this delegator first delegated to an indexer"
+  createdAt: Int!
 }
 
 """
