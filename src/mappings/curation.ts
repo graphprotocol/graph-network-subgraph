@@ -124,7 +124,7 @@ export function handleBurned(event: Burned): void {
   signalTransaction.type = 'BurnSignal'
   signalTransaction.signal = event.params.signal
   signalTransaction.tokens = event.params.tokens
-  signalTransaction.withdrawalFees = event.params.withdrawalFees
+  signalTransaction.withdrawalFees = BigInt.fromI32(0)
   signalTransaction.subgraphDeployment = event.params.subgraphDeploymentID.toHexString()
   signalTransaction.save()
 }
@@ -137,13 +137,12 @@ export function handleBurned(event: Burned): void {
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = GraphNetwork.load('1')
-  let curationAddress = graphNetwork.curation
-  let curation = Curation.bind(curationAddress as Address)
+  let curation = Curation.bind(event.address)
 
   if (parameter == 'defaultReserveRatio') {
     graphNetwork.defaultReserveRatio = curation.defaultReserveRatio().toI32()
-  } else if (parameter == 'withdrawalFeePercentage') {
-    graphNetwork.withdrawalFeePercentage = curation.withdrawalFeePercentage().toI32()
+  } else if (parameter == 'curationTaxPercentage') {
+    graphNetwork.curationTaxPercentage = curation.curationTaxPercentage().toI32()
     // TODO - i Hard coded this since these are set on deployment. Should fix this
     // maybe emit an event in the constructor
     graphNetwork.minimumCurationDeposit = curation.minimumCurationDeposit()

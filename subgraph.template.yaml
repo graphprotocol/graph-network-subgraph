@@ -22,7 +22,7 @@ dataSources:
         - name: Controller
           file: ./node_modules/@graphprotocol/contracts/dist/abis/Controller.json
       eventHandlers:
-        - event: SetContractProxy(bytes32,address)
+        - event: SetContractProxy(indexed bytes32,address)
           handler: handleSetContractProxy
         - event: NewOwnership(indexed address,indexed address)
           handler: handleNewOwnership
@@ -30,7 +30,7 @@ dataSources:
           handler: handlePartialPauseChanged
         - event: PauseChanged(bool)
           handler: handlePauseChanged
-        - event: NewPauseGuardian(address,address)
+        - event: NewPauseGuardian(indexed address,indexed address)
           handler: handleNewPauseGuardian
   - kind: ethereum/contract
     name: GNS
@@ -58,23 +58,23 @@ dataSources:
         - name: ENSPublicResolver
           file: ./node_modules/@graphprotocol/contracts/dist/abis/IPublicResolver.json
       eventHandlers:
-        - event: SubgraphPublished(address,uint256,bytes32,bytes32)
+        - event: SubgraphPublished(indexed address,indexed uint256,indexed bytes32,bytes32)
           handler: handleSubgraphPublished
-        - event: SubgraphDeprecated(address,uint256)
+        - event: SubgraphDeprecated(indexed address,indexed uint256)
           handler: handleSubgraphDeprecated
-        - event: SetDefaultName(address,uint256,bytes32,string)
+        - event: SetDefaultName(indexed address,uint256,bytes32,string)
           handler: handleSetDefaultName
-        - event: SubgraphMetadataUpdated(address,uint256,bytes32)
+        - event: SubgraphMetadataUpdated(indexed address,indexed uint256,bytes32)
           handler: handleSubgraphMetadataUpdated
-        - event: NameSignalEnabled(address,uint256,bytes32,uint32)
+        - event: NameSignalEnabled(indexed address,indexed uint256,indexed bytes32,uint32)
           handler: handleNameSignalEnabled
-        - event: NSignalMinted(address,uint256,address,uint256,uint256,uint256)
+        - event: NSignalMinted(indexed address,indexed uint256,indexed address,uint256,uint256,uint256)
           handler: handleNSignalMinted
-        - event: NSignalBurned(address,uint256,address,uint256,uint256,uint256)
+        - event: NSignalBurned(indexed address,indexed uint256,indexed address,uint256,uint256,uint256)
           handler: handleNSignalBurned
-        - event: NameSignalDisabled(address,uint256,uint256)
+        - event: NameSignalDisabled(indexed address,indexed uint256,uint256)
           handler: handleNameSignalDisabled
-        - event: GRTWithdrawn(address,uint256,address,uint256,uint256)
+        - event: GRTWithdrawn(indexed address,indexed uint256,indexed address,uint256,uint256)
           handler: handleGRTWithdrawn
   - kind: ethereum/contract
     name: ServiceRegistry
@@ -144,20 +144,22 @@ dataSources:
           handler: handleStakeDelegatedLocked
         - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
           handler: handleStakeDelegatedWithdrawn       
-        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,address,bytes32)
+        - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,indexed address,bytes32)
           handler: handleAllocationCreated
-        - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,address,address,uint256,uint256)
+        - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,indexed address,address,uint256,uint256)
           handler: handleAllocationCollected
-        - event: AllocationClosed(indexed address,indexed bytes32,uint256,uint256,address,uint256,address,bytes32)
+        - event: AllocationClosed(indexed address,indexed bytes32,uint256,uint256,indexed address,uint256,address,bytes32)
           handler: handleAllocationClosed
-        - event: RebateClaimed(indexed address,indexed bytes32,address,uint256,uint256,uint256,uint256,uint256)
+        - event: RebateClaimed(indexed address,indexed bytes32,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
-        - event: SetOperator(indexed address,address,bool)
+        - event: SetOperator(indexed address,indexed address,bool)
           handler: handleSetOperator
         - event: SlasherUpdate(indexed address,indexed address,bool)
           handler: handleSlasherUpdate
+        - event: AssetHolderUpdate(indexed address,indexed address,bool)
+          handler: handleAssetHolderUpdate
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
   - kind: ethereum/contract
@@ -182,9 +184,9 @@ dataSources:
         - name: Curation
           file: ./node_modules/@graphprotocol/contracts/dist/abis/Curation.json
       eventHandlers:
-        - event: Signalled(indexed address,indexed bytes32,uint256,uint256)
+        - event: Signalled(indexed address,indexed bytes32,uint256,uint256,uint256)
           handler: handleSignalled
-        - event: Burned(indexed address,indexed bytes32,uint256,uint256,uint256)
+        - event: Burned(indexed address,indexed bytes32,uint256,uint256)
           handler: handleBurned
         # - event: Collected(indexed bytes32,uint256) NOT used - all can be handled by handleAllocationClosed
         #   handler: handleCollected
@@ -316,7 +318,7 @@ dataSources:
           handler: handleDisputeRejected
         - event: DisputeDrawn(indexed bytes32,indexed address,indexed address,uint256)
           handler: handleDisputeDrawn
-        - event: DisputeLinked(bytes32,bytes32)
+        - event: DisputeLinked(indexed bytes32,indexed bytes32)
           handler: handleDisputeLinked
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated

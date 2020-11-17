@@ -346,17 +346,17 @@ export function createOrLoadGraphNetwork(
     // All of the 0x0000 addresses will be replaced in controller deployment calls
     // Service registry is not stored in the Controller so we get it manually
     graphNetwork.controller = controllerAddress
-    graphNetwork.graphToken = Address.fromString('0x0000000000000000000000000000000000000000')
-    graphNetwork.epochManager = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.graphToken = Address.fromString(addresses.graphToken)
+    graphNetwork.epochManager = Address.fromString(addresses.epochManager)
     graphNetwork.epochManagerImplementations = []
-    graphNetwork.curation = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.curation = Address.fromString(addresses.curation)
     graphNetwork.curationImplementations = []
-    graphNetwork.staking = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.staking = Address.fromString(addresses.staking)
     graphNetwork.stakingImplementations = []
-    graphNetwork.disputeManager = Address.fromString('0x0000000000000000000000000000000000000000')
-    graphNetwork.gns = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.disputeManager = Address.fromString(addresses.disputeManager)
+    graphNetwork.gns = Address.fromString(addresses.gns)
     graphNetwork.serviceRegistry = Address.fromString(addresses.serviceRegistry)
-    graphNetwork.rewardsManager = Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.rewardsManager = Address.fromString(addresses.rewardsManager)
     graphNetwork.rewardsManagerImplementations = []
     graphNetwork.isPaused = false
     graphNetwork.isPartialPaused = false
@@ -374,7 +374,10 @@ export function createOrLoadGraphNetwork(
     graphNetwork.thawingPeriod = 0
     graphNetwork.delegationParametersCooldown = 0
     graphNetwork.indexingRewardsPerEpoch = 0
+    graphNetwork.minimumIndexerStake = BigInt.fromI32(0)
     graphNetwork.delegationUnbondingPeriod = 0
+    graphNetwork.delegationTaxPercentage = 0
+    graphNetwork.rebateRatio = BigDecimal.fromString('0')
 
     graphNetwork.totalTokensStaked = BigInt.fromI32(0)
     graphNetwork.totalTokensClaimable = BigInt.fromI32(0)
@@ -391,7 +394,7 @@ export function createOrLoadGraphNetwork(
 
     graphNetwork.defaultReserveRatio = 0
     graphNetwork.minimumCurationDeposit = BigInt.fromI32(0)
-    graphNetwork.withdrawalFeePercentage = 0
+    graphNetwork.curationTaxPercentage = 0
 
     graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
 
