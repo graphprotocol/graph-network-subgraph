@@ -186,8 +186,8 @@ dataSources:
           handler: handleSignalled
         - event: Burned(indexed address,indexed bytes32,uint256,uint256,uint256)
           handler: handleBurned
-        - event: Collected(indexed bytes32,uint256)
-          handler: handleCollected
+        # - event: Collected(indexed bytes32,uint256) NOT used - all can be handled by handleAllocationClosed
+        #   handler: handleCollected
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
         # - event: ImplementationUpdated(address,address)

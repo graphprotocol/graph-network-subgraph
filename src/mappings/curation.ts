@@ -130,21 +130,6 @@ export function handleBurned(event: Burned): void {
 }
 
 /**
- * @dev handleCollected
- *  - updates subgraph - TODO - we might add curator earned to this. but it seems really hard
- *  - @note - we do not update totalQueryFeesCollected here, because it is already updated in
- *    staking.handleAllocationClosed()
- */
-export function handleCollected(event: Collected): void {
-  // update subgraph
-  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
-  deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
-  deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.tokens)
-  deployment.save()
-}
-
-/**
  * @dev handleParamterUpdated
  * - updates all parameters of curation, depending on string passed. We then can
  *   call the contract directly to get the updated value

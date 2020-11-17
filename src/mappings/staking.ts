@@ -365,6 +365,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   // update subgraph deployment
   let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   deployment.queryFeesAmount = deployment.queryFeesAmount.plus(event.params.rebateFees)
+  deployment.signalledTokens = deployment.signalledTokens.plus(event.params.curationFees)
   deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
   deployment.save()
 
@@ -420,7 +421,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   // it would be done in handleRebateClaimed
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-  deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
+  deployment.stakedTokens = deployment.stakedTokens.minus(event.params.tokens)
   deployment.save()
 
   // update graph network - none
