@@ -16,6 +16,7 @@ import {
   AllocationCollected,
   DelegationParametersUpdated,
   SlasherUpdate,
+  AssetHolderUpdate,
 } from '../types/Staking/Staking'
 import {
   Indexer,
@@ -490,11 +491,8 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   let graphNetwork = GraphNetwork.load('1')
   let staking = Staking.bind(graphNetwork.staking as Address)
 
-  if (parameter == 'curation') {
-    // Not in use now, we are waiting till we have a controller contract that
-    // houses all the addresses of all contracts. So that there aren't a bunch
-    // of different instances of the contract addresses across all contracts
-    // graphNetwork.curation = staking.curation()
+  if (parameter == 'minimumIndexerStake') {
+    graphNetwork.minimumIndexerStake = staking.minimumIndexerStake()
   } else if (parameter == 'thawingPeriod') {
     graphNetwork.thawingPeriod = staking.thawingPeriod().toI32()
   } else if (parameter == 'curationPercentage') {
@@ -505,12 +503,19 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
     graphNetwork.channelDisputeEpochs = staking.channelDisputeEpochs().toI32()
   } else if (parameter == 'maxAllocationEpochs') {
     graphNetwork.maxAllocationEpochs = staking.maxAllocationEpochs().toI32()
+  } else if (parameter == 'rebateRatio') {
+    graphNetwork.rebateRatio = staking
+      .alphaNumerator()
+      .toBigDecimal()
+      .div(staking.alphaDenominator().toBigDecimal())
   } else if (parameter == 'delegationRatio') {
     graphNetwork.delegationRatio = staking.delegationRatio().toI32()
   } else if (parameter == 'delegationParametersCooldown') {
     graphNetwork.delegationParametersCooldown = staking.delegationParametersCooldown().toI32()
   } else if (parameter == 'delegationUnbondingPeriod') {
     graphNetwork.delegationParametersCooldown = staking.delegationUnbondingPeriod().toI32()
+  } else if (parameter == 'delegationTaxPercentage') {
+    graphNetwork.delegationTaxPercentage = staking.delegationTaxPercentage().toI32()
   }
   graphNetwork.save()
 }
@@ -566,6 +571,34 @@ export function handleSlasherUpdate(event: SlasherUpdate): void {
   graphNetwork.slashers = slashers
   graphNetwork.save()
 }
+
+export function handleAssetHolderUpdate(event: AssetHolderUpdate): void {
+  let graphNetwork = GraphNetwork.load('1')
+  let assetHolders = graphNetwork.assetHolders
+  if (assetHolders == null) {
+    assetHolders = []
+  }
+  let index = assetHolders.indexOf(event.params.assetHolder)
+
+  // It was not there before
+  if (index == -1) {
+    // Lets add it in
+    if (event.params.allowed) {
+      assetHolders.push(event.params.assetHolder)
+    }
+    // If false was passed, we do nothing
+    // It was there before
+  } else {
+    // We are revoking access
+    if (!event.params.allowed) {
+      assetHolders.splice(index, 1)
+    }
+    // Otherwise do nothing
+  }
+  graphNetwork.assetHolders = assetHolders
+  graphNetwork.save()
+}
+
 
 // export function handleImplementationUpdated(event: ImplementationUpdated): void {
 //   let graphNetwork = GraphNetwork.load('1')

@@ -56,10 +56,18 @@ type GraphNetwork @entity {
   delegationParametersCooldown: Int!
   "The number of times indexing rewards are handed out each epoch"
   indexingRewardsPerEpoch: Int!
+  "Minimum GRT an indexer must stake"
+  minimumIndexerStake: BigInt!
+  "Contracts that have been approved to be a slasher"
   slashers: [Bytes!]
-
   "Time in epochs a delegator needs to wait to withdraw delegated stake"
   delegationUnbondingPeriod: Int!
+  "Alpha in the cobbs douglas formula"
+  rebateRatio: BigDecimal!
+  "Tax that delegators pay to deposit"
+  delegationTaxPercentage: Int!
+  "Asset holder for the protocol"
+  assetHolders: [Bytes!]
 
   # Staking global aggregate values
   "The total amount of GRT staked in the staking contract"
@@ -89,7 +97,7 @@ type GraphNetwork @entity {
   "Minimum amount of tokens needed to start curating"
   minimumCurationDeposit: BigInt!
   "The fee charged when a curator withdraws signal"
-  withdrawalFeePercentage: Int!
+  curationTaxPercentage: Int!
 
   # Curation global aggregate values
   "The total amount of GRT signalled in the Curation contract"

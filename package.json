@@ -13,7 +13,7 @@
     "prepublishOnly": "yarn & yarn build:ipfs",
     "build": "graph build",
     "build:ipfs": "yarn && yarn prepare:rinkeby && graph build --ipfs https://testnet.thegraph.com/ipfs/",
-    "deploy-testing": "yarn && yarn prepare:rinkeby && graph deploy davekaj/graph-network-rinkeby-practice --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-testing": "yarn && yarn prepare:rinkeby && graph deploy davekaj/graph-network-practice-two --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-staging": "yarn && yarn prepare:rinkeby && graph deploy graphprotocol/graph-network-testnet-staging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-production": "",
     "prep:addresses:rinkeby": "ts-node config/rinkebyAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
@@ -24,7 +24,7 @@
     "prettier-write": "prettier --write '**/*.ts'"
   },
   "devDependencies": {
-    "@graphprotocol/contracts": "0.7.8-testnet-staging-phase2",
+    "@graphprotocol/contracts": "0.8.0-testnet-staging-phase3",
     "@graphprotocol/graph-cli": "^0.19.0",
     "@graphprotocol/graph-ts": "^0.19.0",
     "@types/node": "^14.0.13",
