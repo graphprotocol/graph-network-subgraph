@@ -14,7 +14,7 @@
     "build": "graph build",
     "build:ipfs": "yarn && yarn prepare:rinkeby && graph build --ipfs https://testnet.thegraph.com/ipfs/",
     "deploy-testing": "yarn && yarn prepare:rinkeby && graph deploy davekaj/graph-network-practice-two --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-staging": "yarn && yarn prepare:rinkeby && graph deploy graphprotocol/graph-network-testnet-staging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-staging": "yarn && yarn prepare:rinkeby && graph deploy graphprotocol/graph-testnet-staging-phase3 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-production": "",
     "prep:addresses:rinkeby": "ts-node config/rinkebyAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
     "prepare:rinkeby": "yarn prep:addresses:rinkeby && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
