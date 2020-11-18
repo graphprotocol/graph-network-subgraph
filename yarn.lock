@@ -372,10 +372,10 @@
     "@ethersproject/properties" "^5.0.3"
     "@ethersproject/strings" "^5.0.4"
 
-"@graphprotocol/contracts@0.8.0-testnet-staging-phase3":
-  version "0.8.0-testnet-staging-phase3"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-0.8.0-testnet-staging-phase3.tgz#ec3a54a7dec1b688397be6ceaa38c33357dee40a"
-  integrity sha512-/JRcvpmDX1LoU1Wq+wOhMs0CtoQ9hVagWlVNeiTR+BpZAbfmd0iKv1aHQMY/Lv5Xs9f9l8VjkQRTh1ymyvieIQ==
+"@graphprotocol/contracts@0.8.0-testnet-staging-phase2.2":
+  version "0.8.0-testnet-staging-phase2.2"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-0.8.0-testnet-staging-phase2.2.tgz#58f68b08c22662de45627acf99b3d8c2ee8fb785"
+  integrity sha512-DyzfASLSxGfPA6AlXcibM3wm54NmqCt50x2ZvVDwY8mESHC1Dkj6pe1/Proafuc+WfTXB+7qastKvg/7GkmNtQ==
   dependencies:
     "@ethersproject/contracts" "^5.0.3"
     ethers "^5.0.9"
