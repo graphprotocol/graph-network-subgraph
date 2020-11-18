@@ -160,6 +160,8 @@ type GraphAccount @entity {
   defaultName: GraphAccountName # Can optimize in future by checking ENS & others to make sure they still own the name
   "Time the account was created"
   createdAt: Int!
+  "Default display name is the current default name. Used for filtered queries"
+  defaultDisplayName: String # this is new***************************
 
   # IPFS Metadata
   "True if it is an organization. False if it is an individual"

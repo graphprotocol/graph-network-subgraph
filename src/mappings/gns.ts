@@ -58,6 +58,7 @@ export function handleSetDefaultName(event: SetDefaultName): void {
   // the good name with null
   if (newDefaultName != null) {
     graphAccount.defaultName = newDefaultName
+    graphAccount.defaultDisplayName = event.params.name
   }
   graphAccount.save()
 }
