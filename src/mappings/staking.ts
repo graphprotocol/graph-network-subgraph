@@ -79,13 +79,6 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
   indexer = calculateCapacities(indexer as Indexer)
-
-  // TODO - remove this once new contracts are deployed, as they have an event that emits this
-  if (indexer.lastDelegationParameterUpdate == 0) {
-    indexer.queryFeeCut = 1000000
-    indexer.indexingRewardCut = 1000000
-    indexer.lastDelegationParameterUpdate = event.block.number.toI32()
-  }
   indexer.save()
 
   // Update graph network
@@ -160,7 +153,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   // decremented, and this is not released in the event
   // To fix this we would need to indicate in the event how many locked tokens were released
   let graphNetwork = GraphNetwork.load('1')
-  let staking = Staking.bind(graphNetwork.staking as Address)
+  let staking = Staking.bind(event.address)
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.lockedTokens = indexerStored.value2
   indexer = calculateCapacities(indexer as Indexer)
@@ -425,8 +418,10 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   deployment.stakedTokens = deployment.stakedTokens.minus(event.params.tokens)
   deployment.save()
 
-  // update graph network - none
-  // Note - you only minus graphNetwork.totalTokensAllocated  upon handleRebateClaimed
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
+  graphNetwork.save()
 }
 
 /**
@@ -474,11 +469,6 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   let subgraphDeployment = SubgraphDeployment.load(subgraphDeploymentID)
   subgraphDeployment.queryFeeRebates = subgraphDeployment.queryFeeRebates.plus(event.params.tokens)
   subgraphDeployment.save()
-
-  // update graph network
-  let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
-  graphNetwork.save()
 }
 
 /**
@@ -489,7 +479,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = GraphNetwork.load('1')
-  let staking = Staking.bind(graphNetwork.staking as Address)
+  let staking = Staking.bind(event.address)
 
   if (parameter == 'minimumIndexerStake') {
     graphNetwork.minimumIndexerStake = staking.minimumIndexerStake()
