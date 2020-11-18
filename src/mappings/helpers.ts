@@ -157,7 +157,11 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
   return delegator as Delegator
 }
 
-export function createOrLoadDelegatedStake(delegator: string, indexer: string, timestamp: i32): DelegatedStake {
+export function createOrLoadDelegatedStake(
+  delegator: string,
+  indexer: string,
+  timestamp: i32,
+): DelegatedStake {
   let id = joinID([delegator, indexer])
   let delegatedStake = DelegatedStake.load(id)
   if (delegatedStake == null) {
@@ -293,27 +297,23 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
   let epoch: Epoch
 
   // true if we need to create
+  // it is checking if at least 1 epoch has passed since the last creation
   let needsCreating =
     epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch - graphNetwork.lastLengthUpdateEpoch
-  // true if its first epoch
-  let isFirstEpoch = graphNetwork.currentEpoch == 0 && epochsSinceLastUpdate.toI32() == 0
 
-  if (needsCreating || isFirstEpoch) {
+  if (needsCreating) {
     let newEpoch = graphNetwork.lastLengthUpdateEpoch + epochsSinceLastUpdate.toI32()
-    if (newEpoch == 0) {
-      // there is no 0 epoch. we start at 1
-      newEpoch = 1
-    }
 
+    // Need to get the start block according to the contracts, not just the start block this
+    // entity was created in the subgraph
     let startBlock =
       graphNetwork.lastLengthUpdateBlock + epochsSinceLastUpdate.toI32() * graphNetwork.epochLength
     epoch = createEpoch(startBlock, graphNetwork.epochLength, newEpoch)
-
     graphNetwork.epochCount = graphNetwork.epochCount + 1
     graphNetwork.currentEpoch = newEpoch
     graphNetwork.save()
 
-    // Just load and return
+    // OtherwiseJust load and return
   } else {
     epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
@@ -474,10 +474,9 @@ export function resolveName(graphAccount: Address, name: string, node: Bytes): s
     if (verifyNameOwnership(graphAccountString, node)) {
       let nameSystem = 'ENS'
       let id = joinID([nameSystem, node.toHexString()])
-      if (createGraphAccountName(id, nameSystem, name, graphAccountString)) {
-        // all checks passed. save the new name, return the ID to be stored on the subgraph
-        return id
-      }
+      createGraphAccountName(id, nameSystem, name, graphAccountString)
+      // all checks passed. save the new name, return the ID to be stored on the subgraph
+      return id
     }
   }
   // one requirement failed, return null
@@ -529,7 +528,7 @@ function createGraphAccountName(
   nameSystem: string,
   name: string,
   graphAccount: string,
-): boolean {
+): void {
   let graphAccountName = GraphAccountName.load(id)
   // This name is new, so lets register it
   if (graphAccountName == null) {
@@ -538,15 +537,17 @@ function createGraphAccountName(
     graphAccountName.name = name
     graphAccountName.graphAccount = graphAccount
     graphAccountName.save()
-    return true
     // check that this name is not already used by another graph account (changing ownership)
     // If so, remove the old owner, and set the new one
   } else if (graphAccountName.graphAccount != graphAccount) {
+    // need to set defaultDisplayName to null if they lost ownership of this name
+    let oldGraphAccount = GraphAccount.load(graphAccountName.graphAccount)
+    oldGraphAccount.defaultDisplayName = null
+    oldGraphAccount.save()
+
     graphAccountName.graphAccount = graphAccount
     graphAccountName.save()
-    return true
   }
-  return true
 }
 
 export function joinID(pieces: Array<string>): string {
