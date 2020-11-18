@@ -313,7 +313,7 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     graphNetwork.currentEpoch = newEpoch
     graphNetwork.save()
 
-    // OtherwiseJust load and return
+    // Otherwise Just load and return
   } else {
     epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
