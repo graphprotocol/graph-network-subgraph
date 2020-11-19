@@ -313,7 +313,7 @@ export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
     graphNetwork.currentEpoch = newEpoch
     graphNetwork.save()
 
-    // Otherwise Just load and return
+    // If there is no need to create a new epoch, just return the current one
   } else {
     epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
@@ -475,7 +475,7 @@ export function resolveName(graphAccount: Address, name: string, node: Bytes): s
       let nameSystem = 'ENS'
       let id = joinID([nameSystem, node.toHexString()])
       createGraphAccountName(id, nameSystem, name, graphAccountString)
-      // all checks passed. save the new name, return the ID to be stored on the subgraph
+      // All checks have passed: save the new name and return the ID to be stored on the subgraph
       return id
     }
   }
@@ -540,7 +540,7 @@ function createGraphAccountName(
     // check that this name is not already used by another graph account (changing ownership)
     // If so, remove the old owner, and set the new one
   } else if (graphAccountName.graphAccount != graphAccount) {
-    // need to set defaultDisplayName to null if they lost ownership of this name
+    // Set defaultDisplayName to null if they lost ownership of this name
     let oldGraphAccount = GraphAccount.load(graphAccountName.graphAccount)
     oldGraphAccount.defaultDisplayName = null
     oldGraphAccount.save()

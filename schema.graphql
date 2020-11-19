@@ -528,7 +528,7 @@ type Allocation @entity {
 
 enum AllocationStatus {
   Null # == indexer == address(0)
-  Active # == not Null && tokens > 0
+  Active # == not Null && tokens > 0 # TODO - Closed, might be settled or i might need to add in settled
   Closed # == Active && closedAtEpoch != 0. Still can collect, while you are waiting to be finalized
   Finalized # == Closing && closedAtEpoch + channelDisputeEpochs > now(). Note, this never happens in practice, because it is implied
   Claimed # == not Null && tokens == 0 - i.e. finalized, and all tokens withdrawn
