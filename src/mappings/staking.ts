@@ -277,6 +277,8 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
+  indexer.totalAllocationCount = indexer.totalAllocationCount + BigInt.fromI32(1)
+  indexer.allocationCount = indexer.allocationCount + 1
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -299,6 +301,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let allocation = new Allocation(allocationID)
   allocation.price = BigInt.fromI32(0) // TODO - fix, this doesnt exist anymore
   allocation.indexer = indexerID
+  allocation.activeForIndexer = indexerID
   allocation.subgraphDeployment = subgraphDeploymentID
   allocation.allocatedTokens = event.params.tokens
   allocation.effectiveAllocation = BigInt.fromI32(0)
@@ -390,12 +393,14 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     indexer.forcedClosures = indexer.forcedClosures + 1
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
+  indexer.allocationCount = indexer.allocationCount - 1
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update allocation
   let allocation = Allocation.load(allocationID)
   allocation.poolClosedIn = event.params.epoch.toString()
+  allocation.activeForIndexer = null
   allocation.closedAtEpoch = event.params.epoch.toI32()
   allocation.closedAtBlockHash = event.block.hash
   allocation.effectiveAllocation = event.params.effectiveAllocation
