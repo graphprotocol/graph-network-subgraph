@@ -118,6 +118,8 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.delegatorParameterCooldown = 0
     indexer.lastDelegationParameterUpdate = 0
     indexer.forcedClosures = 0
+    indexer.allocationCount = 0
+    indexer.totalAllocationCount = BigInt.fromI32(0)
 
     indexer.totalReturn = BigDecimal.fromString('0')
     indexer.annualizedReturn = BigDecimal.fromString('0')

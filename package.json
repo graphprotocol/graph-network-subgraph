@@ -13,7 +13,7 @@
     "prepublishOnly": "yarn & yarn build:ipfs",
     "build": "graph build",
     "build:ipfs": "yarn && yarn prepare:rinkeby && graph build --ipfs https://testnet.thegraph.com/ipfs/",
-    "deploy-testing": "yarn && yarn prepare:rinkeby && graph deploy davekaj/graph-network-practice-two --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-testing": "yarn && yarn prepare:rinkeby && graph deploy juanmardefago/dev-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-staging": "yarn && yarn prepare:rinkeby && graph deploy graphprotocol/graph-testnet-staging-phase2v2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-production": "",
     "prep:addresses:rinkeby": "ts-node config/rinkebyAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",

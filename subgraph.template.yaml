@@ -137,13 +137,13 @@ dataSources:
         - event: StakeWithdrawn(indexed address,uint256)
           handler: handleStakeWithdrawn
         - event: StakeSlashed(indexed address,uint256,uint256,address)
-          handler: handleStakeSlashed   
+          handler: handleStakeSlashed
         - event: StakeDelegated(indexed address,indexed address,uint256,uint256)
           handler: handleStakeDelegated
         - event: StakeDelegatedLocked(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleStakeDelegatedLocked
         - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
-          handler: handleStakeDelegatedWithdrawn       
+          handler: handleStakeDelegatedWithdrawn
         - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,indexed address,bytes32)
           handler: handleAllocationCreated
         - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,indexed address,address,uint256,uint256)

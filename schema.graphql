@@ -427,7 +427,13 @@ type Indexer @entity {
   "The block when Indexers tokens unlock"
   tokensLockedUntil: Int!
   "Active allocations of stake for this Indexer"
-  allocations: [Allocation!]! @derivedFrom(field: "indexer")
+  allocations: [Allocation!]! @derivedFrom(field: "activeForIndexer")
+  "Closed and active allocations of stake for this Indexer"
+  totalAllocations: [Allocation!]! @derivedFrom(field: "indexer")
+  "Number of active allocations of stake for this Indexer"
+  allocationCount: Int!
+  "Number of active and closed allocations for this Indexer"
+  totalAllocationCount: BigInt!
   "Total query fees collected by this indexer"
   queryFeesCollected: BigInt!
   "Query fee rebate amount claimed from the protocol"
@@ -486,6 +492,8 @@ type Allocation @entity {
   price: BigInt!
   "Indexer of this allocation"
   indexer: Indexer!
+  "Indexer where this allocation is active"
+  activeForIndexer: Indexer
   "Subgraph deployment that is being allocated"
   subgraphDeployment: SubgraphDeployment!
   "Tokens associated with the allocation"
