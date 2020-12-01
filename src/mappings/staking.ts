@@ -173,9 +173,11 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
-  indexer.delegationExchangeRate = indexer.delegatedTokens
-    .toBigDecimal()
-    .div(indexer.delegatorShares.toBigDecimal())
+  if (indexer.delegatorShares != BigInt.fromI32(0)) {
+    indexer.delegationExchangeRate = indexer.delegatedTokens
+      .toBigDecimal()
+      .div(indexer.delegatorShares.toBigDecimal())
+  }
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -218,9 +220,11 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
 
-  indexer.delegationExchangeRate = indexer.delegatedTokens
-    .toBigDecimal()
-    .div(indexer.delegatorShares.toBigDecimal())
+  if (indexer.delegatorShares != BigInt.fromI32(0)) {
+    indexer.delegationExchangeRate = indexer.delegatedTokens
+      .toBigDecimal()
+      .div(indexer.delegatorShares.toBigDecimal())
+  }
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -451,10 +455,11 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   indexer.delegatorQueryFees = indexer.delegatorQueryFees.plus(event.params.delegationFees)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.delegationFees)
 
-  if (indexer.delegatorShares != BigInt.fromI32(0))
+  if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer.delegationExchangeRate = indexer.delegatedTokens
       .toBigDecimal()
       .div(indexer.delegatorShares.toBigDecimal())
+  }
   indexer.save()
   // update allocation
   let allocation = Allocation.load(allocationID)
