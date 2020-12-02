@@ -394,6 +394,9 @@ export function createOrLoadGraphNetwork(
       '0x0000000000000000000000000000000000000000',
     )
 
+    graphNetwork.totalGRTMinted = BigInt.fromI32(0)
+    graphNetwork.totalGRTBurned = BigInt.fromI32(0)
+
     graphNetwork.defaultReserveRatio = 0
     graphNetwork.minimumCurationDeposit = BigInt.fromI32(0)
     graphNetwork.curationTaxPercentage = 0

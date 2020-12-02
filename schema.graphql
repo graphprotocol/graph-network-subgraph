@@ -111,6 +111,12 @@ type GraphNetwork @entity {
   "Price of one GRT in ETH"
   GRTinETH: BigDecimal
 
+  # Graph Token mint burn totals
+  "Total amount of GRT minted"
+  totalGRTMinted: BigInt!
+  "Total amount of GRT burned"
+  totalGRTBurned: BigInt!
+
   # Epoch manager global variables
   "Epoch Length in blocks"
   epochLength: Int!
