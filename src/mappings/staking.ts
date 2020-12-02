@@ -517,7 +517,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   } else if (parameter == 'delegationParametersCooldown') {
     graphNetwork.delegationParametersCooldown = staking.delegationParametersCooldown().toI32()
   } else if (parameter == 'delegationUnbondingPeriod') {
-    graphNetwork.delegationParametersCooldown = staking.delegationUnbondingPeriod().toI32()
+    graphNetwork.delegationUnbondingPeriod = staking.delegationUnbondingPeriod().toI32()
   } else if (parameter == 'delegationTaxPercentage') {
     graphNetwork.delegationTaxPercentage = staking.delegationTaxPercentage().toI32()
   }
@@ -525,7 +525,11 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 }
 
 export function handleSetOperator(event: SetOperator): void {
-  let graphAccount = GraphAccount.load(event.params.indexer.toHexString())
+  let graphAccount = createOrLoadGraphAccount(
+    event.params.indexer.toHexString(),
+    event.params.indexer,
+    event.block.timestamp,
+  )
   let operators = graphAccount.operators
   let index = operators.indexOf(event.params.operator.toHexString())
   if (index != -1) {
@@ -602,7 +606,6 @@ export function handleAssetHolderUpdate(event: AssetHolderUpdate): void {
   graphNetwork.assetHolders = assetHolders
   graphNetwork.save()
 }
-
 
 // export function handleImplementationUpdated(event: ImplementationUpdated): void {
 //   let graphNetwork = GraphNetwork.load('1')
