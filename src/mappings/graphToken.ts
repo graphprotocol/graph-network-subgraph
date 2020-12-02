@@ -24,12 +24,14 @@ export function handleTransfer(event: Transfer): void {
   // Mint Transfer
   if (from.toHexString() == '0x0000000000000000000000000000000000000000') {
     graphNetwork.totalSupply = graphNetwork.totalSupply.plus(value)
+    graphNetwork.totalGRTMinted = graphNetwork.totalGRTMinted.plus(value)
     graphNetwork.save()
     userTo.balance = userTo.balance.plus(value)
 
     // Burn Transfer
   } else if (to.toHexString() == '0x0000000000000000000000000000000000000000') {
     graphNetwork.totalSupply = graphNetwork.totalSupply.minus(value)
+    graphNetwork.totalGRTBurned = graphNetwork.totalGRTBurned.plus(value)
     graphNetwork.save()
 
     userFrom.balance = userFrom.balance.minus(value)
