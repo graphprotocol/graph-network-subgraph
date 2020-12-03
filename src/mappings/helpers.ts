@@ -124,15 +124,18 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.totalReturn = BigDecimal.fromString('0')
     indexer.annualizedReturn = BigDecimal.fromString('0')
     indexer.stakingEfficiency = BigDecimal.fromString('0')
-    indexer.save()
 
     let graphAccount = GraphAccount.load(id)
     graphAccount.indexer = id
     graphAccount.save()
 
+    indexer.defaultDisplayName = graphAccount.defaultDisplayName;
+
     let graphNetwork = GraphNetwork.load('1')
     graphNetwork.indexerCount = graphNetwork.indexerCount + 1
     graphNetwork.save()
+
+    indexer.save()
   }
   return indexer as Indexer
 }

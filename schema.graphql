@@ -420,6 +420,8 @@ type Indexer @entity {
   url: String
   "Geohash of the indexer"
   geoHash: String
+  "Default display name is the current default name. Used for filtered queries"
+  defaultDisplayName: String
 
   # Staking data
   "Current tokens staked in the protocol"
