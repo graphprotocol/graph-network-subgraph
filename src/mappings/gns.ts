@@ -91,6 +91,12 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
       subgraph.displayName = jsonToString(data.get('displayName'))
       subgraph.codeRepository = jsonToString(data.get('codeRepository'))
       subgraph.website = jsonToString(data.get('website'))
+    } else {
+      subgraph.description = ''
+      subgraph.image = ''
+      subgraph.displayName = ''
+      subgraph.codeRepository = ''
+      subgraph.website = ''
     }
   }
   subgraph.updatedAt = event.block.timestamp.toI32()
@@ -162,6 +168,9 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
       let data = tryData.value.toObject()
       subgraphVersion.description = jsonToString(data.get('description'))
       subgraphVersion.label = jsonToString(data.get('label'))
+    } else {
+      subgraphVersion.description = ''
+      subgraphVersion.label = ''
     }
   }
   subgraphVersion.save()
