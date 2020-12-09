@@ -132,6 +132,8 @@ type GraphNetwork @entity {
   # Count aggregate values. Note, deprecations or inactives not removed from counts
   "Total indexers"
   indexerCount: Int!
+  "Number of indexers that currently have some stake in the protocol"
+  stakedIndexersCount: Int!
   "Total delegators"
   delegatorCount: Int!
   "Total curators"

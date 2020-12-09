@@ -418,6 +418,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.epochCount = 0
 
     graphNetwork.indexerCount = 0
+    graphNetwork.stakedIndexersCount = 0
     graphNetwork.delegatorCount = 0
     graphNetwork.curatorCount = 0
     graphNetwork.subgraphCount = 0

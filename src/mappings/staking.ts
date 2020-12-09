@@ -81,6 +81,7 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   // update indexer
   let id = event.params.indexer.toHexString()
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
+  let previousStake = indexer.stakedTokens
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
@@ -88,6 +89,9 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.plus(event.params.tokens)
+  if (previousStake == BigInt.fromI32(0)) {
+    graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount + 1
+  }
   graphNetwork.save()
 
   // Update epoch
@@ -140,6 +144,9 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.minus(
     event.params.tokens,
   )
+  if (indexer.stakedTokens == BigInt.fromI32(0)) {
+    graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount - 1
+  }
   graphNetwork.save()
 }
 
