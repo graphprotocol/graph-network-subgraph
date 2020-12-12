@@ -324,6 +324,8 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.queryFeeRebates = BigInt.fromI32(0)
   allocation.curatorRewards = BigInt.fromI32(0)
   allocation.indexingRewards = BigInt.fromI32(0)
+  allocation.indexingIndexerRewards = BigInt.fromI32(0)
+  allocation.indexingDelegatorRewards = BigInt.fromI32(0)
   allocation.delegationFees = BigInt.fromI32(0)
   allocation.status = 'Active'
   allocation.totalReturn = BigDecimal.fromString('0')
