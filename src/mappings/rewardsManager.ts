@@ -6,7 +6,7 @@ import {
   RewardsManager,
   RewardsDenylistUpdated,
 } from '../types/RewardsManager/RewardsManager'
-import {createOrLoadSubgraphDeployment, createOrLoadEpoch, } from './helpers'
+import { createOrLoadSubgraphDeployment, createOrLoadEpoch } from './helpers'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {
   let indexerID = event.params.indexer.toHexString()
@@ -15,11 +15,13 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.rewardsEarned = indexer.rewardsEarned.plus(event.params.amount)
-  let delegationRewards = event.params.amount
+  let indexerIndexingRewards = event.params.amount
     .times(BigInt.fromI32(indexer.indexingRewardCut))
     .div(BigInt.fromI32(1000000))
-  indexer.delegatorIndexingRewards = indexer.delegatorIndexingRewards.plus(delegationRewards)
-  indexer.delegatedTokens = indexer.delegatedTokens.plus(delegationRewards)
+  let delegatorIndexingRewards = event.params.amount.minus(indexerIndexingRewards)
+  indexer.delegatorIndexingRewards = indexer.delegatorIndexingRewards.plus(delegatorIndexingRewards)
+  indexer.indexerIndexingRewards = indexer.indexerIndexingRewards.plus(indexerIndexingRewards)
+  indexer.delegatedTokens = indexer.delegatedTokens.plus(delegatorIndexingRewards)
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer.delegationExchangeRate = indexer.delegatedTokens
       .toBigDecimal()
@@ -31,24 +33,43 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   // no status updated, Claimed happens when RebateClaimed, and it is done
   let allocation = Allocation.load(allocationID)
   allocation.indexingRewards = allocation.indexingRewards.plus(event.params.amount)
+  allocation.indexingIndexerRewards = allocation.indexingRewards.plus(indexerIndexingRewards)
+  allocation.indexingDelegatorRewards = allocation.indexingRewards.plus(delegatorIndexingRewards)
   allocation.save()
 
   // Update epoch
   let epoch = createOrLoadEpoch(event.block.number)
   epoch.totalRewards = epoch.totalRewards.plus(event.params.amount)
+  epoch.totalIndexerRewards = epoch.totalRewards.plus(indexerIndexingRewards)
+  epoch.totalDelegatorRewards = epoch.totalRewards.plus(delegatorIndexingRewards)
   epoch.save()
 
   // update subgraph deployment
   let subgraphDeploymentID = allocation.subgraphDeployment
-  let subgraphDeployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  let subgraphDeployment = createOrLoadSubgraphDeployment(
+    subgraphDeploymentID,
+    event.block.timestamp,
+  )
   subgraphDeployment.indexingRewardAmount = subgraphDeployment.indexingRewardAmount.plus(
     event.params.amount,
+  )
+  subgraphDeployment.indexingIndexerRewardAmount = subgraphDeployment.indexingIndexerRewardAmount.plus(
+    indexerIndexingRewards,
+  )
+  subgraphDeployment.indexingDelegatorRewardAmount = subgraphDeployment.indexingDelegatorRewardAmount.plus(
+    delegatorIndexingRewards,
   )
   subgraphDeployment.save()
 
   // update graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalIndexingRewards = graphNetwork.totalIndexingRewards.plus(event.params.amount)
+  graphNetwork.totalIndexingIndexerRewards = graphNetwork.totalIndexingIndexerRewards.plus(
+    indexerIndexingRewards,
+  )
+  graphNetwork.totalIndexingDelegatorRewards = graphNetwork.totalIndexingDelegatorRewards.plus(
+    delegatorIndexingRewards,
+  )
   graphNetwork.save()
 }
 
