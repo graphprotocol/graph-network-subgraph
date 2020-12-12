@@ -69,6 +69,8 @@ export function createOrLoadSubgraphDeployment(
     deployment.createdAt = timestamp.toI32()
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
+    deployment.indexingIndexerRewardAmount = BigInt.fromI32(0)
+    deployment.indexingDelegatorRewardAmount = BigInt.fromI32(0)
     deployment.queryFeesAmount = BigInt.fromI32(0)
     deployment.queryFeeRebates = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
@@ -113,6 +115,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.tokenCapacity = BigInt.fromI32(0)
     indexer.indexingRewardCut = 0
     indexer.delegatorIndexingRewards = BigInt.fromI32(0)
+    indexer.indexerIndexingRewards = BigInt.fromI32(0)
     indexer.delegatorQueryFees = BigInt.fromI32(0)
     indexer.queryFeeCut = 0
     indexer.delegatorParameterCooldown = 0
@@ -333,6 +336,8 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
   epoch.stakeDeposited = BigInt.fromI32(0)
   epoch.queryFeeRebates = BigInt.fromI32(0)
   epoch.totalRewards = BigInt.fromI32(0)
+  epoch.totalIndexerRewards = BigInt.fromI32(0)
+  epoch.totalDelegatorRewards = BigInt.fromI32(0)
   epoch.save()
   return epoch
 }
@@ -391,6 +396,8 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalQueryFees = BigInt.fromI32(0)
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
     graphNetwork.totalIndexingRewards = BigInt.fromI32(0)
+    graphNetwork.totalIndexingIndexerRewards = BigInt.fromI32(0)
+    graphNetwork.totalIndexingDelegatorRewards = BigInt.fromI32(0)
 
     graphNetwork.networkGRTIssuance = BigInt.fromI32(0)
     graphNetwork.subgraphAvailabilityOracle = Address.fromString(

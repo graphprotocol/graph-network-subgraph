@@ -82,8 +82,13 @@ type GraphNetwork @entity {
   totalQueryFees: BigInt!
   "Total delegated tokens in the protocol"
   totalDelegatedTokens: BigInt!
-  "Total indexing rewards earned"
+  "Total indexing rewards earned. Including delegators and indexers parts"
   totalIndexingRewards: BigInt!
+  "Total indexing rewards earned by Delegators"
+  totalIndexingDelegatorRewards: BigInt!
+  "Total indexing rewards earned by Indexers"
+  totalIndexingIndexerRewards: BigInt!
+
 
   # Rewards manager global parameters
   "The issuance rate that GRT is minted at for rewards to staked Indexers"
@@ -360,8 +365,12 @@ type SubgraphDeployment @entity {
   stakedTokens: BigInt!
   "Allocations created by indexers for this subgraph"
   indexerAllocations: [Allocation!]! @derivedFrom(field: "subgraphDeployment")
-  "Total rewards accrued all time by this subgraph deployment"
+  "Total rewards accrued all time by this subgraph deployment. Includes delegation and indexer rewards"
   indexingRewardAmount: BigInt!
+  "Total rewards accrued all time by indexers by this subgraph deployment"
+  indexingIndexerRewardAmount: BigInt!
+  "Total rewards accrued all time by delegators by this subgraph deployment"
+  indexingDelegatorRewardAmount: BigInt!
   "Total query fees earned by this subgraph deployment"
   queryFeesAmount: BigInt!
   "Total query fee rebates earned from the protocol by this subgraph deployment"
@@ -450,6 +459,8 @@ type Indexer @entity {
   queryFeeRebates: BigInt!
   "Total indexing rewards earned by this indexer from inflation. Including delegation rewards"
   rewardsEarned: BigInt!
+  "The total amount of indexing rewards the indexer kept"
+  indexerIndexingRewards: BigInt!
   "The total amount of indexing rewards given to delegators"
   delegatorIndexingRewards: BigInt!
 
@@ -524,8 +535,12 @@ type Allocation @entity {
   queryFeeRebates: BigInt!
   "Curator rewards deposited to the curating bonding curve"
   curatorRewards: BigInt!
-  "Indexing rewards earned by this allocation"
+  "Indexing rewards earned by this allocation. Includes delegator and indexer rewards"
   indexingRewards: BigInt!
+  "Indexing rewards earned by this allocation by indexers"
+  indexingIndexerRewards: BigInt!
+  "Indexing rewards earned by this allocation by delegators"
+  indexingDelegatorRewards: BigInt!
   "Pool in which this allocation was closed"
   poolClosedIn: Pool
   "Fees paid out to delegators"
@@ -610,7 +625,7 @@ type DelegatedStake @entity {
   lockedUntil: Int!
   "Shares owned in the delegator pool. Used to calculate total amount delegated"
   shareAmount: BigInt!
-  "The rate this delegator paid for their shares, calculated using average cost basis. Used for rewards calculations"
+  "The rate this delegator paid for their shares (calculated using average cost basis). Used for rewards calculations"
   personalExchangeRate: BigDecimal!
   "Realized rewards from selling delegated stake that accumulated rewards"
   realizedRewards: BigDecimal!
@@ -813,8 +828,12 @@ type Epoch @entity {
   # totalQueryFees: BigInt! # Note - this is the exact same as pool.totalFees, so its removed
   "Rebate amount claimed from the protocol in this epoch"
   queryFeeRebates: BigInt!
-  "Total indexing rewards earned in this epoch"
+  "Total indexing rewards earned in this epoch. Includes both delegator and indexer rewards"
   totalRewards: BigInt!
+  "Total indexing rewards earned in this epoch by indexers"
+  totalIndexerRewards: BigInt!
+  "Total indexing rewards earned in this epoch by delegators"
+  totalDelegatorRewards: BigInt!
   # todo - DO I NEED totalQueryFees / Protocol rebates earned?
 }
 
