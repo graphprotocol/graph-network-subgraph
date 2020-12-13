@@ -78,10 +78,26 @@ type GraphNetwork @entity {
   totalUnstakedTokensLocked: BigInt!
   "Total GRT currently in allocation"
   totalTokensAllocated: BigInt!
-  "Total query fees collected all time in the network in GRT"
-  totalQueryFees: BigInt!
   "Total delegated tokens in the protocol"
   totalDelegatedTokens: BigInt!
+
+  # Query fees globals
+  "Total query fees generated in the network"
+  totalQueryFees: BigInt!
+  "Total query fees collected by indexers"
+  totalIndexerQueryFeesCollected: BigInt!
+  "Total query fees rebates claimed by indexers"
+  totalIndexerQueryFeeRebates: BigInt!
+  "Total query fees rebates claimed by delegators"
+  totalDelegatorQueryFeeRebates: BigInt!
+  "Total query fees payed to curators"
+  totalCuratorQueryFees: BigInt!
+  "Total query fees taxed by the protocol"
+  totalTaxedQueryFees: BigInt!
+  "Total query fees taxed by the protocol"
+  totalUnclaimedQueryFeeRebates: BigInt!
+
+  # Indexing rewards globals
   "Total indexing rewards earned. Including delegators and indexers parts"
   totalIndexingRewards: BigInt!
   "Total indexing rewards earned by Delegators"
@@ -453,7 +469,7 @@ type Indexer @entity {
   allocationCount: Int!
   "Number of active and closed allocations for this Indexer"
   totalAllocationCount: BigInt!
-  "Total query fees collected by this indexer"
+  "Total query fees collected. Includes the indexer and delegator parts"
   queryFeesCollected: BigInt!
   "Query fee rebate amount claimed from the protocol"
   queryFeeRebates: BigInt!
