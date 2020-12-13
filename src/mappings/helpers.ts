@@ -393,8 +393,16 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalTokensClaimable = BigInt.fromI32(0)
     graphNetwork.totalUnstakedTokensLocked = BigInt.fromI32(0)
     graphNetwork.totalTokensAllocated = BigInt.fromI32(0)
-    graphNetwork.totalQueryFees = BigInt.fromI32(0)
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
+
+    graphNetwork.totalQueryFees = BigInt.fromI32(0)
+    graphNetwork.totalIndexerQueryFeesCollected = BigInt.fromI32(0)
+    graphNetwork.totalIndexerQueryFeeRebates = BigInt.fromI32(0)
+    graphNetwork.totalDelegatorQueryFeeRebates = BigInt.fromI32(0)
+    graphNetwork.totalCuratorQueryFees = BigInt.fromI32(0)
+    graphNetwork.totalTaxedQueryFees = BigInt.fromI32(0)
+    graphNetwork.totalUnclaimedQueryFeeRebates = BigInt.fromI32(0)
+
     graphNetwork.totalIndexingRewards = BigInt.fromI32(0)
     graphNetwork.totalIndexingIndexerRewards = BigInt.fromI32(0)
     graphNetwork.totalIndexingDelegatorRewards = BigInt.fromI32(0)

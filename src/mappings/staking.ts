@@ -354,8 +354,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
 
   // update allocation
   // rebateFees is the total token value minus the curation and protocol fees, as can be seen in the contracts
-  // note that event.params.tokens appears to not be needed anywhere. might need to think
-  // about this one more - TODO
+  // since we don't get the protocol tax explicitly, we will use tokens - (curation + rebate) to calculate it
   let allocation = Allocation.load(allocationID)
   allocation.queryFeesCollected = allocation.queryFeesCollected.plus(event.params.rebateFees)
   allocation.curatorRewards = allocation.curatorRewards.plus(event.params.curationFees)
@@ -383,9 +382,21 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
   deployment.save()
 
+  let taxedFees = event.params.tokens - (event.params.rebateFees + event.params.curationFees)
+
   // update graph network
   let graphNetwork = GraphNetwork.load('1')
-  graphNetwork.totalQueryFees = graphNetwork.totalQueryFees.plus(event.params.rebateFees)
+  graphNetwork.totalQueryFees = graphNetwork.totalQueryFees.plus(event.params.tokens)
+  graphNetwork.totalIndexerQueryFeesCollected = graphNetwork.totalIndexerQueryFeesCollected.plus(
+    event.params.rebateFees,
+  )
+  graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(
+    event.params.curationFees,
+  )
+  graphNetwork.totalTaxedQueryFees = graphNetwork.totalTaxedQueryFees.plus(taxedFees)
+  graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.plus(
+    event.params.rebateFees,
+  )
   graphNetwork.save()
 }
 
@@ -492,6 +503,19 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   let subgraphDeployment = SubgraphDeployment.load(subgraphDeploymentID)
   subgraphDeployment.queryFeeRebates = subgraphDeployment.queryFeeRebates.plus(event.params.tokens)
   subgraphDeployment.save()
+
+  // update graph network
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.totalIndexerQueryFeeRebates = graphNetwork.totalIndexerQueryFeeRebates.plus(
+    event.params.tokens,
+  )
+  graphNetwork.totalDelegatorQueryFeeRebates = graphNetwork.totalDelegatorQueryFeeRebates.plus(
+    event.params.delegationFees,
+  )
+  graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.minus(
+    event.params.delegationFees + event.params.tokens,
+  )
+  graphNetwork.save()
 }
 
 /**
