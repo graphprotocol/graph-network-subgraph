@@ -12,7 +12,8 @@
   "scripts": {
     "prepublishOnly": "yarn & yarn build:ipfs",
     "build": "graph build",
-    "build:ipfs": "yarn && yarn prepare:rinkeby && graph build --ipfs https://testnet.thegraph.com/ipfs/",
+    "build:ipfs:rinkeby": "yarn && yarn prepare:rinkeby && graph build --ipfs https://testnet.thegraph.com/ipfs/",
+    "build:ipfs:mainnet": "yarn && yarn prepare:mainnet && graph build --ipfs https://testnet.thegraph.com/ipfs/",
     "deploy-testing": "yarn && yarn prepare:mainnet && graph deploy davekaj/researchh --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-mainnet": "",
     "prep:addresses:rinkeby": "ts-node config/rinkebyAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
