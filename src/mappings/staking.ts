@@ -313,6 +313,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let allocation = new Allocation(allocationID)
   allocation.price = BigInt.fromI32(0) // TODO - fix, this doesnt exist anymore
   allocation.indexer = indexerID
+  allocation.creator = event.transaction.from
   allocation.activeForIndexer = indexerID
   allocation.subgraphDeployment = subgraphDeploymentID
   allocation.allocatedTokens = event.params.tokens

@@ -529,6 +529,8 @@ type Allocation @entity {
   price: BigInt!
   "Indexer of this allocation"
   indexer: Indexer!
+  "Creator of the allocation - can be the operator or the indexer"
+  creator: Bytes!
   "Indexer where this allocation is active"
   activeForIndexer: Indexer
   "Subgraph deployment that is being allocated"
