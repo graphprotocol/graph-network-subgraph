@@ -547,6 +547,8 @@ type Allocation @entity {
   closedAtEpoch: Int!
   "Block at which this allocation was closed"
   closedAtBlockHash: Bytes
+  "Block at which this allocation was closed"
+  closedAtBlockNumber: Int
   "Fees this allocation collected from query fees upon closing. Excludes curator reward and rebate claimed"
   queryFeesCollected: BigInt!
   "Rebate amount claimed from the protocol"
