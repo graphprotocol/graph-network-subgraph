@@ -176,12 +176,22 @@ export function handleStakeSlashed(event: StakeSlashed): void {
 }
 
 export function handleStakeDelegated(event: StakeDelegated): void {
+  let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
+
+  if (zeroShares) {
+    log.warning(`0 shares delegated to {} by {} in tx {}`, [
+      event.params.indexer.toHexString(),
+      event.params.delegator.toHexString(),
+      event.transaction.hash.toHexString(),
+    ])
+  }
+
   // update indexer
   let indexerID = event.params.indexer.toHexString()
   let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
-  if (indexer.delegatorShares != BigInt.fromI32(0)) {
+  if (indexer.delegatorShares.gt(BigInt.fromI32(0))) {
     indexer.delegationExchangeRate = indexer.delegatedTokens
       .toBigDecimal()
       .div(indexer.delegatorShares.toBigDecimal())
@@ -201,16 +211,19 @@ export function handleStakeDelegated(event: StakeDelegated): void {
     indexerID,
     event.block.timestamp.toI32(),
   )
-  let previousExchangeRate = delegatedStake.personalExchangeRate
-  let previousShares = delegatedStake.shareAmount
-
-  let averageCostBasisTokens = previousExchangeRate
-    .times(previousShares.toBigDecimal())
-    .plus(event.params.tokens.toBigDecimal())
-  let averageCostBasisShares = previousShares.plus(event.params.shares)
-  delegatedStake.personalExchangeRate = averageCostBasisTokens.div(
-    averageCostBasisShares.toBigDecimal(),
-  )
+  if (!zeroShares) {
+    let previousExchangeRate = delegatedStake.personalExchangeRate
+    let previousShares = delegatedStake.shareAmount
+    let averageCostBasisTokens = previousExchangeRate
+      .times(previousShares.toBigDecimal())
+      .plus(event.params.tokens.toBigDecimal())
+    let averageCostBasisShares = previousShares.plus(event.params.shares)
+    if (averageCostBasisShares.gt(BigInt.fromI32(0))) {
+      delegatedStake.personalExchangeRate = averageCostBasisTokens.div(
+        averageCostBasisShares.toBigDecimal(),
+      )
+    }
+  }
 
   delegatedStake.stakedTokens = delegatedStake.stakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.plus(event.params.shares)
@@ -221,6 +234,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
   graphNetwork.save()
 }
+
 export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   // update indexer
   let indexerID = event.params.indexer.toHexString()
@@ -262,6 +276,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
   graphNetwork.save()
 }
+
 export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): void {
   let indexerID = event.params.indexer.toHexString()
   let delegatorID = event.params.delegator.toHexString()
