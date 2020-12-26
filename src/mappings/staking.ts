@@ -444,7 +444,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.activeForIndexer = null
   allocation.closedAtEpoch = event.params.epoch.toI32()
   allocation.closedAtBlockHash = event.block.hash
-  allocation.closedAtBlockNumber = event.block.number
+  allocation.closedAtBlockNumber = event.block.number.toI32()
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
   allocation.poi = event.params.poi
