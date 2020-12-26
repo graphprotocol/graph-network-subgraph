@@ -21,3 +21,9 @@ The new production subgraph ID should be shared with Jannis.
 ```
 yarn deploy-production
 ```
+
+## Copyright
+
+Copyright &copy; 2020 The Graph Foundation.
+
+Licensed under the [MIT license](./LICENSE).
