@@ -33,15 +33,15 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   // no status updated, Claimed happens when RebateClaimed, and it is done
   let allocation = Allocation.load(allocationID)
   allocation.indexingRewards = allocation.indexingRewards.plus(event.params.amount)
-  allocation.indexingIndexerRewards = allocation.indexingRewards.plus(indexerIndexingRewards)
-  allocation.indexingDelegatorRewards = allocation.indexingRewards.plus(delegatorIndexingRewards)
+  allocation.indexingIndexerRewards = allocation.indexingIndexerRewards.plus(indexerIndexingRewards)
+  allocation.indexingDelegatorRewards = allocation.indexingDelegatorRewards.plus(delegatorIndexingRewards)
   allocation.save()
 
   // Update epoch
   let epoch = createOrLoadEpoch(event.block.number)
   epoch.totalRewards = epoch.totalRewards.plus(event.params.amount)
-  epoch.totalIndexerRewards = epoch.totalRewards.plus(indexerIndexingRewards)
-  epoch.totalDelegatorRewards = epoch.totalRewards.plus(delegatorIndexingRewards)
+  epoch.totalIndexerRewards = epoch.totalIndexerRewards.plus(indexerIndexingRewards)
+  epoch.totalDelegatorRewards = epoch.totalDelegatorRewards.plus(delegatorIndexingRewards)
   epoch.save()
 
   // update subgraph deployment
