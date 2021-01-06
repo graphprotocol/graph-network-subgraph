@@ -34,7 +34,9 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   let allocation = Allocation.load(allocationID)
   allocation.indexingRewards = allocation.indexingRewards.plus(event.params.amount)
   allocation.indexingIndexerRewards = allocation.indexingIndexerRewards.plus(indexerIndexingRewards)
-  allocation.indexingDelegatorRewards = allocation.indexingDelegatorRewards.plus(delegatorIndexingRewards)
+  allocation.indexingDelegatorRewards = allocation.indexingDelegatorRewards.plus(
+    delegatorIndexingRewards,
+  )
   allocation.save()
 
   // Update epoch

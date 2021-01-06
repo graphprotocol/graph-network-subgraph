@@ -22,7 +22,8 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
 
   // This event is emitted on EpochManagers constructor, so it has some special logic to handle
   // initialization here
-  if (graphNetwork.epochLength == 0) { // Will only ever be 0 on initialization in the contracts
+  if (graphNetwork.epochLength == 0) {
+    // Will only ever be 0 on initialization in the contracts
     graphNetwork.epochLength = event.params.epochLength.toI32()
     graphNetwork.lastLengthUpdateBlock = event.block.number.toI32()
     graphNetwork.currentEpoch = 0
