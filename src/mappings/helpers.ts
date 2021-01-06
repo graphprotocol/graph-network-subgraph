@@ -132,7 +132,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     graphAccount.indexer = id
     graphAccount.save()
 
-    indexer.defaultDisplayName = graphAccount.defaultDisplayName;
+    indexer.defaultDisplayName = graphAccount.defaultDisplayName
 
     let graphNetwork = GraphNetwork.load('1')
     graphNetwork.indexerCount = graphNetwork.indexerCount + 1
