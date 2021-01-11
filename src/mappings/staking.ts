@@ -561,7 +561,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
     graphNetwork.rebateRatio = staking
       .alphaNumerator()
       .toBigDecimal()
-      .div(staking.alphaDenominator().toBigDecimal())
+      .div(staking.alphaDenominator().toBigDecimal()) // alphaDemoninator != 0, no div() protection needed
   } else if (parameter == 'delegationRatio') {
     graphNetwork.delegationRatio = staking.delegationRatio().toI32()
   } else if (parameter == 'delegationParametersCooldown') {

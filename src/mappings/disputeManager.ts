@@ -86,9 +86,17 @@ export function handleDisputeAccepted(event: DisputeAccepted): void {
   let disputeManager = DisputeManager.bind(event.address)
   let fishermanRewardPercentage = disputeManager.fishermanRewardPercentage() // in ppm
 
-  let slashedRewardRatio = BigDecimal.fromString('1000000')
-    .div(BigDecimal.fromString(fishermanRewardPercentage.toString()))
-    .minus(BigDecimal.fromString('1'))
+  // The fisherman reward is a function of the total slashed tokens. Therefore
+  // if fishermanReward is 10%, slashed reward should be 9x that --> (1,000,000 / 100,000) - 1 = 9
+  // It must be done like this since the event only emits limited information
+  // Note - there is an edge case bug here, where if fishermanReward% = 0, we can't get
+  // the tokensSlashed. That is okay for now. There should always be a fisherman reward %
+  let slashedRewardRatio =
+    fishermanRewardPercentage == BigInt.fromI32(0)
+      ? BigDecimal.fromString('0')
+      : BigDecimal.fromString('1000000')
+          .div(BigDecimal.fromString(fishermanRewardPercentage.toString()))
+          .minus(BigDecimal.fromString('1'))
   dispute.tokensSlashed = dispute.tokensRewarded.toBigDecimal().times(slashedRewardRatio)
   dispute.save()
 
