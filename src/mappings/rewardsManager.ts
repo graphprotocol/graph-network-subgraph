@@ -18,7 +18,13 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   let indexerIndexingRewards = event.params.amount
     .times(BigInt.fromI32(indexer.indexingRewardCut))
     .div(BigInt.fromI32(1000000))
-  let delegatorIndexingRewards = event.params.amount.minus(indexerIndexingRewards)
+
+  // If the delegation pool has zero tokens, the contracts don't give away any rewards
+  let delegatorIndexingRewards =
+    indexer.delegatedTokens == BigInt.fromI32(0)
+      ? BigInt.fromI32(0)
+      : event.params.amount.minus(indexerIndexingRewards)
+
   indexer.delegatorIndexingRewards = indexer.delegatorIndexingRewards.plus(delegatorIndexingRewards)
   indexer.indexerIndexingRewards = indexer.indexerIndexingRewards.plus(indexerIndexingRewards)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(delegatorIndexingRewards)

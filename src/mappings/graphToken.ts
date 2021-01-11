@@ -21,6 +21,9 @@ export function handleTransfer(event: Transfer): void {
   let userTo = createOrLoadGraphAccount(to.toHexString(), to, event.block.timestamp)
   let userFrom = createOrLoadGraphAccount(from.toHexString(), to, event.block.timestamp)
 
+  // no need to do any updates if it was a self transfer
+  if (to == from) return
+  
   // Mint Transfer
   if (from.toHexString() == '0x0000000000000000000000000000000000000000') {
     graphNetwork.totalSupply = graphNetwork.totalSupply.plus(value)
