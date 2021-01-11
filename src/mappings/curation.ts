@@ -85,7 +85,6 @@ export function handleBurned(event: Burned): void {
   // Update curator
   let id = event.params.curator.toHexString()
   let curator = Curator.load(id)
-  curator.totalSignalledTokens = curator.totalSignalledTokens.minus(event.params.signal)
   curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokens)
 
   // Update signal

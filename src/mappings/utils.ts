@@ -1,4 +1,4 @@
-import { JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
+import { JSONValue, JSONValueKind, BigDecimal } from '@graphprotocol/graph-ts'
 
 /**
  * Make sure the given JSONValue is a string and returns string it contains.
@@ -27,3 +27,5 @@ export function jsonToArrayString(val: JSONValue | null): Array<string> {
   }
   return []
 }
+
+export let zeroBD = BigDecimal.fromString('0')

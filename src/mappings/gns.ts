@@ -22,7 +22,7 @@ import {
   SubgraphDeployment,
 } from '../types/schema'
 
-import { jsonToString } from './utils'
+import { jsonToString, zeroBD } from './utils'
 import {
   createOrLoadSubgraphDeployment,
   createOrLoadGraphAccount,
@@ -227,9 +227,13 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   nameSignal.averageCostBasis = nameSignal.averageCostBasis.plus(
     event.params.tokensDeposited.toBigDecimal(),
   )
-  nameSignal.averageCostBasisPerSignal = nameSignal.averageCostBasis.div(
-    nameSignal.nameSignal.toBigDecimal(),
-  )
+
+  // zero division protection
+  if (nameSignal.nameSignal.toBigDecimal() != zeroBD) {
+    nameSignal.averageCostBasisPerSignal = nameSignal.averageCostBasis.div(
+      nameSignal.nameSignal.toBigDecimal(),
+    )
+  }
   nameSignal.save()
 
   // Update the curator
@@ -241,9 +245,13 @@ export function handleNSignalMinted(event: NSignalMinted): void {
     event.params.tokensDeposited.toBigDecimal(),
   )
   curator.totalNameSignal = curator.totalNameSignal.plus(event.params.nSignalCreated.toBigDecimal())
-  curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis.div(
-    curator.totalNameSignal,
-  )
+
+  // zero division protection
+  if (curator.totalNameSignal != zeroBD) {
+    curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis.div(
+      curator.totalNameSignal,
+    )
+  }
   curator.save()
 
   // Create n signal tx
