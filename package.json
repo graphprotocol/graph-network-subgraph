@@ -17,7 +17,7 @@
     "deploy-mainnet-staging": "yarn && yarn prepare:mainnet && graph deploy graphprotocol/mainnet-staging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-mainnet": "yarn && yarn prepare:mainnet && graph deploy graphprotocol/graph-network-mainnet --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-testnet": "yarn && yarn prepare:rinkeby && graph deploy graphprotocol/graph-network-testnet --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-testing": "yarn && yarn prepare:mainnet && graph deploy davekaj/graph-development --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-testing": "yarn && yarn <INSERT_MAINNET_OR_RINKEBY> && graph deploy <INSERT_SUBGRAPH_NAME> --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "prep:addresses:rinkeby": "ts-node config/rinkebyAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
     "prepare:rinkeby": "yarn prep:addresses:rinkeby && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
     "prep:addresses:mainnet": "ts-node config/mainnetAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
