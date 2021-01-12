@@ -15,15 +15,15 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.rewardsEarned = indexer.rewardsEarned.plus(event.params.amount)
-  let indexerIndexingRewards = event.params.amount
-    .times(BigInt.fromI32(indexer.indexingRewardCut))
-    .div(BigInt.fromI32(1000000))
-
   // If the delegation pool has zero tokens, the contracts don't give away any rewards
-  let delegatorIndexingRewards =
+  let indexerIndexingRewards =
     indexer.delegatedTokens == BigInt.fromI32(0)
-      ? BigInt.fromI32(0)
-      : event.params.amount.minus(indexerIndexingRewards)
+      ? event.params.amount
+      : event.params.amount
+          .times(BigInt.fromI32(indexer.indexingRewardCut))
+          .div(BigInt.fromI32(1000000))
+
+  let delegatorIndexingRewards = event.params.amount.minus(indexerIndexingRewards)
 
   indexer.delegatorIndexingRewards = indexer.delegatorIndexingRewards.plus(delegatorIndexingRewards)
   indexer.indexerIndexingRewards = indexer.indexerIndexingRewards.plus(indexerIndexingRewards)
