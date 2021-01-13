@@ -312,7 +312,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // update indexer
   let indexer = Indexer.load(indexerID)
   indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
-  indexer.totalAllocationCount = indexer.totalAllocationCount + BigInt.fromI32(1)
+  indexer.totalAllocationCount = indexer.totalAllocationCount.plus(BigInt.fromI32(1))
   indexer.allocationCount = indexer.allocationCount + 1
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
@@ -328,14 +328,8 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
   deployment.save()
 
-  // TODO - we haven't really spec'd out what we want to do with metadata
-  // ideas are gasPrice, bytesPrice, and geoHash
-  // we will implement in the subgraph when we actually decide on it
-  // for now, price is always 0, and the others aren't implemented.
-
   // create allocation
   let allocation = new Allocation(allocationID)
-  allocation.price = BigInt.fromI32(0) // TODO - fix, this doesnt exist anymore
   allocation.indexer = indexerID
   allocation.creator = event.transaction.from
   allocation.activeForIndexer = indexerID
@@ -379,7 +373,6 @@ export function handleAllocationCollected(event: AllocationCollected): void {
 
   // update allocation
   // rebateFees is the total token value minus the curation and protocol fees, as can be seen in the contracts
-  // since we don't get the protocol tax explicitly, we will use tokens - (curation + rebate) to calculate it
   let allocation = Allocation.load(allocationID)
   allocation.queryFeesCollected = allocation.queryFeesCollected.plus(event.params.rebateFees)
   allocation.curatorRewards = allocation.curatorRewards.plus(event.params.curationFees)
@@ -407,7 +400,9 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
   deployment.save()
 
-  let taxedFees = event.params.tokens - (event.params.rebateFees + event.params.curationFees)
+  // since we don't get the protocol tax explicitly, we will use tokens - (curation + rebate) to calculate it
+  // This could also be calculated by doing: protocolPercentage * event.params.tokens
+  let taxedFees = event.params.tokens.minus(event.params.rebateFees.plus(event.params.curationFees))
 
   // update graph network
   let graphNetwork = GraphNetwork.load('1')
@@ -469,6 +464,12 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   let pool = createOrLoadPool(event.params.epoch)
   // effective allocation is the value stored in contracts, so we use it here
   pool.allocation = pool.allocation.plus(event.params.effectiveAllocation)
+
+  // We must call the contract directly to see how many fees are getting closed in this
+  // allocation. The event does not emit this information
+  let staking = Staking.bind(event.address)
+  let contractAlloc = staking.getAllocation(event.params.allocationID)
+  pool.totalQueryFees = pool.totalQueryFees.plus(contractAlloc.collectedFees)
   pool.save()
 
   // update subgraph deployment. Pretty sure this should be done here, if not
