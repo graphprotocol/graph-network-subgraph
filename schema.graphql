@@ -70,8 +70,8 @@ type GraphNetwork @entity {
   # Staking global aggregate values
   "The total amount of GRT staked in the staking contract"
   totalTokensStaked: BigInt!
-  # "Total tokens that are settled and waiting to be claimed"
-  # totalTokensClaimable: BigInt! TODO - come back
+  "NOT IMPLEMENTED - Total tokens that are settled and waiting to be claimed"
+  totalTokensClaimable: BigInt! # TODO - Either implement it, or deprecate it
   "Total tokens that are currently locked or withdrawable in the network from unstaking"
   totalUnstakedTokensLocked: BigInt!
   "Total GRT currently in allocation"
@@ -229,9 +229,8 @@ type GraphAccount @entity {
   subgraphs: [Subgraph!]! @derivedFrom(field: "owner")
   "Time that this graph account became a developer"
   developerCreatedAt: Int
-  # "Total query fees the subgraphs created by this account have accumulated in GRT"
-  # subgraphQueryFees: BigInt! # TODO - This is very hard to calculate, might not be worth it
-
+  "NOT IMPLEMENTED - Total query fees the subgraphs created by this account have accumulated in GRT"
+  subgraphQueryFees: BigInt! # TODO - This is very hard to calculate, due to the many to one relationship between Subgraphs and SubgraphDeployments
   # Disputes
   "Disputes this graph account has created"
   createdDisputes: [Dispute!]! @derivedFrom(field: "fisherman")
@@ -380,6 +379,8 @@ type SubgraphDeployment @entity {
   # Subgraph deployment curation bonding curve
   "CURRENT signalled tokens in the bonding curve"
   signalledTokens: BigInt!
+  "NOT IMPLEMENTED - CURRENT signalled tokens in the bonding curve"
+  unsignalledTokens: BigInt! # Will be used for rewards
   "CURRENT curation signal for this subgraph deployment"
   signalAmount: BigInt!
 
