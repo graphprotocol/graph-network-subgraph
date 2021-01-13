@@ -54,23 +54,6 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
   }
 }
 
-// TODO - this is broken if we change the delegatio ratio
-// Need to remove, or find a fix
-function calculateCapacities(indexer: Indexer): Indexer {
-  let graphNetwork = GraphNetwork.load('1')
-  let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
-
-  // Eligible to add to the capacity
-  indexer.delegatedCapacity =
-    indexer.delegatedTokens < tokensDelegatedMax ? indexer.delegatedTokens : tokensDelegatedMax
-
-  indexer.tokenCapacity = indexer.stakedTokens.plus(indexer.delegatedCapacity)
-  indexer.availableStake = indexer.tokenCapacity
-    .minus(indexer.allocatedTokens)
-    .minus(indexer.lockedTokens)
-  return indexer
-}
-
 /**
  * @dev handleStakeDeposited
  * - creates an Indexer if it is the first time they have staked
@@ -83,7 +66,6 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
   let previousStake = indexer.stakedTokens
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
-  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // Update graph network
@@ -112,7 +94,6 @@ export function handleStakeLocked(event: StakeLocked): void {
   let indexer = Indexer.load(id)
   indexer.lockedTokens = event.params.tokens
   indexer.tokensLockedUntil = event.params.until.toI32()
-  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update graph network
@@ -135,7 +116,6 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
   indexer.lockedTokens = indexer.lockedTokens.minus(event.params.tokens)
   indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
-  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // Update graph network
@@ -167,7 +147,6 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   let staking = Staking.bind(event.address)
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.lockedTokens = indexerStored.value2
-  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // Update graph network
@@ -196,7 +175,6 @@ export function handleStakeDelegated(event: StakeDelegated): void {
       .toBigDecimal()
       .div(indexer.delegatorShares.toBigDecimal())
   }
-  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update delegator
@@ -247,7 +225,6 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
       .toBigDecimal()
       .div(indexer.delegatorShares.toBigDecimal())
   }
-  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update delegated stake
@@ -306,7 +283,6 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
   indexer.totalAllocationCount = indexer.totalAllocationCount.plus(BigInt.fromI32(1))
   indexer.allocationCount = indexer.allocationCount + 1
-  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update graph network
@@ -430,7 +406,6 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
-  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // update allocation
@@ -531,7 +506,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
     event.params.delegationFees,
   )
   graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.minus(
-    event.params.delegationFees + event.params.tokens,
+    event.params.delegationFees.plus(event.params.tokens),
   )
   graphNetwork.save()
 }

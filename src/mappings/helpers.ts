@@ -102,14 +102,9 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.queryFeeRebates = BigInt.fromI32(0)
     indexer.rewardsEarned = BigInt.fromI32(0)
 
-    indexer.delegatedCapacity = BigInt.fromI32(0)
-    indexer.tokenCapacity = BigInt.fromI32(0)
-    indexer.availableStake = BigInt.fromI32(0)
-
     indexer.delegatedTokens = BigInt.fromI32(0)
     indexer.delegatorShares = BigInt.fromI32(0)
     indexer.delegationExchangeRate = BigDecimal.fromString('0')
-    indexer.tokenCapacity = BigInt.fromI32(0)
     indexer.indexingRewardCut = 0
     indexer.delegatorIndexingRewards = BigInt.fromI32(0)
     indexer.indexerIndexingRewards = BigInt.fromI32(0)

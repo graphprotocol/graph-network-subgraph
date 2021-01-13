@@ -462,14 +462,6 @@ type Indexer @entity {
   "The total amount of indexing rewards given to delegators"
   delegatorIndexingRewards: BigInt!
 
-  # Capacity data COME BACK TO THIS, MIGHT DELETE
-  "Amount of delegated tokens that can be eligible for rewards"
-  delegatedCapacity: BigInt!
-  "Total token capacity = delegatedCapacity + stakedTokens"
-  tokenCapacity: BigInt!
-  "Stake available to earn rewards. tokenCapacity - allocationTokens - lockedTokens"
-  availableStake: BigInt!
-
   # Delegation Pool
   "Delegators to this Indexer"
   delegators: [DelegatedStake!]! @derivedFrom(field: "indexer")
