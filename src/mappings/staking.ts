@@ -157,14 +157,6 @@ export function handleStakeSlashed(event: StakeSlashed): void {
 export function handleStakeDelegated(event: StakeDelegated): void {
   let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
 
-  if (zeroShares) {
-    log.warning(`0 shares delegated to {} by {} in tx {}`, [
-      event.params.indexer.toHexString(),
-      event.params.delegator.toHexString(),
-      event.transaction.hash.toHexString(),
-    ])
-  }
-
   // update indexer
   let indexerID = event.params.indexer.toHexString()
   let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
