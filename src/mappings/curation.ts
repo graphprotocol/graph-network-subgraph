@@ -103,10 +103,7 @@ export function handleBurned(event: Burned): void {
   deployment.signalAmount = deployment.signalAmount.minus(event.params.signal)
   deployment.save()
 
-  // Update epoch
-  let epoch = createOrLoadEpoch(event.block.number)
-  epoch.signalledTokens = epoch.signalledTokens.minus(event.params.tokens)
-  epoch.save()
+  // Update epoch - none
 
   // Update graph network
   let graphNetwork = GraphNetwork.load('1')
