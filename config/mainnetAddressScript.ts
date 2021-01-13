@@ -27,7 +27,7 @@ const main = (): void => {
   try {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
     output.blockNumber = '11440000' // Hardcoded a few thousand blocks before 1st contract deployed
-    output.network = 'mainnet' // Todo - make dynamic
+    output.network = 'mainnet'
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)

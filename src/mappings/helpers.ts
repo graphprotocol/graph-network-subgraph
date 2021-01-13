@@ -47,9 +47,6 @@ export function createOrLoadSubgraph(
     subgraph.website = ''
     subgraph.displayName = ''
 
-    subgraph.totalIndexingRewards = BigInt.fromI32(0)
-    subgraph.totalQueryFeesCollected = BigInt.fromI32(0)
-
     subgraph.save()
 
     let graphNetwork = GraphNetwork.load('1')
@@ -383,7 +380,6 @@ export function createOrLoadGraphNetwork(
     graphNetwork.maxAllocationEpochs = 0
     graphNetwork.thawingPeriod = 0
     graphNetwork.delegationParametersCooldown = 0
-    graphNetwork.indexingRewardsPerEpoch = 0
     graphNetwork.minimumIndexerStake = BigInt.fromI32(0)
     graphNetwork.delegationUnbondingPeriod = 0
     graphNetwork.delegationTaxPercentage = 0
