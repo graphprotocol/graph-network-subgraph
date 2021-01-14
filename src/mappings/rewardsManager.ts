@@ -6,7 +6,11 @@ import {
   RewardsManager,
   RewardsDenylistUpdated,
 } from '../types/RewardsManager/RewardsManager'
-import { createOrLoadSubgraphDeployment, createOrLoadEpoch } from './helpers'
+import {
+  createOrLoadSubgraphDeployment,
+  createOrLoadEpoch,
+  updateAdvancedIndexerMetrics,
+} from './helpers'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {
   let indexerID = event.params.indexer.toHexString()
@@ -27,6 +31,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
       .toBigDecimal()
       .div(indexer.delegatorShares.toBigDecimal())
   }
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer.save()
 
   // update allocation
