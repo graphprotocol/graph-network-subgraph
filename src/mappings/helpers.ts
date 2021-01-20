@@ -118,7 +118,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.tokenCapacity = BigInt.fromI32(0)
     indexer.indexingRewardCut = 0
     indexer.indexingRewardEffectiveCut = BigDecimal.fromString('0')
-    indexer.indexingRewardOverdelegationDilution = BigDecimal.fromString('0')
+    indexer.overDelegationDilution = BigDecimal.fromString('0')
     indexer.delegatorIndexingRewards = BigInt.fromI32(0)
     indexer.indexerIndexingRewards = BigInt.fromI32(0)
     indexer.delegatorQueryFees = BigInt.fromI32(0)
@@ -592,32 +592,28 @@ function max(a: BigDecimal, b: BigDecimal): BigDecimal {
 }
 
 export function calculateOwnStakeRatio(indexer: Indexer): BigDecimal {
+  let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
+  let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
   let graphNetwork = GraphNetwork.load('1')
-  let delegationRatio = BigInt.fromI32(graphNetwork.delegationRatio)
-  let maxPossibleTotalUsable =
-    indexer.stakedTokens.toBigDecimal() +
-    (indexer.stakedTokens.toBigDecimal() * delegationRatio.toBigDecimal())
-  let currentTotalStake =
-    indexer.stakedTokens.toBigDecimal() + indexer.delegatedTokens.toBigDecimal()
+  let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
+  let maxPossibleTotalUsable = stakedTokensBD + stakedTokensBD * delegationRatioBD
+  let currentTotalStake = stakedTokensBD + delegatedTokensBD
   let totalUsable = min(maxPossibleTotalUsable, currentTotalStake)
   return totalUsable == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
-    : indexer.stakedTokens.toBigDecimal() / totalUsable
+    : stakedTokensBD / totalUsable
 }
 
 export function calculateDelegatedStakeRatio(indexer: Indexer): BigDecimal {
+  let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
+  let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
   let graphNetwork = GraphNetwork.load('1')
-  let delegationRatio = BigInt.fromI32(graphNetwork.delegationRatio)
-  let maxPossibleTotalUsable =
-    indexer.stakedTokens.toBigDecimal() +
-    (indexer.stakedTokens.toBigDecimal() * delegationRatio.toBigDecimal())
-  let totalUsable = min(
-    maxPossibleTotalUsable,
-    indexer.stakedTokens.toBigDecimal() + indexer.delegatedTokens.toBigDecimal(),
-  )
+  let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
+  let maxPossibleTotalUsable = stakedTokensBD + stakedTokensBD * delegationRatioBD
+  let totalUsable = min(maxPossibleTotalUsable, stakedTokensBD + delegatedTokensBD)
   return totalUsable == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
-    : indexer.delegatedTokens.toBigDecimal() / totalUsable
+    : delegatedTokensBD / totalUsable
 }
 
 export function calculateEffectiveCut(indexer: Indexer): BigDecimal {
@@ -638,13 +634,14 @@ export function calculateIndexerRewardOwnGenerationRatio(indexer: Indexer): BigD
 }
 
 export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
+  let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
+  let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
   let graphNetwork = GraphNetwork.load('1')
-  let delegationRatio = BigInt.fromI32(graphNetwork.delegationRatio)
-  let maxDelegatedStake = indexer.stakedTokens.toBigDecimal() * delegationRatio.toBigDecimal()
-  return indexer.stakedTokens == BigInt.fromI32(0)
+  let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
+  let maxDelegatedStake = stakedTokensBD * delegationRatioBD
+  return stakedTokensBD == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
-    : BigDecimal.fromString('1') -
-        maxDelegatedStake / max(maxDelegatedStake, indexer.delegatedTokens.toBigDecimal())
+    : BigDecimal.fromString('1') - maxDelegatedStake / max(maxDelegatedStake, delegatedTokensBD)
 }
 
 export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
@@ -654,6 +651,6 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
   indexer.indexerRewardsOwnGenerationRatio = calculateIndexerRewardOwnGenerationRatio(
     indexer as Indexer,
   )
-  indexer.indexingRewardOverdelegationDilution = calculateOverdelegationDilution(indexer as Indexer)
+  indexer.overDelegationDilution = calculateOverdelegationDilution(indexer as Indexer)
   return indexer as Indexer
 }
