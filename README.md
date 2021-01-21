@@ -73,6 +73,13 @@ Note that you will have to fill in your own subgraph name in the npm script, whe
 `<INSERT_SUBGRAPH_NAME>`. Depending if you are deploying to rinkeby or mainnet, you will also
 have to fill in `prepare:rinkeby` or `prepare:mainnet` where it has `<INSERT_MAINNET_OR_RINKEBY>`.
 
+## Documentation
+
+For documentation on the subgraph, please see [DOCUMENTATION.md](./DOCUMENTATION.md).
+
+This will outline nuances of the subgraph, and help shed light on some of the fields and types in
+the schema.
+
 ## Copyright
 
 Copyright &copy; 2020 The Graph Foundation.
