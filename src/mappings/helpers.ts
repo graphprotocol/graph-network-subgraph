@@ -605,15 +605,12 @@ export function calculateOwnStakeRatio(indexer: Indexer): BigDecimal {
 }
 
 export function calculateDelegatedStakeRatio(indexer: Indexer): BigDecimal {
-  let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
-  let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
-  let graphNetwork = GraphNetwork.load('1')
-  let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
-  let maxPossibleTotalUsable = stakedTokensBD + stakedTokensBD * delegationRatioBD
-  let totalUsable = min(maxPossibleTotalUsable, stakedTokensBD + delegatedTokensBD)
-  return totalUsable == BigDecimal.fromString('0')
+  // If own stake ratio is 0 it's because there's no usable stake, so we can't say that delegStakeRatio is 100%.
+  // Also, own stake ratio can't be less than 0.0588 with the current delegationRatio, and even if it changes
+  // it can never be 0 and have delegations.
+  return indexer.ownStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
-    : delegatedTokensBD / totalUsable
+    : BigDecimal.fromString('1') - indexer.ownStakeRatio
 }
 
 export function calculateEffectiveCut(indexer: Indexer): BigDecimal {
