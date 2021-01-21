@@ -112,7 +112,6 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.delegatedStakeRatio = BigDecimal.fromString('0')
     indexer.delegatorShares = BigInt.fromI32(0)
     indexer.delegationExchangeRate = BigDecimal.fromString('0')
-    indexer.tokenCapacity = BigInt.fromI32(0)
     indexer.indexingRewardCut = 0
     indexer.indexingRewardEffectiveCut = BigDecimal.fromString('0')
     indexer.overDelegationDilution = BigDecimal.fromString('0')

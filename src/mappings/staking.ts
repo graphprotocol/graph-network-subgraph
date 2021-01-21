@@ -56,23 +56,6 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
   }
 }
 
-// TODO - this is broken if we change the delegatio ratio
-// Need to remove, or find a fix
-function calculateCapacities(indexer: Indexer): Indexer {
-  let graphNetwork = GraphNetwork.load('1')
-  let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
-
-  // Eligible to add to the capacity
-  indexer.delegatedCapacity =
-    indexer.delegatedTokens < tokensDelegatedMax ? indexer.delegatedTokens : tokensDelegatedMax
-
-  indexer.tokenCapacity = indexer.stakedTokens.plus(indexer.delegatedCapacity)
-  indexer.availableStake = indexer.tokenCapacity
-    .minus(indexer.allocatedTokens)
-    .minus(indexer.lockedTokens)
-  return indexer
-}
-
 /**
  * @dev handleStakeDeposited
  * - creates an Indexer if it is the first time they have staked
@@ -183,14 +166,6 @@ export function handleStakeSlashed(event: StakeSlashed): void {
 
 export function handleStakeDelegated(event: StakeDelegated): void {
   let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
-
-  if (zeroShares) {
-    log.warning(`0 shares delegated to {} by {} in tx {}`, [
-      event.params.indexer.toHexString(),
-      event.params.delegator.toHexString(),
-      event.transaction.hash.toHexString(),
-    ])
-  }
 
   // update indexer
   let indexerID = event.params.indexer.toHexString()
@@ -542,7 +517,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
     event.params.delegationFees,
   )
   graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.minus(
-    event.params.delegationFees + event.params.tokens,
+    event.params.delegationFees.plus(event.params.tokens),
   )
   graphNetwork.save()
 }
@@ -676,3 +651,20 @@ export function handleAssetHolderUpdate(event: AssetHolderUpdate): void {
 //   graphNetwork.stakingImplementations = implementations
 //   graphNetwork.save()
 // }
+
+// TODO - this is broken if we change the delegatio ratio
+// Need to remove, or find a fix
+function calculateCapacities(indexer: Indexer): Indexer {
+  let graphNetwork = GraphNetwork.load('1')
+  let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
+
+  // Eligible to add to the capacity
+  indexer.delegatedCapacity =
+    indexer.delegatedTokens < tokensDelegatedMax ? indexer.delegatedTokens : tokensDelegatedMax
+
+  indexer.tokenCapacity = indexer.stakedTokens.plus(indexer.delegatedCapacity)
+  indexer.availableStake = indexer.tokenCapacity
+    .minus(indexer.allocatedTokens)
+    .minus(indexer.lockedTokens)
+  return indexer
+}
