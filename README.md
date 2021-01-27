@@ -5,6 +5,12 @@ This repository contains the code for the Graph Network Subgraph. The mainnet ve
 
 # Contributing to the repository
 
+Contributions are always welcome! Likely you will want to create a PR against `mainnet-staging`. If you are unsure you can always reach out to us on discord.
+## Submitting bugs
+
+Please submit bugs as an issue in this repository.
+## Maintaining the repository
+
 This repository has three different configurations for the `testnet`, `mainnet`, and 
 `mainnet-staging` subgraphs. These can be seen in the npm scripts.
 
@@ -13,11 +19,6 @@ will have different contract addresses populated depending on whether we are usi
 mainnet. Ensure the npm package for `@graphprotocol/contracts` is set to the newest rinkeby
 or mainnet package, [which you can find here](https://www.npmjs.com/package/@graphprotocol/contracts).
 
-## Submitting bugs
-
-Please submit bugs as an issue in this repository.
-
-## Maintaining the repository
 
 The setup for each branch is:
 
@@ -25,6 +26,8 @@ The setup for each branch is:
 master -            The code on master will always match the subgraph deployed to 
                     graph-network-mainnet in the explorer, as well as the version of the subgraph
                     the gateway is using. All code must be reviewed before merging to master.
+                    The front end team should also confirm mainnet-staging works before the
+                    master branch can be updated.
                     When master is updated a hook will automatically deploy the subgraph to the
                     hosted service.
 
@@ -46,6 +49,10 @@ In general, the workflow should be:
   changes the contracts package imported ny npm. `testnet` can also diverge onto it's own branch
   path if it has contract updates that do not yet exist on `mainnet`. And then care will have to
   be taken to cherry-pick these updates into `master` when the contract updates are on `mainnet`.
+
+### Versioning
+
+Everytime a new release is merged into `master` there will be a new github release, following semantic versioning.
 
 # Deploying the subgraph
 
