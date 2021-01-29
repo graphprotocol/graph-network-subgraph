@@ -119,6 +119,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.indexerIndexingRewards = BigInt.fromI32(0)
     indexer.delegatorQueryFees = BigInt.fromI32(0)
     indexer.queryFeeCut = 0
+    indexer.queryFeeEffectiveCut = BigDecimal.fromString('0')
     indexer.delegatorParameterCooldown = 0
     indexer.lastDelegationParameterUpdate = 0
     indexer.forcedClosures = 0
@@ -608,9 +609,18 @@ export function calculateDelegatedStakeRatio(indexer: Indexer): BigDecimal {
     : BigDecimal.fromString('1') - indexer.ownStakeRatio
 }
 
-export function calculateEffectiveCut(indexer: Indexer): BigDecimal {
+export function calculateIndexingRewardEffectiveCut(indexer: Indexer): BigDecimal {
   let delegatorCut =
     BigInt.fromI32(1000000 - indexer.indexingRewardCut).toBigDecimal() /
+    BigDecimal.fromString('1000000')
+  return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
+    ? BigDecimal.fromString('0')
+    : BigDecimal.fromString('1') - delegatorCut / indexer.delegatedStakeRatio
+}
+
+export function calculateQueryFeeEffectiveCut(indexer: Indexer): BigDecimal {
+  let delegatorCut =
+    BigInt.fromI32(1000000 - indexer.queryFeeCut).toBigDecimal() /
     BigDecimal.fromString('1000000')
   return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
@@ -639,7 +649,8 @@ export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
 export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
   indexer.ownStakeRatio = calculateOwnStakeRatio(indexer as Indexer)
   indexer.delegatedStakeRatio = calculateDelegatedStakeRatio(indexer as Indexer)
-  indexer.indexingRewardEffectiveCut = calculateEffectiveCut(indexer as Indexer)
+  indexer.indexingRewardEffectiveCut = calculateIndexingRewardEffectiveCut(indexer as Indexer)
+  indexer.queryFeeEffectiveCut = calculateQueryFeeEffectiveCut(indexer as Indexer)
   indexer.indexerRewardsOwnGenerationRatio = calculateIndexerRewardOwnGenerationRatio(
     indexer as Indexer,
   )
