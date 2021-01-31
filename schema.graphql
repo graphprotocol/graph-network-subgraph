@@ -660,6 +660,8 @@ type DelegatedStake @entity {
   realizedRewards: BigDecimal!
   "Time this delegator first delegated to an indexer"
   createdAt: Int!
+  "Time this delegator make last undelegate from an indexer"
+  lastUndelegatedAt: Int
 }
 
 """
