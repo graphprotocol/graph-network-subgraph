@@ -422,6 +422,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   let allocation = Allocation.load(allocationID)
   allocation.poolClosedIn = event.params.epoch.toString()
   allocation.activeForIndexer = null
+  allocation.closedAt = event.block.timestamp.toI32()
   allocation.closedAtEpoch = event.params.epoch.toI32()
   allocation.closedAtBlockHash = event.block.hash
   allocation.closedAtBlockNumber = event.block.number.toI32()
