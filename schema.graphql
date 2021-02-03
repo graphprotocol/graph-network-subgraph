@@ -933,8 +933,8 @@ Full test search for displayName and description on the Subgraph Entity
 """
 type _Schema_
   @fulltext(
-    name: "subgraphSearch"
+    name: "accountSearch"
     language: en
     algorithm: rank
-    include: [{ entity: "Subgraph", fields: [{ name: "displayName" }, { name: "description" }] }]
+    include: [{ entity: "GraphAccount", fields: [{ name: "id" }, { name: "defaultDisplayName" }] }]
   )
