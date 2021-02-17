@@ -209,6 +209,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
 
   delegatedStake.stakedTokens = delegatedStake.stakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.plus(event.params.shares)
+  delegatedStake.lastDelegatedAt = event.block.timestamp.toI32();
   delegatedStake.save()
 
   // upgrade graph network
@@ -241,6 +242,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
   delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
   delegatedStake.lockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
+  delegatedStake.lastUndelegatedAt = event.block.timestamp.toI32();
 
   let realizedRewards = event.params.shares
     .toBigDecimal()
