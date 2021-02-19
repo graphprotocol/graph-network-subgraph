@@ -10,6 +10,7 @@ import {
   createOrLoadSubgraphDeployment,
   createOrLoadEpoch,
   updateAdvancedIndexerMetrics,
+  updateDelegationExchangeRate,
 } from './helpers'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {
@@ -32,10 +33,9 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   indexer.delegatorIndexingRewards = indexer.delegatorIndexingRewards.plus(delegatorIndexingRewards)
   indexer.indexerIndexingRewards = indexer.indexerIndexingRewards.plus(indexerIndexingRewards)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(delegatorIndexingRewards)
+
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
-    indexer.delegationExchangeRate = indexer.delegatedTokens
-      .toBigDecimal()
-      .div(indexer.delegatorShares.toBigDecimal())
+    indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer.save()

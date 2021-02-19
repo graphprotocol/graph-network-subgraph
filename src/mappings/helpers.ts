@@ -111,7 +111,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.ownStakeRatio = BigDecimal.fromString('0')
     indexer.delegatedStakeRatio = BigDecimal.fromString('0')
     indexer.delegatorShares = BigInt.fromI32(0)
-    indexer.delegationExchangeRate = BigDecimal.fromString('0')
+    indexer.delegationExchangeRate = BigDecimal.fromString('1')
     indexer.indexingRewardCut = 0
     indexer.indexingRewardEffectiveCut = BigDecimal.fromString('0')
     indexer.overDelegationDilution = BigDecimal.fromString('0')
@@ -183,7 +183,7 @@ export function createOrLoadDelegatedStake(
     delegatedStake.lockedTokens = BigInt.fromI32(0)
     delegatedStake.lockedUntil = 0
     delegatedStake.shareAmount = BigInt.fromI32(0)
-    delegatedStake.personalExchangeRate = BigDecimal.fromString('0')
+    delegatedStake.personalExchangeRate = BigDecimal.fromString('1')
     delegatedStake.realizedRewards = BigDecimal.fromString('0')
     delegatedStake.createdAt = timestamp
 
@@ -620,8 +620,7 @@ export function calculateIndexingRewardEffectiveCut(indexer: Indexer): BigDecima
 
 export function calculateQueryFeeEffectiveCut(indexer: Indexer): BigDecimal {
   let delegatorCut =
-    BigInt.fromI32(1000000 - indexer.queryFeeCut).toBigDecimal() /
-    BigDecimal.fromString('1000000')
+    BigInt.fromI32(1000000 - indexer.queryFeeCut).toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : BigDecimal.fromString('1') - delegatorCut / indexer.delegatedStakeRatio
@@ -655,5 +654,13 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
     indexer as Indexer,
   )
   indexer.overDelegationDilution = calculateOverdelegationDilution(indexer as Indexer)
+  return indexer as Indexer
+}
+
+export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
+  indexer.delegationExchangeRate = indexer.delegatedTokens
+    .toBigDecimal()
+    .div(indexer.delegatorShares.toBigDecimal())
+    .truncate(18)
   return indexer as Indexer
 }

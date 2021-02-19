@@ -39,6 +39,7 @@ import {
   createOrLoadDelegatedStake,
   createOrLoadGraphAccount,
   updateAdvancedIndexerMetrics,
+  updateDelegationExchangeRate,
 } from './helpers'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
@@ -172,10 +173,9 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
-  if (indexer.delegatorShares.gt(BigInt.fromI32(0))) {
-    indexer.delegationExchangeRate = indexer.delegatedTokens
-      .toBigDecimal()
-      .div(indexer.delegatorShares.toBigDecimal())
+
+  if (indexer.delegatorShares != BigInt.fromI32(0)) {
+    indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
@@ -201,15 +201,15 @@ export function handleStakeDelegated(event: StakeDelegated): void {
       .plus(event.params.tokens.toBigDecimal())
     let averageCostBasisShares = previousShares.plus(event.params.shares)
     if (averageCostBasisShares.gt(BigInt.fromI32(0))) {
-      delegatedStake.personalExchangeRate = averageCostBasisTokens.div(
-        averageCostBasisShares.toBigDecimal(),
-      )
+      delegatedStake.personalExchangeRate = averageCostBasisTokens
+        .div(averageCostBasisShares.toBigDecimal())
+        .truncate(18)
     }
   }
 
   delegatedStake.stakedTokens = delegatedStake.stakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.plus(event.params.shares)
-  delegatedStake.lastDelegatedAt = event.block.timestamp.toI32();
+  delegatedStake.lastDelegatedAt = event.block.timestamp.toI32()
   delegatedStake.save()
 
   // upgrade graph network
@@ -225,10 +225,10 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
 
+  let beforeUpdateDelegationExchangeRate = indexer.delegationExchangeRate
+
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
-    indexer.delegationExchangeRate = indexer.delegatedTokens
-      .toBigDecimal()
-      .div(indexer.delegatorShares.toBigDecimal())
+    indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
@@ -242,11 +242,12 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
   delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
   delegatedStake.lockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
-  delegatedStake.lastUndelegatedAt = event.block.timestamp.toI32();
+  delegatedStake.lastUndelegatedAt = event.block.timestamp.toI32()
 
-  let realizedRewards = event.params.shares
-    .toBigDecimal()
-    .times(indexer.delegationExchangeRate.minus(delegatedStake.personalExchangeRate))
+  let currentBalance = event.params.shares.toBigDecimal().times(beforeUpdateDelegationExchangeRate)
+  let oldBalance = event.params.shares.toBigDecimal().times(delegatedStake.personalExchangeRate)
+  let realizedRewards = currentBalance.minus(oldBalance)
+
   delegatedStake.realizedRewards = delegatedStake.realizedRewards.plus(realizedRewards)
   delegatedStake.save()
 
@@ -482,9 +483,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.delegationFees)
 
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
-    indexer.delegationExchangeRate = indexer.delegatedTokens
-      .toBigDecimal()
-      .div(indexer.delegatorShares.toBigDecimal())
+    indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer.save()
