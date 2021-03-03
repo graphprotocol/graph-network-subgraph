@@ -108,6 +108,9 @@ export function handleStakeLocked(event: StakeLocked): void {
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.plus(
     event.params.tokens,
   )
+  if (indexer.stakedTokens == indexer.lockedTokens) {
+    graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount - 1
+  }
   graphNetwork.save()
 }
 
@@ -133,9 +136,6 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.minus(
     event.params.tokens,
   )
-  if (indexer.stakedTokens == BigInt.fromI32(0)) {
-    graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount - 1
-  }
   graphNetwork.save()
 }
 
