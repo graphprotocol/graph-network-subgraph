@@ -21,8 +21,8 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: yarn add @graphprotocol/graph-cli
         run: yarn add @graphprotocol/graph-cli
-      - name: yarn global add ts-node
-        run: yarn global add ts-node
+      - name: yarn add ts-node
+        run: yarn add ts-node
       - name: yarn install
         run: yarn install
         env:
@@ -30,7 +30,7 @@ jobs:
 
       # Run scripts
       - name: Prepare addresses mainnet
-        run: ts-node config/mainnetAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
+        run: ./node_modules/.bin/ts-node config/mainnetAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
       - name: Prepare mainnet
         run: mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/
       - name: Deploy to mainnet staging
