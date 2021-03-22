@@ -23,6 +23,8 @@ jobs:
         run: yarn add @graphprotocol/graph-cli
       - name: yarn add ts-node
         run: yarn add ts-node
+      - name: yarn add mustache
+        run: yarn add mustache
       - name: yarn install
         run: yarn install
         env:
