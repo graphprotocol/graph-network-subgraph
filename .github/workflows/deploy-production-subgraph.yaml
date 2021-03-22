@@ -10,28 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
   steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
-      # Install commands
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-          registry-url: https://registry.npmjs.org
-      - name: yarn add @graphprotocol/graph-cli
-        run: yarn add @graphprotocol/graph-cli
-      - name: yarn add ts-node
-        run: yarn add ts-node
-      - name: yarn install
-        run: yarn install
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.graphprotocol_npm_token}}
+    # Install commands
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+        registry-url: https://registry.npmjs.org
+    - name: yarn add @graphprotocol/graph-cli
+      run: yarn add @graphprotocol/graph-cli
+    - name: yarn add ts-node
+      run: yarn add ts-node
+    - name: yarn install
+      run: yarn install
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.graphprotocol_npm_token}}
 
-      # Run scripts
-      - name: Prepare addresses mainnet
-        run: ts-node config/mainnetAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
-      - name: Prepare mainnet
-        run: mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/
-      - name: Deploy to mainnet staging
-        run: graph deploy graphprotocol/graph-network-mainnet --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{secrets.access_token}}
+    # Run scripts
+    - name: Prepare addresses mainnet
+      run: ts-node config/mainnetAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
+    - name: Prepare mainnet
+      run: mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/
+    - name: Deploy to mainnet staging
+      run: graph deploy graphprotocol/graph-network-mainnet --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{secrets.access_token}}
