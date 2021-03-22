@@ -1,4 +1,4 @@
-name: Staging Subgraph (Mainnet)
+name: Production Subgraph (Mainnet)
 
 on:
   push:
@@ -30,8 +30,8 @@ jobs:
 
       # Run scripts
       - name: Prepare addresses mainnet
-        run: ts-node config/mainnetAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
+        run: ./node_modules/.bin/ts-node config/mainnetAddressScript.ts && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
       - name: Prepare mainnet
-        run: mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/
-      - name: Deploy to mainnet staging
-        run: graph deploy graphprotocol/graph-network-mainnet --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{secrets.access_token}}
+        run: ./node_modules/.bin/mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && ./node_modules/@graphprotocol/graph-cli/bin/graph codegen --output-dir src/types/
+      - name: Deploy to mainnet production
+        run: ./node_modules/@graphprotocol/graph-cli/bin/graph deploy graphprotocol/graph-network-mainnet --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{secrets.access_token}}
