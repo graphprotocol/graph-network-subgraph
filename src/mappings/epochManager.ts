@@ -41,22 +41,22 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
   // We must take this epoch, update its blocks and end it, and make a new epoch
   // Since whenever we update epoch length in the contracts we end the current epoch
   // and create a new one
-  epoch.endBlock = event.block.number.toI32()
-  epoch.save()
+  // epoch.endBlock = event.block.number.toI32()
+  // epoch.save()
 
   // Now it is safe to update graphNetwork, since the past epoch is completed
   // But we must reload it, since its currentEpoch may have been updated in createOrLoadEpoch
   graphNetwork = GraphNetwork.load('1') as GraphNetwork
   graphNetwork.epochLength = event.params.epochLength.toI32()
-  graphNetwork.lastLengthUpdateBlock = event.block.number.toI32()
+  graphNetwork.lastLengthUpdateBlock = epoch.startBlock
 
-  // Now we create the new epoch that starts fresh with the new length,
-  let newEpochNumber = graphNetwork.currentEpoch + 1
-  createEpoch(event.block.number.toI32(), graphNetwork.epochLength, newEpochNumber)
+  // Now we create the new epoch that starts fresh with the new length
+  // let newEpochNumber = graphNetwork.currentEpoch + 1
+  // createEpoch(event.block.number.toI32(), graphNetwork.epochLength, newEpochNumber)
 
   // Update graphNetwork for the new epoch
-  graphNetwork.currentEpoch = newEpochNumber
-  graphNetwork.lastLengthUpdateEpoch = graphNetwork.currentEpoch
+  graphNetwork.currentEpoch = event.params.epoch.toI32()
+  graphNetwork.lastLengthUpdateEpoch = event.params.epoch.toI32()
   graphNetwork.save()
 }
 
