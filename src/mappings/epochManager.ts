@@ -39,6 +39,14 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
   // This returns a new epoch, or current epoch, with the old epoch length
   let epoch = createOrLoadEpoch(event.block.number)
 
+  // Check that the endBlock for the current epoch match what it should based on the
+  // changed epoch length
+  let newEndBlock = epoch.startBlock + event.params.epochLength.toI32()
+  if (epoch.endBlock != newEndBlock) {
+    epoch.endBlock = newEndBlock
+    epoch.save()
+  }
+
   // Now it is safe to update graphNetwork, since the past epoch is completed
   // But we must reload it, since its currentEpoch may have been updated in createOrLoadEpoch
   graphNetwork = GraphNetwork.load('1') as GraphNetwork
