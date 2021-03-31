@@ -407,6 +407,13 @@ type SubgraphDeployment @entity {
 
   # From Subgraph Manifest
   # dataSources: [DataSource!]
+
+  "IMG"
+  subgraphImg: String
+  subgraphId: BigInt
+
+  "Number(s.versions[0].subgraph.signalledTokens + 'e-18') - Number(s.versions[0].subgraph.unsignalledTokens + 'e-18'),"
+  signaledReal: BigInt!
 }
 
 # TODO - add when we have the ability to parse data sources
@@ -573,6 +580,8 @@ type Allocation @entity {
   delegationFees: BigInt!
   "Status of the allocation"
   status: AllocationStatus!
+  "Status of the allocation for sorting"
+  statusInt: Int!
   "Timestamp this allocation was created at"
   createdAt: Int!
   "Timestamp this allocation was closed at"
@@ -632,6 +641,21 @@ type Delegator @entity {
   createdAt: Int!
   "Total realized rewards on all delegated stakes. Realized rewards are added when undelegating and realizing a profit"
   totalRealizedRewards: BigDecimal!
+
+  "lastCreatedDelegatedStake"
+  lastDelegationAt: Int
+
+  "lastCreatedDelegatedStake"
+  lastUnDelegationAt: Int
+
+  #CODE _.multiply(_.subtract(s.indexer.delegationExchangeRate,s.personalExchangeRate), s.shareAmount)"
+  # TODO
+  #unreleaseReward: BigInt
+
+  #CODE _.multiply(_.divide(d.shareAmount, indexerStats.data.indexer.delegatorShares), indexerStats.data.indexer.delegatedTokens)"
+  #"increasing stakingtokens"
+  #TODO
+  #currentDelegationAmount: BigInt
 }
 
 """

@@ -77,6 +77,8 @@ export function createOrLoadSubgraphDeployment(
     deployment.signalAmount = BigInt.fromI32(0)
     deployment.reserveRatio = 0
     deployment.deniedAt = 0
+    deployment.signaledReal = BigInt.fromI32(0)
+
     deployment.save()
 
     let graphNetwork = GraphNetwork.load('1')
@@ -645,4 +647,11 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
   )
   indexer.overDelegationDilution = calculateOverdelegationDilution(indexer as Indexer)
   return indexer as Indexer
+}
+
+export function updateDeploymentSignaledTokens(subgraph: Subgraph): void {
+  let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion)
+  let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)
+  subgraphDeployment.signaledReal = subgraph.signalledTokens.minus(subgraph.unsignalledTokens)
+  subgraphDeployment.save()
 }

@@ -32,6 +32,7 @@ import {
   createOrLoadSubgraph,
   joinID,
   createOrLoadNameSignal,
+  updateDeploymentSignaledTokens,
 } from './helpers'
 
 export function handleSetDefaultName(event: SetDefaultName): void {
@@ -82,12 +83,14 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
   let base58Hash = hexHash.toBase58()
   let metadata = ipfs.cat(base58Hash)
   subgraph.metadataHash = event.params.subgraphMetadata
+  let image = ""
   if (metadata !== null) {
     let tryData = json.try_fromBytes(metadata as Bytes)
     if (tryData.isOk) {
       let data = tryData.value.toObject()
       subgraph.description = jsonToString(data.get('description'))
-      subgraph.image = jsonToString(data.get('image'))
+      image = jsonToString(data.get('image'))
+      subgraph.image = image
       subgraph.displayName = jsonToString(data.get('displayName'))
       subgraph.codeRepository = jsonToString(data.get('codeRepository'))
       subgraph.website = jsonToString(data.get('website'))
@@ -112,6 +115,9 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
     subgraphDeployment.originalName = subgraph.displayName
     subgraphDeployment.save()
   }
+  subgraphDeployment.subgraphImg = image
+  subgraphDeployment.subgraphId = event.params.subgraphNumber
+  subgraphDeployment.save()
 }
 
 /**
@@ -211,11 +217,10 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
   let subgraph = Subgraph.load(subgraphID)
-
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
   subgraph.save()
-
+  updateDeploymentSignaledTokens(subgraph as Subgraph)
   let nameSignal = createOrLoadNameSignal(
     event.params.nameCurator.toHexString(),
     subgraphID,
@@ -277,6 +282,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensReceived)
+  updateDeploymentSignaledTokens(subgraph as Subgraph)
   subgraph.save()
 
   // update name signal
@@ -344,6 +350,7 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensSignalled)
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensSignalled)
   subgraph.save()
+  updateDeploymentSignaledTokens(subgraph as Subgraph)
 }
 
 // Only need to upgrade withdrawable tokens. Everything else handled from

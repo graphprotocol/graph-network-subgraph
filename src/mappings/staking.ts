@@ -185,6 +185,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let delegatorID = event.params.delegator.toHexString()
   let delegator = createOrLoadDelegator(delegatorID, event.block.timestamp)
   delegator.totalStakedTokens = delegator.totalStakedTokens.plus(event.params.tokens)
+  delegator.lastDelegationAt = event.block.timestamp.toI32()
   delegator.save()
 
   // update delegated stake
@@ -253,6 +254,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let delegator = Delegator.load(delegatorID)
   delegator.totalUnstakedTokens = delegator.totalUnstakedTokens.plus(event.params.tokens)
   delegator.totalRealizedRewards = delegator.totalRealizedRewards.plus(realizedRewards)
+  delegator.lastUnDelegationAt = event.block.timestamp.toI32()
   delegator.save()
 
   // upgrade graph network
@@ -323,11 +325,13 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.indexingDelegatorRewards = BigInt.fromI32(0)
   allocation.delegationFees = BigInt.fromI32(0)
   allocation.status = 'Active'
+  allocation.statusInt = 0
   allocation.totalReturn = BigDecimal.fromString('0')
   allocation.annualizedReturn = BigDecimal.fromString('0')
   allocation.createdAt = event.block.timestamp.toI32()
   allocation.closedAt = 0
   allocation.save()
+
 }
 
 // Transfers tokens from a state channel to the staking contract
@@ -430,6 +434,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.closedAtBlockNumber = event.block.number.toI32()
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
+  allocation.statusInt = 1
   allocation.poi = event.params.poi
   allocation.save()
 
@@ -494,6 +499,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   allocation.queryFeeRebates = event.params.tokens
   allocation.delegationFees = event.params.delegationFees
   allocation.status = 'Claimed'
+  allocation.statusInt = 2
   allocation.save()
 
   // Update epoch
