@@ -288,6 +288,8 @@ dataSources:
       eventHandlers:
         - event: RewardsAssigned(indexed address,indexed address,uint256,uint256)
           handler: handleRewardsAssigned
+        - event: RewardsDenylistUpdated(indexed bytes32,uint256)
+          handler: handleRewardsDenyListUpdated
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
         - event: ParameterUpdated(string)
