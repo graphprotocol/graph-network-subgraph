@@ -49,12 +49,29 @@ export function handleSetDefaultName(event: SetDefaultName): void {
     event.block.timestamp,
   )
 
-  // A name has already been registered
   if (graphAccount.defaultName != null) {
     let graphAccountName = GraphAccountName.load(graphAccount.defaultName)
     // If trying to set the same name, do nothing
     if (graphAccountName.name == event.params.name) {
       return
+    }
+
+    // A user is resetting their name. This is done by passing nameIdentifier = bytes32(0)
+    // String can be anything, but in front end we should just do a blank string
+    if (
+      event.params.nameIdentifier.toHex() ==
+      '0x0000000000000000000000000000000000000000000000000000000000000000'
+    ) {
+      graphAccountName.graphAccount = null
+      graphAccountName.save()
+
+      graphAccount.defaultName = null
+      graphAccount.defaultDisplayName = null
+      graphAccount.save()
+
+      let indexer = Indexer.load(event.params.graphAccount.toHexString())
+      indexer.defaultDisplayName = null
+      indexer.save()
     }
   }
   let newDefaultName = resolveName(
