@@ -580,6 +580,17 @@ type Allocation @entity {
   "POI submitted with a closed allocation"
   poi: Bytes
 
+  # Indexer cut settings at start and close
+  indexingRewardCutAtStart: Int!
+  indexingRewardEffectiveCutAtStart: BigDecimal!
+  queryFeeCutAtStart: Int!
+  queryFeeEffectiveCutAtStart: BigDecimal!
+
+  indexingRewardCutAtClose: Int
+  indexingRewardEffectiveCutAtClose: BigDecimal
+  queryFeeCutAtClose: Int
+  queryFeeEffectiveCutAtClose: BigDecimal
+
   # Metrics NOT IMPLEMENTED YET
   "NOT IMPLEMENTED - Return for this allocation"
   totalReturn: BigDecimal!
