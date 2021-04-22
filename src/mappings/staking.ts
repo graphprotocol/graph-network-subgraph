@@ -328,6 +328,10 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.totalReturn = BigDecimal.fromString('0')
   allocation.annualizedReturn = BigDecimal.fromString('0')
   allocation.createdAt = event.block.timestamp.toI32()
+  allocation.indexingRewardCutAtStart = indexer.indexingRewardCut
+  allocation.indexingRewardEffectiveCutAtStart = indexer.indexingRewardEffectiveCut
+  allocation.queryFeeCutAtStart = indexer.queryFeeCut
+  allocation.queryFeeEffectiveCutAtStart = indexer.queryFeeEffectiveCut
   allocation.save()
 }
 
@@ -431,6 +435,10 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
   allocation.poi = event.params.poi
+  allocation.indexingRewardCutAtClose = indexer.indexingRewardCut
+  allocation.indexingRewardEffectiveCutAtClose = indexer.indexingRewardEffectiveCut
+  allocation.queryFeeCutAtClose = indexer.queryFeeCut
+  allocation.queryFeeEffectiveCutAtClose = indexer.queryFeeEffectiveCut
   allocation.save()
 
   // update epoch - We do it here to have more epochs created, instead of seeing none created
