@@ -434,6 +434,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.closedAtBlockNumber = event.block.number.toI32()
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
+  allocation.closedAt = event.block.timestamp.toI32()
   allocation.poi = event.params.poi
   allocation.indexingRewardCutAtClose = indexer.indexingRewardCut
   allocation.indexingRewardEffectiveCutAtClose = indexer.indexingRewardEffectiveCut
