@@ -577,6 +577,8 @@ type Allocation @entity {
   status: AllocationStatus!
   "Timestamp this allocation was created at"
   createdAt: Int!
+  "Timestamp this allocation was closed at"
+  closedAt: Int
   "POI submitted with a closed allocation"
   poi: Bytes
 
