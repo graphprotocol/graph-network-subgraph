@@ -40,6 +40,7 @@ import {
   createOrLoadGraphAccount,
   updateAdvancedIndexerMetrics,
   updateDelegationExchangeRate,
+  calculatePricePerShare,
 } from './helpers'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
@@ -380,6 +381,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   deployment.queryFeesAmount = deployment.queryFeesAmount.plus(event.params.rebateFees)
   deployment.signalledTokens = deployment.signalledTokens.plus(event.params.curationFees)
   deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
+  deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
   deployment.save()
 
   // since we don't get the protocol tax explicitly, we will use tokens - (curation + rebate) to calculate it
