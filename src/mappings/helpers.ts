@@ -75,6 +75,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.signalledTokens = BigInt.fromI32(0)
     deployment.unsignalledTokens = BigInt.fromI32(0)
     deployment.signalAmount = BigInt.fromI32(0)
+    deployment.pricePerShare = BigDecimal.fromString('0')
     deployment.reserveRatio = 0
     deployment.deniedAt = 0
     deployment.save()
@@ -663,4 +664,15 @@ export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
     .div(indexer.delegatorShares.toBigDecimal())
     .truncate(18)
   return indexer as Indexer
+}
+
+export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecimal {
+  let pricePerShare =
+    deployment.signalAmount == BigInt.fromI32(0)
+      ? BigDecimal.fromString('0')
+      : deployment.signalledTokens
+          .toBigDecimal()
+          .div(deployment.signalAmount.toBigDecimal())
+          .truncate(18)
+  return pricePerShare
 }

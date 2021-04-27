@@ -20,6 +20,7 @@ import {
   createOrLoadCurator,
   createOrLoadEpoch,
   joinID,
+  calculatePricePerShare,
 } from './helpers'
 
 /**
@@ -46,6 +47,7 @@ export function handleSignalled(event: Signalled): void {
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.signalledTokens = deployment.signalledTokens.plus(event.params.tokens)
   deployment.signalAmount = deployment.signalAmount.plus(event.params.signal)
+  deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
 
   let curation = Curation.bind(event.address)
   deployment.reserveRatio = curation.pools(event.params.subgraphDeploymentID).value1.toI32()
@@ -101,6 +103,7 @@ export function handleBurned(event: Burned): void {
   let deployment = SubgraphDeployment.load(subgraphDeploymentID)
   deployment.signalledTokens = deployment.signalledTokens.minus(event.params.tokens)
   deployment.signalAmount = deployment.signalAmount.minus(event.params.signal)
+  deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
   deployment.save()
 
   // Update epoch - none
