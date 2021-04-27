@@ -399,6 +399,8 @@ type SubgraphDeployment @entity {
   unsignalledTokens: BigInt! # Will be used for rewards
   "CURRENT curation signal for this subgraph deployment"
   signalAmount: BigInt!
+  "signalledTokens / signalAmount"
+  pricePerShare: BigDecimal!
 
   "Curators of this subgraph deployment"
   curatorSignals: [Signal!]! @derivedFrom(field: "subgraphDeployment")
