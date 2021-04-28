@@ -38,9 +38,11 @@ export function handleSignalled(event: Signalled): void {
 
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let signal = createOrLoadSignal(id, subgraphDeploymentID)
+  let signal = createOrLoadSignal(id, subgraphDeploymentID, event.block.number.toI32(), event.block.timestamp.toI32())
   signal.signalledTokens = signal.signalledTokens.plus(event.params.tokens)
   signal.signal = signal.signal.plus(event.params.signal)
+  signal.lastUpdatedAt = event.block.timestamp.toI32()
+  signal.lastUpdatedAtBlock = event.block.number.toI32()
   signal.save()
 
   // Update subgraph deployment

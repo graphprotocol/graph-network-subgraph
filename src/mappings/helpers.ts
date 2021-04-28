@@ -225,7 +225,7 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
   return curator as Curator
 }
 
-export function createOrLoadSignal(curator: string, subgraphDeploymentID: string): Signal {
+export function createOrLoadSignal(curator: string, subgraphDeploymentID: string, blockNumber: i32, timestamp: i32): Signal {
   let signalID = joinID([curator, subgraphDeploymentID])
   let signal = Signal.load(signalID)
   if (signal == null) {
@@ -237,6 +237,10 @@ export function createOrLoadSignal(curator: string, subgraphDeploymentID: string
     signal.signal = BigInt.fromI32(0)
     signal.lastSignalChange = 0
     signal.realizedRewards = BigInt.fromI32(0)
+    signal.createdAt = timestamp
+    signal.createdAtBlock = blockNumber
+    signal.lastUpdatedAt = timestamp
+    signal.lastUpdatedAtBlock = blockNumber
     signal.save()
   }
   return signal as Signal
