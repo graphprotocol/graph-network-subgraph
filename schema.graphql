@@ -748,6 +748,15 @@ type Signal @entity {
   # unrealized gains for their current balance, based on the time since the last exit/entry of the curve
   "Summation of realized rewards from before the last time the curator entered the curation curve"
   realizedRewards: BigInt!
+
+  "Timetamp when this entity was created"
+  createdAt: Int!
+  "Timetamp when this entity was last updated"
+  lastUpdatedAt: Int!
+  "Block number where this entity was created"
+  createdAtBlock: Int!
+  "Block number where this entity was last updated"
+  lastUpdatedAtBlock: Int!
 }
 
 """
