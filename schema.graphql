@@ -720,8 +720,14 @@ type Curator @entity {
   totalNameSignal: BigDecimal!
   "Total curator cost basis of all shares purchased on all bonding curves"
   totalNameSignalAverageCostBasis: BigDecimal!
-  "totalNameSignalCostBasis / totalNameSignal"
+  "totalNameSignalAverageCostBasis / totalNameSignal"
   totalAverageCostBasisPerNameSignal: BigDecimal!
+  "CURRENT summed signal for all bonding curves"
+  totalSignal: BigDecimal!
+  "Total curator cost basis of all shares purchased on all bonding curves"
+  totalSignalAverageCostBasis: BigDecimal!
+  "totalSignalAverageCostBasis / totalSignal"
+  totalAverageCostBasisPerSignal: BigDecimal!
 }
 
 """
@@ -740,6 +746,10 @@ type Signal @entity {
   unsignalledTokens: BigInt!
   "Signal that the curator has from signaling their GRT"
   signal: BigInt!
+  "Curator average cost basis for this signal on this subgraph"
+  averageCostBasis: BigDecimal!
+  "averageCostBasis / signal"
+  averageCostBasisPerSignal: BigDecimal!
 
   # Metrics
   "Block for which the curator last entered or exited the curve"

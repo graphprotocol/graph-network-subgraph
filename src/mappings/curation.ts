@@ -22,6 +22,7 @@ import {
   joinID,
   calculatePricePerShare,
 } from './helpers'
+import { zeroBD } from './utils'
 
 /**
  * @dev handleStaked
@@ -33,9 +34,24 @@ export function handleSignalled(event: Signalled): void {
   // Update curator
   let id = event.params.curator.toHexString()
   let curator = createOrLoadCurator(id, event.block.timestamp)
+<<<<<<< HEAD
   curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
   )
+=======
+  curator.totalSignalledTokens = curator.totalSignalledTokens.plus(event.params.tokens)
+  curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.plus(
+    event.params.tokens.toBigDecimal(),
+  )
+  curator.totalSignal = curator.totalSignal.plus(event.params.signal.toBigDecimal())
+
+  // zero division protection
+  if (curator.totalSignal != zeroBD) {
+    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
+      curator.totalSignal,
+    )
+  }
+>>>>>>> average cost basis for curation signal
   curator.save()
 
   // Update signal
@@ -52,6 +68,16 @@ export function handleSignalled(event: Signalled): void {
   signal.signal = signal.signal.plus(event.params.signal)
   signal.lastUpdatedAt = event.block.timestamp.toI32()
   signal.lastUpdatedAtBlock = event.block.number.toI32()
+  signal.averageCostBasis = signal.averageCostBasis.plus(
+    event.params.tokens.toBigDecimal(),
+  )
+
+  // zero division protection
+  if (signal.signal.toBigDecimal() != zeroBD) {
+    signal.averageCostBasisPerSignal = signal.averageCostBasis.div(
+      signal.signal.toBigDecimal(),
+    )
+  }
   signal.save()
 
   // Update subgraph deployment
@@ -101,20 +127,42 @@ export function handleSignalled(event: Signalled): void {
  * - updates subgraph
  */
 export function handleBurned(event: Burned): void {
-  // Update curator
   let id = event.params.curator.toHexString()
-  let curator = Curator.load(id)
-  curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokens)
-
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let signalID = joinID([id, subgraphDeploymentID])
   let signal = Signal.load(signalID)
   // Note - if you immediately deposited and then withdrew, you would lose 5%, and you were
   // realize this loss by seeing unsignaled tokens being 95 and signalled 100
+  signal.lastUpdatedAt = event.block.timestamp.toI32()
+  signal.lastUpdatedAtBlock = event.block.number.toI32()
   signal.unsignalledTokens = signal.unsignalledTokens.plus(event.params.tokens)
   signal.signal = signal.signal.minus(event.params.signal)
+
+  // update acb to reflect new name signal balance
+  let previousACB = signal.averageCostBasis
+  signal.averageCostBasis = signal.signal
+    .toBigDecimal()
+    .times(signal.averageCostBasisPerSignal)
+  let diffACB = previousACB.minus(signal.averageCostBasis)
+  if (signal.averageCostBasis == zeroBD) {
+    signal.averageCostBasisPerSignal = zeroBD
+  }
   signal.save()
+
+  // Update curator
+  let curator = Curator.load(id)
+  curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokens)
+  curator.totalSignal = curator.totalSignal.minus(event.params.signal.toBigDecimal())
+  curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACB)
+  if (curator.totalSignal == zeroBD) {
+    curator.totalAverageCostBasisPerSignal = zeroBD
+  } else {
+    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
+      curator.totalSignal,
+    )
+  }
+  curator.save()
 
   // Update subgraph
   let deployment = SubgraphDeployment.load(subgraphDeploymentID)
