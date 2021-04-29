@@ -34,12 +34,9 @@ export function handleSignalled(event: Signalled): void {
   // Update curator
   let id = event.params.curator.toHexString()
   let curator = createOrLoadCurator(id, event.block.timestamp)
-<<<<<<< HEAD
   curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
   )
-=======
-  curator.totalSignalledTokens = curator.totalSignalledTokens.plus(event.params.tokens)
   curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.plus(
     event.params.tokens.toBigDecimal(),
   )
@@ -51,7 +48,6 @@ export function handleSignalled(event: Signalled): void {
       curator.totalSignal,
     )
   }
->>>>>>> average cost basis for curation signal
   curator.save()
 
   // Update signal
