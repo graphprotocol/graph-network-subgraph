@@ -238,6 +238,8 @@ export function createOrLoadSignal(curator: string, subgraphDeploymentID: string
     signal.signalledTokens = BigInt.fromI32(0)
     signal.unsignalledTokens = BigInt.fromI32(0)
     signal.signal = BigInt.fromI32(0)
+    signal.averageCostBasis = BigDecimal.fromString('0')
+    signal.averageCostBasisPerSignal = BigDecimal.fromString('0')
     signal.lastSignalChange = 0
     signal.realizedRewards = BigInt.fromI32(0)
     signal.createdAt = timestamp
