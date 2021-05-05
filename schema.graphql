@@ -314,13 +314,13 @@ type Subgraph @entity {
   "Subgraph metadata"
   metadataHash: Bytes!
   "Short description of the subgraph"
-  description: String!
+  description: String
   "Image in string format"
-  image: String!
+  image: String
   "Location of the code for this project"
-  codeRepository: String!
+  codeRepository: String
   "Projects website"
-  website: String!
+  website: String
   "Display name"
   displayName: String!
 }
@@ -349,7 +349,7 @@ type SubgraphVersion @entity {
   "Subgraph version metadata content address"
   metadataHash: Bytes!
   "Short description of the version"
-  description: String!
+  description: String
   "Semantic versioning label"
   label: String!
 }
