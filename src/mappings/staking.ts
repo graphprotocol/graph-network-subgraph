@@ -1,4 +1,4 @@
-import { BigInt, Address, BigDecimal, Bytes, ipfs, log } from '@graphprotocol/graph-ts'
+import { BigInt, Address, BigDecimal, Bytes, log } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
