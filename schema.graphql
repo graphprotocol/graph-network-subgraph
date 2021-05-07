@@ -322,7 +322,7 @@ type Subgraph @entity {
   "Projects website"
   website: String
   "Display name"
-  displayName: String!
+  displayName: String
 }
 
 """
@@ -351,7 +351,7 @@ type SubgraphVersion @entity {
   "Short description of the version"
   description: String
   "Semantic versioning label"
-  label: String!
+  label: String
 }
 
 """
