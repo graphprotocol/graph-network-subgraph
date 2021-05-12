@@ -553,8 +553,10 @@ type Allocation @entity {
   createdAtEpoch: Int!
   "Block at which this allocation was created"
   createdAtBlockHash: Bytes!
+  "Block number at which this allocation was created"
+  createdAtBlockNumber: Int!
   "Epoch this allocation was closed in"
-  closedAtEpoch: Int!
+  closedAtEpoch: Int
   "Block hash at which this allocation was closed"
   closedAtBlockHash: Bytes
   "Block number at which this allocation was closed"
