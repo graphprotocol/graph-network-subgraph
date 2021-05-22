@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt, Bytes, ipfs, json } from '@graphprotocol/graph-ts'
+import { BigDecimal, Bytes, json } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphDeprecated,
@@ -22,7 +22,7 @@ import {
   SubgraphDeployment,
 } from '../types/schema'
 
-import { jsonToString, zeroBD } from './utils'
+import { zeroBD } from './utils'
 import {
   createOrLoadSubgraphDeployment,
   createOrLoadGraphAccount,
@@ -33,6 +33,7 @@ import {
   joinID,
   createOrLoadNameSignal,
 } from './helpers'
+import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './metadataHelpers'
 
 export function handleSetDefaultName(event: SetDefaultName): void {
   let graphAccount = createOrLoadGraphAccount(
@@ -80,25 +81,11 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
 
   let hexHash = addQm(event.params.subgraphMetadata) as Bytes
   let base58Hash = hexHash.toBase58()
-  let metadata = ipfs.cat(base58Hash)
+
   subgraph.metadataHash = event.params.subgraphMetadata
-  if (metadata !== null) {
-    let tryData = json.try_fromBytes(metadata as Bytes)
-    if (tryData.isOk) {
-      let data = tryData.value.toObject()
-      subgraph.description = jsonToString(data.get('description'))
-      subgraph.image = jsonToString(data.get('image'))
-      subgraph.displayName = jsonToString(data.get('displayName'))
-      subgraph.codeRepository = jsonToString(data.get('codeRepository'))
-      subgraph.website = jsonToString(data.get('website'))
-    } else {
-      subgraph.description = ''
-      subgraph.image = ''
-      subgraph.displayName = ''
-      subgraph.codeRepository = ''
-      subgraph.website = ''
-    }
-  }
+
+  fetchSubgraphMetadata(subgraph, base58Hash)
+
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
@@ -160,19 +147,10 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   subgraphVersion.createdAt = event.block.timestamp.toI32()
   let hexHash = addQm(event.params.versionMetadata) as Bytes
   let base58Hash = hexHash.toBase58()
-  let getVersionDataFromIPFS = ipfs.cat(base58Hash)
   subgraphVersion.metadataHash = event.params.versionMetadata
-  if (getVersionDataFromIPFS !== null) {
-    let tryData = json.try_fromBytes(getVersionDataFromIPFS as Bytes)
-    if (tryData.isOk) {
-      let data = tryData.value.toObject()
-      subgraphVersion.description = jsonToString(data.get('description'))
-      subgraphVersion.label = jsonToString(data.get('label'))
-    } else {
-      subgraphVersion.description = ''
-      subgraphVersion.label = ''
-    }
-  }
+
+  fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
+
   subgraphVersion.save()
 }
 /**
