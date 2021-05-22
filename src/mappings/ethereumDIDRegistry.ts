@@ -1,8 +1,8 @@
-import { json, ipfs, Bytes, JSONValueKind } from '@graphprotocol/graph-ts'
+import { Bytes } from '@graphprotocol/graph-ts'
 import { DIDAttributeChanged } from '../types/EthereumDIDRegistry/EthereumDIDRegistry'
 
 import { addQm, createOrLoadGraphAccount } from './helpers'
-import { jsonToString } from './utils'
+import { fetchGraphAccountMetadata } from './metadataHelpers'
 
 export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
   let id = event.params.identity.toHexString()
@@ -19,19 +19,6 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
     let base58Hash = hexHash.toBase58()
     graphAccount.metadataHash = event.params.value
 
-    let ipfsData = ipfs.cat(base58Hash)
-    if (ipfsData != null) {
-      let data = json.fromBytes(ipfsData as Bytes).toObject()
-      graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
-      graphAccount.description = jsonToString(data.get('description'))
-      graphAccount.image = jsonToString(data.get('image'))
-      graphAccount.displayName = jsonToString(data.get('displayName'))
-      let isOrganization = data.get('isOrganization')
-      if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
-        graphAccount.isOrganization = isOrganization.toBool()
-      }
-      graphAccount.website = jsonToString(data.get('website'))
-      graphAccount.save()
-    }
+    fetchGraphAccountMetadata(graphAccount, base58Hash)
   }
 }
