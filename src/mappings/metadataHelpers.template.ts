@@ -21,7 +21,7 @@ export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: 
   {{/ipfs}}
 }
 
-export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): void {
+export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Subgraph {
   {{#ipfs}}
   let metadata = ipfs.cat(ipfsHash)
   if (metadata !== null) {
@@ -42,9 +42,10 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): voi
     }
   }
   {{/ipfs}}
+  return subgraph
 }
 
-export function fetchSubgraphVersionMetadata(subgraph: SubgraphVersion, ipfsHash: string): void {
+export function fetchSubgraphVersionMetadata(subgraphVersion: SubgraphVersion, ipfsHash: string): SubgraphVersion {
   {{#ipfs}}
   let getVersionDataFromIPFS = ipfs.cat(ipfsHash)
   if (getVersionDataFromIPFS !== null) {
@@ -59,4 +60,5 @@ export function fetchSubgraphVersionMetadata(subgraph: SubgraphVersion, ipfsHash
     }
   }
   {{/ipfs}}
+  return subgraphVersion
 }
