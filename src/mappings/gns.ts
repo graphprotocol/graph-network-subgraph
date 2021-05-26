@@ -83,9 +83,7 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
   let base58Hash = hexHash.toBase58()
 
   subgraph.metadataHash = event.params.subgraphMetadata
-
-  fetchSubgraphMetadata(subgraph, base58Hash)
-
+  subgraph = fetchSubgraphMetadata(subgraph, base58Hash)
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
@@ -148,9 +146,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let hexHash = addQm(event.params.versionMetadata) as Bytes
   let base58Hash = hexHash.toBase58()
   subgraphVersion.metadataHash = event.params.versionMetadata
-
-  fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
-
+  subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
   subgraphVersion.save()
 }
 /**
