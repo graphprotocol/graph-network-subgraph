@@ -62,7 +62,9 @@ export function createOrLoadSubgraphDeployment(
 ): SubgraphDeployment {
   let deployment = SubgraphDeployment.load(subgraphID)
   if (deployment == null) {
+    let prefix = "1220"
     deployment = new SubgraphDeployment(subgraphID)
+    deployment.ipfsHash = Bytes.fromHexString(prefix.concat(subgraphID.slice(2))).toBase58()
     deployment.createdAt = timestamp.toI32()
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
