@@ -364,6 +364,8 @@ related to a SubgraphVersion.
 type SubgraphDeployment @entity {
   "Subgraph Deployment ID. The IPFS hash with Qm removed to fit into 32 bytes"
   id: ID!
+  "IPFS hash id"
+  ipfsHash: String!
   "The versions this subgraph deployment relates to"
   versions: [SubgraphVersion!]! @derivedFrom(field: "subgraphDeployment")
   "Creation timestamp"
