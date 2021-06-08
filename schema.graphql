@@ -323,6 +323,30 @@ type Subgraph @entity {
   website: String
   "Display name"
   displayName: String
+  "Network name"
+  network: Network
+  "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
+  categories: [SubgraphCategoryRelation!]! @derivedFrom(field:"subgraph")
+}
+
+type Network @entity {
+  id: ID!
+
+  subgraphs: [Subgraph!]! @derivedFrom(field:"network")
+}
+
+type SubgraphCategoryRelation @entity {
+  id: ID!
+
+  subgraph: Subgraph!
+
+  category: SubgraphCategory!
+}
+
+type SubgraphCategory @entity {
+  id: ID!
+
+  subgraphs: [SubgraphCategoryRelation!]! @derivedFrom(field:"category")
 }
 
 """
