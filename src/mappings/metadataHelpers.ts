@@ -1,6 +1,7 @@
-import { json, ipfs, Bytes, JSONValueKind } from '@graphprotocol/graph-ts'
+import { json, ipfs, Bytes, JSONValueKind, log } from '@graphprotocol/graph-ts'
 import { GraphAccount, Subgraph, SubgraphVersion } from '../types/schema'
 import { jsonToString } from './utils'
+import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork } from './helpers'
 
 export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: string): void {
   let ipfsData = ipfs.cat(ipfsHash)
@@ -30,12 +31,23 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
       subgraph.displayName = jsonToString(data.get('displayName'))
       subgraph.codeRepository = jsonToString(data.get('codeRepository'))
       subgraph.website = jsonToString(data.get('website'))
-    } else {
-      subgraph.description = ''
-      subgraph.image = ''
-      subgraph.displayName = ''
-      subgraph.codeRepository = ''
-      subgraph.website = ''
+      let networkId = jsonToString(data.get('network'))
+      if(networkId != '') {
+        createOrLoadNetwork(networkId)
+        subgraph.network = networkId
+      }
+
+      let categories = data.get('categories')
+
+      if(categories != null) {
+        let categoriesArray = categories.toArray()
+
+        for(let i = 0; i < categoriesArray.length; i++) {
+          let categoryId = jsonToString(categoriesArray[i])
+          createOrLoadSubgraphCategory(categoryId)
+          createOrLoadSubgraphCategoryRelation(categoryId, subgraph.id)
+        }
+      }
     }
   }
   return subgraph
