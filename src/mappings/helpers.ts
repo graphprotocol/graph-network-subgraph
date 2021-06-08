@@ -14,6 +14,9 @@ import {
   NameSignal,
   Delegator,
   DelegatedStake,
+  Network,
+  SubgraphCategory,
+  SubgraphCategoryRelation,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
@@ -41,11 +44,6 @@ export function createOrLoadSubgraph(
     subgraph.withdrawnTokens = BigInt.fromI32(0)
 
     subgraph.metadataHash = Bytes.fromI32(0) as Bytes
-    subgraph.description = ''
-    subgraph.image = ''
-    subgraph.codeRepository = ''
-    subgraph.website = ''
-    subgraph.displayName = ''
 
     subgraph.save()
 
@@ -686,4 +684,37 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
           .div(deployment.signalAmount.toBigDecimal())
           .truncate(18)
   return pricePerShare
+}
+
+export function createOrLoadNetwork(id: String): Network {
+  let network = Network.load(id)
+  if(network == null) {
+    network = new Network(id)
+
+    network.save()
+  }
+  return network as Network;
+}
+
+export function createOrLoadSubgraphCategory(id: String): SubgraphCategory {
+  let category = SubgraphCategory.load(id)
+  if(category == null) {
+    category = new SubgraphCategory(id)
+
+    category.save()
+  }
+  return category as SubgraphCategory;
+}
+
+export function createOrLoadSubgraphCategoryRelation(categoryId: String, subgraphId: String): SubgraphCategoryRelation {
+  let id = joinID([categoryId, subgraphId])
+  let relation = SubgraphCategoryRelation.load(id)
+  if(relation == null) {
+    relation = new SubgraphCategoryRelation(id)
+    relation.subgraph = subgraphId
+    relation.category = categoryId
+
+    relation.save()
+  }
+  return relation as SubgraphCategoryRelation;
 }
