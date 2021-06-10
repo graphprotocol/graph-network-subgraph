@@ -286,11 +286,15 @@ type Subgraph @entity {
   "Current version. Null if the subgraph is deprecated"
   currentVersion: SubgraphVersion
   "Past versions"
-  pastVersions: [SubgraphVersion!]!
+  versions: [SubgraphVersion!]! @derivedFrom(field:"subgraph")
+  "Version counter"
+  versionCount: BigInt!
   "Creation timestamp"
   createdAt: Int!
   "Updated timestamp"
   updatedAt: Int!
+  "Whether the subgraph is active or deprecated"
+  active: Boolean!
 
   # Name curation data for bonding curve
   # Note that the Subgraphs V signal is actually stored in a Signal entity, which

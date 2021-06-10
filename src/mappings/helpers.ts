@@ -32,9 +32,10 @@ export function createOrLoadSubgraph(
   if (subgraph == null) {
     subgraph = new Subgraph(subgraphID)
     subgraph.owner = owner.toHexString()
-    subgraph.pastVersions = []
+    subgraph.versionCount = BigInt.fromI32(0)
     subgraph.createdAt = timestamp.toI32()
     subgraph.updatedAt = timestamp.toI32()
+    subgraph.active = true
 
     subgraph.signalledTokens = BigInt.fromI32(0)
     subgraph.unsignalledTokens = BigInt.fromI32(0)
@@ -60,7 +61,7 @@ export function createOrLoadSubgraphDeployment(
 ): SubgraphDeployment {
   let deployment = SubgraphDeployment.load(subgraphID)
   if (deployment == null) {
-    let prefix = "1220"
+    let prefix = '1220'
     deployment = new SubgraphDeployment(subgraphID)
     deployment.ipfsHash = Bytes.fromHexString(prefix.concat(subgraphID.slice(2))).toBase58()
     deployment.createdAt = timestamp.toI32()
@@ -228,7 +229,12 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
   return curator as Curator
 }
 
-export function createOrLoadSignal(curator: string, subgraphDeploymentID: string, blockNumber: i32, timestamp: i32): Signal {
+export function createOrLoadSignal(
+  curator: string,
+  subgraphDeploymentID: string,
+  blockNumber: i32,
+  timestamp: i32,
+): Signal {
   let signalID = joinID([curator, subgraphDeploymentID])
   let signal = Signal.load(signalID)
   if (signal == null) {
@@ -688,33 +694,36 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
 
 export function createOrLoadNetwork(id: String): Network {
   let network = Network.load(id)
-  if(network == null) {
+  if (network == null) {
     network = new Network(id)
 
     network.save()
   }
-  return network as Network;
+  return network as Network
 }
 
 export function createOrLoadSubgraphCategory(id: String): SubgraphCategory {
   let category = SubgraphCategory.load(id)
-  if(category == null) {
+  if (category == null) {
     category = new SubgraphCategory(id)
 
     category.save()
   }
-  return category as SubgraphCategory;
+  return category as SubgraphCategory
 }
 
-export function createOrLoadSubgraphCategoryRelation(categoryId: String, subgraphId: String): SubgraphCategoryRelation {
+export function createOrLoadSubgraphCategoryRelation(
+  categoryId: String,
+  subgraphId: String,
+): SubgraphCategoryRelation {
   let id = joinID([categoryId, subgraphId])
   let relation = SubgraphCategoryRelation.load(id)
-  if(relation == null) {
+  if (relation == null) {
     relation = new SubgraphCategoryRelation(id)
     relation.subgraph = subgraphId
     relation.category = categoryId
 
     relation.save()
   }
-  return relation as SubgraphCategoryRelation;
+  return relation as SubgraphCategoryRelation
 }

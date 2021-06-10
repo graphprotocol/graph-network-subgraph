@@ -1,4 +1,4 @@
-import { BigDecimal, Bytes, json } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Bytes, json } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphDeprecated,
@@ -117,16 +117,9 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   // Update subgraph
   let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp)
 
-  // If null, it is deprecated, and there is no need to push into past version,
-  // or else it was just created and there were no previous versions
-  if (subgraph.currentVersion != null) {
-    let pastVersions = subgraph.pastVersions
-    pastVersions.push(subgraph.currentVersion)
-    subgraph.pastVersions = pastVersions
-  }
-  versionNumber = subgraph.pastVersions.length
-  versionID = joinID([subgraphID, versionNumber.toString()])
+  versionID = joinID([subgraphID, subgraph.versionCount.toString()])
   subgraph.currentVersion = versionID
+  subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
 
   // Creates Graph Account, if needed
   createOrLoadGraphAccount(graphAccountID, event.params.graphAccount, event.block.timestamp)
@@ -160,11 +153,8 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   let subgraphID = joinID([graphAccount, subgraphNumber])
   let subgraph = Subgraph.load(subgraphID)
 
-  // updates subgraph
-  let pastVersions = subgraph.pastVersions
-  pastVersions.push(subgraph.currentVersion)
-  subgraph.pastVersions = pastVersions
   subgraph.currentVersion = null
+  subgraph.active = false
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 }
