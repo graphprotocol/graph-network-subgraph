@@ -59,6 +59,7 @@ export function createOrLoadSubgraphDeployment(
   subgraphID: string,
   timestamp: BigInt,
 ): SubgraphDeployment {
+  let graphNetwork = GraphNetwork.load('1')
   let deployment = SubgraphDeployment.load(subgraphID)
   if (deployment == null) {
     let prefix = '1220'
@@ -77,7 +78,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.unsignalledTokens = BigInt.fromI32(0)
     deployment.signalAmount = BigInt.fromI32(0)
     deployment.pricePerShare = BigDecimal.fromString('0')
-    deployment.reserveRatio = 0
+    deployment.reserveRatio = graphNetwork.defaultReserveRatio
     deployment.deniedAt = 0
     deployment.save()
 
