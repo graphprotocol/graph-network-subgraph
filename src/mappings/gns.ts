@@ -227,10 +227,12 @@ export function handleNSignalMinted(event: NSignalMinted): void {
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
+  subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.plus(event.params.tokensDeposited)
   subgraph.save()
 
   // Update the curator
-  let curator = createOrLoadCurator(curatorID, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+  // nSignal
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
   )
@@ -245,6 +247,23 @@ export function handleNSignalMinted(event: NSignalMinted): void {
       curator.totalNameSignal,
     )
   }
+
+  // vSignal
+  // Might need to add the curation tax to this specific case
+  curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
+    event.params.tokensDeposited,
+  )
+  curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.plus(
+    event.params.tokensDeposited.toBigDecimal(),
+  )
+  curator.totalSignal = curator.totalSignal.plus(event.params.vSignalCreated.toBigDecimal())
+
+  // zero division protection
+  if (curator.totalSignal != zeroBD) {
+    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
+      curator.totalSignal,
+    )
+  }
   curator.save()
 
   let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
@@ -253,24 +272,37 @@ export function handleNSignalMinted(event: NSignalMinted): void {
     nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
 
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
+  nameSignal.signal = nameSignal.signal.plus(event.params.vSignalCreated)
   nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
-  nameSignal.averageCostBasis = nameSignal.averageCostBasis.plus(
+  // nSignal
+  nameSignal.nameSignalAverageCostBasis = nameSignal.nameSignalAverageCostBasis.plus(
     event.params.tokensDeposited.toBigDecimal(),
   )
 
   // zero division protection
   if (nameSignal.nameSignal.toBigDecimal() != zeroBD) {
-    nameSignal.averageCostBasisPerSignal = nameSignal.averageCostBasis.div(
+    nameSignal.nameSignalAverageCostBasisPerSignal = nameSignal.nameSignalAverageCostBasis.div(
       nameSignal.nameSignal.toBigDecimal(),
+    )
+  }
+
+  // vSignal
+  nameSignal.signalAverageCostBasis = nameSignal.signalAverageCostBasis.plus(
+    event.params.tokensDeposited.toBigDecimal(),
+  )
+
+  // zero division protection
+  if (nameSignal.signal.toBigDecimal() != zeroBD) {
+    nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis.div(
+      nameSignal.signal.toBigDecimal(),
     )
   }
   nameSignal.save()
 
   // reload curator, since it might update counters in another context and we don't want to overwrite it
   curator = Curator.load(curatorID) as Curator
-
-  if (isNameSignalBecomingActive) {
+  if(isNameSignalBecomingActive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
   }
@@ -299,6 +331,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensReceived)
+  subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.minus(event.params.tokensReceived)
   subgraph.save()
 
   // update name signal
@@ -312,19 +345,20 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     !nameSignal.nameSignal.isZero() && event.params.nSignalBurnt == nameSignal.nameSignal
 
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
+  nameSignal.signal = nameSignal.signal.minus(event.params.vSignalBurnt)
   nameSignal.unsignalledTokens = nameSignal.unsignalledTokens.plus(event.params.tokensReceived)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
 
+  // nSignal ACB
   // update acb to reflect new name signal balance
-  let previousACB = nameSignal.averageCostBasis
-  nameSignal.averageCostBasis = nameSignal.nameSignal
+  let previousACBNameSignal = nameSignal.nameSignalAverageCostBasis
+  nameSignal.nameSignalAverageCostBasis = nameSignal.nameSignal
     .toBigDecimal()
-    .times(nameSignal.averageCostBasisPerSignal)
-  let diffACB = previousACB.minus(nameSignal.averageCostBasis)
-  if (nameSignal.averageCostBasis == BigDecimal.fromString('0')) {
-    nameSignal.averageCostBasisPerSignal = BigDecimal.fromString('0')
+    .times(nameSignal.nameSignalAverageCostBasisPerSignal)
+  let diffACBNameSignal = previousACBNameSignal.minus(nameSignal.nameSignalAverageCostBasis)
+  if (nameSignal.nameSignalAverageCostBasis == BigDecimal.fromString('0')) {
+    nameSignal.nameSignalAverageCostBasisPerSignal = BigDecimal.fromString('0')
   }
-  nameSignal.save()
 
   // update curator
   let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
@@ -332,7 +366,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     event.params.tokensReceived,
   )
   curator.totalNameSignal = curator.totalNameSignal.minus(event.params.nSignalBurnt.toBigDecimal())
-  curator.totalNameSignalAverageCostBasis = curator.totalNameSignalAverageCostBasis.minus(diffACB)
+  curator.totalNameSignalAverageCostBasis = curator.totalNameSignalAverageCostBasis.minus(diffACBNameSignal)
   if (curator.totalNameSignal == BigDecimal.fromString('0')) {
     curator.totalAverageCostBasisPerNameSignal = BigDecimal.fromString('0')
   } else {
@@ -341,10 +375,36 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     )
   }
 
-  if (isNameSignalBecomingInactive) {
+  // vSignal ACB
+  // update acb to reflect new name signal balance
+  let previousACBSignal = nameSignal.signalAverageCostBasis
+  nameSignal.signalAverageCostBasis = nameSignal.signal
+    .toBigDecimal()
+    .times(nameSignal.signalAverageCostBasisPerSignal)
+  let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
+  if (nameSignal.signalAverageCostBasis == zeroBD) {
+    nameSignal.signalAverageCostBasisPerSignal = zeroBD
+  }
+  nameSignal.save()
+
+  // Update curator
+  curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokensReceived)
+  curator.totalSignal = curator.totalSignal.minus(event.params.vSignalBurnt.toBigDecimal())
+  curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACBSignal)
+  if (curator.totalSignal == zeroBD) {
+    curator.totalAverageCostBasisPerSignal = zeroBD
+  } else {
+    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
+      curator.totalSignal,
+    )
+  }
+
+
+  if(isNameSignalBecomingInactive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount - 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
   }
+
   curator.save()
 
   // Create n signal tx
@@ -404,7 +464,16 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   )
   nameSignal.withdrawnTokens = event.params.withdrawnGRT
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
+  // Resetting this one since we don't have the value to subtract, but it should be 0 anyways.
+  nameSignal.signal = BigInt.fromI32(0)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
+
+  // Reset everything to 0 since this empties the signal
+  nameSignal.nameSignalAverageCostBasis = BigDecimal.fromString('0')
+  nameSignal.nameSignalAverageCostBasisPerSignal = BigDecimal.fromString('0')
+  nameSignal.signalAverageCostBasis = BigDecimal.fromString('0')
+  nameSignal.signalAverageCostBasisPerSignal = BigDecimal.fromString('0')
+
   nameSignal.save()
 
   let curator = Curator.load(event.params.nameCurator.toHexString())
