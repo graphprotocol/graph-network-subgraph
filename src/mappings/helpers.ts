@@ -683,12 +683,22 @@ export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
 }
 
 export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecimal {
+  // Ideally this would be a 1 to 1 recreation of the share sell formula, but due to
+  // implementation issues for that formula on AssemblyScript (mainly BigDecimal missing pow implementation)
+  // I decided to use an approximation derived from testing.
+
+  // This value could be wrong unfortunately, so we should ideally find a workaround later
+  // to implement the actual sell share formula for 1 share.
+
+  // reserve ratio multiplier = MAX_WEIGHT / reserveRatio = 1M (ppm) / reserveRatio
+  let reserveRatioMultiplier = 1000000 / deployment.reserveRatio
   let pricePerShare =
     deployment.signalAmount == BigInt.fromI32(0)
       ? BigDecimal.fromString('0')
       : deployment.signalledTokens
           .toBigDecimal()
           .div(deployment.signalAmount.toBigDecimal())
+          .times(BigInt.fromI32(reserveRatioMultiplier).toBigDecimal())
           .truncate(18)
   return pricePerShare
 }
