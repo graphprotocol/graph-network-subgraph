@@ -285,6 +285,8 @@ type Subgraph @entity {
   owner: GraphAccount!
   "Current version. Null if the subgraph is deprecated"
   currentVersion: SubgraphVersion
+  "[DEPRECATED] Past versions. Has the same data as 'versions' but keeps the old naming for backwards compatibility"
+  pastVersions: [SubgraphVersion!]! @derivedFrom(field:"subgraph")
   "Past versions"
   versions: [SubgraphVersion!]! @derivedFrom(field:"subgraph")
   "Version counter"
