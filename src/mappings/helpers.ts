@@ -683,6 +683,7 @@ export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
 }
 
 export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecimal {
+  // TODO check why there's a deviation from the values of the bancor formula
   // Ideally this would be a 1 to 1 recreation of the share sell formula, but due to
   // implementation issues for that formula on AssemblyScript (mainly BigDecimal missing pow implementation)
   // I decided to use an approximation derived from testing.
