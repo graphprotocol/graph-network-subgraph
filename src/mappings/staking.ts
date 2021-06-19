@@ -208,15 +208,33 @@ export function handleStakeDelegated(event: StakeDelegated): void {
     }
   }
 
+  let isStakeBecomingActive = delegatedStake.shareAmount.isZero() && !event.params.shares.isZero()
+
   delegatedStake.stakedTokens = delegatedStake.stakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.plus(event.params.shares)
   delegatedStake.lastDelegatedAt = event.block.timestamp.toI32()
   delegatedStake.save()
 
+  // reload delegator to avoid edge case where we can overwrite stakesCount if stake is new
+  delegator = Delegator.load(delegatorID) as Delegator
+
+  let isDelegatorBecomingActive = delegator.activeStakesCount == 0 && isStakeBecomingActive
+
   // upgrade graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
+
+  if(isDelegatorBecomingActive) {
+    graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount + 1
+  }
+
+  if(isStakeBecomingActive) {
+    graphNetwork.activeDelegationCount = graphNetwork.activeDelegationCount + 1
+    delegator.activeStakesCount = delegator.activeStakesCount + 1
+  }
+
   graphNetwork.save()
+  delegator.save()
 }
 
 export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
@@ -239,6 +257,9 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let delegatorID = event.params.delegator.toHexString()
   let id = joinID([delegatorID, indexerID])
   let delegatedStake = DelegatedStake.load(id)
+
+  let isStakeBecomingInactive = !delegatedStake.shareAmount.isZero() && delegatedStake.shareAmount == event.params.shares
+
   delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
   delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
@@ -256,12 +277,24 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let delegator = Delegator.load(delegatorID)
   delegator.totalUnstakedTokens = delegator.totalUnstakedTokens.plus(event.params.tokens)
   delegator.totalRealizedRewards = delegator.totalRealizedRewards.plus(realizedRewards)
-  delegator.save()
+
+  let isDelegatorBecomingInactive = delegator.activeStakesCount == 1 && isStakeBecomingInactive
 
   // upgrade graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
+
+  if(isDelegatorBecomingInactive) {
+    graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount - 1
+  }
+
+  if(isStakeBecomingInactive) {
+    graphNetwork.activeDelegationCount = graphNetwork.activeDelegationCount - 1
+    delegator.activeStakesCount = delegator.activeStakesCount - 1
+  }
+
   graphNetwork.save()
+  delegator.save()
 }
 
 export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): void {

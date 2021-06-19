@@ -157,6 +157,8 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
     delegator.totalUnstakedTokens = BigInt.fromI32(0)
     delegator.createdAt = timestamp.toI32()
     delegator.totalRealizedRewards = BigDecimal.fromString('0')
+    delegator.stakesCount = 0
+    delegator.activeStakesCount = 0
     delegator.save()
 
     let graphAccount = GraphAccount.load(id)
@@ -191,6 +193,14 @@ export function createOrLoadDelegatedStake(
     delegatedStake.createdAt = timestamp
 
     delegatedStake.save()
+
+    let delegatorEntity = Delegator.load(delegator)
+    delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1;
+    delegatorEntity.save();
+
+    let graphNetwork = GraphNetwork.load('1')
+    graphNetwork.delegationCount = graphNetwork.delegationCount + 1
+    graphNetwork.save()
   }
   return delegatedStake as DelegatedStake
 }
@@ -453,6 +463,9 @@ export function createOrLoadGraphNetwork(
     graphNetwork.indexerCount = 0
     graphNetwork.stakedIndexersCount = 0
     graphNetwork.delegatorCount = 0
+    graphNetwork.activeDelegatorCount = 0
+    graphNetwork.delegationCount = 0
+    graphNetwork.activeDelegationCount = 0
     graphNetwork.curatorCount = 0
     graphNetwork.subgraphCount = 0
     graphNetwork.subgraphDeploymentCount = 0
