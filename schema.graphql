@@ -157,8 +157,14 @@ type GraphNetwork @entity {
   indexerCount: Int!
   "Number of indexers that currently have some stake in the protocol"
   stakedIndexersCount: Int!
-  "Total delegators"
+  "Total amount of delegators historically"
   delegatorCount: Int!
+  "Total active delegators. Those that still have at least one active delegation."
+  activeDelegatorCount: Int!
+  "Total amount of delegations historically"
+  delegationCount: Int!
+  "Total active delegations. Those delegations that still have GRT staked towards an indexer"
+  activeDelegationCount: Int!
   "Total curators"
   curatorCount: Int!
   "Total subgraphs"
@@ -683,6 +689,11 @@ type Delegator @entity {
   createdAt: Int!
   "Total realized rewards on all delegated stakes. Realized rewards are added when undelegating and realizing a profit"
   totalRealizedRewards: BigDecimal!
+
+  "Total DelegatedStake entity count (Active and inactive)"
+  stakesCount: Int!
+  "Active DelegatedStake entity count. Active means it still GRT delegated"
+  activeStakesCount: Int!
 }
 
 """
