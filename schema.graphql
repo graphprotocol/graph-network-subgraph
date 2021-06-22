@@ -692,7 +692,7 @@ type Delegator @entity {
 
   "Total DelegatedStake entity count (Active and inactive)"
   stakesCount: Int!
-  "Active DelegatedStake entity count. Active means it still GRT delegated"
+  "Active DelegatedStake entity count. Active means it still has GRT delegated"
   activeStakesCount: Int!
 }
 
