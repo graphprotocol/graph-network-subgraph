@@ -76,6 +76,8 @@ dataSources:
           handler: handleNameSignalDisabled
         - event: GRTWithdrawn(indexed address,indexed uint256,indexed address,uint256,uint256)
           handler: handleGRTWithdrawn
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
   - kind: ethereum/contract
     name: ServiceRegistry
     network: {{network}}

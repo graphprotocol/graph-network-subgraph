@@ -117,6 +117,8 @@ type GraphNetwork @entity {
   minimumCurationDeposit: BigInt!
   "The fee charged when a curator withdraws signal. In parts per million"
   curationTaxPercentage: Int!
+  "Percentage of the GNS migration tax payed by the subgraph owner"
+  ownerTaxPercentage: Int!
 
   # Curation global aggregate values
   "The total amount of GRT signalled in the Curation contract"
