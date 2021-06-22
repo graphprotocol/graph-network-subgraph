@@ -218,19 +218,18 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   // reload delegator to avoid edge case where we can overwrite stakesCount if stake is new
   delegator = Delegator.load(delegatorID) as Delegator
 
-  let isDelegatorBecomingActive = delegator.activeStakesCount == 0 && isStakeBecomingActive
-
   // upgrade graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
 
-  if(isDelegatorBecomingActive) {
-    graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount + 1
-  }
 
   if(isStakeBecomingActive) {
     graphNetwork.activeDelegationCount = graphNetwork.activeDelegationCount + 1
     delegator.activeStakesCount = delegator.activeStakesCount + 1
+    // Is delegator becoming active because of the stake becoming active?
+    if(delegator.activeStakesCount == 1) {
+      graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount + 1
+    }
   }
 
   graphNetwork.save()
@@ -278,19 +277,17 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   delegator.totalUnstakedTokens = delegator.totalUnstakedTokens.plus(event.params.tokens)
   delegator.totalRealizedRewards = delegator.totalRealizedRewards.plus(realizedRewards)
 
-  let isDelegatorBecomingInactive = delegator.activeStakesCount == 1 && isStakeBecomingInactive
-
   // upgrade graph network
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
 
-  if(isDelegatorBecomingInactive) {
-    graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount - 1
-  }
-
   if(isStakeBecomingInactive) {
     graphNetwork.activeDelegationCount = graphNetwork.activeDelegationCount - 1
     delegator.activeStakesCount = delegator.activeStakesCount - 1
+    // Is delegator becoming inactive because of the stake becoming inactive?
+    if(delegator.activeStakesCount == 0) {
+      graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount - 1
+    }
   }
 
   graphNetwork.save()
