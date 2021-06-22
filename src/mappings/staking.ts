@@ -361,7 +361,11 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   allocation.curatorRewards = allocation.curatorRewards.plus(event.params.curationFees)
   allocation.save()
 
-  // Update epoch - none
+  // Update epoch
+  let epoch = createOrLoadEpoch(event.block.number)
+  epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.rebateFees)
+  epoch.curatorQueryFees = epoch.curatorQueryFees.plus(event.params.curationFees)
+  epoch.save()
 
   // update pool
   let pool = createOrLoadPool(event.params.epoch)

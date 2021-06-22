@@ -925,6 +925,10 @@ type Epoch @entity {
   signalledTokens: BigInt!
   "Stake deposited during this epoch"
   stakeDeposited: BigInt!
+  "Amount of query fees collected by all indexers during this epoch"
+  queryFeesCollected: BigInt!
+  "Amount of query fees generated that are going to curators during this epoch"
+  curatorQueryFees: BigInt!
   "Rebate amount claimed from the protocol through cobbs douglas"
   queryFeeRebates: BigInt!
   "Total indexing rewards earned in this epoch. Includes both delegator and indexer rewards"
