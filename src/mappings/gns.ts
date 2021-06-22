@@ -10,6 +10,8 @@ import {
   GRTWithdrawn,
   SubgraphMetadataUpdated,
   SetDefaultName,
+  ParameterUpdated,
+  GNS,
 } from '../types/GNS/GNS'
 
 import {
@@ -20,6 +22,7 @@ import {
   Indexer,
   GraphAccountName,
   SubgraphDeployment,
+  GraphNetwork,
 } from '../types/schema'
 
 import { zeroBD } from './utils'
@@ -344,4 +347,20 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   let curator = Curator.load(event.params.nameCurator.toHexString())
   curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
   curator.save()
+}
+
+/**
+ * @dev handleParamterUpdated
+ * - updates all parameters of GNS, depending on string passed. We then can
+ *   call the contract directly to get the updated value
+ */
+export function handleParameterUpdated(event: ParameterUpdated): void {
+  let parameter = event.params.param
+  let graphNetwork = GraphNetwork.load('1')
+  let gns = GNS.bind(event.address)
+
+  if (parameter == 'ownerTaxPercentage') {
+    graphNetwork.ownerTaxPercentage = gns.ownerTaxPercentage().toI32()
+  }
+  graphNetwork.save()
 }
