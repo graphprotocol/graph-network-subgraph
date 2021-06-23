@@ -13,6 +13,7 @@ export class Addresses {
   ensPublicResolver: string
   blockNumber: string
   network: string
+  tokenLockManager: string
 }
 
 // AS compiler does not like const
@@ -30,4 +31,5 @@ export let addresses: Addresses = {
   ensPublicResolver: '{{ensPublicResolver}}',
   blockNumber: '{{blockNumber}}',
   network: '{{network}}',
+  tokenLockManager: '{{tokenLockManager}}}'
 }

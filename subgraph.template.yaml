@@ -328,3 +328,62 @@ dataSources:
           handler: handleDisputeLinked
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
+  - kind: ethereum/contract
+    name: GraphTokenLockManager
+    network: {{network}}
+    source:
+      address: '{{tokenLockManager}}'
+      abi: GraphTokenLockManager
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/tokenLockWallets/manager.ts
+      entities:
+        - TODO
+      abis:
+        - name: GraphTokenLockManager
+          file: ./abis-tokenLockWallets/GraphTokenLockManager.json
+      eventHandlers:
+        - event: MasterCopyUpdated(indexed address)
+          handler: handleMasterCopyUpdated
+        - event: TokenLockCreated(indexed address,indexed bytes32,indexed address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint8)
+          handler: handleTokenLockCreated
+        - event: TokensDeposited(indexed address,uint256)
+          handler: handleTokensDeposited
+        - event: TokensWithdrawn(indexed address,uint256)
+          handler: handleTokensWithdrawn
+        - event: FunctionCallAuth(indexed address,indexed bytes4,indexed address,string)
+          handler: handleFunctionCallAuth
+        - event: TokenDestinationAllowed(indexed address,bool)
+          handler: handleTokenDestinationAllowed
+templates:
+  - kind: ethereum/contract
+    name: GraphTokenLockWallet
+    network: {{network}}
+    source:
+      abi: GraphTokenLockWallet
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings/tokenLockWallets/tokenLockWallet.ts
+      entities:
+        - TokenLockWallet
+      abis:
+        - name: GraphTokenLockWallet
+          file: ./abis-tokenLockWallets/GraphTokenLockWallet.json
+      eventHandlers:
+        - event: TokensReleased(indexed address,uint256)
+          handler: handleTokensReleased
+        - event: TokensWithdrawn(indexed address,uint256)
+          handler: handleTokensWithdrawn
+        - event: TokensRevoked(indexed address,uint256)
+          handler: handleTokensRevoked
+        - event: ManagerUpdated(indexed address,indexed address)
+          handler: handleManagerUpdated
+        - event: ApproveTokenDestinations()
+          handler: handleApproveTokenDestinations
+        - event: RevokeTokenDestinations()
+          handler: handleRevokeTokenDestinations
