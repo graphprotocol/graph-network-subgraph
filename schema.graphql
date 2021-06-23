@@ -294,9 +294,9 @@ type Subgraph @entity {
   "Current version. Null if the subgraph is deprecated"
   currentVersion: SubgraphVersion
   "[DEPRECATED] Past versions. Has the same data as 'versions' but keeps the old naming for backwards compatibility"
-  pastVersions: [SubgraphVersion!]! @derivedFrom(field:"subgraph")
+  pastVersions: [SubgraphVersion!]! @derivedFrom(field: "subgraph")
   "List of all the subgraph versions included the current one"
-  versions: [SubgraphVersion!]! @derivedFrom(field:"subgraph")
+  versions: [SubgraphVersion!]! @derivedFrom(field: "subgraph")
   "Version counter"
   versionCount: BigInt!
   "Creation timestamp"
@@ -338,7 +338,7 @@ type Subgraph @entity {
   "Display name"
   displayName: String
   "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
-  categories: [SubgraphCategoryRelation!]! @derivedFrom(field:"subgraph")
+  categories: [SubgraphCategoryRelation!]! @derivedFrom(field: "subgraph")
 }
 
 type Network @entity {
@@ -358,7 +358,7 @@ type SubgraphCategoryRelation @entity {
 type SubgraphCategory @entity {
   id: ID!
 
-  subgraphs: [SubgraphCategoryRelation!]! @derivedFrom(field:"category")
+  subgraphs: [SubgraphCategoryRelation!]! @derivedFrom(field: "category")
 }
 
 """
@@ -1035,6 +1035,91 @@ enum TransactionType {
   MintNSignal
   BurnNSignal
 }
+
+"""
+The Token manager data
+"""
+type TokenManager @entity {
+  "Token manager address"
+  id: ID!
+  "Master copy address"
+  masterCopy: Bytes!
+  "Tokens stored in manger through deposit or withdraw"
+  tokens: BigInt!
+  "List of addresses that are allowed to pull funds"
+  tokenDestinations: [Bytes!]
+  "List of function call authorizations"
+  authorizedFunctions: [AuthorizedFunction!] @derivedFrom(field: "manager")
+  "Token lock count of contracts created"
+  tokenLockCount: BigInt!
+}
+
+"""
+Authorized functions for the Manager
+"""
+type AuthorizedFunction @entity {
+  "Function signature (string)"
+  id: ID!
+  "The contract address that is authorized to have this function called on itself"
+  target: Bytes!
+  "Hash of the function signature"
+  sigHash: Bytes!
+  "Token lock Manager"
+  manager: TokenManager!
+}
+"""
+Token Lock Wallets which hold locked GRT
+"""
+type TokenLockWallet @entity {
+  "The address of the token lock wallet"
+  id: ID!
+  "The Manager address"
+  manager: Bytes!
+  "The hash of the initializer"
+  initHash: Bytes!
+  "Address of the beneficiary of locked tokens"
+  beneficiary: Bytes!
+  "The token being used (GRT)"
+  token: Bytes!
+  "Amount of tokens to be managed by the lock contract"
+  managedAmount: BigInt!
+  "Start time of the release schedule"
+  startTime: BigInt!
+  "End time of the release schedule"
+  endTime: BigInt!
+  "Number of periods between start time and end time"
+  periods: BigInt!
+  "Time when the releases start"
+  releaseStartTime: BigInt!
+  "Time the cliff vests, 0 if no cliff"
+  vestingCliffTime: BigInt!
+  "Whether or not the contract is revocable"
+  revocable: Revocability
+  "True if the beneficiary has approved addresses that the manager has approved"
+  tokenDestinationsApproved: Boolean!
+  "The amount of tokens that have been resleased"
+  tokensReleased: BigInt!
+  "The amount of tokens that have been withdrawn"
+  tokensWithdrawn: BigInt!
+  "The amount of tokens that have been revoked"
+  tokensRevoked: BigInt!
+  "The block this wlalet was created"
+  blockNumberCreated: BigInt!
+  "The creation tx hash of the wallet"
+  txHash: Bytes!
+  "Set to whatever the beneficiaries default display name is"
+  defaultDisplayName: String
+}
+
+"""
+TokenLockWallet Revocability Enum
+"""
+enum Revocability {
+  NotSet
+  Enabled
+  Disabled
+}
+
 """
 Full test search for displayName and description on the Subgraph Entity
 """

@@ -21,6 +21,7 @@ export let addresses: Addresses = {
   ensPublicResolver: '{{rinkeby.IPublicResolver}}',
   blockNumber: '',
   network: '',
+  tokenLockManager: '',
 }
 
 const main = (): void => {
@@ -28,6 +29,7 @@ const main = (): void => {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
     output.blockNumber = '7560000' // Hardcoded from first contract deploy of the latest phase
     output.network = 'rinkeby'
+    output.tokenLockManager = '0x7B0809048370E69aC0C0844E1188Ecd3aB3A0C5f'
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
