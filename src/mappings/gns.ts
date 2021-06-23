@@ -174,6 +174,7 @@ export function handleNameSignalEnabled(event: NameSignalEnabled): void {
 }
 
 export function handleNSignalMinted(event: NSignalMinted): void {
+  let curatorID = event.params.nameCurator.toHexString()
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
@@ -183,8 +184,26 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
   subgraph.save()
 
+  // Update the curator
+  let curator = createOrLoadCurator(curatorID, event.block.timestamp)
+  curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
+    event.params.tokensDeposited,
+  )
+  curator.totalNameSignalAverageCostBasis = curator.totalNameSignalAverageCostBasis.plus(
+    event.params.tokensDeposited.toBigDecimal(),
+  )
+  curator.totalNameSignal = curator.totalNameSignal.plus(event.params.nSignalCreated.toBigDecimal())
+
+  // zero division protection
+  if (curator.totalNameSignal != zeroBD) {
+    curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis.div(
+      curator.totalNameSignal,
+    )
+  }
+  curator.save()
+
   let nameSignal = createOrLoadNameSignal(
-    event.params.nameCurator.toHexString(),
+    curatorID,
     subgraphID,
     event.block.timestamp,
   )
@@ -206,28 +225,13 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   }
   nameSignal.save()
 
-  // Update the curator
-  let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
-  curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
-    event.params.tokensDeposited,
-  )
-  curator.totalNameSignalAverageCostBasis = curator.totalNameSignalAverageCostBasis.plus(
-    event.params.tokensDeposited.toBigDecimal(),
-  )
-  curator.totalNameSignal = curator.totalNameSignal.plus(event.params.nSignalCreated.toBigDecimal())
-
-  // zero division protection
-  if (curator.totalNameSignal != zeroBD) {
-    curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis.div(
-      curator.totalNameSignal,
-    )
-  }
+  // reload curator, since it might update counters in another context and we don't want to overwrite it
+  curator = Curator.load(curatorID) as Curator
 
   if(isNameSignalBecomingActive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
   }
-
   curator.save()
 
   // Create n signal tx
