@@ -29,6 +29,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.graphprotocol_npm_token}}
 
       # Run scripts
+      - name: Prepare IPFS enabled files
+        run: ./node_modules/.bin/mustache ./config/ipfs.json ./src/mappings/metadataHelpers.template.ts > ./src/mappings/metadataHelpers.ts
       - name: Prepare addresses mainnet
         run: ./node_modules/.bin/ts-node config/mainnetAddressScript.ts && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
       - name: Prepare mainnet
