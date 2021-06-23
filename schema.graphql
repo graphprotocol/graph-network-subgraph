@@ -775,6 +775,20 @@ type Curator @entity {
   totalSignalAverageCostBasis: BigDecimal!
   "totalSignalAverageCostBasis / totalSignal"
   totalAverageCostBasisPerSignal: BigDecimal!
+
+  # Curation counters
+  "Total amount of signals created by this user"
+  signalCount: Int!
+  "Amount of active signals for this user"
+  activeSignalCount: Int!
+  "Total amount of name signals created by this user"
+  nameSignalCount: Int!
+  "Amount of active name signals for this user"
+  activeNameSignalCount: Int!
+  "Total amount of name signals and signals created by this user. signalCount + nameSignalCount"
+  combinedSignalCount: Int!
+  "Amount of active name signals and signals for this user. signalCount + nameSignalCount"
+  activeCombinedSignalCount: Int!
 }
 
 """

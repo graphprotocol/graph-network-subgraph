@@ -31,8 +31,37 @@ import { zeroBD } from './utils'
  * - updates subgraph deployment, creates if needed
  */
 export function handleSignalled(event: Signalled): void {
-  // Update curator
   let id = event.params.curator.toHexString()
+  // Update signal
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let signal = createOrLoadSignal(
+    id,
+    subgraphDeploymentID,
+    event.block.number.toI32(),
+    event.block.timestamp.toI32(),
+  )
+  signal.signalledTokens = signal.signalledTokens.plus(
+    event.params.tokens.minus(event.params.curationTax),
+  )
+
+  let isSignalBecomingActive = signal.signal.isZero() && !event.params.signal.isZero()
+
+  signal.signal = signal.signal.plus(event.params.signal)
+  signal.lastUpdatedAt = event.block.timestamp.toI32()
+  signal.lastUpdatedAtBlock = event.block.number.toI32()
+  signal.averageCostBasis = signal.averageCostBasis.plus(
+    event.params.tokens.toBigDecimal(),
+  )
+
+  // zero division protection
+  if (signal.signal.toBigDecimal() != zeroBD) {
+    signal.averageCostBasisPerSignal = signal.averageCostBasis.div(
+      signal.signal.toBigDecimal(),
+    )
+  }
+  signal.save()
+
+  // Update curator
   let curator = createOrLoadCurator(id, event.block.timestamp)
   curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
@@ -48,33 +77,12 @@ export function handleSignalled(event: Signalled): void {
       curator.totalSignal,
     )
   }
-  curator.save()
 
-  // Update signal
-  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let signal = createOrLoadSignal(
-    id,
-    subgraphDeploymentID,
-    event.block.number.toI32(),
-    event.block.timestamp.toI32(),
-  )
-  signal.signalledTokens = signal.signalledTokens.plus(
-    event.params.tokens.minus(event.params.curationTax),
-  )
-  signal.signal = signal.signal.plus(event.params.signal)
-  signal.lastUpdatedAt = event.block.timestamp.toI32()
-  signal.lastUpdatedAtBlock = event.block.number.toI32()
-  signal.averageCostBasis = signal.averageCostBasis.plus(
-    event.params.tokens.toBigDecimal(),
-  )
-
-  // zero division protection
-  if (signal.signal.toBigDecimal() != zeroBD) {
-    signal.averageCostBasisPerSignal = signal.averageCostBasis.div(
-      signal.signal.toBigDecimal(),
-    )
+  if (isSignalBecomingActive) {
+    curator.activeSignalCount = curator.activeSignalCount + 1
+    curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
   }
-  signal.save()
+  curator.save()
 
   // Update subgraph deployment
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
@@ -128,6 +136,9 @@ export function handleBurned(event: Burned): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let signalID = joinID([id, subgraphDeploymentID])
   let signal = Signal.load(signalID)
+
+  let isSignalBecomingInactive = !signal.signal.isZero() && event.params.signal == signal.signal
+
   // Note - if you immediately deposited and then withdrew, you would lose 5%, and you were
   // realize this loss by seeing unsignaled tokens being 95 and signalled 100
   signal.lastUpdatedAt = event.block.timestamp.toI32()
@@ -158,6 +169,12 @@ export function handleBurned(event: Burned): void {
       curator.totalSignal,
     )
   }
+
+  if(isSignalBecomingInactive) {
+    curator.activeSignalCount = curator.activeSignalCount - 1
+    curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
+  }
+
   curator.save()
 
   // Update subgraph
