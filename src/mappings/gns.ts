@@ -188,6 +188,9 @@ export function handleNSignalMinted(event: NSignalMinted): void {
     subgraphID,
     event.block.timestamp,
   )
+
+  let isNameSignalBecomingActive = nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
+
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
   nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
@@ -219,6 +222,12 @@ export function handleNSignalMinted(event: NSignalMinted): void {
       curator.totalNameSignal,
     )
   }
+
+  if(isNameSignalBecomingActive) {
+    curator.activeNameSignalCount = curator.activeNameSignalCount + 1
+    curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
+  }
+
   curator.save()
 
   // Create n signal tx
@@ -253,6 +262,8 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     event.block.timestamp,
   )
 
+  let isNameSignalBecomingInactive = !nameSignal.nameSignal.isZero() && event.params.nSignalBurnt == nameSignal.nameSignal
+
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
   nameSignal.unsignalledTokens = nameSignal.unsignalledTokens.plus(event.params.tokensReceived)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
@@ -281,6 +292,11 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis.div(
       curator.totalNameSignal,
     )
+  }
+
+  if(isNameSignalBecomingInactive) {
+    curator.activeNameSignalCount = curator.activeNameSignalCount - 1
+    curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
   }
   curator.save()
 

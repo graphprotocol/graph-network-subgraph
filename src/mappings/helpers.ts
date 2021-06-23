@@ -227,6 +227,13 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.totalSignalAverageCostBasis = BigDecimal.fromString('0')
     curator.totalSignal = BigDecimal.fromString('0')
     curator.totalAverageCostBasisPerSignal = BigDecimal.fromString('0')
+
+    curator.signalCount = 0
+    curator.activeSignalCount = 0
+    curator.nameSignalCount = 0
+    curator.activeNameSignalCount = 0
+    curator.combinedSignalCount = 0
+    curator.activeCombinedSignalCount = 0
     curator.save()
 
     let graphAccount = GraphAccount.load(id)
@@ -264,6 +271,11 @@ export function createOrLoadSignal(
     signal.lastUpdatedAt = timestamp
     signal.lastUpdatedAtBlock = blockNumber
     signal.save()
+
+    let curatorEntity = Curator.load(curator)
+    curatorEntity.signalCount = curatorEntity.signalCount + 1
+    curatorEntity.combinedSignalCount = curatorEntity.combinedSignalCount + 1
+    curatorEntity.save()
   }
   return signal as Signal
 }
@@ -289,6 +301,11 @@ export function createOrLoadNameSignal(
     nameSignal.averageCostBasis = BigDecimal.fromString('0')
     nameSignal.averageCostBasisPerSignal = BigDecimal.fromString('0')
     nameSignal.save()
+
+    let curatorEntity = Curator.load(curator)
+    curatorEntity.nameSignalCount = curatorEntity.nameSignalCount + 1
+    curatorEntity.combinedSignalCount = curatorEntity.combinedSignalCount + 1
+    curatorEntity.save()
   }
   return nameSignal as NameSignal
 }
