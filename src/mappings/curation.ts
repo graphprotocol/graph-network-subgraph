@@ -31,7 +31,25 @@ import { zeroBD } from './utils'
  * - updates subgraph deployment, creates if needed
  */
 export function handleSignalled(event: Signalled): void {
+  // Create curator and update most of the parameters
   let id = event.params.curator.toHexString()
+  let curator = createOrLoadCurator(id, event.block.timestamp)
+  curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
+    event.params.tokens.minus(event.params.curationTax),
+  )
+  curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.plus(
+    event.params.tokens.toBigDecimal(),
+  )
+  curator.totalSignal = curator.totalSignal.plus(event.params.signal.toBigDecimal())
+
+  // zero division protection
+  if (curator.totalSignal != zeroBD) {
+    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
+      curator.totalSignal,
+    )
+  }
+  curator.save()
+
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let signal = createOrLoadSignal(
@@ -61,23 +79,9 @@ export function handleSignalled(event: Signalled): void {
   }
   signal.save()
 
-  // Update curator
-  let curator = createOrLoadCurator(id, event.block.timestamp)
-  curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
-    event.params.tokens.minus(event.params.curationTax),
-  )
-  curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.plus(
-    event.params.tokens.toBigDecimal(),
-  )
-  curator.totalSignal = curator.totalSignal.plus(event.params.signal.toBigDecimal())
-
-  // zero division protection
-  if (curator.totalSignal != zeroBD) {
-    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
-      curator.totalSignal,
-    )
-  }
-
+  // reload curator, since it might update counters in another context and we don't want to overwrite it
+  curator = Curator.load(id) as Curator
+  // Update curator again
   if (isSignalBecomingActive) {
     curator.activeSignalCount = curator.activeSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
