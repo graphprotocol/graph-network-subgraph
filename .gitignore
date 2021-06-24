@@ -4,6 +4,7 @@ build/
 generated/
 node_modules/
 src/types/
+src/mappings/metadataHelpers.ts
 .DS_STORE
 yarn-error.log
 subgraph.yaml

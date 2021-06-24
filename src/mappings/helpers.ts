@@ -326,6 +326,7 @@ export function createOrLoadGraphAccount(
     graphAccount.stakingApproval = BigInt.fromI32(0)
     graphAccount.gnsApproval = BigInt.fromI32(0)
     graphAccount.subgraphQueryFees = BigInt.fromI32(0)
+    graphAccount.tokenLockWallets = []
     graphAccount.save()
   }
   return graphAccount as GraphAccount
