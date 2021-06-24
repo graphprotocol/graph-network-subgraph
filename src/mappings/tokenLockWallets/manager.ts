@@ -1,4 +1,4 @@
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { BigInt, log } from '@graphprotocol/graph-ts'
 import {
   MasterCopyUpdated,
   TokenLockCreated,
@@ -6,26 +6,20 @@ import {
   TokensWithdrawn,
   FunctionCallAuth,
   TokenDestinationAllowed,
-} from "../../types/GraphTokenLockManager/GraphTokenLockManager";
-
+} from '../../types/GraphTokenLockManager/GraphTokenLockManager'
 import { GraphTokenLockWallet } from '../../types/templates'
-
-
-import {
-  TokenManager,
-  TokenLockWallet,
-  AuthorizedFunction,
-} from "../../types/schema";
+import { TokenManager, TokenLockWallet, AuthorizedFunction } from '../../types/schema'
+import { createOrLoadGraphAccount } from '../helpers'
 
 export function handleMasterCopyUpdated(event: MasterCopyUpdated): void {
-  let tokenLock = TokenManager.load(event.address.toHexString());
+  let tokenLock = TokenManager.load(event.address.toHexString())
   if (tokenLock == null) {
-    tokenLock = new TokenManager(event.address.toHexString());
-    tokenLock.tokens = BigInt.fromI32(0);
-    tokenLock.tokenLockCount = BigInt.fromI32(0);
+    tokenLock = new TokenManager(event.address.toHexString())
+    tokenLock.tokens = BigInt.fromI32(0)
+    tokenLock.tokenLockCount = BigInt.fromI32(0)
   }
-  tokenLock.masterCopy = event.params.masterCopy;
-  tokenLock.save();
+  tokenLock.masterCopy = event.params.masterCopy
+  tokenLock.save()
 }
 
 /**
@@ -46,21 +40,19 @@ export function handleTokenLockCreated(event: TokenLockCreated): void {
   manager.tokenLockCount = manager.tokenLockCount.plus(BigInt.fromI32(1))
   manager.save()
 
-  let id = event.params.contractAddress.toHexString();
-  log.warning("[TOKEN LOCK CREATED] id used: {}", [id]);
-  let tokenLock = new TokenLockWallet(
-    id
-  );
+  let id = event.params.contractAddress.toHexString()
+  log.warning('[TOKEN LOCK CREATED] id used: {}', [id])
+  let tokenLock = new TokenLockWallet(id)
   tokenLock.manager = event.address
-  tokenLock.initHash = event.params.initHash;
-  tokenLock.beneficiary = event.params.beneficiary;
-  tokenLock.token = event.params.token;
-  tokenLock.managedAmount = event.params.managedAmount;
-  tokenLock.startTime = event.params.startTime;
-  tokenLock.endTime = event.params.endTime;
-  tokenLock.periods = event.params.periods;
-  tokenLock.releaseStartTime = event.params.releaseStartTime;
-  tokenLock.vestingCliffTime = event.params.vestingCliffTime;
+  tokenLock.initHash = event.params.initHash
+  tokenLock.beneficiary = event.params.beneficiary
+  tokenLock.token = event.params.token
+  tokenLock.managedAmount = event.params.managedAmount
+  tokenLock.startTime = event.params.startTime
+  tokenLock.endTime = event.params.endTime
+  tokenLock.periods = event.params.periods
+  tokenLock.releaseStartTime = event.params.releaseStartTime
+  tokenLock.vestingCliffTime = event.params.vestingCliffTime
   tokenLock.tokenDestinationsApproved = false
   tokenLock.tokensWithdrawn = BigInt.fromI32(0)
   tokenLock.tokensRevoked = BigInt.fromI32(0)
@@ -68,63 +60,70 @@ export function handleTokenLockCreated(event: TokenLockCreated): void {
   tokenLock.blockNumberCreated = event.block.number
   tokenLock.txHash = event.transaction.hash
   if (event.params.revocable == 0) {
-    tokenLock.revocable = "NotSet";
+    tokenLock.revocable = 'NotSet'
   } else if (event.params.revocable == 1) {
-    tokenLock.revocable = "Enabled";
+    tokenLock.revocable = 'Enabled'
   } else {
-    tokenLock.revocable = "Disabled";
+    tokenLock.revocable = 'Disabled'
   }
-  tokenLock.save();
-  log.warning("[TOKEN LOCK CREATED] entity saved with id: {}", [id]);
+  tokenLock.save()
+  log.warning('[TOKEN LOCK CREATED] entity saved with id: {}', [id])
   GraphTokenLockWallet.create(event.params.contractAddress)
+
+  let graphAccount = createOrLoadGraphAccount(
+    event.params.beneficiary.toHexString(),
+    event.params.beneficiary,
+    event.block.timestamp,
+  )
+  let tlws = graphAccount.tokenLockWallets
+  tlws.push(event.params.contractAddress.toHexString())
+  graphAccount.save()
 }
 
 export function handleTokensDeposited(event: TokensDeposited): void {
-  let tokenLock = TokenManager.load(event.address.toHexString());
-  tokenLock.tokens = tokenLock.tokens.plus(event.params.amount);
-  tokenLock.save();
+  let tokenLock = TokenManager.load(event.address.toHexString())
+  tokenLock.tokens = tokenLock.tokens.plus(event.params.amount)
+  tokenLock.save()
 }
 
 export function handleTokensWithdrawn(event: TokensWithdrawn): void {
-  let tokenLock = TokenManager.load(event.address.toHexString());
-  tokenLock.tokens = tokenLock.tokens.minus(event.params.amount);
-  tokenLock.save();
+  let tokenLock = TokenManager.load(event.address.toHexString())
+  tokenLock.tokens = tokenLock.tokens.minus(event.params.amount)
+  tokenLock.save()
 }
 
 export function handleFunctionCallAuth(event: FunctionCallAuth): void {
-  let auth = new AuthorizedFunction(event.params.signature);
-  auth.target = event.params.target;
-  auth.sigHash = event.params.sigHash;
-  auth.manager = event.address.toHexString();
-  auth.save();
+  let auth = new AuthorizedFunction(event.params.signature)
+  auth.target = event.params.target
+  auth.sigHash = event.params.sigHash
+  auth.manager = event.address.toHexString()
+  auth.save()
 }
 
-export function handleTokenDestinationAllowed(
-  event: TokenDestinationAllowed
-): void {
-  let tokenLock = TokenManager.load(event.address.toHexString());
-  let destinations = tokenLock.tokenDestinations;
+export function handleTokenDestinationAllowed(event: TokenDestinationAllowed): void {
+  let tokenLock = TokenManager.load(event.address.toHexString())
+  let destinations = tokenLock.tokenDestinations
 
   if (destinations == null) {
-    destinations = [];
+    destinations = []
   }
-  let index = destinations.indexOf(event.params.dst);
+  let index = destinations.indexOf(event.params.dst)
 
   // It was not there before
   if (index == -1) {
     // Lets add it in
     if (event.params.allowed) {
-      destinations.push(event.params.dst);
+      destinations.push(event.params.dst)
     }
     // If false was passed, we do nothing
     // It was there before
   } else {
     // We are revoking access
     if (!event.params.allowed) {
-      destinations.splice(index, 1);
+      destinations.splice(index, 1)
     }
     // Otherwise do nothing
   }
-  tokenLock.tokenDestinations = destinations;
-  tokenLock.save();
+  tokenLock.tokenDestinations = destinations
+  tokenLock.save()
 }

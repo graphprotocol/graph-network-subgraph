@@ -23,6 +23,7 @@ import {
   GraphAccountName,
   SubgraphDeployment,
   GraphNetwork,
+  GraphAccount,
 } from '../types/schema'
 
 import { zeroBD } from './utils'
@@ -72,8 +73,24 @@ export function handleSetDefaultName(event: SetDefaultName): void {
       indexer.defaultDisplayName = graphAccount.defaultDisplayName
       indexer.save()
     }
+    addDefaultNameTokenLockWallets(graphAccount, newDefaultName)
   }
   graphAccount.save()
+}
+
+// Add in default names to a graph accounts token lock wallets
+function addDefaultNameTokenLockWallets(graphAccount: GraphAccount, name: string): void {
+  let tlws = graphAccount.tokenLockWallets
+  for (let i = 0; i < tlws.length; i++) {
+    let tlw = GraphAccount.load(tlws[i])
+    tlw.defaultDisplayName = name
+    tlw.save()
+    let indexer = Indexer.load(tlw.id)
+    if (indexer != null) {
+      indexer.defaultDisplayName = tlw.defaultDisplayName
+      indexer.save()
+    }
+  }
 }
 
 export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): void {

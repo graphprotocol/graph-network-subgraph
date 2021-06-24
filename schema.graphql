@@ -257,6 +257,9 @@ type GraphAccount @entity {
   # Transactions / activity feed
   "Name signal transactions created by this GraphAccount"
   nameSignalTransactions: [NameSignalTransaction]! @derivedFrom(field: "signer")
+
+  # Token Lock Wallets that this account is associated with
+  tokenLockWallets: [TokenLockWallet!]!
 }
 
 """
@@ -1107,8 +1110,6 @@ type TokenLockWallet @entity {
   blockNumberCreated: BigInt!
   "The creation tx hash of the wallet"
   txHash: Bytes!
-  "Set to whatever the beneficiaries default display name is"
-  defaultDisplayName: String
 }
 
 """
