@@ -31,12 +31,6 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
       subgraph.displayName = jsonToString(data.get('displayName'))
       subgraph.codeRepository = jsonToString(data.get('codeRepository'))
       subgraph.website = jsonToString(data.get('website'))
-      let networkId = jsonToString(data.get('network'))
-      if(networkId != '') {
-        createOrLoadNetwork(networkId)
-        subgraph.network = networkId
-      }
-
       let categories = data.get('categories')
 
       if(categories != null) {
@@ -89,6 +83,8 @@ export function fetchSubgraphDeploymentManifest(deployment: SubgraphDeployment, 
     // We get the first occurrence of `network` since subgraphs can only have data sources for the same network
     let networkSplit = manifest.split('network: ', 2)[1]
     let network = networkSplit.split('\n', 2)[0]
+
+    createOrLoadNetwork(network)
     deployment.network = network
   }
   return deployment as SubgraphDeployment
