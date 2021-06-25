@@ -402,7 +402,7 @@ related to a SubgraphVersion.
 type SubgraphDeployment @entity {
   "Subgraph Deployment ID. The IPFS hash with Qm removed to fit into 32 bytes"
   id: ID!
-  "IPFS hash id"
+  "IPFS hash of the subgraph manifest"
   ipfsHash: String!
   "The versions this subgraph deployment relates to"
   versions: [SubgraphVersion!]! @derivedFrom(field: "subgraphDeployment")
@@ -449,6 +449,14 @@ type SubgraphDeployment @entity {
 
   # From Subgraph Manifest
   # dataSources: [DataSource!]
+  "Manifest file for this subgraph deployment"
+  manifest: String
+  "Network where the contracts that the subgraph indexes are located"
+  network: String
+  "Schema file for this subgraph deployment"
+  schema: String
+  "IPFS hash of the schema file"
+  schemaIpfsHash: String
 }
 
 # TODO - add when we have the ability to parse data sources

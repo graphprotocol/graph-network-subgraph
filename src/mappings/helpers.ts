@@ -20,7 +20,7 @@ import {
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
-
+import { fetchSubgraphDeploymentManifest } from './metadataHelpers'
 import { addresses } from '../../config/addresses'
 
 export function createOrLoadSubgraph(
@@ -65,6 +65,7 @@ export function createOrLoadSubgraphDeployment(
     let prefix = '1220'
     deployment = new SubgraphDeployment(subgraphID)
     deployment.ipfsHash = Bytes.fromHexString(prefix.concat(subgraphID.slice(2))).toBase58()
+    deployment = fetchSubgraphDeploymentManifest(deployment as SubgraphDeployment, deployment.ipfsHash)
     deployment.createdAt = timestamp.toI32()
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
