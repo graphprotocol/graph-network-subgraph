@@ -70,6 +70,8 @@ export function handleTokenLockCreated(event: TokenLockCreated): void {
   log.warning('[TOKEN LOCK CREATED] entity saved with id: {}', [id])
   GraphTokenLockWallet.create(event.params.contractAddress)
 
+  createOrLoadGraphAccount(id, event.params.contractAddress, event.block.timestamp)
+
   let graphAccount = createOrLoadGraphAccount(
     event.params.beneficiary.toHexString(),
     event.params.beneficiary,
