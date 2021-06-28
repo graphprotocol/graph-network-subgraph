@@ -79,6 +79,7 @@ export function handleTokenLockCreated(event: TokenLockCreated): void {
   )
   let tlws = graphAccount.tokenLockWallets
   tlws.push(event.params.contractAddress.toHexString())
+  graphAccount.tokenLockWallets = tlws
   graphAccount.save()
 }
 
