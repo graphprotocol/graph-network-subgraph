@@ -25,6 +25,8 @@ import {
   SubgraphDeployment,
   GraphNetwork,
   GraphAccount,
+  NameSignalSubgraphRelation,
+  NameSignal,
 } from '../types/schema'
 
 import { zeroBD } from './utils'
@@ -430,17 +432,56 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
   let subgraphID = joinID([graphAccount, subgraphNumber])
   let subgraph = Subgraph.load(subgraphID)
 
-  // event.params.newVSignalCreated -> will be used to calculate new nSignal/vSignal ratio
-
   // Weirdly here, we add the token amount to both, but also the name curator owner must
   // stake the withdrawal fees, so both balance fairly
   // TODO - will have to come back here and make sure my thinking is correct
+  // event.params.newVSignalCreated -> will be used to calculate new nSignal/vSignal ratio
   subgraph.signalAmount = event.params.newVSignalCreated
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensSignalled)
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensSignalled)
   subgraph.save()
 
   let signalRatio = subgraph.signalAmount / subgraph.nameSignalAmount
+
+  for(let i = 0; i < subgraph.nameSignalCount; i++) {
+    let relation = NameSignalSubgraphRelation.load(joinID([subgraphID, BigInt.fromI32(i).toString()]))
+    let nameSignal = NameSignal.load(relation.nameSignal)
+    if(!nameSignal.nameSignal.isZero()) {
+      let curator = Curator.load(nameSignal.curator)
+
+      let oldSignal = nameSignal.signal;
+      nameSignal.signal = nameSignal.nameSignal * signalRatio
+
+      // zero division protection
+      if (nameSignal.signal.toBigDecimal() != zeroBD) {
+        nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis.div(
+          nameSignal.signal.toBigDecimal(),
+        )
+      }
+
+      let previousACBSignal = nameSignal.signalAverageCostBasis
+      nameSignal.signalAverageCostBasis = nameSignal.signal
+        .toBigDecimal()
+        .times(nameSignal.signalAverageCostBasisPerSignal)
+
+      let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
+      if (nameSignal.signalAverageCostBasis == zeroBD) {
+        nameSignal.signalAverageCostBasisPerSignal = zeroBD
+      }
+
+      curator.totalSignal = curator.totalSignal.minus(oldSignal.toBigDecimal()).plus(nameSignal.signal.toBigDecimal())
+      curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACBSignal)
+      if (curator.totalSignal == zeroBD) {
+        curator.totalAverageCostBasisPerSignal = zeroBD
+      } else {
+        curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
+          curator.totalSignal,
+        )
+      }
+      nameSignal.save()
+      curator.save()
+    }
+  }
 }
 
 // Only need to upgrade withdrawable tokens. Everything else handled from

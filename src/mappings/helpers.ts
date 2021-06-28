@@ -17,6 +17,7 @@ import {
   Network,
   SubgraphCategory,
   SubgraphCategoryRelation,
+  NameSignalSubgraphRelation,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
@@ -45,6 +46,7 @@ export function createOrLoadSubgraph(
     subgraph.reserveRatio = 0
     subgraph.withdrawableTokens = BigInt.fromI32(0)
     subgraph.withdrawnTokens = BigInt.fromI32(0)
+    subgraph.nameSignalCount = 0
 
     subgraph.metadataHash = Bytes.fromI32(0) as Bytes
 
@@ -312,6 +314,15 @@ export function createOrLoadNameSignal(
     curatorEntity.nameSignalCount = curatorEntity.nameSignalCount + 1
     curatorEntity.combinedSignalCount = curatorEntity.combinedSignalCount + 1
     curatorEntity.save()
+
+    let subgraphEntity = Subgraph.load(subgraphID)
+    let relation = new NameSignalSubgraphRelation(joinID([subgraphID, BigInt.fromI32(subgraphEntity.nameSignalCount).toString()]))
+    subgraphEntity.nameSignalCount = subgraphEntity.nameSignalCount + 1;
+    subgraphEntity.save()
+
+    relation.subgraph = subgraphEntity.id;
+    relation.nameSignal = nameSignal.id;
+    relation.save()
   }
   return nameSignal as NameSignal
 }

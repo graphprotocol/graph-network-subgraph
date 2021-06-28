@@ -334,6 +334,8 @@ type Subgraph @entity {
   withdrawnTokens: BigInt!
   "Curators of this subgraph deployment"
   nameSignals: [NameSignal!]! @derivedFrom(field: "subgraph")
+  "Total amount of NameSignal entities"
+  nameSignalCount: Int!
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
@@ -891,6 +893,18 @@ type NameSignal @entity {
   signalAverageCostBasis: BigDecimal!
   "signalAverageCostBasis / signal"
   signalAverageCostBasisPerSignal: BigDecimal!
+}
+
+"""
+Auxiliary entity to be able to batch update NameSignal entities
+"""
+type NameSignalSubgraphRelation @entity {
+  "Subgraph ID + index"
+  id:ID!
+
+  nameSignal: NameSignal!
+
+  subgraph: Subgraph!
 }
 
 """
