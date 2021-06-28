@@ -41,6 +41,7 @@ export function createOrLoadSubgraph(
     subgraph.unsignalledTokens = BigInt.fromI32(0)
     subgraph.currentSignalledTokens = BigInt.fromI32(0)
     subgraph.nameSignalAmount = BigInt.fromI32(0)
+    subgraph.signalAmount = BigInt.fromI32(0)
     subgraph.reserveRatio = 0
     subgraph.withdrawableTokens = BigInt.fromI32(0)
     subgraph.withdrawnTokens = BigInt.fromI32(0)
