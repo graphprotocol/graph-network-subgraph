@@ -198,6 +198,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   let subgraph = Subgraph.load(subgraphID)
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
+  subgraph.signalAmount = subgraph.signalAmount.plus(event.params.vSignalCreated)
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
   subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.plus(event.params.tokensDeposited)
   subgraph.save()
@@ -302,6 +303,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   let subgraph = Subgraph.load(subgraphID)
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
+  subgraph.signalAmount = subgraph.signalAmount.minus(event.params.vSignalBurnt)
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensReceived)
   subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.minus(event.params.tokensReceived)
   subgraph.save()
@@ -400,12 +402,17 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
   let subgraphID = joinID([graphAccount, subgraphNumber])
   let subgraph = Subgraph.load(subgraphID)
 
+  // event.params.newVSignalCreated -> will be used to calculate new nSignal/vSignal ratio
+
   // Weirdly here, we add the token amount to both, but also the name curator owner must
   // stake the withdrawal fees, so both balance fairly
   // TODO - will have to come back here and make sure my thinking is correct
+  subgraph.signalAmount = event.params.newVSignalCreated
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensSignalled)
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensSignalled)
   subgraph.save()
+
+  let signalRatio = subgraph.signalAmount / subgraph.nameSignalAmount
 }
 
 // Only need to upgrade withdrawable tokens. Everything else handled from
@@ -416,6 +423,7 @@ export function handleNameSignalDisabled(event: NameSignalDisabled): void {
   let subgraphID = joinID([graphAccount, subgraphNumber])
   let subgraph = Subgraph.load(subgraphID)
   subgraph.withdrawableTokens = event.params.withdrawableGRT
+  subgraph.signalAmount = BigInt.fromI32(0)
   subgraph.save()
 }
 

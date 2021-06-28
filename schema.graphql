@@ -320,6 +320,8 @@ type Subgraph @entity {
   currentSignalledTokens: BigInt!
   "The CURRENT name signal amount for this subgraph"
   nameSignalAmount: BigInt!
+  "Current amount of version signal managed by the name pool"
+  signalAmount: BigInt!
   "Reserve ratio of the name curation curve. In parts per million"
   reserveRatio: Int!
   "Tokens that can be withdrawn once the Subgraph is deprecated"
