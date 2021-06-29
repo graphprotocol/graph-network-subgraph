@@ -359,6 +359,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nameSignal.nameSignalAverageCostBasis = nameSignal.nameSignal
     .toBigDecimal()
     .times(nameSignal.nameSignalAverageCostBasisPerSignal)
+    .truncate(18)
   let diffACBNameSignal = previousACBNameSignal.minus(nameSignal.nameSignalAverageCostBasis)
   if (nameSignal.nameSignalAverageCostBasis == BigDecimal.fromString('0')) {
     nameSignal.nameSignalAverageCostBasisPerSignal = BigDecimal.fromString('0')
@@ -385,6 +386,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nameSignal.signalAverageCostBasis = nameSignal.signal
     .toBigDecimal()
     .times(nameSignal.signalAverageCostBasisPerSignal)
+    .truncate(18)
   let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
   if (nameSignal.signalAverageCostBasis == zeroBD) {
     nameSignal.signalAverageCostBasisPerSignal = zeroBD
@@ -463,6 +465,7 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
       nameSignal.signalAverageCostBasis = nameSignal.signal
         .toBigDecimal()
         .times(nameSignal.signalAverageCostBasisPerSignal)
+        .truncate(18)
 
       let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
       if (nameSignal.signalAverageCostBasis == zeroBD) {

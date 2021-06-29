@@ -155,6 +155,7 @@ export function handleBurned(event: Burned): void {
   signal.averageCostBasis = signal.signal
     .toBigDecimal()
     .times(signal.averageCostBasisPerSignal)
+    .truncate(18)
   let diffACB = previousACB.minus(signal.averageCostBasis)
   if (signal.averageCostBasis == zeroBD) {
     signal.averageCostBasisPerSignal = zeroBD
