@@ -73,7 +73,7 @@ export function handleSetDefaultName(event: SetDefaultName): void {
       indexer.defaultDisplayName = graphAccount.defaultDisplayName
       indexer.save()
     }
-    addDefaultNameTokenLockWallets(graphAccount, newDefaultName)
+    addDefaultNameTokenLockWallets(graphAccount, graphAccount.defaultDisplayName)
   }
   graphAccount.save()
 }
@@ -219,13 +219,10 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   }
   curator.save()
 
-  let nameSignal = createOrLoadNameSignal(
-    curatorID,
-    subgraphID,
-    event.block.timestamp,
-  )
+  let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
 
-  let isNameSignalBecomingActive = nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
+  let isNameSignalBecomingActive =
+    nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
 
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
   nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
@@ -245,7 +242,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   // reload curator, since it might update counters in another context and we don't want to overwrite it
   curator = Curator.load(curatorID) as Curator
 
-  if(isNameSignalBecomingActive) {
+  if (isNameSignalBecomingActive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
   }
@@ -283,7 +280,8 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     event.block.timestamp,
   )
 
-  let isNameSignalBecomingInactive = !nameSignal.nameSignal.isZero() && event.params.nSignalBurnt == nameSignal.nameSignal
+  let isNameSignalBecomingInactive =
+    !nameSignal.nameSignal.isZero() && event.params.nSignalBurnt == nameSignal.nameSignal
 
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
   nameSignal.unsignalledTokens = nameSignal.unsignalledTokens.plus(event.params.tokensReceived)
@@ -315,7 +313,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     )
   }
 
-  if(isNameSignalBecomingInactive) {
+  if (isNameSignalBecomingInactive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount - 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
   }
