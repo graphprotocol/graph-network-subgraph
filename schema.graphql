@@ -865,7 +865,7 @@ type NameSignal @entity {
   "Shares of the name pool (GNS) that the curator has from signaling their GRT"
   nameSignal: BigInt!
   "Actual signal shares that the name pool minted with the GRT provided by the curator"
-  signal: BigInt!
+  signal: BigDecimal!
 
   # Metrics
   "Block for which the curator last entered or exited the curve"
@@ -874,6 +874,11 @@ type NameSignal @entity {
   # unrealized gains for their current balance, based on the time since the last exit/entry of the curve
   "Summation of realized rewards from before the last time the curator entered the curation curve"
   realizedRewards: BigInt!
+
+  "[DEPRECATED] Curator average cost basis for this name signal on this subgraph. New field for further versions will be nameSignalAverageCostBasis"
+  averageCostBasis: BigDecimal! # note this is ONLY name signal. This is okay for the protocol for now
+  "[DEPRECATED] nameSignalAverageCostBasis / nameSignal. New field for further versions will be nameSignalAverageCostBasisPerSignal"
+  averageCostBasisPerSignal: BigDecimal!
 
   "Curator average cost basis for this name signal on this subgraph"
   nameSignalAverageCostBasis: BigDecimal! # note this is ONLY name signal. This is okay for the protocol for now
