@@ -230,7 +230,9 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
   subgraph.signalAmount = subgraph.signalAmount.plus(event.params.vSignalCreated)
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
-  subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.plus(event.params.tokensDeposited)
+  subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.plus(
+    event.params.tokensDeposited,
+  )
   subgraph.save()
 
   // Update the curator
@@ -246,16 +248,14 @@ export function handleNSignalMinted(event: NSignalMinted): void {
 
   // zero division protection
   if (curator.totalNameSignal != zeroBD) {
-    curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis.div(
-      curator.totalNameSignal,
-    )
+    curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis
+      .div(curator.totalNameSignal)
+      .truncate(18)
   }
 
   // vSignal
   // Might need to add the curation tax to this specific case
-  curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
-    event.params.tokensDeposited,
-  )
+  curator.totalSignalledTokens = curator.totalSignalledTokens.plus(event.params.tokensDeposited)
   curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.plus(
     event.params.tokensDeposited.toBigDecimal(),
   )
@@ -263,9 +263,9 @@ export function handleNSignalMinted(event: NSignalMinted): void {
 
   // zero division protection
   if (curator.totalSignal != zeroBD) {
-    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
-      curator.totalSignal,
-    )
+    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis
+      .div(curator.totalSignal)
+      .truncate(18)
   }
   curator.save()
 
@@ -275,19 +275,21 @@ export function handleNSignalMinted(event: NSignalMinted): void {
     nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
 
   nameSignal.nameSignal = nameSignal.nameSignal.plus(event.params.nSignalCreated)
-  nameSignal.signal = nameSignal.signal.plus(event.params.vSignalCreated)
+  nameSignal.signal = nameSignal.signal.plus(event.params.vSignalCreated.toBigDecimal())
   nameSignal.signalledTokens = nameSignal.signalledTokens.plus(event.params.tokensDeposited)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
   // nSignal
   nameSignal.nameSignalAverageCostBasis = nameSignal.nameSignalAverageCostBasis.plus(
     event.params.tokensDeposited.toBigDecimal(),
   )
+  nameSignal.averageCostBasis = nameSignal.nameSignalAverageCostBasis
 
   // zero division protection
   if (nameSignal.nameSignal.toBigDecimal() != zeroBD) {
-    nameSignal.nameSignalAverageCostBasisPerSignal = nameSignal.nameSignalAverageCostBasis.div(
-      nameSignal.nameSignal.toBigDecimal(),
-    )
+    nameSignal.nameSignalAverageCostBasisPerSignal = nameSignal.nameSignalAverageCostBasis
+      .div(nameSignal.nameSignal.toBigDecimal())
+      .truncate(18)
+    nameSignal.averageCostBasisPerSignal = nameSignal.nameSignalAverageCostBasisPerSignal
   }
 
   // vSignal
@@ -296,16 +298,16 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   )
 
   // zero division protection
-  if (nameSignal.signal.toBigDecimal() != zeroBD) {
-    nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis.div(
-      nameSignal.signal.toBigDecimal(),
-    )
+  if (nameSignal.signal != zeroBD) {
+    nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis
+      .div(nameSignal.signal)
+      .truncate(18)
   }
   nameSignal.save()
 
   // reload curator, since it might update counters in another context and we don't want to overwrite it
   curator = Curator.load(curatorID) as Curator
-  if(isNameSignalBecomingActive) {
+  if (isNameSignalBecomingActive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
   }
@@ -335,7 +337,9 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
   subgraph.signalAmount = subgraph.signalAmount.minus(event.params.vSignalBurnt)
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensReceived)
-  subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.minus(event.params.tokensReceived)
+  subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.minus(
+    event.params.tokensReceived,
+  )
   subgraph.save()
 
   // update name signal
@@ -349,7 +353,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     !nameSignal.nameSignal.isZero() && event.params.nSignalBurnt == nameSignal.nameSignal
 
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
-  nameSignal.signal = nameSignal.signal.minus(event.params.vSignalBurnt)
+  nameSignal.signal = nameSignal.signal.minus(event.params.vSignalBurnt.toBigDecimal())
   nameSignal.unsignalledTokens = nameSignal.unsignalledTokens.plus(event.params.tokensReceived)
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
 
@@ -360,9 +364,11 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     .toBigDecimal()
     .times(nameSignal.nameSignalAverageCostBasisPerSignal)
     .truncate(18)
+  nameSignal.averageCostBasis = nameSignal.nameSignalAverageCostBasis
   let diffACBNameSignal = previousACBNameSignal.minus(nameSignal.nameSignalAverageCostBasis)
   if (nameSignal.nameSignalAverageCostBasis == BigDecimal.fromString('0')) {
     nameSignal.nameSignalAverageCostBasisPerSignal = BigDecimal.fromString('0')
+    nameSignal.averageCostBasisPerSignal = BigDecimal.fromString('0')
   }
 
   // update curator
@@ -371,20 +377,21 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     event.params.tokensReceived,
   )
   curator.totalNameSignal = curator.totalNameSignal.minus(event.params.nSignalBurnt.toBigDecimal())
-  curator.totalNameSignalAverageCostBasis = curator.totalNameSignalAverageCostBasis.minus(diffACBNameSignal)
+  curator.totalNameSignalAverageCostBasis = curator.totalNameSignalAverageCostBasis.minus(
+    diffACBNameSignal,
+  )
   if (curator.totalNameSignal == BigDecimal.fromString('0')) {
     curator.totalAverageCostBasisPerNameSignal = BigDecimal.fromString('0')
   } else {
-    curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis.div(
-      curator.totalNameSignal,
-    )
+    curator.totalAverageCostBasisPerNameSignal = curator.totalNameSignalAverageCostBasis
+      .div(curator.totalNameSignal)
+      .truncate(18)
   }
 
   // vSignal ACB
   // update acb to reflect new name signal balance
   let previousACBSignal = nameSignal.signalAverageCostBasis
   nameSignal.signalAverageCostBasis = nameSignal.signal
-    .toBigDecimal()
     .times(nameSignal.signalAverageCostBasisPerSignal)
     .truncate(18)
   let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
@@ -400,13 +407,12 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   if (curator.totalSignal == zeroBD) {
     curator.totalAverageCostBasisPerSignal = zeroBD
   } else {
-    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
-      curator.totalSignal,
-    )
+    curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis
+      .div(curator.totalSignal)
+      .truncate(18)
   }
 
-
-  if(isNameSignalBecomingInactive) {
+  if (isNameSignalBecomingInactive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount - 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
   }
@@ -443,27 +449,29 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensSignalled)
   subgraph.save()
 
-  let signalRatio = subgraph.signalAmount / subgraph.nameSignalAmount
+  let signalRatio = subgraph.signalAmount.toBigDecimal() / subgraph.nameSignalAmount.toBigDecimal()
 
-  for(let i = 0; i < subgraph.nameSignalCount; i++) {
-    let relation = NameSignalSubgraphRelation.load(joinID([subgraphID, BigInt.fromI32(i).toString()]))
+  for (let i = 0; i < subgraph.nameSignalCount; i++) {
+    let relation = NameSignalSubgraphRelation.load(
+      joinID([subgraphID, BigInt.fromI32(i).toString()]),
+    )
     let nameSignal = NameSignal.load(relation.nameSignal)
-    if(!nameSignal.nameSignal.isZero()) {
+    if (!nameSignal.nameSignal.isZero()) {
       let curator = Curator.load(nameSignal.curator)
 
-      let oldSignal = nameSignal.signal;
-      nameSignal.signal = nameSignal.nameSignal * signalRatio
+      let oldSignal = nameSignal.signal
+      nameSignal.signal = nameSignal.nameSignal.toBigDecimal() * signalRatio
+      nameSignal.signal = nameSignal.signal.truncate(18)
 
       // zero division protection
-      if (nameSignal.signal.toBigDecimal() != zeroBD) {
-        nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis.div(
-          nameSignal.signal.toBigDecimal(),
-        )
+      if (nameSignal.signal != zeroBD) {
+        nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis
+          .div(nameSignal.signal)
+          .truncate(18)
       }
 
       let previousACBSignal = nameSignal.signalAverageCostBasis
       nameSignal.signalAverageCostBasis = nameSignal.signal
-        .toBigDecimal()
         .times(nameSignal.signalAverageCostBasisPerSignal)
         .truncate(18)
 
@@ -472,14 +480,14 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
         nameSignal.signalAverageCostBasisPerSignal = zeroBD
       }
 
-      curator.totalSignal = curator.totalSignal.minus(oldSignal.toBigDecimal()).plus(nameSignal.signal.toBigDecimal())
+      curator.totalSignal = curator.totalSignal.minus(oldSignal).plus(nameSignal.signal)
       curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACBSignal)
       if (curator.totalSignal == zeroBD) {
         curator.totalAverageCostBasisPerSignal = zeroBD
       } else {
-        curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis.div(
-          curator.totalSignal,
-        )
+        curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis
+          .div(curator.totalSignal)
+          .truncate(18)
       }
       nameSignal.save()
       curator.save()
@@ -517,10 +525,12 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   nameSignal.withdrawnTokens = event.params.withdrawnGRT
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
   // Resetting this one since we don't have the value to subtract, but it should be 0 anyways.
-  nameSignal.signal = BigInt.fromI32(0)
+  nameSignal.signal = BigDecimal.fromString('0')
   nameSignal.lastNameSignalChange = event.block.timestamp.toI32()
 
   // Reset everything to 0 since this empties the signal
+  nameSignal.averageCostBasis = BigDecimal.fromString('0')
+  nameSignal.averageCostBasisPerSignal = BigDecimal.fromString('0')
   nameSignal.nameSignalAverageCostBasis = BigDecimal.fromString('0')
   nameSignal.nameSignalAverageCostBasisPerSignal = BigDecimal.fromString('0')
   nameSignal.signalAverageCostBasis = BigDecimal.fromString('0')

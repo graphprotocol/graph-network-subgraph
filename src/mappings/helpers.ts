@@ -301,9 +301,11 @@ export function createOrLoadNameSignal(
     nameSignal.unsignalledTokens = BigInt.fromI32(0)
     nameSignal.withdrawnTokens = BigInt.fromI32(0)
     nameSignal.nameSignal = BigInt.fromI32(0)
-    nameSignal.signal = BigInt.fromI32(0)
+    nameSignal.signal = BigDecimal.fromString('0')
     nameSignal.lastNameSignalChange = 0
     nameSignal.realizedRewards = BigInt.fromI32(0)
+    nameSignal.averageCostBasis = BigDecimal.fromString('0')
+    nameSignal.averageCostBasisPerSignal = BigDecimal.fromString('0')
     nameSignal.nameSignalAverageCostBasis = BigDecimal.fromString('0')
     nameSignal.nameSignalAverageCostBasisPerSignal = BigDecimal.fromString('0')
     nameSignal.signalAverageCostBasis = BigDecimal.fromString('0')

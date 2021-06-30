@@ -67,15 +67,11 @@ export function handleSignalled(event: Signalled): void {
   signal.signal = signal.signal.plus(event.params.signal)
   signal.lastUpdatedAt = event.block.timestamp.toI32()
   signal.lastUpdatedAtBlock = event.block.number.toI32()
-  signal.averageCostBasis = signal.averageCostBasis.plus(
-    event.params.tokens.toBigDecimal(),
-  )
+  signal.averageCostBasis = signal.averageCostBasis.plus(event.params.tokens.toBigDecimal())
 
   // zero division protection
   if (signal.signal.toBigDecimal() != zeroBD) {
-    signal.averageCostBasisPerSignal = signal.averageCostBasis.div(
-      signal.signal.toBigDecimal(),
-    )
+    signal.averageCostBasisPerSignal = signal.averageCostBasis.div(signal.signal.toBigDecimal())
   }
   signal.save()
 
@@ -175,7 +171,7 @@ export function handleBurned(event: Burned): void {
     )
   }
 
-  if(isSignalBecomingInactive) {
+  if (isSignalBecomingInactive) {
     curator.activeSignalCount = curator.activeSignalCount - 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
   }
