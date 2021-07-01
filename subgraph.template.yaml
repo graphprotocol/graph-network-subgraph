@@ -313,6 +313,8 @@ dataSources:
       abis:
         - name: DisputeManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/DisputeManager.json
+        - name: DisputeManagerStitched
+          file: ./abis/DisputeManagerStitched.json
       eventHandlers:
         - event: QueryDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,bytes32,bytes)
           handler: handleQueryDisputeCreated
@@ -344,7 +346,7 @@ dataSources:
         - TODO
       abis:
         - name: GraphTokenLockManager
-          file: ./abis-tokenLockWallets/GraphTokenLockManager.json
+          file: ./abis/GraphTokenLockManager.json
       eventHandlers:
         - event: MasterCopyUpdated(indexed address)
           handler: handleMasterCopyUpdated
@@ -373,7 +375,7 @@ templates:
         - TokenLockWallet
       abis:
         - name: GraphTokenLockWallet
-          file: ./abis-tokenLockWallets/GraphTokenLockWallet.json
+          file: ./abis/GraphTokenLockWallet.json
       eventHandlers:
         - event: TokensReleased(indexed address,uint256)
           handler: handleTokensReleased
