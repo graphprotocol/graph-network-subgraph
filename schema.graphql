@@ -177,8 +177,10 @@ type GraphNetwork @entity {
   # Dispute Manager global variables
   "Dispute arbitrator"
   arbitrator: Bytes!
-  "Penalty to Indexer on successful disputes. In parts per million"
-  slashingPercentage: Int!
+  "Penalty to Indexer on successful disputes for query disputes. In parts per million"
+  qrySlashingPercentage: Int!
+  "Penalty to Indexer on successful disputes for indexing disputes. In parts per million"
+  idxSlashingPercentage: Int!
   "Minimum deposit to create a dispute"
   minimumDisputeDeposit: BigInt!
   "Reward to Fisherman on successful disputes. In parts per million"
