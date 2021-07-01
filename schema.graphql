@@ -1140,11 +1140,11 @@ type _Schema_
     name: "curatorSearch"
     language: en
     algorithm: rank
-    include: [{ entity: "Curator", fields: [{ name: "defaultDisplayName" }] }]
+    include: [{ entity: "Curator", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
   )
   @fulltext(
     name: "delegatorSearch"
     language: en
     algorithm: rank
-    include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }] }]
+    include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
   )
