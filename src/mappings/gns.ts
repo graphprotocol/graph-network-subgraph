@@ -19,6 +19,7 @@ import {
   SubgraphVersion,
   NameSignalTransaction,
   Curator,
+  Delegator,
   Indexer,
   GraphAccountName,
   SubgraphDeployment,
@@ -68,10 +69,24 @@ export function handleSetDefaultName(event: SetDefaultName): void {
 
     // And if the GraphAccount changes default name, we should change it on the indexer too.
     // Indexer also has a defaultDisplayName because it helps with filtering.
-    let indexer = Indexer.load(event.params.graphAccount.toHexString())
+    let userAddress = event.params.graphAccount.toHexString()
+
+    let indexer = Indexer.load(userAddress)
     if (indexer != null) {
       indexer.defaultDisplayName = graphAccount.defaultDisplayName
       indexer.save()
+    }
+
+    let curator = Curator.load(userAddress)
+    if (curator != null) {
+      curator.defaultDisplayName = graphAccount.defaultDisplayName
+      curator.save()
+    }
+
+    let delegator = Delegator.load(userAddress)
+    if (delegator != null) {
+      delegator.defaultDisplayName = graphAccount.defaultDisplayName
+      delegator.save()
     }
     addDefaultNameTokenLockWallets(graphAccount, graphAccount.defaultDisplayName)
   }
@@ -85,10 +100,23 @@ function addDefaultNameTokenLockWallets(graphAccount: GraphAccount, name: string
     let tlw = GraphAccount.load(tlws[i])
     tlw.defaultDisplayName = name
     tlw.save()
+
     let indexer = Indexer.load(tlw.id)
     if (indexer != null) {
       indexer.defaultDisplayName = tlw.defaultDisplayName
       indexer.save()
+    }
+
+    let curator = Curator.load(tlw.id)
+    if (curator != null) {
+      curator.defaultDisplayName = graphAccount.defaultDisplayName
+      curator.save()
+    }
+
+    let delegator = Delegator.load(tlw.id)
+    if (delegator != null) {
+      delegator.defaultDisplayName = graphAccount.defaultDisplayName
+      delegator.save()
     }
   }
 }
