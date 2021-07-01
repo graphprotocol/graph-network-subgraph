@@ -162,7 +162,13 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   } else if (parameter == 'minimumDeposit') {
     graphNetwork.minimumDisputeDeposit = disputeManager.minimumDeposit()
   } else if (parameter == 'slashingPercentage') {
-    graphNetwork.slashingPercentage = disputeManager.slashingPercentage().toI32()
+    // TODO - ask dave
+    // graphNetwork.qrySlashingPercentage = disputeManager.qrySlashingPercentage().toI32()
+    // graphNetwork.idxSlashingPercentage = disputeManager.idxSlashingPercentage().toI32()
+  } else if (parameter == 'qrySlashingPercentage') {
+    graphNetwork.qrySlashingPercentage = disputeManager.qrySlashingPercentage().toI32()
+  } else if (parameter == 'idxSlashingPercentage') {
+    graphNetwork.idxSlashingPercentage = disputeManager.idxSlashingPercentage().toI32()
   } else if (parameter == 'fishermanRewardPercentage') {
     graphNetwork.fishermanRewardPercentage = disputeManager.fishermanRewardPercentage().toI32()
   }
