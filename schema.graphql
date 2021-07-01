@@ -703,6 +703,9 @@ type Delegator @entity {
   stakesCount: Int!
   "Active DelegatedStake entity count. Active means it still has GRT delegated"
   activeStakesCount: Int!
+
+  "Default display name is the current default name. Used for filtered queries"
+  defaultDisplayName: String
 }
 
 """
@@ -753,6 +756,8 @@ type Curator @entity {
   totalUnsignalledTokens: BigInt!
   "Subgraphs the curator is curating"
   signals: [Signal!]! @derivedFrom(field: "curator")
+  "Default display name is the current default name. Used for filtered queries"
+  defaultDisplayName: String
 
   "CUMULATIVE tokens signalled on all names"
   totalNameSignalledTokens: BigInt!
@@ -1130,4 +1135,16 @@ type _Schema_
     language: en
     algorithm: rank
     include: [{ entity: "Subgraph", fields: [{ name: "displayName" }, { name: "description" }] }]
+  )
+  @fulltext(
+    name: "curatorSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "Curator", fields: [{ name: "defaultDisplayName" }] }]
+  )
+  @fulltext(
+    name: "delegatorSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }] }]
   )
