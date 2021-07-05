@@ -68,6 +68,8 @@ dataSources:
           handler: handleSubgraphMetadataUpdated
         - event: NameSignalEnabled(indexed address,indexed uint256,indexed bytes32,uint32)
           handler: handleNameSignalEnabled
+        - event: NameSignalUpgrade(indexed address,indexed uint256,uint256,uint256,indexed bytes32)
+          handler: handleNameSignalUpgrade
         - event: NSignalMinted(indexed address,indexed uint256,indexed address,uint256,uint256,uint256)
           handler: handleNSignalMinted
         - event: NSignalBurned(indexed address,indexed uint256,indexed address,uint256,uint256,uint256)
