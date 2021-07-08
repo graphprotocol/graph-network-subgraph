@@ -54,6 +54,7 @@ export function createOrLoadSubgraph(
 
     let graphNetwork = GraphNetwork.load('1')
     graphNetwork.subgraphCount = graphNetwork.subgraphCount + 1
+    graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount + 1
     graphNetwork.save()
   }
   return subgraph as Subgraph
@@ -509,6 +510,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.curatorCount = 0
     graphNetwork.subgraphCount = 0
     graphNetwork.subgraphDeploymentCount = 0
+    graphNetwork.activeSubgraphCount = 0
 
     graphNetwork.arbitrator = Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.querySlashingPercentage = 0

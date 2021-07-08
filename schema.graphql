@@ -167,9 +167,11 @@ type GraphNetwork @entity {
   activeDelegationCount: Int!
   "Total curators"
   curatorCount: Int!
-  "Total subgraphs"
+  "Total amount of Subgraph entities"
   subgraphCount: Int!
-  "Total subgraphs"
+  "Amount of active Subgraph entities"
+  activeSubgraphCount: Int!
+  "Total amount of SubgraphDeployment entities"
   subgraphDeploymentCount: Int!
   "Total epochs"
   epochCount: Int!
