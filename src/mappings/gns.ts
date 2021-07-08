@@ -203,10 +203,13 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   let subgraphID = joinID([graphAccount, subgraphNumber])
   let subgraph = Subgraph.load(subgraphID)
 
-  subgraph.currentVersion = null
   subgraph.active = false
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
+
+  let graphNetwork = GraphNetwork.load('1')
+  graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount - 1
+  graphNetwork.save()
 }
 
 export function handleNameSignalEnabled(event: NameSignalEnabled): void {
