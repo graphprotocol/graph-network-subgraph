@@ -81,6 +81,12 @@ export function handleSignalled(event: Signalled): void {
   if (isSignalBecomingActive) {
     curator.activeSignalCount = curator.activeSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
+
+    if(curator.activeCombinedSignalCount == 1) {
+      let graphNetwork = GraphNetwork.load('1')
+      graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount + 1
+      graphNetwork.save()
+    }
   }
   curator.save()
 
@@ -172,6 +178,12 @@ export function handleBurned(event: Burned): void {
   if (isSignalBecomingInactive) {
     curator.activeSignalCount = curator.activeSignalCount - 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
+
+    if(curator.activeCombinedSignalCount == 0) {
+      let graphNetwork = GraphNetwork.load('1')
+      graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount - 1
+      graphNetwork.save()
+    }
   }
 
   curator.save()
