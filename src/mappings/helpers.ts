@@ -508,6 +508,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.delegationCount = 0
     graphNetwork.activeDelegationCount = 0
     graphNetwork.curatorCount = 0
+    graphNetwork.activeCuratorCount = 0
     graphNetwork.subgraphCount = 0
     graphNetwork.subgraphDeploymentCount = 0
     graphNetwork.activeSubgraphCount = 0

@@ -313,6 +313,12 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   if (isNameSignalBecomingActive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
+
+    if(curator.activeCombinedSignalCount == 1) {
+      let graphNetwork = GraphNetwork.load('1')
+      graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount + 1
+      graphNetwork.save()
+    }
   }
   curator.save()
 
@@ -418,6 +424,12 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   if (isNameSignalBecomingInactive) {
     curator.activeNameSignalCount = curator.activeNameSignalCount - 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
+
+    if(curator.activeCombinedSignalCount == 0) {
+      let graphNetwork = GraphNetwork.load('1')
+      graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount - 1
+      graphNetwork.save()
+    }
   }
 
   curator.save()

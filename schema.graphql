@@ -165,8 +165,10 @@ type GraphNetwork @entity {
   delegationCount: Int!
   "Total active delegations. Those delegations that still have GRT staked towards an indexer"
   activeDelegationCount: Int!
-  "Total curators"
+  "Total amount of curators historically"
   curatorCount: Int!
+  "Total amount of curators historically"
+  activeCuratorCount: Int!
   "Total amount of Subgraph entities"
   subgraphCount: Int!
   "Amount of active Subgraph entities"
