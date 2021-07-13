@@ -1,16 +1,19 @@
 specVersion: 0.0.2
 description: The Graph Network Smart Contracts on Ethereum
 repository: https://github.com/graphprotocol/contracts/graph-network-subgraph
+graft:
+  base: QmPcsVGBX6moRXV5dyjGbU4TD1bTUWy2rdMPpZsDdXk5fi
+  block: 12815640
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Controller
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{controller}}'
+      address: "{{controller}}"
       abi: Controller
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -34,11 +37,11 @@ dataSources:
           handler: handleNewPauseGuardian
   - kind: ethereum/contract
     name: GNS
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{gns}}'
+      address: "{{gns}}"
       abi: GNS
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -82,11 +85,11 @@ dataSources:
           handler: handleParameterUpdated
   - kind: ethereum/contract
     name: ServiceRegistry
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{serviceRegistry}}'
+      address: "{{serviceRegistry}}"
       abi: ServiceRegistry
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -104,11 +107,11 @@ dataSources:
           handler: handleServiceUnregistered
   - kind: ethereum/contract
     name: Staking
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{staking}}'
+      address: "{{staking}}"
       abi: Staking
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -170,11 +173,11 @@ dataSources:
         #   handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: Curation
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{curation}}'
+      address: "{{curation}}"
       abi: Curation
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -202,11 +205,11 @@ dataSources:
         #   handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: GraphToken
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{graphToken}}'
+      address: "{{graphToken}}"
       abi: GraphToken
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -225,11 +228,11 @@ dataSources:
           handler: handleApproval
   - kind: ethereum/contract
     name: EthereumDIDRegistry
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B'
+      address: "0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B"
       abi: EthereumDIDRegistry
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -245,11 +248,11 @@ dataSources:
           handler: handleDIDAttributeChanged
   - kind: ethereum/contract
     name: EpochManager
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{epochManager}}'
+      address: "{{epochManager}}"
       abi: EpochManager
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -270,11 +273,11 @@ dataSources:
         #   handler: handleImplementationUpdated
   - kind: ethereum/contract
     name: RewardsManager
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{rewardsManager}}'
+      address: "{{rewardsManager}}"
       abi: RewardsManager
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -300,11 +303,11 @@ dataSources:
           handler: handleParameterUpdated
   - kind: ethereum/contract
     name: DisputeManager
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{disputeManager}}'
+      address: "{{disputeManager}}"
       abi: DisputeManager
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -334,11 +337,11 @@ dataSources:
           handler: handleParameterUpdated
   - kind: ethereum/contract
     name: GraphTokenLockManager
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{tokenLockManager}}'
+      address: "{{tokenLockManager}}"
       abi: GraphTokenLockManager
-      startBlock: {{blockNumber}}
+      startBlock: { { blockNumber } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -365,7 +368,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: GraphTokenLockWallet
-    network: {{network}}
+    network: { { network } }
     source:
       abi: GraphTokenLockWallet
     mapping:
