@@ -747,7 +747,8 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
   // to implement the actual sell share formula for 1 share.
 
   // reserve ratio multiplier = MAX_WEIGHT / reserveRatio = 1M (ppm) / reserveRatio
-  let reserveRatioMultiplier = 1000000 / deployment.reserveRatio
+  // HOTFIX for now, if deployment.reserveRatio -> 0, use a known previous default
+  let reserveRatioMultiplier = deployment.reserveRatio == 0 ? 2 :  1000000 / deployment.reserveRatio
   let pricePerShare =
     deployment.signalAmount == BigInt.fromI32(0)
       ? BigDecimal.fromString('0')
