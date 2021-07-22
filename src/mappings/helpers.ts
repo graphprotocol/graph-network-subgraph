@@ -18,6 +18,7 @@ import {
   SubgraphCategory,
   SubgraphCategoryRelation,
   NameSignalSubgraphRelation,
+  CurrentSubgraphDeploymentRelation,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
@@ -70,7 +71,10 @@ export function createOrLoadSubgraphDeployment(
     let prefix = '1220'
     deployment = new SubgraphDeployment(subgraphID)
     deployment.ipfsHash = Bytes.fromHexString(prefix.concat(subgraphID.slice(2))).toBase58()
-    deployment = fetchSubgraphDeploymentManifest(deployment as SubgraphDeployment, deployment.ipfsHash)
+    deployment = fetchSubgraphDeploymentManifest(
+      deployment as SubgraphDeployment,
+      deployment.ipfsHash,
+    )
     deployment.createdAt = timestamp.toI32()
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
@@ -86,6 +90,9 @@ export function createOrLoadSubgraphDeployment(
     deployment.pricePerShare = BigDecimal.fromString('0')
     deployment.reserveRatio = graphNetwork.defaultReserveRatio
     deployment.deniedAt = 0
+
+    deployment.subgraphCount = 0
+    deployment.activeSubgraphCount = 0
     deployment.save()
 
     let graphNetwork = GraphNetwork.load('1')
@@ -201,8 +208,8 @@ export function createOrLoadDelegatedStake(
     delegatedStake.save()
 
     let delegatorEntity = Delegator.load(delegator)
-    delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1;
-    delegatorEntity.save();
+    delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1
+    delegatorEntity.save()
 
     let graphNetwork = GraphNetwork.load('1')
     graphNetwork.delegationCount = graphNetwork.delegationCount + 1
@@ -319,12 +326,14 @@ export function createOrLoadNameSignal(
     curatorEntity.save()
 
     let subgraphEntity = Subgraph.load(subgraphID)
-    let relation = new NameSignalSubgraphRelation(joinID([subgraphID, BigInt.fromI32(subgraphEntity.nameSignalCount).toString()]))
-    subgraphEntity.nameSignalCount = subgraphEntity.nameSignalCount + 1;
+    let relation = new NameSignalSubgraphRelation(
+      joinID([subgraphID, BigInt.fromI32(subgraphEntity.nameSignalCount).toString()]),
+    )
+    subgraphEntity.nameSignalCount = subgraphEntity.nameSignalCount + 1
     subgraphEntity.save()
 
-    relation.subgraph = subgraphEntity.id;
-    relation.nameSignal = nameSignal.id;
+    relation.subgraph = subgraphEntity.id
+    relation.nameSignal = nameSignal.id
     relation.save()
   }
   return nameSignal as NameSignal
@@ -751,7 +760,7 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
 
   // reserve ratio multiplier = MAX_WEIGHT / reserveRatio = 1M (ppm) / reserveRatio
   // HOTFIX for now, if deployment.reserveRatio -> 0, use a known previous default
-  let reserveRatioMultiplier = deployment.reserveRatio == 0 ? 2 :  1000000 / deployment.reserveRatio
+  let reserveRatioMultiplier = deployment.reserveRatio == 0 ? 2 : 1000000 / deployment.reserveRatio
   let pricePerShare =
     deployment.signalAmount == BigInt.fromI32(0)
       ? BigDecimal.fromString('0')
@@ -797,4 +806,49 @@ export function createOrLoadSubgraphCategoryRelation(
     relation.save()
   }
   return relation as SubgraphCategoryRelation
+}
+
+export function updateCurrentDeploymentLinks(
+  oldDeployment: SubgraphDeployment | null,
+  newDeployment: SubgraphDeployment,
+  subgraph: Subgraph,
+): void {
+  if (oldDeployment != null) {
+    let oldRelationEntity = CurrentSubgraphDeploymentRelation.load(
+      subgraph.currentVersionRelationEntity,
+    )
+    oldRelationEntity.active = false
+    oldRelationEntity.save()
+
+    oldDeployment.activeSubgraphCount = oldDeployment.activeSubgraphCount - 1
+    oldDeployment.save()
+  }
+
+  let newRelationID = newDeployment.id
+    .concat('-')
+    .concat(BigInt.fromI32(newDeployment.subgraphCount).toString())
+  let newRelationEntity = new CurrentSubgraphDeploymentRelation(newRelationID)
+  newRelationEntity.deployment = newDeployment.id
+  newRelationEntity.subgraph = subgraph.id
+  newRelationEntity.active = true
+  newRelationEntity.save()
+
+  newDeployment.subgraphCount = newDeployment.subgraphCount + 1
+  newDeployment.activeSubgraphCount = newDeployment.activeSubgraphCount + 1
+  newDeployment.save()
+
+  subgraph.currentVersionRelationEntity = newRelationEntity.id
+  subgraph.save()
+}
+
+export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeployment): void {
+  for (let i = 0; i < deployment.subgraphCount; i++) {
+    let id = deployment.id.concat('-').concat(BigInt.fromI32(i).toString())
+    let relationEntity = CurrentSubgraphDeploymentRelation.load(id)
+    if (relationEntity.active) {
+      let subgraphEntity = Subgraph.load(relationEntity.subgraph)
+      subgraphEntity.currentSignalledTokens = deployment.signalledTokens;
+      subgraphEntity.save()
+    }
+  }
 }

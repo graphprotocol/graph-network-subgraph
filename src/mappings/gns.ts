@@ -39,6 +39,7 @@ import {
   createOrLoadSubgraph,
   joinID,
   createOrLoadNameSignal,
+  updateCurrentDeploymentLinks,
 } from './helpers'
 import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './metadataHelpers'
 
@@ -199,6 +200,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   // Update subgraph
   let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp)
+  let oldVersionID = subgraph.currentVersion
 
   versionID = joinID([subgraphID, subgraph.versionCount.toString()])
   subgraph.currentVersion = versionID
@@ -211,7 +213,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
 
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
@@ -224,6 +226,18 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   subgraphVersion.metadataHash = event.params.versionMetadata
   subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
   subgraphVersion.save()
+
+  let oldDeployment: SubgraphDeployment | null = null
+  if (oldVersionID != null) {
+    let oldVersion = SubgraphVersion.load(oldVersionID)
+    oldDeployment = SubgraphDeployment.load(oldVersion.subgraphDeployment)
+  }
+  // create deployment - named subgraph relationship, and update the old one
+  updateCurrentDeploymentLinks(
+    oldDeployment,
+    deployment as SubgraphDeployment,
+    subgraph as Subgraph,
+  )
 }
 /**
  * @dev handleSubgraphDeprecated
@@ -266,9 +280,6 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
   subgraph.signalAmount = subgraph.signalAmount.plus(event.params.vSignalCreated)
   subgraph.signalledTokens = subgraph.signalledTokens.plus(event.params.tokensDeposited)
-  subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.plus(
-    event.params.tokensDeposited,
-  )
   subgraph.save()
 
   // Update the curator
@@ -347,7 +358,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
     curator.activeNameSignalCount = curator.activeNameSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
 
-    if(curator.activeCombinedSignalCount == 1) {
+    if (curator.activeCombinedSignalCount == 1) {
       let graphNetwork = GraphNetwork.load('1')
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount + 1
       graphNetwork.save()
@@ -379,9 +390,6 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
   subgraph.signalAmount = subgraph.signalAmount.minus(event.params.vSignalBurnt)
   subgraph.unsignalledTokens = subgraph.unsignalledTokens.plus(event.params.tokensReceived)
-  subgraph.currentSignalledTokens = subgraph.currentSignalledTokens.minus(
-    event.params.tokensReceived,
-  )
   subgraph.save()
 
   // update name signal
@@ -458,7 +466,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     curator.activeNameSignalCount = curator.activeNameSignalCount - 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
 
-    if(curator.activeCombinedSignalCount == 0) {
+    if (curator.activeCombinedSignalCount == 0) {
       let graphNetwork = GraphNetwork.load('1')
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount - 1
       graphNetwork.save()

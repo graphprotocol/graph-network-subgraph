@@ -21,6 +21,7 @@ import {
   createOrLoadEpoch,
   joinID,
   calculatePricePerShare,
+  batchUpdateSubgraphSignalledTokens,
 } from './helpers'
 import { zeroBD } from './utils'
 
@@ -97,8 +98,9 @@ export function handleSignalled(event: Signalled): void {
   )
   deployment.signalAmount = deployment.signalAmount.plus(event.params.signal)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
-
   deployment.save()
+
+  batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
 
   // Update epoch
   let epoch = createOrLoadEpoch(event.block.number)
@@ -194,6 +196,8 @@ export function handleBurned(event: Burned): void {
   deployment.signalAmount = deployment.signalAmount.minus(event.params.signal)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
   deployment.save()
+
+  batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
 
   // Update epoch - none
 

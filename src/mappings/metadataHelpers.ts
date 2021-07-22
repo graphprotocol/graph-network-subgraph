@@ -4,10 +4,23 @@ import { jsonToString } from './utils'
 import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork } from './helpers'
 
 export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: string): void {
+  let ipfsData = ipfs.cat(ipfsHash)
+  if (ipfsData != null) {
+    let data = json.fromBytes(ipfsData as Bytes).toObject()
+    graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
+    graphAccount.description = jsonToString(data.get('description'))
+    graphAccount.image = jsonToString(data.get('image'))
+    graphAccount.displayName = jsonToString(data.get('displayName'))
+    let isOrganization = data.get('isOrganization')
+    if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
+      graphAccount.isOrganization = isOrganization.toBool()
+    }
+    graphAccount.website = jsonToString(data.get('website'))
+    graphAccount.save()
+  }
 }
 
 export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Subgraph {
-<<<<<<< HEAD
   let metadata = ipfs.cat(ipfsHash)
   if (metadata !== null) {
     let tryData = json.try_fromBytes(metadata as Bytes)
@@ -31,12 +44,22 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
       }
     }
   }
-=======
->>>>>>> Add in token lock wallets to the core subgraph
   return subgraph
 }
 
 export function fetchSubgraphVersionMetadata(subgraphVersion: SubgraphVersion, ipfsHash: string): SubgraphVersion {
+  let getVersionDataFromIPFS = ipfs.cat(ipfsHash)
+  if (getVersionDataFromIPFS !== null) {
+    let tryData = json.try_fromBytes(getVersionDataFromIPFS as Bytes)
+    if (tryData.isOk) {
+      let data = tryData.value.toObject()
+      subgraphVersion.description = jsonToString(data.get('description'))
+      subgraphVersion.label = jsonToString(data.get('label'))
+    } else {
+      subgraphVersion.description = ''
+      subgraphVersion.label = ''
+    }
+  }
   return subgraphVersion
 }
 
