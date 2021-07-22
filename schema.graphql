@@ -324,7 +324,7 @@ type Subgraph @entity {
   signalledTokens: BigInt!
   "CUMULATIVE unsignalled tokens on this subgraph all time"
   unsignalledTokens: BigInt!
-  "CURRENT amount of tokens signalled on this subgraph. Only accounts for signalling done through GNS (name signalling)"
+  "CURRENT amount of tokens signalled on this subgraph latest version. Mirrors the total amount signalled towards the current deployment."
   currentSignalledTokens: BigInt!
   "The CURRENT name signal amount for this subgraph"
   nameSignalAmount: BigInt!
@@ -356,7 +356,23 @@ type Subgraph @entity {
   displayName: String
   "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
   categories: [SubgraphCategoryRelation!]! @derivedFrom(field: "subgraph")
+
+  # Auxiliary fields
+  currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
 }
+
+type CurrentSubgraphDeploymentRelation @entity {
+  "Auxiliary entity used to batch update Subgraph entities when signalling on the deployment changes. ID replicates the deployment ID and adds a counter, to make it easy to reproduce."
+  id: ID!
+
+  subgraph: Subgraph!
+
+  deployment: SubgraphDeployment!
+
+  "Indicates whether this relation is active. This means that the deployment is still the current deployment for the named Subgraph"
+  active: Boolean!
+}
+
 
 type Network @entity {
   id: ID!
@@ -472,6 +488,12 @@ type SubgraphDeployment @entity {
   schema: String
   "IPFS hash of the schema file"
   schemaIpfsHash: String
+
+  # Counters for currentSignalledTokens tracking on Subgraph
+  "Total amount of Subgraph entities that used this deployment at some point"
+  subgraphCount: Int!
+  "Amount of Subgraph entities that are currently using this deployment"
+  activeSubgraphCount: Int!
 }
 
 # TODO - add when we have the ability to parse data sources
