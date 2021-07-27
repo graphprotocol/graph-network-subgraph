@@ -70,10 +70,26 @@ export function handleSetDefaultName(event: SetDefaultName): void {
       graphAccount.save()
 
       let indexer = Indexer.load(event.params.graphAccount.toHexString())
-      indexer.defaultDisplayName = null
-      indexer.save()
+      if (indexer != null) {
+        indexer.defaultDisplayName = graphAccount.defaultDisplayName
+        indexer.save()
+      }
+
+      let curator = Curator.load(event.params.graphAccount.toHexString())
+      if (curator != null) {
+        curator.defaultDisplayName = graphAccount.defaultDisplayName
+        curator.save()
+      }
+
+      let delegator = Delegator.load(event.params.graphAccount.toHexString())
+      if (delegator != null) {
+        delegator.defaultDisplayName = graphAccount.defaultDisplayName
+        delegator.save()
+      }
+      addDefaultNameTokenLockWallets(graphAccount, graphAccount.defaultDisplayName)
     }
   }
+
   let newDefaultName = resolveName(
     event.params.graphAccount,
     event.params.name,
