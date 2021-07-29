@@ -235,7 +235,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   // create deployment - named subgraph relationship, and update the old one
   updateCurrentDeploymentLinks(
     oldDeployment,
-    deployment as SubgraphDeployment,
+    deployment,
     subgraph as Subgraph,
   )
 }
@@ -257,6 +257,19 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   let graphNetwork = GraphNetwork.load('1')
   graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount - 1
   graphNetwork.save()
+
+
+  let version = SubgraphVersion.load(subgraph.currentVersion)
+  if (version != null) {
+    let deployment = SubgraphDeployment.load(version.subgraphDeployment)
+
+    updateCurrentDeploymentLinks(
+      deployment,
+      null,
+      subgraph as Subgraph,
+      true
+    )
+  }
 }
 
 export function handleNameSignalEnabled(event: NameSignalEnabled): void {

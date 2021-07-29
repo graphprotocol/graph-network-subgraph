@@ -490,10 +490,12 @@ type SubgraphDeployment @entity {
   schemaIpfsHash: String
 
   # Counters for currentSignalledTokens tracking on Subgraph
-  "Total amount of Subgraph entities that used this deployment at some point"
+  "Total amount of Subgraph entities that used this deployment at some point. subgraphCount >= activeSubgraphCount + deprecatedSubgraphCount"
   subgraphCount: Int!
-  "Amount of Subgraph entities that are currently using this deployment"
+  "Amount of active Subgraph entities that are currently using this deployment. Deprecated subgraph entities are not counted"
   activeSubgraphCount: Int!
+  "Amount of Subgraph entities that were currently using this deployment when they got deprecated"
+  deprecatedSubgraphCount: Int!
 }
 
 # TODO - add when we have the ability to parse data sources

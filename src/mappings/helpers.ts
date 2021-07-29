@@ -93,6 +93,7 @@ export function createOrLoadSubgraphDeployment(
 
     deployment.subgraphCount = 0
     deployment.activeSubgraphCount = 0
+    deployment.deprecatedSubgraphCount = 0
     deployment.save()
 
     let graphNetwork = GraphNetwork.load('1')
@@ -810,35 +811,43 @@ export function createOrLoadSubgraphCategoryRelation(
 
 export function updateCurrentDeploymentLinks(
   oldDeployment: SubgraphDeployment | null,
-  newDeployment: SubgraphDeployment,
+  newDeployment: SubgraphDeployment | null,
   subgraph: Subgraph,
+  deprecated: boolean = false,
 ): void {
   if (oldDeployment != null) {
-    let oldRelationEntity = CurrentSubgraphDeploymentRelation.load(
-      subgraph.currentVersionRelationEntity,
-    )
-    oldRelationEntity.active = false
-    oldRelationEntity.save()
+    if (!deprecated) {
+      let oldRelationEntity = CurrentSubgraphDeploymentRelation.load(
+        subgraph.currentVersionRelationEntity,
+      )
+      oldRelationEntity.active = false
+      oldRelationEntity.save()
+    }
 
     oldDeployment.activeSubgraphCount = oldDeployment.activeSubgraphCount - 1
+    if (deprecated) {
+      oldDeployment.deprecatedSubgraphCount = oldDeployment.deprecatedSubgraphCount + 1
+    }
     oldDeployment.save()
   }
 
-  let newRelationID = newDeployment.id
-    .concat('-')
-    .concat(BigInt.fromI32(newDeployment.subgraphCount).toString())
-  let newRelationEntity = new CurrentSubgraphDeploymentRelation(newRelationID)
-  newRelationEntity.deployment = newDeployment.id
-  newRelationEntity.subgraph = subgraph.id
-  newRelationEntity.active = true
-  newRelationEntity.save()
+  if (newDeployment != null) {
+    let newRelationID = newDeployment.id
+      .concat('-')
+      .concat(BigInt.fromI32(newDeployment.subgraphCount).toString())
+    let newRelationEntity = new CurrentSubgraphDeploymentRelation(newRelationID)
+    newRelationEntity.deployment = newDeployment.id
+    newRelationEntity.subgraph = subgraph.id
+    newRelationEntity.active = true
+    newRelationEntity.save()
 
-  newDeployment.subgraphCount = newDeployment.subgraphCount + 1
-  newDeployment.activeSubgraphCount = newDeployment.activeSubgraphCount + 1
-  newDeployment.save()
+    newDeployment.subgraphCount = newDeployment.subgraphCount + 1
+    newDeployment.activeSubgraphCount = newDeployment.activeSubgraphCount + 1
+    newDeployment.save()
 
-  subgraph.currentVersionRelationEntity = newRelationEntity.id
-  subgraph.save()
+    subgraph.currentVersionRelationEntity = newRelationEntity.id
+    subgraph.save()
+  }
 }
 
 export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeployment): void {
@@ -847,7 +856,7 @@ export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeploymen
     let relationEntity = CurrentSubgraphDeploymentRelation.load(id)
     if (relationEntity.active) {
       let subgraphEntity = Subgraph.load(relationEntity.subgraph)
-      subgraphEntity.currentSignalledTokens = deployment.signalledTokens;
+      subgraphEntity.currentSignalledTokens = deployment.signalledTokens
       subgraphEntity.save()
     }
   }
