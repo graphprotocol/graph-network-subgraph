@@ -36,7 +36,7 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
       subgraph.website = jsonToString(data.get('website'))
       let categories = data.get('categories')
 
-      if(categories != null) {
+      if(!categories.isNull()) {
         let categoriesArray = categories.toArray()
 
         for(let i = 0; i < categoriesArray.length; i++) {
