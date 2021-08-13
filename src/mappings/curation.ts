@@ -32,6 +32,7 @@ import { zeroBD } from './utils'
  * - updates subgraph deployment, creates if needed
  */
 export function handleSignalled(event: Signalled): void {
+  let graphNetwork = GraphNetwork.load('1')
   // Create curator and update most of the parameters
   let id = event.params.curator.toHexString()
   let curator = createOrLoadCurator(id, event.block.timestamp)
@@ -83,10 +84,8 @@ export function handleSignalled(event: Signalled): void {
     curator.activeSignalCount = curator.activeSignalCount + 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
 
-    if(curator.activeCombinedSignalCount == 1) {
-      let graphNetwork = GraphNetwork.load('1')
+    if (curator.activeCombinedSignalCount == 1) {
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount + 1
-      graphNetwork.save()
     }
   }
   curator.save()
@@ -110,11 +109,18 @@ export function handleSignalled(event: Signalled): void {
   epoch.save()
 
   // Update graph network
-  let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(
     event.params.tokens.minus(event.params.curationTax),
   )
-  graphNetwork.save()
+  if (curator.id == graphNetwork.gns.toHexString()) {
+    graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate.plus(
+      event.params.tokens.minus(event.params.curationTax).toBigDecimal(),
+    )
+  } else {
+    graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalledDirectly.plus(
+      event.params.tokens.minus(event.params.curationTax).toBigDecimal(),
+    )
+  }
 
   // Create n signal tx
   let signalTransaction = new SignalTransaction(
@@ -129,6 +135,7 @@ export function handleSignalled(event: Signalled): void {
   signalTransaction.withdrawalFees = BigInt.fromI32(0)
   signalTransaction.subgraphDeployment = event.params.subgraphDeploymentID.toHexString()
   signalTransaction.save()
+  graphNetwork.save()
 }
 /**
  * @dev handleRedeemed
@@ -137,10 +144,15 @@ export function handleSignalled(event: Signalled): void {
  * - updates subgraph
  */
 export function handleBurned(event: Burned): void {
+  let graphNetwork = GraphNetwork.load('1')
   let id = event.params.curator.toHexString()
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let signalID = joinID([id, subgraphDeploymentID])
+  let gnsSignalID = joinID([graphNetwork.gns.toHexString(), subgraphDeploymentID])
+  let gnsSignal = Signal.load(signalID)
+  let gnsSignalAmount = gnsSignal.signal.toBigDecimal()
+
   let signal = Signal.load(signalID)
 
   let isSignalBecomingInactive = !signal.signal.isZero() && event.params.signal == signal.signal
@@ -151,6 +163,10 @@ export function handleBurned(event: Burned): void {
   signal.lastUpdatedAtBlock = event.block.number.toI32()
   signal.unsignalledTokens = signal.unsignalledTokens.plus(event.params.tokens)
   signal.signal = signal.signal.minus(event.params.signal)
+
+  if (signal.id == gnsSignal.id) {
+    gnsSignalAmount = signal.signal.toBigDecimal()
+  }
 
   // update acb to reflect new name signal balance
   let previousACB = signal.averageCostBasis
@@ -181,10 +197,8 @@ export function handleBurned(event: Burned): void {
     curator.activeSignalCount = curator.activeSignalCount - 1
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
 
-    if(curator.activeCombinedSignalCount == 0) {
-      let graphNetwork = GraphNetwork.load('1')
+    if (curator.activeCombinedSignalCount == 0) {
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount - 1
-      graphNetwork.save()
     }
   }
 
@@ -192,6 +206,8 @@ export function handleBurned(event: Burned): void {
 
   // Update subgraph
   let deployment = SubgraphDeployment.load(subgraphDeploymentID)
+  let oldSignalAmount = deployment.signalAmount
+  let oldSignalledTokens = deployment.signalledTokens
   deployment.signalledTokens = deployment.signalledTokens.minus(event.params.tokens)
   deployment.signalAmount = deployment.signalAmount.minus(event.params.signal)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
@@ -202,9 +218,23 @@ export function handleBurned(event: Burned): void {
   // Update epoch - none
 
   // Update graph network
-  let graphNetwork = GraphNetwork.load('1')
   graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.minus(event.params.tokens)
-  graphNetwork.save()
+  // Calculate how much it removes from each based on signal ratios
+  let oldSignalToTokenRatio = oldSignalledTokens.toBigDecimal() / oldSignalAmount.toBigDecimal()
+  let newSignalToTokenRatio =
+    deployment.signalledTokens.toBigDecimal() / deployment.signalAmount.toBigDecimal()
+
+  let nonGnsSignalAmount = deployment.signalAmount.toBigDecimal().minus(gnsSignalAmount)
+  let diffGns = gnsSignalAmount * oldSignalToTokenRatio - gnsSignalAmount * newSignalToTokenRatio
+  let diffNonGns =
+    nonGnsSignalAmount * oldSignalToTokenRatio - nonGnsSignalAmount * newSignalToTokenRatio
+
+  graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate
+    .minus(diffGns)
+    .truncate(18)
+  graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalledDirectly
+    .minus(diffNonGns)
+    .truncate(18)
 
   // Create n signal tx
   let signalTransaction = new SignalTransaction(
@@ -219,6 +249,7 @@ export function handleBurned(event: Burned): void {
   signalTransaction.withdrawalFees = BigInt.fromI32(0)
   signalTransaction.subgraphDeployment = event.params.subgraphDeploymentID.toHexString()
   signalTransaction.save()
+  graphNetwork.save()
 }
 
 /**
