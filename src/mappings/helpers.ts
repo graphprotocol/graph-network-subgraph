@@ -472,6 +472,9 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalUnstakedTokensLocked = BigInt.fromI32(0)
     graphNetwork.totalTokensAllocated = BigInt.fromI32(0)
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
+    graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
+    graphNetwork.totalTokensSignalledAutoMigrate = BigDecimal.fromString('0')
+    graphNetwork.totalTokensSignalledDirectly = BigDecimal.fromString('0')
 
     graphNetwork.totalQueryFees = BigInt.fromI32(0)
     graphNetwork.totalIndexerQueryFeesCollected = BigInt.fromI32(0)
@@ -497,8 +500,6 @@ export function createOrLoadGraphNetwork(
     graphNetwork.minimumCurationDeposit = BigInt.fromI32(0)
     graphNetwork.curationTaxPercentage = 0
     graphNetwork.ownerTaxPercentage = 0
-
-    graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
 
     graphNetwork.totalSupply = BigInt.fromI32(0) // gets set by mint
     graphNetwork.GRTinUSD = BigDecimal.fromString('0')

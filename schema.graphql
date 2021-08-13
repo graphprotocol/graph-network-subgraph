@@ -79,6 +79,14 @@ type GraphNetwork @entity {
   "Total delegated tokens in the protocol"
   totalDelegatedTokens: BigInt!
 
+  # Curation global aggregate values
+  "The total amount of GRT signalled in the Curation contract"
+  totalTokensSignalled: BigInt!
+  "Total GRT currently curating via the Auto-Migrate function"
+  totalTokensSignalledAutoMigrate: BigDecimal!
+  "Total GRT currently curating to a specific version"
+  totalTokensSignalledDirectly: BigDecimal!
+
   # Query fees globals
   "Total query fees generated in the network"
   totalQueryFees: BigInt!
@@ -119,10 +127,6 @@ type GraphNetwork @entity {
   curationTaxPercentage: Int!
   "Percentage of the GNS migration tax payed by the subgraph owner"
   ownerTaxPercentage: Int!
-
-  # Curation global aggregate values
-  "The total amount of GRT signalled in the Curation contract"
-  totalTokensSignalled: BigInt!
 
   # Graph Token global variables
   "Graph Token supply"
