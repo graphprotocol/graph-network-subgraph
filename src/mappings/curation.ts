@@ -220,9 +220,12 @@ export function handleBurned(event: Burned): void {
   // Update graph network
   graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.minus(event.params.tokens)
   // Calculate how much it removes from each based on signal ratios
-  let oldSignalToTokenRatio = oldSignalledTokens.toBigDecimal() / oldSignalAmount.toBigDecimal()
-  let newSignalToTokenRatio =
-    deployment.signalledTokens.toBigDecimal() / deployment.signalAmount.toBigDecimal()
+  let oldSignalToTokenRatio = oldSignalAmount.isZero()
+    ? zeroBD
+    : oldSignalledTokens.toBigDecimal() / oldSignalAmount.toBigDecimal()
+  let newSignalToTokenRatio = deployment.signalAmount.isZero()
+    ? zeroBD
+    : deployment.signalledTokens.toBigDecimal() / deployment.signalAmount.toBigDecimal()
 
   let nonGnsSignalAmount = deployment.signalAmount.toBigDecimal().minus(gnsSignalAmount)
   let diffGns = gnsSignalAmount * oldSignalToTokenRatio - gnsSignalAmount * newSignalToTokenRatio
