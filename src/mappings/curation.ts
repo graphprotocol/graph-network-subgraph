@@ -151,7 +151,8 @@ export function handleBurned(event: Burned): void {
   let signalID = joinID([id, subgraphDeploymentID])
   let gnsSignalID = joinID([graphNetwork.gns.toHexString(), subgraphDeploymentID])
   let gnsSignal = Signal.load(signalID)
-  let gnsSignalAmount = gnsSignal.signal.toBigDecimal()
+  let gnsSignalOldAmount = gnsSignal.signal.toBigDecimal()
+  let gnsSignalNewAmount = gnsSignal.signal.toBigDecimal()
 
   let signal = Signal.load(signalID)
 
@@ -165,7 +166,7 @@ export function handleBurned(event: Burned): void {
   signal.signal = signal.signal.minus(event.params.signal)
 
   if (signal.id == gnsSignal.id) {
-    gnsSignalAmount = signal.signal.toBigDecimal()
+    gnsSignalNewAmount = signal.signal.toBigDecimal()
   }
 
   // update acb to reflect new name signal balance
@@ -227,10 +228,11 @@ export function handleBurned(event: Burned): void {
     ? zeroBD
     : deployment.signalledTokens.toBigDecimal() / deployment.signalAmount.toBigDecimal()
 
-  let nonGnsSignalAmount = deployment.signalAmount.toBigDecimal().minus(gnsSignalAmount)
-  let diffGns = gnsSignalAmount * oldSignalToTokenRatio - gnsSignalAmount * newSignalToTokenRatio
+  let nonGnsSignalOldAmount = oldSignalAmount.toBigDecimal().minus(gnsSignalOldAmount)
+  let nonGnsSignalNewAmount = deployment.signalAmount.toBigDecimal().minus(gnsSignalNewAmount)
+  let diffGns = gnsSignalOldAmount * oldSignalToTokenRatio - gnsSignalNewAmount * newSignalToTokenRatio
   let diffNonGns =
-    nonGnsSignalAmount * oldSignalToTokenRatio - nonGnsSignalAmount * newSignalToTokenRatio
+    nonGnsSignalOldAmount * oldSignalToTokenRatio - nonGnsSignalNewAmount * newSignalToTokenRatio
 
   graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate
     .minus(diffGns)
