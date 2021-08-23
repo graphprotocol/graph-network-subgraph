@@ -959,9 +959,11 @@ type Dispute @entity {
   closedAt: Int!
   "Status of the dispute. Accepted means the Indexer was slashed"
   status: DisputeStatus!
-  "Tokens slashed"
+  "Total amount of tokens slashed on the dispute"
   tokensSlashed: BigDecimal!
-  "Tokens rewarded"
+  "Amount of the slashed tokens that was burned"
+  tokensBurned: BigDecimal!
+  "Amount of the slashed tokens that was payed as reward to the fisherman"
   tokensRewarded: BigInt!
 
   # Type specific data
