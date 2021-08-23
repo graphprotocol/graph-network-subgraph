@@ -29,6 +29,7 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   dispute.createdAt = event.block.timestamp.toI32()
   dispute.status = 'Undecided'
   dispute.tokensSlashed = BigDecimal.fromString('0')
+  dispute.tokensBurned = BigDecimal.fromString('0')
   dispute.tokensRewarded = BigInt.fromI32(0)
   dispute.closedAt = 0
   dispute.type = 'SingleQuery' // It starts off as single query, but if it gets linked, it is updated to Conflicting. The events emitted are QueryDisputeCreated 1, QueryDisputeCreated 2, DisputeLinked
@@ -65,6 +66,7 @@ export function handleIndexingDisputeCreated(event: IndexingDisputeCreated): voi
   dispute.createdAt = event.block.timestamp.toI32()
   dispute.status = 'Undecided'
   dispute.tokensSlashed = BigDecimal.fromString('0')
+  dispute.tokensBurned = BigDecimal.fromString('0')
   dispute.tokensRewarded = BigInt.fromI32(0)
   dispute.type = 'Indexing'
   dispute.indexer = event.params.indexer.toHexString()
@@ -97,7 +99,8 @@ export function handleDisputeAccepted(event: DisputeAccepted): void {
       : BigDecimal.fromString('1000000')
           .div(BigDecimal.fromString(fishermanRewardPercentage.toString()))
           .minus(BigDecimal.fromString('1'))
-  dispute.tokensSlashed = dispute.tokensRewarded.toBigDecimal().times(slashedRewardRatio)
+  dispute.tokensBurned = dispute.tokensRewarded.toBigDecimal().times(slashedRewardRatio)
+  dispute.tokensSlashed = dispute.tokensRewarded.toBigDecimal().plus(dispute.tokensBurned)
   dispute.save()
 
   if (dispute.linkedDispute != null) {
@@ -163,24 +166,36 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
     graphNetwork.minimumDisputeDeposit = disputeManager.minimumDeposit()
   } else if (parameter == 'slashingPercentage') {
     let slashingPercentageResponse = disputeManager.try_slashingPercentage()
-    if(!slashingPercentageResponse.reverted) {
+    if (!slashingPercentageResponse.reverted) {
       graphNetwork.querySlashingPercentage = slashingPercentageResponse.value.toI32()
       graphNetwork.indexingSlashingPercentage = slashingPercentageResponse.value.toI32()
       graphNetwork.slashingPercentage = slashingPercentageResponse.value.toI32()
     } else {
       let qryResponse = disputeManager.try_qrySlashingPercentage()
       let idxResponse = disputeManager.try_idxSlashingPercentage()
-      graphNetwork.querySlashingPercentage = qryResponse.reverted ? graphNetwork.querySlashingPercentage : qryResponse.value.toI32()
-      graphNetwork.indexingSlashingPercentage = idxResponse.reverted ? graphNetwork.indexingSlashingPercentage : idxResponse.value.toI32()
-      graphNetwork.slashingPercentage = idxResponse.reverted ? graphNetwork.slashingPercentage : idxResponse.value.toI32()
+      graphNetwork.querySlashingPercentage = qryResponse.reverted
+        ? graphNetwork.querySlashingPercentage
+        : qryResponse.value.toI32()
+      graphNetwork.indexingSlashingPercentage = idxResponse.reverted
+        ? graphNetwork.indexingSlashingPercentage
+        : idxResponse.value.toI32()
+      graphNetwork.slashingPercentage = idxResponse.reverted
+        ? graphNetwork.slashingPercentage
+        : idxResponse.value.toI32()
     }
   } else if (parameter == 'qrySlashingPercentage') {
     let qryResponse = disputeManager.try_qrySlashingPercentage()
-    graphNetwork.querySlashingPercentage = qryResponse.reverted ? graphNetwork.querySlashingPercentage : qryResponse.value.toI32()
+    graphNetwork.querySlashingPercentage = qryResponse.reverted
+      ? graphNetwork.querySlashingPercentage
+      : qryResponse.value.toI32()
   } else if (parameter == 'idxSlashingPercentage') {
     let idxResponse = disputeManager.try_idxSlashingPercentage()
-    graphNetwork.indexingSlashingPercentage = idxResponse.reverted ? graphNetwork.indexingSlashingPercentage : idxResponse.value.toI32()
-    graphNetwork.slashingPercentage = idxResponse.reverted ? graphNetwork.slashingPercentage : idxResponse.value.toI32()
+    graphNetwork.indexingSlashingPercentage = idxResponse.reverted
+      ? graphNetwork.indexingSlashingPercentage
+      : idxResponse.value.toI32()
+    graphNetwork.slashingPercentage = idxResponse.reverted
+      ? graphNetwork.slashingPercentage
+      : idxResponse.value.toI32()
   } else if (parameter == 'fishermanRewardPercentage') {
     graphNetwork.fishermanRewardPercentage = disputeManager.fishermanRewardPercentage().toI32()
   }
