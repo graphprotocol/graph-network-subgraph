@@ -35,6 +35,7 @@ export function handleSignalled(event: Signalled): void {
   let graphNetwork = GraphNetwork.load('1')
   // Create curator and update most of the parameters
   let id = event.params.curator.toHexString()
+  let gnsID = graphNetwork.gns.toHexString()
   let curator = createOrLoadCurator(id, event.block.timestamp)
   curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
@@ -60,6 +61,9 @@ export function handleSignalled(event: Signalled): void {
     event.block.number.toI32(),
     event.block.timestamp.toI32(),
   )
+
+  let gnsSignalOldAmount = signal.signal.toBigDecimal()
+
   signal.signalledTokens = signal.signalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
   )
@@ -71,11 +75,19 @@ export function handleSignalled(event: Signalled): void {
   signal.lastUpdatedAtBlock = event.block.number.toI32()
   signal.averageCostBasis = signal.averageCostBasis.plus(event.params.tokens.toBigDecimal())
 
+  let gnsSignalNewAmount = signal.signal.toBigDecimal()
   // zero division protection
   if (signal.signal.toBigDecimal() != zeroBD) {
     signal.averageCostBasisPerSignal = signal.averageCostBasis.div(signal.signal.toBigDecimal())
   }
   signal.save()
+
+  if (id != gnsID) {
+    let gnsSignalID = joinID([gnsID, subgraphDeploymentID])
+    let gnsSignal = Signal.load(gnsSignalID)
+    gnsSignalOldAmount = gnsSignal != null ? gnsSignal.signal.toBigDecimal() : zeroBD
+    gnsSignalNewAmount = gnsSignal != null ? gnsSignal.signal.toBigDecimal() : zeroBD
+  }
 
   // reload curator, since it might update counters in another context and we don't want to overwrite it
   curator = Curator.load(id) as Curator
@@ -92,6 +104,8 @@ export function handleSignalled(event: Signalled): void {
 
   // Update subgraph deployment
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  let oldSignalAmount = deployment.signalAmount
+  let oldSignalledTokens = deployment.signalledTokens
   deployment.signalledTokens = deployment.signalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
   )
@@ -112,15 +126,27 @@ export function handleSignalled(event: Signalled): void {
   graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(
     event.params.tokens.minus(event.params.curationTax),
   )
-  if (curator.id == graphNetwork.gns.toHexString()) {
-    graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate.plus(
-      event.params.tokens.minus(event.params.curationTax).toBigDecimal(),
-    )
-  } else {
-    graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalledDirectly.plus(
-      event.params.tokens.minus(event.params.curationTax).toBigDecimal(),
-    )
-  }
+  // Calculate how much it adds to each based on signal ratios
+  let oldSignalToTokenRatio = oldSignalAmount.isZero()
+    ? zeroBD
+    : oldSignalledTokens.toBigDecimal() / oldSignalAmount.toBigDecimal()
+  let newSignalToTokenRatio = deployment.signalAmount.isZero()
+    ? zeroBD
+    : deployment.signalledTokens.toBigDecimal() / deployment.signalAmount.toBigDecimal()
+
+  let nonGnsSignalOldAmount = oldSignalAmount.toBigDecimal().minus(gnsSignalOldAmount)
+  let nonGnsSignalNewAmount = deployment.signalAmount.toBigDecimal().minus(gnsSignalNewAmount)
+  let diffGns =
+    gnsSignalNewAmount * newSignalToTokenRatio - gnsSignalOldAmount * oldSignalToTokenRatio
+  let diffNonGns =
+    nonGnsSignalNewAmount * newSignalToTokenRatio - nonGnsSignalOldAmount * oldSignalToTokenRatio
+
+  graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate
+    .plus(diffGns)
+    .truncate(18)
+  graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalledDirectly
+    .plus(diffNonGns)
+    .truncate(18)
 
   // Create n signal tx
   let signalTransaction = new SignalTransaction(
@@ -146,15 +172,13 @@ export function handleSignalled(event: Signalled): void {
 export function handleBurned(event: Burned): void {
   let graphNetwork = GraphNetwork.load('1')
   let id = event.params.curator.toHexString()
+  let gnsID = graphNetwork.gns.toHexString()
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let signalID = joinID([id, subgraphDeploymentID])
-  let gnsSignalID = joinID([graphNetwork.gns.toHexString(), subgraphDeploymentID])
-  let gnsSignal = Signal.load(signalID)
-  let gnsSignalOldAmount = gnsSignal.signal.toBigDecimal()
-  let gnsSignalNewAmount = gnsSignal.signal.toBigDecimal()
 
   let signal = Signal.load(signalID)
+  let gnsSignalOldAmount = signal.signal.toBigDecimal()
 
   let isSignalBecomingInactive = !signal.signal.isZero() && event.params.signal == signal.signal
 
@@ -165,9 +189,7 @@ export function handleBurned(event: Burned): void {
   signal.unsignalledTokens = signal.unsignalledTokens.plus(event.params.tokens)
   signal.signal = signal.signal.minus(event.params.signal)
 
-  if (signal.id == gnsSignal.id) {
-    gnsSignalNewAmount = signal.signal.toBigDecimal()
-  }
+  let gnsSignalNewAmount = signal.signal.toBigDecimal()
 
   // update acb to reflect new name signal balance
   let previousACB = signal.averageCostBasis
@@ -180,6 +202,13 @@ export function handleBurned(event: Burned): void {
     signal.averageCostBasisPerSignal = zeroBD
   }
   signal.save()
+
+  if (id != gnsID) {
+    let gnsSignalID = joinID([gnsID, subgraphDeploymentID])
+    let gnsSignal = Signal.load(gnsSignalID)
+    gnsSignalOldAmount = gnsSignal != null ? gnsSignal.signal.toBigDecimal() : zeroBD
+    gnsSignalNewAmount = gnsSignal != null ? gnsSignal.signal.toBigDecimal() : zeroBD
+  }
 
   // Update curator
   let curator = Curator.load(id)
@@ -230,7 +259,8 @@ export function handleBurned(event: Burned): void {
 
   let nonGnsSignalOldAmount = oldSignalAmount.toBigDecimal().minus(gnsSignalOldAmount)
   let nonGnsSignalNewAmount = deployment.signalAmount.toBigDecimal().minus(gnsSignalNewAmount)
-  let diffGns = gnsSignalOldAmount * oldSignalToTokenRatio - gnsSignalNewAmount * newSignalToTokenRatio
+  let diffGns =
+    gnsSignalOldAmount * oldSignalToTokenRatio - gnsSignalNewAmount * newSignalToTokenRatio
   let diffNonGns =
     nonGnsSignalOldAmount * oldSignalToTokenRatio - nonGnsSignalNewAmount * newSignalToTokenRatio
 
