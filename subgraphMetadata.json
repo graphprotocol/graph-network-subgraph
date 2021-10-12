@@ -1,0 +1,7 @@
+{
+  "description": "Tracking the graph network smart contracts",
+  "displayName": "Graph Network",
+  "image": "",
+  "codeRepository": "https://github.com/graphprotocol/graph-network-subgraph",
+  "website": "https://thegraph.com"
+}
