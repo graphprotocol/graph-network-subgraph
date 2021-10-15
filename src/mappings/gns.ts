@@ -87,7 +87,7 @@ export function handleSetDefaultName(event: SetDefaultName): void {
         delegator.defaultDisplayName = graphAccount.defaultDisplayName
         delegator.save()
       }
-      addDefaultNameTokenLockWallets(graphAccount, graphAccount.defaultDisplayName)
+      addDefaultNameTokenLockWallets(graphAccount)
     }
   }
 
@@ -124,17 +124,18 @@ export function handleSetDefaultName(event: SetDefaultName): void {
       delegator.defaultDisplayName = graphAccount.defaultDisplayName
       delegator.save()
     }
-    addDefaultNameTokenLockWallets(graphAccount, graphAccount.defaultDisplayName)
+    addDefaultNameTokenLockWallets(graphAccount)
   }
   graphAccount.save()
 }
 
 // Add in default names to a graph accounts token lock wallets
-function addDefaultNameTokenLockWallets(graphAccount: GraphAccount, name: string): void {
+function addDefaultNameTokenLockWallets(graphAccount: GraphAccount): void {
   let tlws = graphAccount.tokenLockWallets
   for (let i = 0; i < tlws.length; i++) {
     let tlw = GraphAccount.load(tlws[i])
-    tlw.defaultDisplayName = name
+    tlw.defaultName = graphAccount.defaultName
+    tlw.defaultDisplayName = graphAccount.defaultDisplayName
     tlw.save()
 
     let indexer = Indexer.load(tlw.id)
@@ -145,13 +146,13 @@ function addDefaultNameTokenLockWallets(graphAccount: GraphAccount, name: string
 
     let curator = Curator.load(tlw.id)
     if (curator != null) {
-      curator.defaultDisplayName = graphAccount.defaultDisplayName
+      curator.defaultDisplayName = tlw.defaultDisplayName
       curator.save()
     }
 
     let delegator = Delegator.load(tlw.id)
     if (delegator != null) {
-      delegator.defaultDisplayName = graphAccount.defaultDisplayName
+      delegator.defaultDisplayName = tlw.defaultDisplayName
       delegator.save()
     }
   }
