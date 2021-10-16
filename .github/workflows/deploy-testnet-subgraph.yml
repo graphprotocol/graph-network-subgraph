@@ -19,8 +19,8 @@ jobs:
         with:
           node-version: '14'
           registry-url: https://registry.npmjs.org
-      - name: yarn add @graphprotocol/graph-cli
-        run: yarn add @graphprotocol/graph-cli
+      - name: yarn add @graphprotocol/graph-cli@0.21.0
+        run: yarn add @graphprotocol/graph-cli@0.21.0
       - name: yarn add ts-node
         run: yarn add ts-node
       - name: yarn install
