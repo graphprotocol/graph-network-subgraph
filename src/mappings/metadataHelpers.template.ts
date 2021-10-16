@@ -18,6 +18,19 @@ export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: 
     }
     graphAccount.website = jsonToString(data.get('website'))
     graphAccount.save()
+
+    // Update all associated vesting contract addresses
+    let tlws = graphAccount.tokenLockWallets
+    for (let i = 0; i < tlws.length; i++) {
+      let tlw = GraphAccount.load(tlws[i])
+      tlw.codeRepository = graphAccount.codeRepository
+      tlw.description = graphAccount.description
+      tlw.image = graphAccount.image
+      tlw.displayName = graphAccount.displayName
+      tlw.isOrganization = graphAccount.isOrganization
+      tlw.website = graphAccount.website
+      tlw.save()
+    }
   }
   {{/ipfs}}
 }
