@@ -27,7 +27,9 @@ export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: 
       tlw.description = graphAccount.description
       tlw.image = graphAccount.image
       tlw.displayName = graphAccount.displayName
-      tlw.isOrganization = graphAccount.isOrganization
+      if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
+        tlw.isOrganization = isOrganization.toBool()
+      }
       tlw.website = graphAccount.website
       tlw.save()
     }
