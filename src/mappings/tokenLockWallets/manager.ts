@@ -36,7 +36,7 @@ export function handleMasterCopyUpdated(event: MasterCopyUpdated): void {
  * @param _vestingCliffTime Time the cliff vests, 0 if no cliff
  */
 export function handleTokenLockCreated(event: TokenLockCreated): void {
-  let manager = TokenManager.load(event.address.toHexString())
+  let manager = TokenManager.load(event.address.toHexString())!
   manager.tokenLockCount = manager.tokenLockCount.plus(BigInt.fromI32(1))
   manager.save()
 
@@ -84,13 +84,13 @@ export function handleTokenLockCreated(event: TokenLockCreated): void {
 }
 
 export function handleTokensDeposited(event: TokensDeposited): void {
-  let tokenLock = TokenManager.load(event.address.toHexString())
+  let tokenLock = TokenManager.load(event.address.toHexString())!
   tokenLock.tokens = tokenLock.tokens.plus(event.params.amount)
   tokenLock.save()
 }
 
 export function handleTokensWithdrawn(event: TokensWithdrawn): void {
-  let tokenLock = TokenManager.load(event.address.toHexString())
+  let tokenLock = TokenManager.load(event.address.toHexString())!
   tokenLock.tokens = tokenLock.tokens.minus(event.params.amount)
   tokenLock.save()
 }
@@ -104,7 +104,7 @@ export function handleFunctionCallAuth(event: FunctionCallAuth): void {
 }
 
 export function handleTokenDestinationAllowed(event: TokenDestinationAllowed): void {
-  let tokenLock = TokenManager.load(event.address.toHexString())
+  let tokenLock = TokenManager.load(event.address.toHexString())!
   let destinations = tokenLock.tokenDestinations
 
   if (destinations == null) {

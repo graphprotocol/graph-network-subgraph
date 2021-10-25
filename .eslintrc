@@ -9,7 +9,8 @@
   ],
   "rules": {
     "prefer-const": "off",
-    "@typescript-eslint/no-inferrable-types": "warn",
-    "@typescript-eslint/no-empty-function": "warn"
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-empty-function": "warn",
+    "@typescript-eslint/no-non-null-assertion": "off"
   }
 }

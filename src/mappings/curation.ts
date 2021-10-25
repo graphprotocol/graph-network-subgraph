@@ -32,7 +32,7 @@ import { zeroBD } from './utils'
  * - updates subgraph deployment, creates if needed
  */
 export function handleSignalled(event: Signalled): void {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   // Create curator and update most of the parameters
   let id = event.params.curator.toHexString()
   let gnsID = graphNetwork.gns.toHexString()
@@ -90,7 +90,7 @@ export function handleSignalled(event: Signalled): void {
   }
 
   // reload curator, since it might update counters in another context and we don't want to overwrite it
-  curator = Curator.load(id) as Curator
+  curator = Curator.load(id)! as Curator
   // Update curator again
   if (isSignalBecomingActive) {
     curator.activeSignalCount = curator.activeSignalCount + 1
@@ -170,14 +170,14 @@ export function handleSignalled(event: Signalled): void {
  * - updates subgraph
  */
 export function handleBurned(event: Burned): void {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let id = event.params.curator.toHexString()
   let gnsID = graphNetwork.gns.toHexString()
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let signalID = joinID([id, subgraphDeploymentID])
 
-  let signal = Signal.load(signalID)
+  let signal = Signal.load(signalID)!
   let gnsSignalOldAmount = signal.signal.toBigDecimal()
 
   let isSignalBecomingInactive = !signal.signal.isZero() && event.params.signal == signal.signal
@@ -211,7 +211,7 @@ export function handleBurned(event: Burned): void {
   }
 
   // Update curator
-  let curator = Curator.load(id)
+  let curator = Curator.load(id)!
   curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokens)
   curator.totalSignal = curator.totalSignal.minus(event.params.signal.toBigDecimal())
   curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACB)
@@ -235,7 +235,7 @@ export function handleBurned(event: Burned): void {
   curator.save()
 
   // Update subgraph
-  let deployment = SubgraphDeployment.load(subgraphDeploymentID)
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)!
   let oldSignalAmount = deployment.signalAmount
   let oldSignalledTokens = deployment.signalledTokens
   deployment.signalledTokens = deployment.signalledTokens.minus(event.params.tokens)
@@ -294,7 +294,7 @@ export function handleBurned(event: Burned): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let curation = Curation.bind(event.address)
 
   if (parameter == 'defaultReserveRatio') {

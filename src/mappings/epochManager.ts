@@ -8,7 +8,7 @@ import { log, BigInt } from '@graphprotocol/graph-ts'
  * - updates the last run epoch
  */
 export function handleEpochRun(event: EpochRun): void {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.lastRunEpoch = event.params.epoch.toI32()
   graphNetwork.save()
 }
@@ -18,7 +18,7 @@ export function handleEpochRun(event: EpochRun): void {
  * - updates the length and the last block and epoch it happened
  */
 export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
 
   // This event is emitted on EpochManagers constructor, so it has some special logic to handle
   // initialization here
@@ -49,7 +49,7 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
 
   // Now it is safe to update graphNetwork, since the past epoch is completed
   // But we must reload it, since its currentEpoch may have been updated in createOrLoadEpoch
-  graphNetwork = GraphNetwork.load('1') as GraphNetwork
+  graphNetwork = GraphNetwork.load('1')!
   graphNetwork.epochLength = event.params.epochLength.toI32()
   graphNetwork.currentEpoch = event.params.epoch.toI32()
   graphNetwork.lastLengthUpdateEpoch = event.params.epoch.toI32()

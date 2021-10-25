@@ -57,7 +57,7 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
 
 // Just handles indexing disputes
 export function handleIndexingDisputeCreated(event: IndexingDisputeCreated): void {
-  let allocation = Allocation.load(event.params.allocationID.toHexString())
+  let allocation = Allocation.load(event.params.allocationID.toHexString())!
   let id = event.params.disputeID.toHexString()
   let dispute = new Dispute(id)
   dispute.subgraphDeployment = allocation.subgraphDeployment
@@ -77,7 +77,7 @@ export function handleIndexingDisputeCreated(event: IndexingDisputeCreated): voi
 
 export function handleDisputeAccepted(event: DisputeAccepted): void {
   let id = event.params.disputeID.toHexString()
-  let dispute = Dispute.load(id)
+  let dispute = Dispute.load(id)!
   dispute.status = 'Accepted'
   dispute.tokensRewarded = event.params.tokens.minus(dispute.deposit) // See event, it adds them
   dispute.closedAt = event.block.timestamp.toI32()
@@ -104,7 +104,7 @@ export function handleDisputeAccepted(event: DisputeAccepted): void {
   dispute.save()
 
   if (dispute.linkedDispute != null) {
-    let rejectedDispute = Dispute.load(dispute.linkedDispute)
+    let rejectedDispute = Dispute.load(dispute.linkedDispute!)!
     rejectedDispute.status = 'Rejected'
     rejectedDispute.closedAt = event.block.timestamp.toI32()
     rejectedDispute.save()
@@ -115,7 +115,7 @@ export function handleDisputeAccepted(event: DisputeAccepted): void {
 // This is because if you accept 1 in a conflict, the other is rejected
 export function handleDisputeRejected(event: DisputeRejected): void {
   let id = event.params.disputeID.toHexString()
-  let dispute = Dispute.load(id)
+  let dispute = Dispute.load(id)!
   dispute.status = 'Rejected'
   dispute.closedAt = event.block.timestamp.toI32()
   dispute.save()
@@ -123,13 +123,13 @@ export function handleDisputeRejected(event: DisputeRejected): void {
 
 export function handleDisputeDrawn(event: DisputeDrawn): void {
   let id = event.params.disputeID.toHexString()
-  let dispute = Dispute.load(id)
+  let dispute = Dispute.load(id)!
   dispute.status = 'Draw'
   dispute.closedAt = event.block.timestamp.toI32()
   dispute.save()
 
   if (dispute.linkedDispute != null) {
-    let linkedDispute = Dispute.load(dispute.linkedDispute)
+    let linkedDispute = Dispute.load(dispute.linkedDispute!)!
     linkedDispute.status = 'Draw'
     linkedDispute.closedAt = event.block.timestamp.toI32()
     linkedDispute.save()
@@ -139,8 +139,8 @@ export function handleDisputeDrawn(event: DisputeDrawn): void {
 export function handleDisputeLinked(event: DisputeLinked): void {
   let id1 = event.params.disputeID1.toHexString()
   let id2 = event.params.disputeID2.toHexString()
-  let dispute1 = Dispute.load(id1)
-  let dispute2 = Dispute.load(id2)
+  let dispute1 = Dispute.load(id1)!
+  let dispute2 = Dispute.load(id2)!
 
   dispute1.linkedDispute = id2
   dispute1.type = 'Conflicting'
@@ -157,7 +157,7 @@ export function handleDisputeLinked(event: DisputeLinked): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let disputeManager = DisputeManagerStitched.bind(event.address as Address)
 
   if (parameter == 'arbitrator') {

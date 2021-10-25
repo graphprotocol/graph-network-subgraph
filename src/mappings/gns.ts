@@ -51,7 +51,7 @@ export function handleSetDefaultName(event: SetDefaultName): void {
   )
 
   if (graphAccount.defaultName != null) {
-    let graphAccountName = GraphAccountName.load(graphAccount.defaultName)
+    let graphAccountName = GraphAccountName.load(graphAccount.defaultName!)!
     // If trying to set the same name, do nothing
     if (graphAccountName.name == event.params.name) {
       return
@@ -133,7 +133,7 @@ export function handleSetDefaultName(event: SetDefaultName): void {
 function addDefaultNameTokenLockWallets(graphAccount: GraphAccount): void {
   let tlws = graphAccount.tokenLockWallets
   for (let i = 0; i < tlws.length; i++) {
-    let tlw = GraphAccount.load(tlws[i])
+    let tlw = GraphAccount.load(tlws[i])!
     tlw.defaultName = graphAccount.defaultName
     tlw.defaultDisplayName = graphAccount.defaultDisplayName
     tlw.save()
@@ -174,8 +174,8 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
 
   // Add the original subgraph name to the subgraph deployment
   // This is a temporary solution until we can filter on nested queries
-  let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion)
-  let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)
+  let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
+  let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
   // Not super robust, someone could deploy blank, then point a subgraph to here
   // It is more appropriate to say this is the first name 'claimed' for the deployment
   if (subgraphDeployment.originalName == null) {
@@ -230,8 +230,8 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   let oldDeployment: SubgraphDeployment | null = null
   if (oldVersionID != null) {
-    let oldVersion = SubgraphVersion.load(oldVersionID)
-    oldDeployment = SubgraphDeployment.load(oldVersion.subgraphDeployment)
+    let oldVersion = SubgraphVersion.load(oldVersionID!)!
+    oldDeployment = SubgraphDeployment.load(oldVersion.subgraphDeployment)!
   }
   // create deployment - named subgraph relationship, and update the old one
   updateCurrentDeploymentLinks(
@@ -249,18 +249,18 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
-  let subgraph = Subgraph.load(subgraphID)
+  let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.active = false
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount - 1
   graphNetwork.save()
 
 
-  let version = SubgraphVersion.load(subgraph.currentVersion)
+  let version = SubgraphVersion.load(subgraph.currentVersion!)
   if (version != null) {
     let deployment = SubgraphDeployment.load(version.subgraphDeployment)
 
@@ -277,7 +277,7 @@ export function handleNameSignalEnabled(event: NameSignalEnabled): void {
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
-  let subgraph = Subgraph.load(subgraphID)
+  let subgraph = Subgraph.load(subgraphID)!
 
   // Right now we set deploymentID in SubgraphPublished, so only this is needed
   subgraph.reserveRatio = event.params.reserveRatio.toI32()
@@ -289,7 +289,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
-  let subgraph = Subgraph.load(subgraphID)
+  let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
   subgraph.signalAmount = subgraph.signalAmount.plus(event.params.vSignalCreated)
@@ -373,7 +373,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
 
     if (curator.activeCombinedSignalCount == 1) {
-      let graphNetwork = GraphNetwork.load('1')
+      let graphNetwork = GraphNetwork.load('1')!
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount + 1
       graphNetwork.save()
     }
@@ -399,7 +399,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
-  let subgraph = Subgraph.load(subgraphID)
+  let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
   subgraph.signalAmount = subgraph.signalAmount.minus(event.params.vSignalBurnt)
@@ -481,7 +481,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
 
     if (curator.activeCombinedSignalCount == 0) {
-      let graphNetwork = GraphNetwork.load('1')
+      let graphNetwork = GraphNetwork.load('1')!
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount - 1
       graphNetwork.save()
     }
@@ -508,7 +508,7 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
-  let subgraph = Subgraph.load(subgraphID)
+  let subgraph = Subgraph.load(subgraphID)!
 
   // Weirdly here, we add the token amount to both, but also the name curator owner must
   // stake the withdrawal fees, so both balance fairly
@@ -524,10 +524,10 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
   for (let i = 0; i < subgraph.nameSignalCount; i++) {
     let relation = NameSignalSubgraphRelation.load(
       joinID([subgraphID, BigInt.fromI32(i).toString()]),
-    )
-    let nameSignal = NameSignal.load(relation.nameSignal)
+    )!
+    let nameSignal = NameSignal.load(relation.nameSignal)!
     if (!nameSignal.nameSignal.isZero()) {
-      let curator = Curator.load(nameSignal.curator)
+      let curator = Curator.load(nameSignal.curator)!
 
       let oldSignal = nameSignal.signal
       nameSignal.signal = nameSignal.nameSignal.toBigDecimal() * signalRatio
@@ -571,7 +571,7 @@ export function handleNameSignalDisabled(event: NameSignalDisabled): void {
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
-  let subgraph = Subgraph.load(subgraphID)
+  let subgraph = Subgraph.load(subgraphID)!
   subgraph.withdrawableTokens = event.params.withdrawableGRT
   subgraph.signalAmount = BigInt.fromI32(0)
   subgraph.save()
@@ -581,7 +581,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   let graphAccount = event.params.graphAccount.toHexString()
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccount, subgraphNumber])
-  let subgraph = Subgraph.load(subgraphID)
+  let subgraph = Subgraph.load(subgraphID)!
   subgraph.withdrawableTokens = subgraph.withdrawableTokens.minus(event.params.withdrawnGRT)
   subgraph.withdrawnTokens = subgraph.withdrawnTokens.plus(event.params.withdrawnGRT)
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
@@ -608,7 +608,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
 
   nameSignal.save()
 
-  let curator = Curator.load(event.params.nameCurator.toHexString())
+  let curator = Curator.load(event.params.nameCurator.toHexString())!
   curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
   curator.save()
 }
@@ -620,7 +620,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let gns = GNS.bind(event.address)
 
   if (parameter == 'ownerTaxPercentage') {
