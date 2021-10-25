@@ -268,7 +268,7 @@ type GraphAccount @entity {
 
   # Transactions / activity feed
   "Name signal transactions created by this GraphAccount"
-  nameSignalTransactions: [NameSignalTransaction]! @derivedFrom(field: "signer")
+  nameSignalTransactions: [NameSignalTransaction!]! @derivedFrom(field: "signer")
 
   # Token Lock Wallets that this account is associated with
   tokenLockWallets: [TokenLockWallet!]!
@@ -377,11 +377,10 @@ type CurrentSubgraphDeploymentRelation @entity {
   active: Boolean!
 }
 
-
 type Network @entity {
   id: ID!
 
-  deployments: [SubgraphDeployment!]! @derivedFrom(field:"network")
+  deployments: [SubgraphDeployment!]! @derivedFrom(field: "network")
 }
 
 type SubgraphCategoryRelation @entity {
@@ -937,7 +936,7 @@ Auxiliary entity to be able to batch update NameSignal entities
 """
 type NameSignalSubgraphRelation @entity {
   "Subgraph ID + index"
-  id:ID!
+  id: ID!
 
   nameSignal: NameSignal!
 
