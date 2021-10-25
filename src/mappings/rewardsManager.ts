@@ -18,7 +18,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   let allocationID = event.params.allocationID.toHexString()
 
   // update indexer
-  let indexer = Indexer.load(indexerID)
+  let indexer = Indexer.load(indexerID)!
   indexer.rewardsEarned = indexer.rewardsEarned.plus(event.params.amount)
   // If the delegation pool has zero tokens, the contracts don't give away any rewards
   let indexerIndexingRewards =
@@ -42,7 +42,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
 
   // update allocation
   // no status updated, Claimed happens when RebateClaimed, and it is done
-  let allocation = Allocation.load(allocationID)
+  let allocation = Allocation.load(allocationID)!
   allocation.indexingRewards = allocation.indexingRewards.plus(event.params.amount)
   allocation.indexingIndexerRewards = allocation.indexingIndexerRewards.plus(indexerIndexingRewards)
   allocation.indexingDelegatorRewards = allocation.indexingDelegatorRewards.plus(
@@ -75,7 +75,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   subgraphDeployment.save()
 
   // update graph network
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalIndexingRewards = graphNetwork.totalIndexingRewards.plus(event.params.amount)
   graphNetwork.totalIndexingIndexerRewards = graphNetwork.totalIndexingIndexerRewards.plus(
     indexerIndexingRewards,
@@ -92,7 +92,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let rewardsManager = RewardsManager.bind(event.address as Address)
 
   if (parameter == 'issuanceRate') {
@@ -112,7 +112,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 // }
 
 export function handleRewardsDenyListUpdated(event: RewardsDenylistUpdated): void {
-  let subgraphDeployment = SubgraphDeployment.load(event.params.subgraphDeploymentID.toHexString())
+  let subgraphDeployment = SubgraphDeployment.load(event.params.subgraphDeploymentID.toHexString())!
   if (event.params.sinceBlock.toI32() == 0) {
     subgraphDeployment.deniedAt = 0
   } else {

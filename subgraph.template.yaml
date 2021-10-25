@@ -8,12 +8,12 @@ dataSources:
     name: Controller
     network: {{network}}
     source:
-      address: '{{controller}}'
+      address: "{{controller}}"
       abi: Controller
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/controller.ts
       entities:
@@ -36,12 +36,12 @@ dataSources:
     name: GNS
     network: {{network}}
     source:
-      address: '{{gns}}'
+      address: "{{gns}}"
       abi: GNS
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/gns.ts
       entities:
@@ -84,12 +84,12 @@ dataSources:
     name: ServiceRegistry
     network: {{network}}
     source:
-      address: '{{serviceRegistry}}'
+      address: "{{serviceRegistry}}"
       abi: ServiceRegistry
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/serviceRegistry.ts
       entities:
@@ -106,12 +106,12 @@ dataSources:
     name: Staking
     network: {{network}}
     source:
-      address: '{{staking}}'
+      address: "{{staking}}"
       abi: Staking
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/staking.ts
       entities:
@@ -172,12 +172,12 @@ dataSources:
     name: Curation
     network: {{network}}
     source:
-      address: '{{curation}}'
+      address: "{{curation}}"
       abi: Curation
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/curation.ts
       entities:
@@ -204,12 +204,12 @@ dataSources:
     name: GraphToken
     network: {{network}}
     source:
-      address: '{{graphToken}}'
+      address: "{{graphToken}}"
       abi: GraphToken
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/graphToken.ts
       entities:
@@ -227,12 +227,12 @@ dataSources:
     name: EthereumDIDRegistry
     network: {{network}}
     source:
-      address: '0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B'
+      address: "0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B"
       abi: EthereumDIDRegistry
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/ethereumDIDRegistry.ts
       entities:
@@ -247,12 +247,12 @@ dataSources:
     name: EpochManager
     network: {{network}}
     source:
-      address: '{{epochManager}}'
+      address: "{{epochManager}}"
       abi: EpochManager
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/epochManager.ts
       entities:
@@ -272,12 +272,12 @@ dataSources:
     name: RewardsManager
     network: {{network}}
     source:
-      address: '{{rewardsManager}}'
+      address: "{{rewardsManager}}"
       abi: RewardsManager
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/rewardsManager.ts
       entities:
@@ -302,12 +302,12 @@ dataSources:
     name: DisputeManager
     network: {{network}}
     source:
-      address: '{{disputeManager}}'
+      address: "{{disputeManager}}"
       abi: DisputeManager
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/disputeManager.ts
       entities:
@@ -336,12 +336,12 @@ dataSources:
     name: GraphTokenLockManager
     network: {{network}}
     source:
-      address: '{{tokenLockManager}}'
+      address: "{{tokenLockManager}}"
       abi: GraphTokenLockManager
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/tokenLockWallets/manager.ts
       entities:
@@ -370,7 +370,7 @@ templates:
       abi: GraphTokenLockWallet
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/tokenLockWallets/tokenLockWallet.ts
       entities:
