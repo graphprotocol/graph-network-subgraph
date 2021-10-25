@@ -25,7 +25,7 @@ export function handleServiceRegistered(event: ServiceRegistered): void {
  */
 export function handleServiceUnregistered(event: ServiceUnregistered): void {
   let id = event.params.indexer.toHexString()
-  let indexer = Indexer.load(id)
+  let indexer = Indexer.load(id)!
   indexer.url = null
   indexer.geoHash = null
   indexer.save()

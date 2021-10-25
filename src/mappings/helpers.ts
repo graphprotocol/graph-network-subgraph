@@ -53,7 +53,7 @@ export function createOrLoadSubgraph(
 
     subgraph.save()
 
-    let graphNetwork = GraphNetwork.load('1')
+    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.subgraphCount = graphNetwork.subgraphCount + 1
     graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount + 1
     graphNetwork.save()
@@ -65,7 +65,7 @@ export function createOrLoadSubgraphDeployment(
   subgraphID: string,
   timestamp: BigInt,
 ): SubgraphDeployment {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let deployment = SubgraphDeployment.load(subgraphID)
   if (deployment == null) {
     let prefix = '1220'
@@ -96,7 +96,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.deprecatedSubgraphCount = 0
     deployment.save()
 
-    let graphNetwork = GraphNetwork.load('1')
+    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.subgraphDeploymentCount = graphNetwork.subgraphDeploymentCount + 1
     graphNetwork.save()
   }
@@ -147,13 +147,13 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.annualizedReturn = BigDecimal.fromString('0')
     indexer.stakingEfficiency = BigDecimal.fromString('0')
 
-    let graphAccount = GraphAccount.load(id)
+    let graphAccount = GraphAccount.load(id)!
     graphAccount.indexer = id
     graphAccount.save()
 
     indexer.defaultDisplayName = graphAccount.defaultDisplayName
 
-    let graphNetwork = GraphNetwork.load('1')
+    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.indexerCount = graphNetwork.indexerCount + 1
     graphNetwork.save()
 
@@ -175,11 +175,11 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
     delegator.activeStakesCount = 0
     delegator.save()
 
-    let graphAccount = GraphAccount.load(id)
+    let graphAccount = GraphAccount.load(id)!
     graphAccount.delegator = id
     graphAccount.save()
 
-    let graphNetwork = GraphNetwork.load('1')
+    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.delegatorCount = graphNetwork.delegatorCount + 1
     graphNetwork.save()
   }
@@ -208,11 +208,11 @@ export function createOrLoadDelegatedStake(
 
     delegatedStake.save()
 
-    let delegatorEntity = Delegator.load(delegator)
+    let delegatorEntity = Delegator.load(delegator)!
     delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1
     delegatorEntity.save()
 
-    let graphNetwork = GraphNetwork.load('1')
+    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.delegationCount = graphNetwork.delegationCount + 1
     graphNetwork.save()
   }
@@ -250,11 +250,11 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.activeCombinedSignalCount = 0
     curator.save()
 
-    let graphAccount = GraphAccount.load(id)
+    let graphAccount = GraphAccount.load(id)!
     graphAccount.curator = id
     graphAccount.save()
 
-    let graphNetwork = GraphNetwork.load('1')
+    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.curatorCount = graphNetwork.curatorCount + 1
     graphNetwork.save()
   }
@@ -286,7 +286,7 @@ export function createOrLoadSignal(
     signal.lastUpdatedAtBlock = blockNumber
     signal.save()
 
-    let curatorEntity = Curator.load(curator)
+    let curatorEntity = Curator.load(curator)!
     curatorEntity.signalCount = curatorEntity.signalCount + 1
     curatorEntity.combinedSignalCount = curatorEntity.combinedSignalCount + 1
     curatorEntity.save()
@@ -321,12 +321,12 @@ export function createOrLoadNameSignal(
     nameSignal.signalAverageCostBasisPerSignal = BigDecimal.fromString('0')
     nameSignal.save()
 
-    let curatorEntity = Curator.load(curator)
+    let curatorEntity = Curator.load(curator)!
     curatorEntity.nameSignalCount = curatorEntity.nameSignalCount + 1
     curatorEntity.combinedSignalCount = curatorEntity.combinedSignalCount + 1
     curatorEntity.save()
 
-    let subgraphEntity = Subgraph.load(subgraphID)
+    let subgraphEntity = Subgraph.load(subgraphID)!
     let relation = new NameSignalSubgraphRelation(
       joinID([subgraphID, BigInt.fromI32(subgraphEntity.nameSignalCount).toString()]),
     )
@@ -375,7 +375,7 @@ export function createOrLoadPool(id: BigInt): Pool {
 }
 
 export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
@@ -425,7 +425,7 @@ export function createOrLoadGraphNetwork(
   blockNumber: BigInt,
   controllerAddress: Bytes,
 ): GraphNetwork {
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   if (graphNetwork == null) {
     graphNetwork = new GraphNetwork('1')
 
@@ -652,7 +652,7 @@ function createGraphAccountName(
     // If so, remove the old owner, and set the new one
   } else if (graphAccountName.graphAccount != graphAccount) {
     // Set defaultDisplayName to null if they lost ownership of this name
-    let oldGraphAccount = GraphAccount.load(graphAccountName.graphAccount)
+    let oldGraphAccount = GraphAccount.load(graphAccountName.graphAccount!)!
     oldGraphAccount.defaultDisplayName = null
     oldGraphAccount.save()
 
@@ -676,7 +676,7 @@ function max(a: BigDecimal, b: BigDecimal): BigDecimal {
 export function calculateOwnStakeRatio(indexer: Indexer): BigDecimal {
   let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
   let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
   let maxPossibleTotalUsable = stakedTokensBD + stakedTokensBD * delegationRatioBD
   let currentTotalStake = stakedTokensBD + delegatedTokensBD
@@ -723,7 +723,7 @@ export function calculateIndexerRewardOwnGenerationRatio(indexer: Indexer): BigD
 export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
   let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
   let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
-  let graphNetwork = GraphNetwork.load('1')
+  let graphNetwork = GraphNetwork.load('1')!
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
   let maxDelegatedStake = stakedTokensBD * delegationRatioBD
   return stakedTokensBD == BigDecimal.fromString('0')
@@ -774,7 +774,7 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
   return pricePerShare
 }
 
-export function createOrLoadNetwork(id: String): Network {
+export function createOrLoadNetwork(id: string): Network {
   let network = Network.load(id)
   if (network == null) {
     network = new Network(id)
@@ -784,7 +784,7 @@ export function createOrLoadNetwork(id: String): Network {
   return network as Network
 }
 
-export function createOrLoadSubgraphCategory(id: String): SubgraphCategory {
+export function createOrLoadSubgraphCategory(id: string): SubgraphCategory {
   let category = SubgraphCategory.load(id)
   if (category == null) {
     category = new SubgraphCategory(id)
@@ -795,8 +795,8 @@ export function createOrLoadSubgraphCategory(id: String): SubgraphCategory {
 }
 
 export function createOrLoadSubgraphCategoryRelation(
-  categoryId: String,
-  subgraphId: String,
+  categoryId: string,
+  subgraphId: string,
 ): SubgraphCategoryRelation {
   let id = joinID([categoryId, subgraphId])
   let relation = SubgraphCategoryRelation.load(id)
@@ -819,8 +819,8 @@ export function updateCurrentDeploymentLinks(
   if (oldDeployment != null) {
     if (!deprecated) {
       let oldRelationEntity = CurrentSubgraphDeploymentRelation.load(
-        subgraph.currentVersionRelationEntity,
-      )
+        subgraph.currentVersionRelationEntity!
+      )!
       oldRelationEntity.active = false
       oldRelationEntity.save()
     }
@@ -854,9 +854,9 @@ export function updateCurrentDeploymentLinks(
 export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeployment): void {
   for (let i = 0; i < deployment.subgraphCount; i++) {
     let id = deployment.id.concat('-').concat(BigInt.fromI32(i).toString())
-    let relationEntity = CurrentSubgraphDeploymentRelation.load(id)
+    let relationEntity = CurrentSubgraphDeploymentRelation.load(id)!
     if (relationEntity.active) {
-      let subgraphEntity = Subgraph.load(relationEntity.subgraph)
+      let subgraphEntity = Subgraph.load(relationEntity.subgraph)!
       subgraphEntity.currentSignalledTokens = deployment.signalledTokens
       subgraphEntity.save()
     }
