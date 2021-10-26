@@ -49,7 +49,7 @@ export function createOrLoadSubgraph(
     subgraph.withdrawnTokens = BigInt.fromI32(0)
     subgraph.nameSignalCount = 0
 
-    subgraph.metadataHash = Bytes.fromI32(0) as Bytes
+    subgraph.metadataHash = changetype<Bytes>(Bytes.fromI32(0))
 
     subgraph.save()
 
@@ -425,11 +425,11 @@ export function createOrLoadGraphNetwork(
   blockNumber: BigInt,
   controllerAddress: Bytes,
 ): GraphNetwork {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = GraphNetwork.load('1')
   if (graphNetwork == null) {
     graphNetwork = new GraphNetwork('1')
 
-    let contract = Controller.bind(controllerAddress as Address)
+    let contract = Controller.bind(changetype<Address>(controllerAddress))
     let governor = contract.getGovernor()
 
     // All of the 0x0000 addresses will be replaced in controller deployment calls
@@ -543,7 +543,7 @@ export function addQm(a: ByteArray): ByteArray {
   for (let i = 0; i < 32; i++) {
     out[i + 2] = a[i]
   }
-  return out as ByteArray
+  return changetype<ByteArray>(out)
 }
 
 // Helper for concatenating two byte arrays
@@ -555,7 +555,7 @@ export function concatByteArrays(a: ByteArray, b: ByteArray): ByteArray {
   for (let j = 0; j < b.length; j++) {
     out[a.length + j] = b[j]
   }
-  return out as ByteArray
+  return changetype<ByteArray>(out)
 }
 
 export function getVersionNumber(
@@ -619,7 +619,7 @@ function checkTLD(name: string, node: string): boolean {
  * @returns - true if name is verified
  */
 function verifyNameOwnership(graphAccount: string, node: Bytes): boolean {
-  let ens = ENS.bind(Address.fromHexString(addresses.ens) as Address)
+  let ens = ENS.bind(changetype<Address>(Address.fromHexString(addresses.ens)))
   let ownerOnENS = ens.try_owner(node)
   if (ownerOnENS.reverted == true) {
     log.warning('Try owner reverted for node: {}', [node.toHexString()])
