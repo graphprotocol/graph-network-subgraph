@@ -15,7 +15,7 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
   ) {
     // TODO optimization - make this more robust, since value is BYTES not BYTES32, and if someone
     // called it directly, it could crash the subgraph
-    let hexHash = addQm(event.params.value) as Bytes
+    let hexHash = changetype<Bytes>(addQm(event.params.value))
     let base58Hash = hexHash.toBase58()
     graphAccount.metadataHash = event.params.value
 
