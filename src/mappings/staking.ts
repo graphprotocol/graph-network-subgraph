@@ -455,7 +455,11 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
-  if (event.params.sender != event.params.indexer) {
+  const indexerAccount = GraphAccount.load(indexer.account)!
+  const closedByIndexer = event.params.sender == event.params.indexer
+  const closedByOperator = indexerAccount.operators.includes(event.params.sender.toHexString())
+  
+  if (!closedByIndexer && !closedByOperator) {
     indexer.forcedClosures = indexer.forcedClosures + 1
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
