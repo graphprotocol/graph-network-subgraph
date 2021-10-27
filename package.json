@@ -32,7 +32,8 @@
     "lint": "yarn eslint .",
     "lint-fix": "eslint . --fix",
     "prettier": "prettier '**/*.ts'",
-    "prettier-write": "prettier --write '**/*.ts'"
+    "prettier-write": "prettier --write '**/*.ts'",
+    "test": "graph test -v 0.2.0"
   },
   "devDependencies": {
     "@graphprotocol/contracts": "^1.1.0",
