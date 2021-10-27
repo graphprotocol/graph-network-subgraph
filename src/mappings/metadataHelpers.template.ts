@@ -6,7 +6,7 @@ import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, cre
 export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: string): void {
   {{#ipfs}}
   let ipfsData = ipfs.cat(ipfsHash)
-  if (ipfsData != null) {
+  if (ipfsData !== null) {
     let data = json.fromBytes(ipfsData as Bytes).toObject()
     graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
     graphAccount.description = jsonToString(data.get('description'))
@@ -22,7 +22,7 @@ export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: 
     // Update all associated vesting contract addresses
     let tlws = graphAccount.tokenLockWallets
     for (let i = 0; i < tlws.length; i++) {
-      let tlw = GraphAccount.load(tlws[i])
+      let tlw = GraphAccount.load(tlws[i])!
       tlw.codeRepository = graphAccount.codeRepository
       tlw.description = graphAccount.description
       tlw.image = graphAccount.image
@@ -51,7 +51,7 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
       subgraph.website = jsonToString(data.get('website'))
       let categories = data.get('categories')
 
-      if(!categories.isNull()) {
+      if(categories != null && !categories.isNull()) {
         let categoriesArray = categories.toArray()
 
         for(let i = 0; i < categoriesArray.length; i++) {
@@ -90,7 +90,7 @@ export function fetchSubgraphDeploymentManifest(deployment: SubgraphDeployment, 
   if (getManifestFromIPFS !== null) {
     deployment.manifest = getManifestFromIPFS.toString()
 
-    let manifest = deployment.manifest
+    let manifest = deployment.manifest!
     // we take the right side of the split, since it's the one which will have the schema ipfs hash
     let schemaSplit = manifest.split('schema:\n', 2)[1]
     let schemaFileSplit = schemaSplit.split('/ipfs/', 2)[1]
