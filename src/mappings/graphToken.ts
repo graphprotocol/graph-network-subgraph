@@ -18,8 +18,8 @@ export function handleTransfer(event: Transfer): void {
   let to = event.params.to
   let from = event.params.from
   let value = event.params.value
-  let userTo = createOrLoadGraphAccount(to.toHexString(), to, event.block.timestamp)
-  let userFrom = createOrLoadGraphAccount(from.toHexString(), to, event.block.timestamp)
+  let userTo = createOrLoadGraphAccount(to, event.block.timestamp)
+  let userFrom = createOrLoadGraphAccount(from, event.block.timestamp)
 
   // no need to do any updates if it was a self transfer
   if (to == from) return
@@ -65,11 +65,7 @@ export function handleApproval(event: Approval): void {
   let curation = graphNetwork.curation
   let gns = graphNetwork.gns
   let spender = event.params.spender
-  let graphAccount = createOrLoadGraphAccount(
-    event.params.owner.toHexString(),
-    event.params.owner,
-    event.block.timestamp,
-  )
+  let graphAccount = createOrLoadGraphAccount(event.params.owner, event.block.timestamp)
 
   if (spender == staking) {
     graphAccount.stakingApproval = event.params.value

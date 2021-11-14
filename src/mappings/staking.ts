@@ -615,11 +615,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 }
 
 export function handleSetOperator(event: SetOperator): void {
-  let graphAccount = createOrLoadGraphAccount(
-    event.params.indexer.toHexString(),
-    event.params.indexer,
-    event.block.timestamp,
-  )
+  let graphAccount = createOrLoadGraphAccount(event.params.indexer, event.block.timestamp)
   let operators = graphAccount.operators
   let index = operators.indexOf(event.params.operator.toHexString())
   if (index != -1) {
@@ -632,11 +628,7 @@ export function handleSetOperator(event: SetOperator): void {
     if (event.params.allowed) {
       operators.push(event.params.operator.toHexString())
       // Create the operator as a graph account
-      createOrLoadGraphAccount(
-        event.params.operator.toHexString(),
-        event.params.operator,
-        event.block.timestamp,
-      )
+      createOrLoadGraphAccount(event.params.operator, event.block.timestamp)
     }
   }
   graphAccount.operators = operators
