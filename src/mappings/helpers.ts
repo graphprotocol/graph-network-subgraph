@@ -38,6 +38,7 @@ export function createOrLoadSubgraph(
     subgraph.createdAt = timestamp.toI32()
     subgraph.updatedAt = timestamp.toI32()
     subgraph.active = true
+    subgraph.migrated = false
 
     subgraph.signalledTokens = BigInt.fromI32(0)
     subgraph.unsignalledTokens = BigInt.fromI32(0)
@@ -339,11 +340,8 @@ export function createOrLoadNameSignal(
   return nameSignal as NameSignal
 }
 
-export function createOrLoadGraphAccount(
-  id: string,
-  owner: Bytes,
-  timeStamp: BigInt,
-): GraphAccount {
+export function createOrLoadGraphAccount(owner: Bytes, timeStamp: BigInt): GraphAccount {
+  let id = owner.toHexString()
   let graphAccount = GraphAccount.load(id)
   if (graphAccount == null) {
     graphAccount = new GraphAccount(id)
@@ -863,4 +861,12 @@ export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeploymen
       subgraphEntity.save()
     }
   }
+}
+
+export function getSubgraphID(graphAccount: Address, subgraphNumber: BigInt): String {
+  let graphAccountStr = graphAccount.toHexString()
+  let subgraphNumberStr = subgraphNumber.toString()
+  let unhashedSubgraphID = graphAccountStr.concat(subgraphNumberStr)
+  let bigIntRepresentation = BigInt.fromByteArray(crypto.keccak256(ByteArray.fromUTF8(unhashedSubgraphID)))
+  return bigIntRepresentation.toString()
 }
