@@ -11,7 +11,7 @@ export function handleServiceRegistered(event: ServiceRegistered): void {
   let id = event.params.indexer.toHexString()
 
   // Creates Graph Account, if needed
-  createOrLoadGraphAccount(id, event.params.indexer, event.block.timestamp)
+  createOrLoadGraphAccount(event.params.indexer, event.block.timestamp)
 
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
   indexer.url = event.params.url
