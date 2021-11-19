@@ -207,7 +207,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let oldVersionID = subgraph.currentVersion
 
   versionNumber = subgraph.versionCount
-  versionID = joinID([subgraphID.toString(), subgraph.versionCount.toString()])
+  versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
   subgraph.currentVersion = versionID
   subgraph.versionCount = versionNumber.plus(BigInt.fromI32(1))
 
@@ -222,7 +222,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
-  subgraphVersion.subgraph = subgraphID.toString()
+  subgraphVersion.subgraph = subgraph.id
   subgraphVersion.subgraphDeployment = subgraphDeploymentID
   subgraphVersion.version = versionNumber.toI32()
   subgraphVersion.createdAt = event.block.timestamp.toI32()
@@ -1018,7 +1018,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
   let subgraph = Subgraph.load(subgraphID)!
   let oldVersionID = subgraph.currentVersion
 
-  versionID = joinID([subgraphID, subgraph.versionCount.toString()])
+  versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
   subgraph.currentVersion = versionID
   subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
   subgraph.updatedAt = event.block.timestamp.toI32()
@@ -1030,7 +1030,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
 
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
-  subgraphVersion.subgraph = subgraphID
+  subgraphVersion.subgraph = subgraph.id
   subgraphVersion.subgraphDeployment = subgraphDeploymentID
   subgraphVersion.version = versionNumber as i32
   subgraphVersion.createdAt = event.block.timestamp.toI32()
