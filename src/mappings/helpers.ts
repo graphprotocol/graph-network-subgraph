@@ -26,10 +26,11 @@ import { fetchSubgraphDeploymentManifest } from './metadataHelpers'
 import { addresses } from '../../config/addresses'
 
 export function createOrLoadSubgraph(
-  subgraphID: string,
+  bigIntID: BigInt,
   owner: Address,
   timestamp: BigInt,
 ): Subgraph {
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)
   if (subgraph == null) {
     subgraph = new Subgraph(subgraphID)
@@ -39,6 +40,7 @@ export function createOrLoadSubgraph(
     subgraph.updatedAt = timestamp.toI32()
     subgraph.active = true
     subgraph.migrated = false
+    subgraph.nftID = bigIntID.toString()
 
     subgraph.signalledTokens = BigInt.fromI32(0)
     subgraph.unsignalledTokens = BigInt.fromI32(0)
@@ -863,10 +865,27 @@ export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeploymen
   }
 }
 
-export function getSubgraphID(graphAccount: Address, subgraphNumber: BigInt): String {
+export function convertBigIntSubgraphIDToBase58(bigIntRepresentation: BigInt): String {
+  // Might need to unpad the BigInt since `fromUnsignedBytes` pads one byte with a zero.
+  // Although for the events where the uint256 is provided, we probably don't need to unpad.
+  let hexString = bigIntRepresentation.toHexString()
+  if (hexString.length % 2 != 0) {
+    log.error('Hex string not even, hex: {}, original: {}. Padding it to even length', [
+      hexString,
+      bigIntRepresentation.toString(),
+    ])
+    hexString = '0x0' + hexString.slice(2)
+  }
+  let bytes = ByteArray.fromHexString(hexString)
+  return bytes.toBase58()
+}
+
+export function getSubgraphID(graphAccount: Address, subgraphNumber: BigInt): BigInt {
   let graphAccountStr = graphAccount.toHexString()
-  let subgraphNumberStr = subgraphNumber.toString()
-  let unhashedSubgraphID = graphAccountStr.concat(subgraphNumberStr)
-  let bigIntRepresentation = BigInt.fromByteArray(crypto.keccak256(ByteArray.fromUTF8(unhashedSubgraphID)))
-  return bigIntRepresentation.toString()
+  let subgraphNumberStr = subgraphNumber.toHexString().slice(2)
+  let number = subgraphNumberStr.padStart(64, '0')
+  let unhashedSubgraphID = graphAccountStr.concat(number)
+  let hashedId = Bytes.fromByteArray(crypto.keccak256(ByteArray.fromHexString(unhashedSubgraphID)))
+  let bigIntRepresentation = BigInt.fromUnsignedBytes(changetype<Bytes>(hashedId.reverse()))
+  return bigIntRepresentation
 }
