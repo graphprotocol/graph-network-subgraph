@@ -322,6 +322,8 @@ type Subgraph @entity {
   active: Boolean!
   "Whether the subgraph has been migrated to the NFT implementation"
   migrated: Boolean!
+  "The actual ID of the subgraph on the contracts subgraph NFT implementation. BigInt represented as a String. It's only actually valid once the subgraph is migrated (migrated == true)"
+  nftID: String!
 
   # Name curation data for bonding curve
   # Note that the Subgraphs V signal is actually stored in a Signal entity, which

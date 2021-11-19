@@ -50,6 +50,7 @@ import {
   createOrLoadNameSignal,
   updateCurrentDeploymentLinks,
   getSubgraphID,
+  convertBigIntSubgraphIDToBase58,
 } from './helpers'
 import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './metadataHelpers'
 
@@ -206,7 +207,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let oldVersionID = subgraph.currentVersion
 
   versionNumber = subgraph.versionCount
-  versionID = joinID([subgraphID, versionNumber.toString()])
+  versionID = joinID([subgraphID.toString(), subgraph.versionCount.toString()])
   subgraph.currentVersion = versionID
   subgraph.versionCount = versionNumber.plus(BigInt.fromI32(1))
 
@@ -221,7 +222,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
-  subgraphVersion.subgraph = subgraphID
+  subgraphVersion.subgraph = subgraphID.toString()
   subgraphVersion.subgraphDeployment = subgraphDeploymentID
   subgraphVersion.version = versionNumber.toI32()
   subgraphVersion.createdAt = event.block.timestamp.toI32()
@@ -245,7 +246,8 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
  * - deprecates subgraph version
  */
 export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
-  let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let bigIntID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.active = false
@@ -265,7 +267,8 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
 }
 
 export function handleNameSignalEnabled(event: NameSignalEnabled): void {
-  let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let bigIntID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   // Right now we set deploymentID in SubgraphPublished, so only this is needed
@@ -275,7 +278,8 @@ export function handleNameSignalEnabled(event: NameSignalEnabled): void {
 
 export function handleNSignalMinted(event: NSignalMinted): void {
   let curatorID = event.params.nameCurator.toHexString()
-  let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let bigIntID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
@@ -383,7 +387,8 @@ export function handleNSignalMinted(event: NSignalMinted): void {
 }
 
 export function handleNSignalBurned(event: NSignalBurned): void {
-  let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let bigIntID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
@@ -490,7 +495,8 @@ export function handleNSignalBurned(event: NSignalBurned): void {
 }
 
 export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
-  let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let bigIntID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   // Weirdly here, we add the token amount to both, but also the name curator owner must
@@ -551,7 +557,8 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
 // Only need to upgrade withdrawable tokens. Everything else handled from
 // curation events, or handleGRTWithdrawn
 export function handleNameSignalDisabled(event: NameSignalDisabled): void {
-  let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let bigIntID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
   subgraph.withdrawableTokens = event.params.withdrawableGRT
   subgraph.signalAmount = BigInt.fromI32(0)
@@ -559,7 +566,8 @@ export function handleNameSignalDisabled(event: NameSignalDisabled): void {
 }
 
 export function handleGRTWithdrawn(event: GRTWithdrawn): void {
-  let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let bigIntID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
   subgraph.withdrawableTokens = subgraph.withdrawableTokens.minus(event.params.withdrawnGRT)
   subgraph.withdrawnTokens = subgraph.withdrawnTokens.plus(event.params.withdrawnGRT)
@@ -612,7 +620,8 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 //   handler: handleSubgraphPublishedV2
 
 export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
-  let subgraphID = event.params.subgraphID.toString()
+  let bigIntID = event.params.subgraphID
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.reserveRatio = event.params.reserveRatio.toI32()
@@ -623,7 +632,8 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
 //   handler: handleSubgraphDeprecatedV2
 
 export function handleSubgraphDeprecatedV2(event: SubgraphDeprecated1): void {
-  let subgraphID = event.params.subgraphID.toString()
+  let bigIntID = event.params.subgraphID
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.active = false
@@ -646,7 +656,8 @@ export function handleSubgraphDeprecatedV2(event: SubgraphDeprecated1): void {
 //   handler: handleSubgraphMetadataUpdatedV2
 
 export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1): void {
-  let subgraphID = event.params.subgraphID.toString()
+  let bigIntID = event.params.subgraphID
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   let hexHash = changetype<Bytes>(addQm(event.params.subgraphMetadata))
@@ -674,7 +685,8 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
 
 export function handleNSignalMintedV2(event: SignalMinted): void {
   let curatorID = event.params.curator.toHexString()
-  let subgraphID = event.params.subgraphID.toString()
+  let bigIntID = event.params.subgraphID
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.plus(event.params.nSignalCreated)
@@ -785,7 +797,8 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
 //   handler: handleNSignalBurnedV2
 
 export function handleNSignalBurnedV2(event: SignalBurned): void {
-  let subgraphID = event.params.subgraphID.toString()
+  let bigIntID = event.params.subgraphID
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(event.params.nSignalBurnt)
@@ -895,7 +908,8 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
 //   handler: handleGRTWithdrawnV2
 
 export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
-  let subgraphID = event.params.subgraphID.toString()
+  let bigIntID = event.params.subgraphID
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
   subgraph.withdrawableTokens = subgraph.withdrawableTokens.minus(event.params.withdrawnGRT)
   subgraph.withdrawnTokens = subgraph.withdrawnTokens.plus(event.params.withdrawnGRT)
@@ -932,7 +946,8 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
 //   handler: handleSubgraphUpgraded
 
 export function handleSubgraphUpgraded(event: SubgraphUpgraded): void {
-  let subgraphID = event.params.subgraphID.toString()
+  let bigIntID = event.params.subgraphID
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
 
   // Weirdly here, we add the token amount to both, but also the name curator owner must
@@ -994,7 +1009,8 @@ export function handleSubgraphUpgraded(event: SubgraphUpgraded): void {
 //   handler: handleSubgraphVersionUpdated
 
 export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): void {
-  let subgraphID = event.params.subgraphID.toString()
+  let bigIntID = event.params.subgraphID
+  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let versionID: string
   let versionNumber: number
 
