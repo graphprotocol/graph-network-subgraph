@@ -208,6 +208,8 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   versionNumber = subgraph.versionCount
   versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
+  subgraph.creatorAddress = changetype<Bytes>(event.params.graphAccount)
+  subgraph.subgraphNumber = event.params.subgraphNumber
   subgraph.currentVersion = versionID
   subgraph.versionCount = versionNumber.plus(BigInt.fromI32(1))
 
@@ -628,7 +630,7 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
   subgraph.save()
 }
 
-// - event: SubgraphDeprecated(indexed uint256,uint256) (Also has to handle name signal disabled) TODO
+// - event: SubgraphDeprecated(indexed uint256,uint256)
 //   handler: handleSubgraphDeprecatedV2
 
 export function handleSubgraphDeprecatedV2(event: SubgraphDeprecated1): void {
@@ -638,6 +640,8 @@ export function handleSubgraphDeprecatedV2(event: SubgraphDeprecated1): void {
 
   subgraph.active = false
   subgraph.updatedAt = event.block.timestamp.toI32()
+  subgraph.withdrawableTokens = event.params.withdrawableGRT
+  subgraph.signalAmount = BigInt.fromI32(0)
   subgraph.save()
 
   let graphNetwork = GraphNetwork.load('1')!
