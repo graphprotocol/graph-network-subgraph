@@ -210,6 +210,10 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
   subgraph.creatorAddress = changetype<Bytes>(event.params.graphAccount)
   subgraph.subgraphNumber = event.params.subgraphNumber
+  subgraph.oldID = joinID([
+    event.params.graphAccount.toHexString(),
+    event.params.subgraphNumber.toString(),
+  ])
   subgraph.currentVersion = versionID
   subgraph.versionCount = versionNumber.plus(BigInt.fromI32(1))
 
