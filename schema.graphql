@@ -324,6 +324,8 @@ type Subgraph @entity {
   migrated: Boolean!
   "The actual ID of the subgraph on the contracts subgraph NFT implementation. BigInt represented as a String. It's only actually valid once the subgraph is migrated (migrated == true)"
   nftID: String!
+  "ID of the subgraph that was used on the old version of this The Graph Network Subgraph. Null for Subgraphs created with the new GNS implementation"
+  oldID: String
   "Address used to create the ID. Only available for Subgraphs created pre-migration"
   creatorAddress: Bytes
   "Subgraph number used to create the ID. Only available for Subgraphs created pre-migration"
