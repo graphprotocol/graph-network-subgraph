@@ -330,6 +330,8 @@ type Subgraph @entity {
   creatorAddress: Bytes
   "Subgraph number used to create the ID. Only available for Subgraphs created pre-migration"
   subgraphNumber: BigInt
+  "Auxiliary field to denote whether the subgraph is handling the initialization order on V2 events. Doesn't matter for V1 events."
+  initializing: Boolean!
 
   # Name curation data for bonding curve
   # Note that the Subgraphs V signal is actually stored in a Signal entity, which
@@ -429,7 +431,7 @@ type SubgraphVersion @entity {
 
   # Metadata from IPFS linked in GNS
   "Subgraph version metadata content address"
-  metadataHash: Bytes!
+  metadataHash: Bytes
   "Short description of the version"
   description: String
   "Semantic versioning label"

@@ -628,10 +628,41 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
   let bigIntID = event.params.subgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
-  let subgraph = Subgraph.load(subgraphID)!
+  let versionID: string
+  let versionNumber: number
 
+  // Update subgraph
+  let subgraph = createOrLoadSubgraph(event.params.subgraphID, event.transaction.from, event.block.timestamp)
+  let oldVersionID = subgraph.currentVersion
+
+  versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
+  subgraph.currentVersion = versionID
+  subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.reserveRatio = event.params.reserveRatio.toI32()
+  subgraph.initializing = true
   subgraph.save()
+
+  // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+
+  // Create subgraph version
+  let subgraphVersion = new SubgraphVersion(versionID)
+  subgraphVersion.subgraph = subgraph.id
+  subgraphVersion.subgraphDeployment = subgraphDeploymentID
+  subgraphVersion.version = versionNumber as i32
+  subgraphVersion.createdAt = event.block.timestamp.toI32()
+  subgraphVersion.save()
+
+  let oldDeployment: SubgraphDeployment | null = null
+  if (oldVersionID != null) {
+    let oldVersion = SubgraphVersion.load(oldVersionID!)!
+    oldDeployment = SubgraphDeployment.load(oldVersion.subgraphDeployment)!
+  }
+  // create deployment - named subgraph relationship, and update the old one
+  updateCurrentDeploymentLinks(oldDeployment, deployment, subgraph as Subgraph)
+
 }
 
 // - event: SubgraphDeprecated(indexed uint256,uint256)
@@ -1016,6 +1047,10 @@ export function handleSubgraphUpgraded(event: SubgraphUpgraded): void {
 // - event: SubgraphVersionUpdated(indexed uint256,indexed bytes32,bytes32)
 //   handler: handleSubgraphVersionUpdated
 
+// Might need to workaround this one, because of the ordering in subgraph creation scenario,
+// we need to run this same code in SubgraphPublished (v2) too, and flag it so some of these executions
+// don't create bugs (like double counting/creating versions)
+
 export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): void {
   let bigIntID = event.params.subgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
@@ -1024,37 +1059,52 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
 
   // Update subgraph
   let subgraph = Subgraph.load(subgraphID)!
-  let oldVersionID = subgraph.currentVersion
 
-  versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
-  subgraph.currentVersion = versionID
-  subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
-  subgraph.updatedAt = event.block.timestamp.toI32()
-  subgraph.save()
+  if(subgraph.initializing) {
+    subgraph.initializing = false;
+    subgraph.save()
 
-  // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
-  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+    // Update already initialized subgraph version
+    versionID = joinID([subgraph.id, subgraph.versionCount.minus(BigInt.fromI32(1)).toString()])
+    let subgraphVersion = SubgraphVersion.load(versionID)!
+    let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
+    let base58Hash = hexHash.toBase58()
+    subgraphVersion.metadataHash = event.params.versionMetadata
+    subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
+    subgraphVersion.save()
+  } else {
+    let oldVersionID = subgraph.currentVersion
 
-  // Create subgraph version
-  let subgraphVersion = new SubgraphVersion(versionID)
-  subgraphVersion.subgraph = subgraph.id
-  subgraphVersion.subgraphDeployment = subgraphDeploymentID
-  subgraphVersion.version = versionNumber as i32
-  subgraphVersion.createdAt = event.block.timestamp.toI32()
-  let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
-  let base58Hash = hexHash.toBase58()
-  subgraphVersion.metadataHash = event.params.versionMetadata
-  subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
-  subgraphVersion.save()
+    versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
+    subgraph.currentVersion = versionID
+    subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
+    subgraph.updatedAt = event.block.timestamp.toI32()
+    subgraph.save()
 
-  let oldDeployment: SubgraphDeployment | null = null
-  if (oldVersionID != null) {
-    let oldVersion = SubgraphVersion.load(oldVersionID!)!
-    oldDeployment = SubgraphDeployment.load(oldVersion.subgraphDeployment)!
+    // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
+    let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+
+    // Create subgraph version
+    let subgraphVersion = new SubgraphVersion(versionID)
+    subgraphVersion.subgraph = subgraph.id
+    subgraphVersion.subgraphDeployment = subgraphDeploymentID
+    subgraphVersion.version = versionNumber as i32
+    subgraphVersion.createdAt = event.block.timestamp.toI32()
+    let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
+    let base58Hash = hexHash.toBase58()
+    subgraphVersion.metadataHash = event.params.versionMetadata
+    subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
+    subgraphVersion.save()
+
+    let oldDeployment: SubgraphDeployment | null = null
+    if (oldVersionID != null) {
+      let oldVersion = SubgraphVersion.load(oldVersionID!)!
+      oldDeployment = SubgraphDeployment.load(oldVersion.subgraphDeployment)!
+    }
+    // create deployment - named subgraph relationship, and update the old one
+    updateCurrentDeploymentLinks(oldDeployment, deployment, subgraph as Subgraph)
   }
-  // create deployment - named subgraph relationship, and update the old one
-  updateCurrentDeploymentLinks(oldDeployment, deployment, subgraph as Subgraph)
 }
 
 // - event: LegacySubgraphClaimed(indexed address,uint256)
