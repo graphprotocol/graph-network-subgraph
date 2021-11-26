@@ -41,6 +41,7 @@ export function createOrLoadSubgraph(
     subgraph.active = true
     subgraph.migrated = false
     subgraph.nftID = bigIntID.toString()
+    subgraph.initializing = false
 
     subgraph.signalledTokens = BigInt.fromI32(0)
     subgraph.unsignalledTokens = BigInt.fromI32(0)
