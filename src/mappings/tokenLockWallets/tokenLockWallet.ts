@@ -1,4 +1,4 @@
-import { BigInt, log } from '@graphprotocol/graph-ts'
+import { log } from '@graphprotocol/graph-ts'
 import {
   TokensReleased,
   TokensWithdrawn,

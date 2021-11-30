@@ -1,10 +1,4 @@
-import {
-  Signalled,
-  Burned,
-  Collected,
-  Curation,
-  ParameterUpdated,
-} from '../types/Curation/Curation'
+import { Signalled, Burned, Curation, ParameterUpdated } from '../types/Curation/Curation'
 import {
   Curator,
   GraphNetwork,
@@ -12,7 +6,7 @@ import {
   SubgraphDeployment,
   SignalTransaction,
 } from '../types/schema'
-import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { BigInt } from '@graphprotocol/graph-ts'
 
 import {
   createOrLoadSignal,

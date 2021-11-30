@@ -1,12 +1,5 @@
 import { Address, BigDecimal, BigInt, ByteArray } from '@graphprotocol/graph-ts'
-import {
-  Indexer,
-  Allocation,
-  GraphNetwork,
-  SubgraphDeployment,
-  Dispute,
-  Attestation,
-} from '../types/schema'
+import { Allocation, GraphNetwork, Dispute, Attestation } from '../types/schema'
 import {
   ParameterUpdated,
   QueryDisputeCreated,
