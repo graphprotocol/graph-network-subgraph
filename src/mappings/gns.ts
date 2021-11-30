@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Bytes, json } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphDeprecated,
@@ -197,15 +197,16 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let subgraphNumber = event.params.subgraphNumber.toString()
   let subgraphID = joinID([graphAccountID, subgraphNumber])
   let versionID: string
-  let versionNumber: number
+  let versionNumber: BigInt
 
   // Update subgraph
   let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp)
   let oldVersionID = subgraph.currentVersion
 
-  versionID = joinID([subgraphID, subgraph.versionCount.toString()])
+  versionNumber = subgraph.versionCount
+  versionID = joinID([subgraphID, versionNumber.toString()])
   subgraph.currentVersion = versionID
-  subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
+  subgraph.versionCount = versionNumber.plus(BigInt.fromI32(1))
 
   // Creates Graph Account, if needed
   createOrLoadGraphAccount(graphAccountID, event.params.graphAccount, event.block.timestamp)
@@ -220,7 +221,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let subgraphVersion = new SubgraphVersion(versionID)
   subgraphVersion.subgraph = subgraphID
   subgraphVersion.subgraphDeployment = subgraphDeploymentID
-  subgraphVersion.version = versionNumber as i32
+  subgraphVersion.version = versionNumber.toI32()
   subgraphVersion.createdAt = event.block.timestamp.toI32()
   let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
   let base58Hash = hexHash.toBase58()
@@ -604,7 +605,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
 }
 
 /**
- * @dev handleParamterUpdated
+ * @dev handleParameterUpdated
  * - updates all parameters of GNS, depending on string passed. We then can
  *   call the contract directly to get the updated value
  */
