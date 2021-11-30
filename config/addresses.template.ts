@@ -31,5 +31,5 @@ export let addresses: Addresses = {
   ensPublicResolver: '{{ensPublicResolver}}',
   blockNumber: '{{blockNumber}}',
   network: '{{network}}',
-  tokenLockManager: '{{tokenLockManager}}}'
+  tokenLockManager: '{{tokenLockManager}}}',
 }

@@ -1,4 +1,4 @@
-import { BigInt, Address, BigDecimal, Bytes, ipfs, log } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -223,12 +223,11 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
 
-
-  if(isStakeBecomingActive) {
+  if (isStakeBecomingActive) {
     graphNetwork.activeDelegationCount = graphNetwork.activeDelegationCount + 1
     delegator.activeStakesCount = delegator.activeStakesCount + 1
     // Is delegator becoming active because of the stake becoming active?
-    if(delegator.activeStakesCount == 1) {
+    if (delegator.activeStakesCount == 1) {
       graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount + 1
     }
   }
@@ -258,7 +257,8 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let id = joinID([delegatorID, indexerID])
   let delegatedStake = DelegatedStake.load(id)!
 
-  let isStakeBecomingInactive = !delegatedStake.shareAmount.isZero() && delegatedStake.shareAmount == event.params.shares
+  let isStakeBecomingInactive =
+    !delegatedStake.shareAmount.isZero() && delegatedStake.shareAmount == event.params.shares
 
   delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
@@ -282,11 +282,11 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
 
-  if(isStakeBecomingInactive) {
+  if (isStakeBecomingInactive) {
     graphNetwork.activeDelegationCount = graphNetwork.activeDelegationCount - 1
     delegator.activeStakesCount = delegator.activeStakesCount - 1
     // Is delegator becoming inactive because of the stake becoming inactive?
-    if(delegator.activeStakesCount == 0) {
+    if (delegator.activeStakesCount == 0) {
       graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount - 1
     }
   }
@@ -458,7 +458,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   const indexerAccount = GraphAccount.load(indexer.account)!
   const closedByIndexer = event.params.sender == event.params.indexer
   const closedByOperator = indexerAccount.operators.includes(event.params.sender.toHexString())
-  
+
   if (!closedByIndexer && !closedByOperator) {
     indexer.forcedClosures = indexer.forcedClosures + 1
   }

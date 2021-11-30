@@ -23,7 +23,7 @@ export function handleTransfer(event: Transfer): void {
 
   // no need to do any updates if it was a self transfer
   if (to == from) return
-  
+
   // Mint Transfer
   if (from.toHexString() == '0x0000000000000000000000000000000000000000') {
     graphNetwork.totalSupply = graphNetwork.totalSupply.plus(value)

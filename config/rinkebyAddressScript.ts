@@ -4,6 +4,7 @@ import * as networkAddresses from '@graphprotocol/contracts/addresses.json'
 import { Addresses } from './addresses.template'
 
 // mustache doesn't like numbered object keys
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let renameAddresses: any = networkAddresses
 renameAddresses['rinkeby'] = networkAddresses['4']
 
