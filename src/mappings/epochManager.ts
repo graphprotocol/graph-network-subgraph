@@ -1,7 +1,6 @@
 import { GraphNetwork } from '../types/schema'
 import { EpochRun, EpochLengthUpdate } from '../types/EpochManager/EpochManager'
 import { createOrLoadEpoch, createEpoch } from './helpers'
-import { log, BigInt } from '@graphprotocol/graph-ts'
 
 /**
  * @dev handleEpochRun

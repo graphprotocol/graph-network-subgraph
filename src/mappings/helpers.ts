@@ -65,9 +65,9 @@ export function createOrLoadSubgraphDeployment(
   subgraphID: string,
   timestamp: BigInt,
 ): SubgraphDeployment {
-  let graphNetwork = GraphNetwork.load('1')!
   let deployment = SubgraphDeployment.load(subgraphID)
   if (deployment == null) {
+    let graphNetwork = GraphNetwork.load('1')!
     let prefix = '1220'
     deployment = new SubgraphDeployment(subgraphID)
     deployment.ipfsHash = Bytes.fromHexString(prefix.concat(subgraphID.slice(2))).toBase58()
@@ -96,7 +96,6 @@ export function createOrLoadSubgraphDeployment(
     deployment.deprecatedSubgraphCount = 0
     deployment.save()
 
-    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.subgraphDeploymentCount = graphNetwork.subgraphDeploymentCount + 1
     graphNetwork.save()
   }
@@ -819,7 +818,7 @@ export function updateCurrentDeploymentLinks(
   if (oldDeployment != null) {
     if (!deprecated) {
       let oldRelationEntity = CurrentSubgraphDeploymentRelation.load(
-        subgraph.currentVersionRelationEntity!
+        subgraph.currentVersionRelationEntity!,
       )!
       oldRelationEntity.active = false
       oldRelationEntity.save()
