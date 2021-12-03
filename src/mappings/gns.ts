@@ -635,6 +635,7 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
   let subgraph = createOrLoadSubgraph(event.params.subgraphID, event.transaction.from, event.block.timestamp)
   let oldVersionID = subgraph.currentVersion
 
+  versionNumber = subgraph.versionCount
   versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
   subgraph.currentVersion = versionID
   subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
@@ -651,7 +652,7 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
   let subgraphVersion = new SubgraphVersion(versionID)
   subgraphVersion.subgraph = subgraph.id
   subgraphVersion.subgraphDeployment = subgraphDeploymentID
-  subgraphVersion.version = versionNumber as i32
+  subgraphVersion.version = versionNumber.toI32()
   subgraphVersion.createdAt = event.block.timestamp.toI32()
   subgraphVersion.save()
 
@@ -1075,6 +1076,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
   } else {
     let oldVersionID = subgraph.currentVersion
 
+    versionNumber = subgraph.versionCount
     versionID = joinID([subgraph.id, subgraph.versionCount.toString()])
     subgraph.currentVersion = versionID
     subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
@@ -1089,7 +1091,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     let subgraphVersion = new SubgraphVersion(versionID)
     subgraphVersion.subgraph = subgraph.id
     subgraphVersion.subgraphDeployment = subgraphDeploymentID
-    subgraphVersion.version = versionNumber as i32
+    subgraphVersion.version = versionNumber.toI32()
     subgraphVersion.createdAt = event.block.timestamp.toI32()
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
