@@ -58,6 +58,9 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
           let categoryId = jsonToString(categoriesArray[i])
           createOrLoadSubgraphCategory(categoryId)
           createOrLoadSubgraphCategoryRelation(categoryId, subgraph.id)
+          if(subgraph.linkedEntity != null) {
+            createOrLoadSubgraphCategoryRelation(categoryId, subgraph.linkedEntity!)
+          }
         }
       }
     }

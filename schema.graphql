@@ -320,11 +320,11 @@ type Subgraph @entity {
   updatedAt: Int!
   "Whether the subgraph is active or deprecated"
   active: Boolean!
-  "Whether the subgraph has been migrated to the NFT implementation"
+  "Whether the subgraph has been claimed/migrated. Can only be false for subgraphs created with V1 contracts that have not been claimed/migrated"
   migrated: Boolean!
   "The actual ID of the subgraph on the contracts subgraph NFT implementation. BigInt represented as a String. It's only actually valid once the subgraph is migrated (migrated == true)"
-  nftID: String!
-  "ID of the subgraph that was used on the old version of this The Graph Network Subgraph. Null for Subgraphs created with the new GNS implementation"
+  nftID: String
+  "ID of the subgraph that was used on the old version of this The Graph Network Subgraph. Null for Subgraphs created with the new GNS implementation or for version 1 entities (since they use the old id)"
   oldID: String
   "Address used to create the ID. Only available for Subgraphs created pre-migration"
   creatorAddress: Bytes
@@ -332,6 +332,10 @@ type Subgraph @entity {
   subgraphNumber: BigInt
   "Auxiliary field to denote whether the subgraph is handling the initialization order on V2 events. Doesn't matter for V1 events."
   initializing: Boolean!
+  "Version of the entity. Subgraph entities are changing the way their ID is generated when the new GNS v2 rolls out so we need to differnetiate them"
+  entityVersion: Int!
+  "Subgraph entities might have 'duplicate' entities so that old IDs can be persisted and still queried properly. If that happens we have to link both duplicate entities to be able to update them properly."
+  linkedEntity: Subgraph
 
   # Name curation data for bonding curve
   # Note that the Subgraphs V signal is actually stored in a Signal entity, which
@@ -436,6 +440,9 @@ type SubgraphVersion @entity {
   description: String
   "Semantic versioning label"
   label: String
+
+  entityVersion: Int!
+  linkedEntity: Subgraph
 }
 
 """
@@ -941,6 +948,9 @@ type NameSignal @entity {
   signalAverageCostBasis: BigDecimal!
   "signalAverageCostBasis / signal"
   signalAverageCostBasisPerSignal: BigDecimal!
+
+  entityVersion: Int!
+  linkedEntity: Subgraph
 }
 
 """
