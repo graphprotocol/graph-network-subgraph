@@ -308,6 +308,7 @@ export function createOrLoadNameSignal(
   if (nameSignal == null) {
     nameSignal = new NameSignal(nameSignalID)
     let underlyingCurator = createOrLoadCurator(curator, timestamp)
+    nameSignal.entityVersion = 2
     nameSignal.curator = underlyingCurator.id
     nameSignal.subgraph = subgraphID
     nameSignal.signalledTokens = BigInt.fromI32(0)
