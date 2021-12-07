@@ -939,7 +939,11 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   nameSignal.save()
 
   if (subgraph.linkedEntity != null) {
-    let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(nameSignal, nameSignal.linkedEntity!, 1)
+    let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
+      nameSignal,
+      nameSignal.linkedEntity!,
+      1,
+    )
     nameSignalDuplicate.subgraph = subgraph.linkedEntity!
     nameSignalDuplicate.save()
   }
@@ -1050,7 +1054,11 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   nameSignal.save()
 
   if (subgraph.linkedEntity != null) {
-    let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(nameSignal, nameSignal.linkedEntity!, 1)
+    let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
+      nameSignal,
+      nameSignal.linkedEntity!,
+      1,
+    )
     nameSignalDuplicate.subgraph = subgraph.linkedEntity!
     nameSignalDuplicate.save()
   }
@@ -1134,7 +1142,11 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
   nameSignal.save()
 
   if (subgraph.linkedEntity != null) {
-    let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(nameSignal, nameSignal.linkedEntity!, 1)
+    let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
+      nameSignal,
+      nameSignal.linkedEntity!,
+      1,
+    )
     nameSignalDuplicate.subgraph = subgraph.linkedEntity!
     nameSignalDuplicate.save()
   }
@@ -1210,7 +1222,11 @@ export function handleSubgraphUpgraded(event: SubgraphUpgraded): void {
       curator.save()
 
       if (subgraph.linkedEntity != null) {
-        let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(nameSignal, nameSignal.linkedEntity!, 1)
+        let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
+          nameSignal,
+          nameSignal.linkedEntity!,
+          1,
+        )
         nameSignalDuplicate.save()
       }
     }
@@ -1281,7 +1297,11 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     updateCurrentDeploymentLinks(oldDeployment, deployment, subgraph as Subgraph)
 
     if (subgraph.linkedEntity != null) {
-      let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, subgraph.linkedEntity!, 1)
+      let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(
+        subgraph,
+        subgraph.linkedEntity!,
+        1,
+      )
       let duplicateVersionID = joinID([subgraphDuplicate.id, subgraph.versionCount.toString()])
       subgraphDuplicate.currentVersion = duplicateVersionID
       subgraphDuplicate.save()
@@ -1318,17 +1338,19 @@ export function handleLegacySubgraphClaimed(event: LegacySubgraphClaimed): void 
 //   handler: handleTransfer
 
 export function handleTransfer(event: Transfer): void {
-  let bigIntID = event.params.tokenId
-  let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
-
   let newOwner = createOrLoadGraphAccount(event.params.to, event.block.timestamp)
 
   // Update subgraph v2
-  let subgraph = Subgraph.load(subgraphID)!
+  let subgraph = createOrLoadSubgraph(
+    event.params.tokenId,
+    event.transaction.from,
+    event.block.timestamp,
+  )
+  subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.owner = newOwner.id
   subgraph.save()
 
-  if(subgraph.linkedEntity != null) {
+  if (subgraph.linkedEntity != null) {
     let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, subgraph.linkedEntity!, 1)
     subgraphDuplicate.save()
   }
