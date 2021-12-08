@@ -216,7 +216,6 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
     event.params.subgraphNumber.toString(),
   ])
   let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
-  let versionID: string
   let versionNumber: BigInt
 
   // Update subgraph
@@ -1302,7 +1301,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
         subgraph.linkedEntity!,
         1,
       )
-      let duplicateVersionID = joinID([subgraphDuplicate.id, subgraph.versionCount.toString()])
+      let duplicateVersionID = joinID([subgraphDuplicate.id, versionNumber.toString()])
       subgraphDuplicate.currentVersion = duplicateVersionID
       subgraphDuplicate.save()
 
