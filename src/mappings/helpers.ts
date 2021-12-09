@@ -39,7 +39,7 @@ export function createOrLoadSubgraph(
     subgraph.createdAt = timestamp.toI32()
     subgraph.updatedAt = timestamp.toI32()
     subgraph.active = true
-    subgraph.migrated = true
+    subgraph.migrated = false
     subgraph.entityVersion = 2
     subgraph.nftID = bigIntID.toString()
     subgraph.initializing = false
