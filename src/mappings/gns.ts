@@ -639,7 +639,7 @@ export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
       nameSignal.save()
       curator.save()
 
-      if (nameSignal.linkedEntity != null) {
+      if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
         let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
           nameSignal,
           nameSignal.linkedEntity!,
@@ -937,7 +937,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   }
   nameSignal.save()
 
-  if (subgraph.linkedEntity != null) {
+  if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
     let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
       nameSignal,
       nameSignal.linkedEntity!,
@@ -1052,7 +1052,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   }
   nameSignal.save()
 
-  if (subgraph.linkedEntity != null) {
+  if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
     let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
       nameSignal,
       nameSignal.linkedEntity!,
@@ -1140,7 +1140,7 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
 
   nameSignal.save()
 
-  if (subgraph.linkedEntity != null) {
+  if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
     let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
       nameSignal,
       nameSignal.linkedEntity!,
@@ -1220,7 +1220,7 @@ export function handleSubgraphUpgraded(event: SubgraphUpgraded): void {
       nameSignal.save()
       curator.save()
 
-      if (subgraph.linkedEntity != null) {
+      if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
         let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
           nameSignal,
           nameSignal.linkedEntity!,
