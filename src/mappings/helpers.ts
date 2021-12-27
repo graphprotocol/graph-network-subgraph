@@ -650,10 +650,13 @@ function createGraphAccountName(
     // check that this name is not already used by another graph account (changing ownership)
     // If so, remove the old owner, and set the new one
   } else if (graphAccountName.graphAccount != graphAccount) {
-    // Set defaultDisplayName to null if they lost ownership of this name
-    let oldGraphAccount = GraphAccount.load(graphAccountName.graphAccount!)!
-    oldGraphAccount.defaultDisplayName = null
-    oldGraphAccount.save()
+    // Only update the old graph account if it exists
+    if (graphAccountName.graphAccount != null) {
+      // Set defaultDisplayName to null if they lost ownership of this name
+      let oldGraphAccount = GraphAccount.load(graphAccountName.graphAccount!)!
+      oldGraphAccount.defaultDisplayName = null
+      oldGraphAccount.save()
+    }
 
     graphAccountName.graphAccount = graphAccount
     graphAccountName.save()
