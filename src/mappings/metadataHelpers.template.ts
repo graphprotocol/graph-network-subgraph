@@ -45,7 +45,6 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
     if (tryData.isOk) {
       let data = tryData.value.toObject()
       subgraph.description = jsonToString(data.get('description'))
-      subgraph.image = jsonToString(data.get('image'))
       subgraph.displayName = jsonToString(data.get('displayName'))
       subgraph.codeRepository = jsonToString(data.get('codeRepository'))
       subgraph.website = jsonToString(data.get('website'))
@@ -62,6 +61,14 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
             createOrLoadSubgraphCategoryRelation(categoryId, subgraph.linkedEntity!)
           }
         }
+      }
+      let image = jsonToString(data.get('image'))
+      let subgraphImage = data.get('subgraphImage')
+      if (subgraphImage != null && subgraphImage.kind === JSONValueKind.STRING)  {
+        subgraph.nftImage = image
+        subgraph.image = jsonToString(subgraphImage)
+      } else {
+        subgraph.image = image
       }
     }
   }

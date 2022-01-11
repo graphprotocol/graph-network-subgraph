@@ -368,6 +368,8 @@ type Subgraph @entity {
   description: String
   "Image in string format"
   image: String
+  "NFT Image representation"
+  nftImage: String
   "Location of the code for this project"
   codeRepository: String
   "Projects website"
