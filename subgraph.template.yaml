@@ -100,6 +100,28 @@ dataSources:
           handler: handleSubgraphVersionUpdated
         - event: LegacySubgraphClaimed(indexed address,uint256)
           handler: handleLegacySubgraphClaimed
+  - kind: ethereum/contract
+    name: SubgraphNFT
+    network: {{network}}
+    source:
+      address: "{{subgraphNFT}}"
+      abi: SubgraphNFT
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/gns.ts
+      entities:
+        - Subgraph
+        - SubgraphVersion
+        - SubgraphDeployment
+        - GraphAccount
+        - NameSignal
+      abis:
+        - name: SubgraphNFT
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json
+      eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
   - kind: ethereum/contract

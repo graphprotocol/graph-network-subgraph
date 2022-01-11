@@ -19,10 +19,11 @@ export let addresses: Addresses = {
   serviceRegistry: '{{mainnet.ServiceRegistry.address}}',
   gns: '{{mainnet.GNS.address}}',
   ens: '{{mainnet.IENS.address}}',
-  ensPublicResolver: '{{mainnet.IPublicResolver}}',
+  ensPublicResolver: '{{mainnet.IPublicResolver.address}}',
   blockNumber: '',
   network: '',
   tokenLockManager: '',
+  subgraphNFT: '{{mainnet.SubgraphNFT.address}}',
 }
 
 const main = (): void => {

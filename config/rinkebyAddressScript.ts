@@ -19,10 +19,11 @@ export let addresses: Addresses = {
   serviceRegistry: '{{rinkeby.ServiceRegistry.address}}',
   gns: '{{rinkeby.GNS.address}}',
   ens: '{{rinkeby.IENS.address}}',
-  ensPublicResolver: '{{rinkeby.IPublicResolver}}',
+  ensPublicResolver: '{{rinkeby.IPublicResolver.address}}',
   blockNumber: '',
   network: '',
   tokenLockManager: '',
+  subgraphNFT: '{{rinkeby.SubgraphNFT.address}}',
 }
 
 const main = (): void => {
