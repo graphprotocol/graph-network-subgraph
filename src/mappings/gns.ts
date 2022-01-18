@@ -756,6 +756,7 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
   subgraph.versionCount = subgraph.versionCount.plus(BigInt.fromI32(1))
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.reserveRatio = event.params.reserveRatio.toI32()
+  subgraph.migrated = true
   subgraph.initializing = true
   subgraph.save()
 
