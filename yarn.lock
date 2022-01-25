@@ -379,10 +379,10 @@
     "@ethersproject/properties" "^5.5.0"
     "@ethersproject/strings" "^5.5.0"
 
-"@graphprotocol/contracts@1.10.2-testnet-nft":
-  version "1.10.2-testnet-nft"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-1.10.2-testnet-nft.tgz#b8afdbd1b705d678b94bad41191de413abf29a27"
-  integrity sha512-v+A6CuHRiEMCul7AqTrat2zA+FpZE4yppKykcLJqOpvjS9VurmOwAzpBxktHH49OiygvbdxQLpK3cZpoxkN7rg==
+"@graphprotocol/contracts@1.10.1":
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-1.10.1.tgz#28936a4d534aa15c9a298553ff4e04d90ddcf524"
+  integrity sha512-anLOflY1FRIpSI5BulsYRm/ecU3Q/x1IompeGOXC6nSY4gZtvbPhwqfWo6dFGU+3ZveNyS/O0SEJVicjzXPDUQ==
   dependencies:
     ethers "^5.4.4"
 
