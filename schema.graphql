@@ -1215,3 +1215,61 @@ type _Schema_
     algorithm: rank
     include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
   )
+
+
+type FunctionCallAuth @entity {
+  id: ID!
+  caller: Bytes! 
+  sigHash: Bytes! 
+  target: Bytes! 
+  signature: String! 
+}
+
+type MasterCopyUpdated @entity {
+  id: ID!
+  masterCopy: Bytes! 
+}
+
+type OwnershipTransferred @entity {
+  id: ID!
+  previousOwner: Bytes! 
+  newOwner: Bytes! 
+}
+
+type ProxyCreated @entity {
+  id: ID!
+  proxy: Bytes! 
+}
+
+type TokenDestinationAllowed @entity {
+  id: ID!
+  dst: Bytes! 
+  allowed: Boolean! 
+}
+
+type TokenLockCreated @entity {
+  id: ID!
+  contractAddress: Bytes! 
+  initHash: Bytes! 
+  beneficiary: Bytes! 
+  token: Bytes! 
+  managedAmount: BigInt! 
+  startTime: BigInt! 
+  endTime: BigInt! 
+  periods: BigInt! 
+  releaseStartTime: BigInt! 
+  vestingCliffTime: BigInt! 
+  revocable: Int! 
+}
+
+type TokensDeposited @entity {
+  id: ID!
+  sender: Bytes! 
+  amount: BigInt! 
+}
+
+type TokensWithdrawn @entity {
+  id: ID!
+  sender: Bytes! 
+  amount: BigInt! 
+}

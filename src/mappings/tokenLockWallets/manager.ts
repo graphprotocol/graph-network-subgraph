@@ -6,9 +6,11 @@ import {
   TokensWithdrawn,
   FunctionCallAuth,
   TokenDestinationAllowed,
+  ProxyCreated as ProxyCreatedEvent,
+  OwnershipTransferred as OwnershipTransferredEvent
 } from '../../types/GraphTokenLockManager/GraphTokenLockManager'
 import { GraphTokenLockWallet } from '../../types/templates'
-import { TokenManager, TokenLockWallet, AuthorizedFunction } from '../../types/schema'
+import { TokenManager, TokenLockWallet, AuthorizedFunction, OwnershipTransferred, ProxyCreated} from '../../types/schema'
 import { createOrLoadGraphAccount } from '../helpers'
 
 export function handleMasterCopyUpdated(event: MasterCopyUpdated): void {
@@ -101,6 +103,25 @@ export function handleFunctionCallAuth(event: FunctionCallAuth): void {
   auth.sigHash = event.params.sigHash
   auth.manager = event.address.toHexString()
   auth.save()
+}
+
+export function handleOwnershipTransferred(
+  event: OwnershipTransferredEvent
+): void {
+  let entity = new OwnershipTransferred(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  )
+  entity.previousOwner = event.params.previousOwner
+  entity.newOwner = event.params.newOwner
+  entity.save()
+}
+
+export function handleProxyCreated(event: ProxyCreatedEvent): void {
+  let entity = new ProxyCreated(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  )
+  entity.proxy = event.params.proxy
+  entity.save()
 }
 
 export function handleTokenDestinationAllowed(event: TokenDestinationAllowed): void {

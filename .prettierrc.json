@@ -1,7 +1,7 @@
 {
   "printWidth": 100,
   "useTabs": false,
-  "bracketSpacing": true,
+  "bracketSpacing": false,
   "overrides": [
     {
       "files": "*.ts",

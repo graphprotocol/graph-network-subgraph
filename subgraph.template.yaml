@@ -345,23 +345,35 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/tokenLockWallets/manager.ts
       entities:
-        - TODO
+        - FunctionCallAuth
+        - MasterCopyUpdated
+        - OwnershipTransferred
+        - ProxyCreated
+        - TokenDestinationAllowed
+        - TokenLockCreated
+        - TokensDeposited
+        - TokensWithdrawn
       abis:
         - name: GraphTokenLockManager
           file: ./abis/GraphTokenLockManager.json
       eventHandlers:
+        - event: FunctionCallAuth(indexed address,indexed bytes4,indexed address,string)
+          handler: handleFunctionCallAuth
         - event: MasterCopyUpdated(indexed address)
           handler: handleMasterCopyUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: ProxyCreated(indexed address)
+          handler: handleProxyCreated
+        - event: TokenDestinationAllowed(indexed address,bool)
+          handler: handleTokenDestinationAllowed
         - event: TokenLockCreated(indexed address,indexed bytes32,indexed address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint8)
           handler: handleTokenLockCreated
         - event: TokensDeposited(indexed address,uint256)
           handler: handleTokensDeposited
         - event: TokensWithdrawn(indexed address,uint256)
           handler: handleTokensWithdrawn
-        - event: FunctionCallAuth(indexed address,indexed bytes4,indexed address,string)
-          handler: handleFunctionCallAuth
-        - event: TokenDestinationAllowed(indexed address,bool)
-          handler: handleTokenDestinationAllowed
+
 templates:
   - kind: ethereum/contract
     name: GraphTokenLockWallet
