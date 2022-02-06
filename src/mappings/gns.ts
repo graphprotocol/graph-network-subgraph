@@ -261,7 +261,6 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let base58Hash = hexHash.toBase58()
   subgraphVersion.metadataHash = event.params.versionMetadata
   subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
-  subgraphVersion.save()
 
   let subgraphVersionDuplicate = duplicateOrUpdateSubgraphVersionWithNewID(
     subgraphVersion,
@@ -269,7 +268,9 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
     1,
   )
   subgraphVersionDuplicate.subgraph = subgraphDuplicate.id
+  subgraphVersion.linkedEntity = subgraphVersionDuplicate.id
   subgraphVersionDuplicate.save()
+  subgraphVersion.save()
 
   let oldDeployment: SubgraphDeployment | null = null
   if (oldVersionID != null) {
@@ -938,7 +939,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   }
   nameSignal.save()
 
-  if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
+  if (subgraph.linkedEntity != null && nameSignal.linkedEntity != null) {
     let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
       nameSignal,
       nameSignal.linkedEntity!,
@@ -1053,7 +1054,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   }
   nameSignal.save()
 
-  if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
+  if (subgraph.linkedEntity != null && nameSignal.linkedEntity != null) {
     let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
       nameSignal,
       nameSignal.linkedEntity!,
@@ -1286,7 +1287,6 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     let base58Hash = hexHash.toBase58()
     subgraphVersion.metadataHash = event.params.versionMetadata
     subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
-    subgraphVersion.save()
 
     let oldDeployment: SubgraphDeployment | null = null
     if (oldVersionID != null) {
@@ -1312,10 +1312,12 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
         1,
       )
       subgraphVersionDuplicate.subgraph = subgraphDuplicate.id
+      subgraphVersion.linkedEntity = subgraphVersionDuplicate.id
       subgraphVersionDuplicate.save()
 
       updateCurrentDeploymentLinks(oldDeployment, deployment, subgraphDuplicate as Subgraph)
     }
+    subgraphVersion.save()
   }
 }
 
