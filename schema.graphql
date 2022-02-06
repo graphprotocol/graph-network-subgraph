@@ -444,7 +444,7 @@ type SubgraphVersion @entity {
   label: String
 
   entityVersion: Int!
-  linkedEntity: Subgraph
+  linkedEntity: SubgraphVersion
 }
 
 """
@@ -952,7 +952,7 @@ type NameSignal @entity {
   signalAverageCostBasisPerSignal: BigDecimal!
 
   entityVersion: Int!
-  linkedEntity: Subgraph
+  linkedEntity: NameSignal
 }
 
 """
