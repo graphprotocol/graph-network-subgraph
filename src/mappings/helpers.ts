@@ -921,6 +921,7 @@ export function duplicateOrUpdateSubgraphWithNewID(entity: Subgraph, newID: Stri
   subgraph.withdrawnTokens = entity.withdrawnTokens
   subgraph.nameSignalCount = entity.nameSignalCount
   subgraph.metadataHash = entity.metadataHash
+  subgraph.ipfsMetadataHash = entity.ipfsMetadataHash
   subgraph.description = entity.description
   subgraph.image = entity.image
   subgraph.codeRepository = entity.codeRepository

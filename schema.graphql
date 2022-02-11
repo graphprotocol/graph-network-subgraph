@@ -364,6 +364,8 @@ type Subgraph @entity {
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
   metadataHash: Bytes!
+  "Subgraph metadata ipfs hash"
+  ipfsMetadataHash: String
   "Short description of the subgraph"
   description: String
   "Image in string format"
