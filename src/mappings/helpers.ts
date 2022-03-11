@@ -53,6 +53,9 @@ export function createOrLoadSubgraph(
     subgraph.withdrawableTokens = BigInt.fromI32(0)
     subgraph.withdrawnTokens = BigInt.fromI32(0)
     subgraph.nameSignalCount = 0
+    // GRAPHSCAN PATCH
+    subgraph.currentNameSignalCount = 0
+    // END GRAPHSCAN PATCH
 
     subgraph.metadataHash = changetype<Bytes>(Bytes.fromI32(0))
 
@@ -249,6 +252,9 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.signalCount = 0
     curator.activeSignalCount = 0
     curator.nameSignalCount = 0
+    // GRAPHSCAN PATCH
+    curator.currentNameSignalCount = 0
+    // END GRAPHSCAN PATCH
     curator.activeNameSignalCount = 0
     curator.combinedSignalCount = 0
     curator.activeCombinedSignalCount = 0

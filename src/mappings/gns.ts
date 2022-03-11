@@ -385,7 +385,14 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   curator.save()
 
   let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
-
+  // GRAPHSCAN PATCH
+  if (nameSignal.nameSignal.isZero()) {
+    curator.currentNameSignalCount = curator.currentNameSignalCount + 1
+    subgraph.currentNameSignalCount = subgraph.currentNameSignalCount + 1
+    subgraph.save()
+    curator.save()
+  }
+  // END GRAPHSCAN PATCH
   let isNameSignalBecomingActive =
     nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
 
@@ -575,6 +582,14 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nSignalTransaction.tokens = event.params.tokensReceived
   nSignalTransaction.subgraph = subgraphID
   nSignalTransaction.save()
+  // GRAPHSCAN PATCH
+  if (nameSignal.nameSignal.isZero()) {
+    curator.currentNameSignalCount = curator.currentNameSignalCount - 1
+    subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
+    subgraph.save()
+    curator.save()
+  }
+  // END GRAPHSCAN PATCH
 }
 
 export function handleNameSignalUpgrade(event: NameSignalUpgrade): void {
@@ -717,6 +732,14 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   let curator = Curator.load(event.params.nameCurator.toHexString())!
   curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
   curator.save()
+  // GRAPHSCAN PATCH
+  if (nameSignal.nameSignal.isZero()) {
+    curator.currentNameSignalCount = curator.currentNameSignalCount - 1
+    subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
+    subgraph.save()
+    curator.save()
+  }
+  // END GRAPHSCAN PATCH
 }
 
 /**
@@ -906,7 +929,14 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   curator.save()
 
   let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
-
+  // GRAPHSCAN PATCH
+  if (nameSignal.nameSignal.isZero()) {
+    curator.currentNameSignalCount = curator.currentNameSignalCount + 1
+    subgraph.currentNameSignalCount = subgraph.currentNameSignalCount + 1
+    subgraph.save()
+    curator.save()
+  }
+  // END GRAPHSCAN PATCH
   let isNameSignalBecomingActive =
     nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
 
@@ -1104,6 +1134,14 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   nSignalTransaction.tokens = event.params.tokensReceived
   nSignalTransaction.subgraph = subgraphID
   nSignalTransaction.save()
+  // GRAPHSCAN PATCH
+  if (nameSignal.nameSignal.isZero()) {
+    curator.currentNameSignalCount = curator.currentNameSignalCount - 1
+    subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
+    subgraph.save()
+    curator.save()
+  }
+  // END GRAPHSCAN PATCH
 }
 
 // - event: GRTWithdrawn(indexed uint256,indexed address,uint256,uint256)
@@ -1157,6 +1195,14 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
   let curator = Curator.load(event.params.curator.toHexString())!
   curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
   curator.save()
+  // GRAPHSCAN PATCH
+  if (nameSignal.nameSignal.isZero()) {
+    curator.currentNameSignalCount = curator.currentNameSignalCount - 1
+    subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
+    subgraph.save()
+    curator.save()
+  }
+  // END GRAPHSCAN PATCH
 }
 
 // - event: SubgraphUpgraded(indexed uint256,uint256,uint256,indexed bytes32)

@@ -1,6 +1,6 @@
 specVersion: 0.0.2
-description: The Graph Network Smart Contracts on Ethereum
-repository: https://github.com/graphprotocol/contracts/graph-network-subgraph
+description: The Graph Network Smart Contracts on Ethereum for Graphscan.io
+repository: https://github.com/Ryabina-io/graphscan
 schema:
   file: ./schema.graphql
 dataSources:
@@ -50,6 +50,8 @@ dataSources:
         - SubgraphDeployment
         - GraphAccount
         - NameSignal
+        - Curator
+        - SignalsQueue
       abis:
         - name: GNSStitched
           file: ./abis/GNSStitched.json
@@ -100,6 +102,8 @@ dataSources:
           handler: handleSubgraphVersionUpdated
         - event: LegacySubgraphClaimed(indexed address,uint256)
           handler: handleLegacySubgraphClaimed
+      blockHandlers:
+        - handler: handleBlock
   - kind: ethereum/contract
     name: SubgraphNFT
     network: {{network}}

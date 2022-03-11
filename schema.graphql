@@ -360,6 +360,8 @@ type Subgraph @entity {
   nameSignals: [NameSignal!]! @derivedFrom(field: "subgraph")
   "Total amount of NameSignal entities"
   nameSignalCount: Int!
+  "Amount of NameSignal entities with signals > 0"
+  currentNameSignalCount: Int!
 
   # Metadata from IPFS linked in GNS
   "Subgraph metadata"
@@ -862,6 +864,8 @@ type Curator @entity {
   activeSignalCount: Int!
   "Total amount of name signals created by this user"
   nameSignalCount: Int!
+  "Amount of NameSignal entities created by this user with signals > 0"
+  currentNameSignalCount: Int!
   "Amount of active name signals for this user"
   activeNameSignalCount: Int!
   "Total amount of name signals and signals created by this user. signalCount + nameSignalCount"
@@ -1240,4 +1244,10 @@ type _Schema_
     language: en
     algorithm: rank
     include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
+  )
+  @fulltext(
+    name: "accountSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "GraphAccount", fields: [{ name: "id" }, { name: "defaultDisplayName" }] }]
   )
