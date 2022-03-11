@@ -102,6 +102,11 @@ export function createOrLoadSubgraphDeployment(
     deployment.subgraphCount = 0
     deployment.activeSubgraphCount = 0
     deployment.deprecatedSubgraphCount = 0
+
+    // GRAPHSCAN PATCH
+    deployment.currentSignalCount = 0
+    // END GRAPHSCAN PATCH
+
     deployment.save()
 
     graphNetwork.subgraphDeploymentCount = graphNetwork.subgraphDeploymentCount + 1
@@ -254,6 +259,7 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.nameSignalCount = 0
     // GRAPHSCAN PATCH
     curator.currentNameSignalCount = 0
+    curator.currentSignalCount = 0
     // END GRAPHSCAN PATCH
     curator.activeNameSignalCount = 0
     curator.combinedSignalCount = 0

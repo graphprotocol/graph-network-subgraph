@@ -524,6 +524,9 @@ type SubgraphDeployment @entity {
   activeSubgraphCount: Int!
   "Amount of Subgraph entities that were currently using this deployment when they got deprecated"
   deprecatedSubgraphCount: Int!
+
+  "Amount of signal entities created with signals > 0"
+  currentSignalCount: Int!
 }
 
 # TODO - add when we have the ability to parse data sources
@@ -860,6 +863,8 @@ type Curator @entity {
   # Curation counters
   "Total amount of signals created by this user"
   signalCount: Int!
+  "Amount of signal entities created by this user with signals > 0"
+  currentSignalCount: Int!
   "Amount of active signals for this user"
   activeSignalCount: Int!
   "Total amount of name signals created by this user"

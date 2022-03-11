@@ -106,7 +106,14 @@ export function handleSignalled(event: Signalled): void {
   deployment.signalAmount = deployment.signalAmount.plus(event.params.signal)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
   deployment.save()
-
+  // GRAPHSCAN PATCH
+  if (signal.signal.equals(event.params.signal)) {
+    curator.currentSignalCount = curator.currentSignalCount + 1
+    deployment.currentSignalCount = deployment.currentSignalCount + 1
+    curator.save()
+    deployment.save()
+  }
+  // END GRAPHSCAN PATCH
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
 
   // Update epoch
@@ -238,7 +245,14 @@ export function handleBurned(event: Burned): void {
   deployment.save()
 
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
-
+  // GRAPHSCAN PATCH
+  if (signal.signal.isZero()) {
+    curator.currentSignalCount = curator.currentSignalCount - 1
+    deployment.currentSignalCount = deployment.currentSignalCount - 1
+    curator.save()
+    deployment.save()
+  }
+  // END GRAPHSCAN PATCH
   // Update epoch - none
 
   // Update graph network
