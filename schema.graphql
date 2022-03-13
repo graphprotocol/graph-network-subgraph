@@ -734,6 +734,9 @@ type Allocation @entity {
 
   "Status of the allocation for sorting"
   statusInt: Int!
+
+  "sets on closing"
+  totalDelegatedTokensAtClose: BigInt
 }
 
 enum AllocationStatus {

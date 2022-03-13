@@ -488,7 +488,6 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.closedAtBlockNumber = event.block.number.toI32()
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
-  allocation.statusInt = 1
   allocation.closedAt = event.block.timestamp.toI32()
   allocation.poi = event.params.poi
   allocation.indexingRewardCutAtClose = indexer.indexingRewardCut
@@ -519,13 +518,17 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.stakedTokens = deployment.stakedTokens.minus(event.params.tokens)
-  //GRAPHSCAN PATCH
+  // GRAPHSCAN PATCH
   let indexerDeployment = createOrLoadIndexerDeployment(indexerID, allocation.subgraphDeployment)
   indexerDeployment.allocations = indexerDeployment.allocations - 1
   indexerDeployment.save()
   if (indexerDeployment.allocations == 0) {
     deployment.indexersCount = deployment.indexersCount - 1
   }
+
+  allocation.statusInt = 1
+  allocation.totalDelegatedTokensAtClose = indexer.delegatedTokens
+  allocation.save()
   //END GRAPHSCAN PATCH
   deployment.save()
 
@@ -564,7 +567,9 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   allocation.queryFeeRebates = event.params.tokens
   allocation.delegationFees = event.params.delegationFees
   allocation.status = 'Claimed'
+  // GRAPHSCAN PATCH
   allocation.statusInt = 2
+  // END GRAPHSCAN PATCH
   allocation.save()
 
   // Update epoch

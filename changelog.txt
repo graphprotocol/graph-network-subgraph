@@ -1,0 +1,30 @@
+
+Subgraph.nameSignalsCount -> Subgraph.currentNameSignalCount
+Curator.nameSignalsCount -> Curator.currentNameSignalCount
+
+SubgraphDeployment.signalsCount -> SubgraphDeployment.currentSignalCount
+Curator.signalsCount -> Curator.currentSignalCount
+Indexer.indexingRewardEffectiveCut -> BigDecimal
+Indexer.queryFeeEffectiveCut -> BigDecimal
+
+
+
+Allocation.indexingRewardCut
+Allocation.indexingRewardEffectiveCut
+Allocation.queryFeeCut
+Allocation.queryFeeEffectiveCut
+
+------>
+
+  indexingRewardCutAtStart: Int!
+  indexingRewardEffectiveCutAtStart: BigDecimal!
+  queryFeeCutAtStart: Int!
+  queryFeeEffectiveCutAtStart: BigDecimal!
+
+  indexingRewardCutAtClose: Int
+  indexingRewardEffectiveCutAtClose: BigDecimal
+  queryFeeCutAtClose: Int
+  queryFeeEffectiveCutAtClose: BigDecimal
+
+
+Allocation.totalDelegatedTokensOnClose -> Allocation.totalDelegatedTokensAtClose
