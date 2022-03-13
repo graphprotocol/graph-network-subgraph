@@ -164,6 +164,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     // GRAPHSCAN PATCH
     indexer.notAllocatedTokens = BigInt.fromI32(0)
     indexer.delegationRemaining = BigInt.fromI32(0)
+    indexer.indexerQueryFees = BigInt.fromI32(0)
     // END GRAPHSCAN PATCH
     let graphAccount = GraphAccount.load(id)!
     graphAccount.indexer = id
@@ -772,6 +773,7 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
   indexer.delegationRemaining = BigInt.fromI32(graphNetwork.delegationRatio)
     .times(activeIndexerStake)
     .minus(indexer.delegatedTokens)
+  indexer.indexerQueryFees = indexer.queryFeesCollected.minus(indexer.delegatorQueryFees)
   // END GRAPHSCAN PATCH
   return indexer as Indexer
 }

@@ -655,6 +655,8 @@ type Indexer @entity {
   "CURRENT  tokens NOT allocated on all subgraphs"
   notAllocatedTokens: BigInt!
   delegationRemaining: BigInt!
+  "The total amount of query fees given to indexer"
+  indexerQueryFees: BigInt!
 }
 
 """
