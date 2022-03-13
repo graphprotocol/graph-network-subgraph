@@ -165,6 +165,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.notAllocatedTokens = BigInt.fromI32(0)
     indexer.delegationRemaining = BigInt.fromI32(0)
     indexer.indexerQueryFees = BigInt.fromI32(0)
+    indexer.delegatorsCount = 0
     // END GRAPHSCAN PATCH
     let graphAccount = GraphAccount.load(id)!
     graphAccount.indexer = id
@@ -230,6 +231,12 @@ export function createOrLoadDelegatedStake(
     let delegatorEntity = Delegator.load(delegator)!
     delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1
     delegatorEntity.save()
+
+    // GRAPHSCAN PATCH
+    let indexerEntity = Indexer.load(indexer)
+    indexerEntity.delegatorsCount = indexerEntity.delegatorsCount + 1
+    indexerEntity.save()
+    // END GRAPHSCAN PATCH
 
     let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.delegationCount = graphNetwork.delegationCount + 1

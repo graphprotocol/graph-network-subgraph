@@ -657,6 +657,7 @@ type Indexer @entity {
   delegationRemaining: BigInt!
   "The total amount of query fees given to indexer"
   indexerQueryFees: BigInt!
+  delegatorsCount: Int!
 }
 
 """
