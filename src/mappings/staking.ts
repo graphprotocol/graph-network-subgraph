@@ -344,6 +344,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   if (indexerDeployment.allocations == 1) {
     deployment.indexersCount = deployment.indexersCount + 1
   }
+  deployment.allocationsCount = deployment.allocationsCount + 1
   // END GRAPHSCAN PATCH
   deployment.save()
 

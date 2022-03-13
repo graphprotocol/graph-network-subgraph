@@ -107,6 +107,7 @@ export function createOrLoadSubgraphDeployment(
     // GRAPHSCAN PATCH
     deployment.currentSignalCount = 0
     deployment.indexersCount = 0
+    deployment.allocationsCount = 0
     // END GRAPHSCAN PATCH
 
     deployment.save()
