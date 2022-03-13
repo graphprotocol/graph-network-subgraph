@@ -161,7 +161,10 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.totalReturn = BigDecimal.fromString('0')
     indexer.annualizedReturn = BigDecimal.fromString('0')
     indexer.stakingEfficiency = BigDecimal.fromString('0')
-
+    // GRAPHSCAN PATCH
+    indexer.notAllocatedTokens = BigInt.fromI32(0)
+    indexer.delegationRemaining = BigInt.fromI32(0)
+    // END GRAPHSCAN PATCH
     let graphAccount = GraphAccount.load(id)!
     graphAccount.indexer = id
     graphAccount.save()
@@ -760,6 +763,16 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
     indexer as Indexer,
   )
   indexer.overDelegationDilution = calculateOverdelegationDilution(indexer as Indexer)
+  // GRAPHSCAN PATCH
+  let activeIndexerStake = indexer.stakedTokens.minus(indexer.lockedTokens)
+  let graphNetwork = GraphNetwork.load('1')!
+  indexer.notAllocatedTokens = activeIndexerStake
+    .plus(indexer.delegatedTokens)
+    .minus(indexer.allocatedTokens)
+  indexer.delegationRemaining = BigInt.fromI32(graphNetwork.delegationRatio)
+    .times(activeIndexerStake)
+    .minus(indexer.delegatedTokens)
+  // END GRAPHSCAN PATCH
   return indexer as Indexer
 }
 
