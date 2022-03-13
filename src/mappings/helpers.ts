@@ -19,6 +19,7 @@ import {
   SubgraphCategoryRelation,
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
+  IndexerDeployment,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
@@ -105,6 +106,7 @@ export function createOrLoadSubgraphDeployment(
 
     // GRAPHSCAN PATCH
     deployment.currentSignalCount = 0
+    deployment.indexersCount = 0
     // END GRAPHSCAN PATCH
 
     deployment.save()
@@ -905,7 +907,11 @@ export function getSubgraphID(graphAccount: Address, subgraphNumber: BigInt): Bi
   return bigIntRepresentation
 }
 
-export function duplicateOrUpdateSubgraphWithNewID(entity: Subgraph, newID: String, newEntityVersion: i32): Subgraph {
+export function duplicateOrUpdateSubgraphWithNewID(
+  entity: Subgraph,
+  newID: String,
+  newEntityVersion: i32,
+): Subgraph {
   let subgraph = Subgraph.load(newID)
   if (subgraph == null) {
     subgraph = new Subgraph(newID)
@@ -950,7 +956,11 @@ export function duplicateOrUpdateSubgraphWithNewID(entity: Subgraph, newID: Stri
   return subgraph as Subgraph
 }
 
-export function duplicateOrUpdateSubgraphVersionWithNewID(entity: SubgraphVersion, newID: String, newEntityVersion: i32): SubgraphVersion {
+export function duplicateOrUpdateSubgraphVersionWithNewID(
+  entity: SubgraphVersion,
+  newID: String,
+  newEntityVersion: i32,
+): SubgraphVersion {
   let version = SubgraphVersion.load(newID)
   if (version == null) {
     version = new SubgraphVersion(newID)
@@ -970,7 +980,11 @@ export function duplicateOrUpdateSubgraphVersionWithNewID(entity: SubgraphVersio
   return version as SubgraphVersion
 }
 
-export function duplicateOrUpdateNameSignalWithNewID(entity: NameSignal, newID: String, newEntityVersion: i32): NameSignal {
+export function duplicateOrUpdateNameSignalWithNewID(
+  entity: NameSignal,
+  newID: String,
+  newEntityVersion: i32,
+): NameSignal {
   let signal = NameSignal.load(newID)
   if (signal == null) {
     signal = new NameSignal(newID)
@@ -997,3 +1011,18 @@ export function duplicateOrUpdateNameSignalWithNewID(entity: NameSignal, newID: 
 
   return signal as NameSignal
 }
+
+// GRAPHSCAN PATCH
+export function createOrLoadIndexerDeployment(
+  indexer: string,
+  deployment: string,
+): IndexerDeployment {
+  let id = joinID([indexer, deployment])
+  let indexerDeployment = IndexerDeployment.load(id)
+  if (indexerDeployment == null) {
+    indexerDeployment = new IndexerDeployment(id)
+    indexerDeployment.allocations = 0
+  }
+  return indexerDeployment as IndexerDeployment
+}
+// END GRAPHSCAN PATCH

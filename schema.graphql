@@ -527,6 +527,8 @@ type SubgraphDeployment @entity {
 
   "Amount of signal entities created with signals > 0"
   currentSignalCount: Int!
+  "Uniq indexers count"
+  indexersCount: Int!
 }
 
 # TODO - add when we have the ability to parse data sources
@@ -1226,6 +1228,15 @@ enum Revocability {
   NotSet
   Enabled
   Disabled
+}
+
+"""
+For Counting Indexers count of deployment
+"""
+type IndexerDeployment @entity {
+  "Indexer-Deployment"
+  id: ID!
+  allocations: Int!
 }
 
 """

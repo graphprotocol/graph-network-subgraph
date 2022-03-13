@@ -42,6 +42,7 @@ import {
   updateDelegationExchangeRate,
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
+  createOrLoadIndexerDeployment,
 } from './helpers'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
@@ -336,6 +337,14 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   // update subgraph deployment
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
+  // GRAPHSCAN PATCH
+  let indexerDeployment = createOrLoadIndexerDeployment(indexerID, subgraphDeploymentID)
+  indexerDeployment.allocations = indexerDeployment.allocations + 1
+  indexerDeployment.save()
+  if (indexerDeployment.allocations == 1) {
+    deployment.indexersCount = deployment.indexersCount + 1
+  }
+  // END GRAPHSCAN PATCH
   deployment.save()
 
   // create allocation
@@ -507,6 +516,14 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.stakedTokens = deployment.stakedTokens.minus(event.params.tokens)
+  //GRAPHSCAN PATCH
+  let indexerDeployment = createOrLoadIndexerDeployment(indexerID, allocation.subgraphDeployment)
+  indexerDeployment.allocations = indexerDeployment.allocations - 1
+  indexerDeployment.save()
+  if (indexerDeployment.allocations == 0) {
+    deployment.indexersCount = deployment.indexersCount - 1
+  }
+  //END GRAPHSCAN PATCH
   deployment.save()
 
   // update graph network
