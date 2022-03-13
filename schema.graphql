@@ -731,6 +731,9 @@ type Allocation @entity {
   totalReturn: BigDecimal!
   "NOT IMPLEMENTED - Yearly annualzied return"
   annualizedReturn: BigDecimal!
+
+  "Status of the allocation for sorting"
+  statusInt: Int!
 }
 
 enum AllocationStatus {

@@ -367,6 +367,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.indexingDelegatorRewards = BigInt.fromI32(0)
   allocation.delegationFees = BigInt.fromI32(0)
   allocation.status = 'Active'
+  allocation.statusInt = 0
   allocation.totalReturn = BigDecimal.fromString('0')
   allocation.annualizedReturn = BigDecimal.fromString('0')
   allocation.createdAt = event.block.timestamp.toI32()
@@ -487,6 +488,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.closedAtBlockNumber = event.block.number.toI32()
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
+  allocation.statusInt = 1
   allocation.closedAt = event.block.timestamp.toI32()
   allocation.poi = event.params.poi
   allocation.indexingRewardCutAtClose = indexer.indexingRewardCut
@@ -562,6 +564,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   allocation.queryFeeRebates = event.params.tokens
   allocation.delegationFees = event.params.delegationFees
   allocation.status = 'Claimed'
+  allocation.statusInt = 2
   allocation.save()
 
   // Update epoch
