@@ -8,14 +8,12 @@ Indexer.indexingRewardEffectiveCut -> BigDecimal
 Indexer.queryFeeEffectiveCut -> BigDecimal
 
 
-
+*****
 Allocation.indexingRewardCut
 Allocation.indexingRewardEffectiveCut
 Allocation.queryFeeCut
 Allocation.queryFeeEffectiveCut
-
 ------>
-
   indexingRewardCutAtStart: Int!
   indexingRewardEffectiveCutAtStart: BigDecimal!
   queryFeeCutAtStart: Int!
@@ -25,6 +23,6 @@ Allocation.queryFeeEffectiveCut
   indexingRewardEffectiveCutAtClose: BigDecimal
   queryFeeCutAtClose: Int
   queryFeeEffectiveCutAtClose: BigDecimal
-
+*******
 
 Allocation.totalDelegatedTokensOnClose -> Allocation.totalDelegatedTokensAtClose
