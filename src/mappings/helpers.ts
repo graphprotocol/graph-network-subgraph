@@ -986,6 +986,7 @@ export function duplicateOrUpdateSubgraphWithNewID(
   subgraph.codeRepository = entity.codeRepository
   subgraph.website = entity.website
   subgraph.displayName = entity.displayName
+  subgraph.currentNameSignalCount = entity.currentNameSignalCount
   // subgraph.pastVersions = entity.pastVersions This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
   // subgraph.versions = entity.versions This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
   // subgraph.nameSignals = entity.nameSignals This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.

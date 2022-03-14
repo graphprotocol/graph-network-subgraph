@@ -102,8 +102,6 @@ dataSources:
           handler: handleSubgraphVersionUpdated
         - event: LegacySubgraphClaimed(indexed address,uint256)
           handler: handleLegacySubgraphClaimed
-      blockHandlers:
-        - handler: handleBlock
   - kind: ethereum/contract
     name: SubgraphNFT
     network: {{network}}
