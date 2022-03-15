@@ -38,7 +38,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
   indexer.save()
 
   // update allocation

@@ -4,6 +4,7 @@ Curator.nameSignalsCount -> Curator.currentNameSignalCount
 
 SubgraphDeployment.signalsCount -> SubgraphDeployment.currentSignalCount
 Curator.signalsCount -> Curator.currentSignalCount
+Curator.nameSignalsCount -> Curator.currentNameSignalCount
 Indexer.indexingRewardEffectiveCut -> BigDecimal
 Indexer.queryFeeEffectiveCut -> BigDecimal
 
@@ -26,3 +27,5 @@ Allocation.queryFeeEffectiveCut
 *******
 
 Allocation.totalDelegatedTokensOnClose -> Allocation.totalDelegatedTokensAtClose
+
+RewardCutHistoryEntity.indexingRewardEffectiveCut, queryFeeEffectiveCut -> BigDecimal

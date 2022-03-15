@@ -21,6 +21,8 @@ import {
   CurrentSubgraphDeploymentRelation,
   IndexerDeployment,
   DelegatorRewardHistoryEntity,
+  DelegationPoolHistoryEntity,
+  RewardCutHistoryEntity,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
@@ -292,6 +294,12 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     // GRAPHSCAN PATCH
     curator.currentNameSignalCount = 0
     curator.currentSignalCount = 0
+    curator.allCurrentGRTValue = BigInt.fromI32(0)
+    curator.PLGrt = BigDecimal.fromString('0')
+    curator.unrealizedPLGrt = BigDecimal.fromString('0')
+    curator.realizedPLGrt = BigDecimal.fromString('0')
+    curator.lastSignaledAt = 0
+    curator.lastUnsignaledAt = 0
     // END GRAPHSCAN PATCH
     curator.activeNameSignalCount = 0
     curator.combinedSignalCount = 0
@@ -332,6 +340,13 @@ export function createOrLoadSignal(
     signal.createdAtBlock = blockNumber
     signal.lastUpdatedAt = timestamp
     signal.lastUpdatedAtBlock = blockNumber
+    // GRAPHSCAN PATCH
+    signal.currentGRTValue = BigInt.fromI32(0)
+    signal.PLGrt = BigDecimal.fromString('0')
+    signal.unrealizedPLGrt = BigDecimal.fromString('0')
+    signal.realizedPLGrt = BigDecimal.fromString('0')
+    signal.lastBuyInPrice = BigDecimal.fromString('0')
+    // END GRAPHSCAN PATCH
     signal.save()
 
     let curatorEntity = Curator.load(curator)!
@@ -368,6 +383,13 @@ export function createOrLoadNameSignal(
     nameSignal.nameSignalAverageCostBasisPerSignal = BigDecimal.fromString('0')
     nameSignal.signalAverageCostBasis = BigDecimal.fromString('0')
     nameSignal.signalAverageCostBasisPerSignal = BigDecimal.fromString('0')
+    // GRAPHSCAN PATCH
+    nameSignal.currentGRTValue = BigInt.fromI32(0)
+    nameSignal.PLGrt = BigDecimal.fromString('0')
+    nameSignal.unrealizedPLGrt = BigDecimal.fromString('0')
+    nameSignal.realizedPLGrt = BigDecimal.fromString('0')
+    nameSignal.lastBuyInPrice = BigDecimal.fromString('0')
+    // END GRAPHSCAN PATCH
     nameSignal.save()
 
     let curatorEntity = Curator.load(curator)!
@@ -780,7 +802,7 @@ export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
     : BigDecimal.fromString('1') - maxDelegatedStake / max(maxDelegatedStake, delegatedTokensBD)
 }
 
-export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
+export function updateAdvancedIndexerMetrics(indexer: Indexer, event: ethereum.Event): Indexer {
   indexer.ownStakeRatio = calculateOwnStakeRatio(indexer as Indexer)
   indexer.delegatedStakeRatio = calculateDelegatedStakeRatio(indexer as Indexer)
   indexer.indexingRewardEffectiveCut = calculateIndexingRewardEffectiveCut(indexer as Indexer)
@@ -799,6 +821,8 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
     .times(activeIndexerStake)
     .minus(indexer.delegatedTokens)
   indexer.indexerQueryFees = indexer.queryFeesCollected.minus(indexer.delegatorQueryFees)
+  createRewardsCutHistoryEntity(indexer, event)
+  createDelegationPoolHistoryEntity(indexer, event)
   // END GRAPHSCAN PATCH
   return indexer as Indexer
 }
@@ -1133,6 +1157,41 @@ export function createDelegatorRewardHistoryEntityFromIndexer(
       rewardHistoryEntity.epoch = graphNetwork.currentEpoch
       rewardHistoryEntity.save()
     }
+  }
+}
+
+function createDelegationPoolHistoryEntity(indexer: Indexer, event: ethereum.Event): void {
+  let id = indexer.id + event.block.number.toString()
+  let poolHistory = DelegationPoolHistoryEntity.load(id)
+  if (poolHistory == null) {
+    poolHistory = new DelegationPoolHistoryEntity(id)
+  }
+  let graphNetwork = GraphNetwork.load('1')!
+  poolHistory.indexer = indexer.id
+  poolHistory.stakedTokens = indexer.stakedTokens.minus(indexer.lockedTokens)
+  poolHistory.delegatedTokens = indexer.delegatedTokens
+  poolHistory.blockNumber = event.block.number.toI32()
+  poolHistory.timestamp = event.block.timestamp.toI32()
+  poolHistory.epoch = graphNetwork.currentEpoch
+  poolHistory.save()
+}
+function createRewardsCutHistoryEntity(indexer: Indexer, event: ethereum.Event): void {
+  if (indexer.queryFeeEffectiveCut || indexer.indexingRewardEffectiveCut) {
+    let id = indexer.id + event.block.number.toString()
+    let cutHistory = RewardCutHistoryEntity.load(id)
+    if (cutHistory == null) {
+      cutHistory = new RewardCutHistoryEntity(id)
+    }
+    let graphNetwork = GraphNetwork.load('1')!
+    cutHistory.indexer = indexer.id
+    cutHistory.indexingRewardCut = indexer.indexingRewardCut
+    cutHistory.queryFeeCut = indexer.queryFeeCut
+    cutHistory.queryFeeEffectiveCut = indexer.queryFeeEffectiveCut
+    cutHistory.indexingRewardEffectiveCut = indexer.indexingRewardEffectiveCut
+    cutHistory.blockNumber = event.block.number.toI32()
+    cutHistory.timestamp = event.block.timestamp.toI32()
+    cutHistory.epoch = graphNetwork.currentEpoch
+    cutHistory.save()
   }
 }
 // END GRAPHSCAN PATCH
