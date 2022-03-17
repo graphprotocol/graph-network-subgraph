@@ -385,6 +385,7 @@ type Subgraph @entity {
 
   # Auxiliary fields
   currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
+  curatorsList: [Curator!]!
 }
 
 type CurrentSubgraphDeploymentRelation @entity {
@@ -531,6 +532,8 @@ type SubgraphDeployment @entity {
   indexersCount: Int!
   "Allocations to this deployments count"
   allocationsCount: Int!
+
+  curatorsList: [Curator!]!
 }
 
 # TODO - add when we have the ability to parse data sources

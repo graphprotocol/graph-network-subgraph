@@ -53,6 +53,8 @@ dataSources:
         - Curator
         - SignalsQueue
       abis:
+        - name: Curation
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/Curation.json
         - name: GNSStitched
           file: ./abis/GNSStitched.json
         - name: ENS
@@ -102,6 +104,8 @@ dataSources:
           handler: handleSubgraphVersionUpdated
         - event: LegacySubgraphClaimed(indexed address,uint256)
           handler: handleLegacySubgraphClaimed
+      blockHandlers:
+        - handler: handleBlock
   - kind: ethereum/contract
     name: SubgraphNFT
     network: {{network}}
