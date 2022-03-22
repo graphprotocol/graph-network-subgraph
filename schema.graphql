@@ -385,7 +385,6 @@ type Subgraph @entity {
 
   # Auxiliary fields
   currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
-  curatorsList: [Curator!]!
 }
 
 type CurrentSubgraphDeploymentRelation @entity {
@@ -1338,14 +1337,14 @@ type DelegatorRewardHistoryEntity @entity {
   epoch: Int!
 }
 
-"""
-ZONE OF DARK MAGIC DONT USE IT OR U DIE
-"""
-type DeploymentSignalsQueue @entity {
-  "ID is 0 - infinity"
-  id: ID!
-  subgraphDeployment: ID!
-}
+# """
+# ZONE OF DARK MAGIC DONT USE IT OR U DIE
+# """
+# type DeploymentSignalsQueue @entity {
+#   "ID is 0 - infinity"
+#   id: ID!
+#   subgraphDeployment: ID!
+# }
 
 """
 Full test search for displayName and description on the Subgraph Entity

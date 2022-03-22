@@ -37,7 +37,6 @@ import {
   GraphAccount,
   NameSignalSubgraphRelation,
   NameSignal,
-  DeploymentSignalsQueue,
   CurrentSubgraphDeploymentRelation,
 } from '../types/schema'
 
@@ -57,8 +56,6 @@ import {
   duplicateOrUpdateSubgraphWithNewID,
   duplicateOrUpdateSubgraphVersionWithNewID,
   duplicateOrUpdateNameSignalWithNewID,
-  updateAdvancedSignalMetrics,
-  updateAdvancedNSignalMetrics,
 } from './helpers'
 import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './metadataHelpers'
 
@@ -1440,31 +1437,31 @@ export function handleTransfer(event: Transfer): void {
 }
 
 // GRAPHSCAN PATCH
-export function handleBlock(block: ethereum.Block): void {
-  if (block.number.le(BigInt.fromI32(13726000))) {
-    // skip signals history until 13726000 block
-    return
-  }
-  // DARK MAGIC ZONE
-  let queueEntityDeployment: DeploymentSignalsQueue | null
-  let i = 0
-  while ((queueEntityDeployment = DeploymentSignalsQueue.load(i.toString())) != null) {
-    let deployment = SubgraphDeployment.load(
-      queueEntityDeployment.subgraphDeployment,
-    ) as SubgraphDeployment
-    // update direct signals
-    updateAdvancedSignalMetrics(deployment)
-    // loop over all subgraphs linked to this deployment and procced them
-    for (let i = 0; i < deployment.subgraphCount; i++) {
-      let id = deployment.id.concat('-').concat(BigInt.fromI32(i).toString())
-      let relationEntity = CurrentSubgraphDeploymentRelation.load(id)!
-      if (relationEntity.active) {
-        let subgraphEntity = Subgraph.load(relationEntity.subgraph)!
-        updateAdvancedNSignalMetrics(subgraphEntity)
-      }
-    }
-    store.remove('DeploymentSignalsQueue', i.toString())
-    i++
-  }
-}
+// export function handleBlock(block: ethereum.Block): void {
+//   if (block.number.le(BigInt.fromI32(13726000))) {
+//     // skip signals history until 13726000 block
+//     return
+//   }
+//   // DARK MAGIC ZONE
+//   let queueEntityDeployment: DeploymentSignalsQueue | null
+//   let i = 0
+//   while ((queueEntityDeployment = DeploymentSignalsQueue.load(i.toString())) != null) {
+//     let deployment = SubgraphDeployment.load(
+//       queueEntityDeployment.subgraphDeployment,
+//     ) as SubgraphDeployment
+//     // update direct signals
+//     updateAdvancedSignalMetrics(deployment)
+//     // loop over all subgraphs linked to this deployment and procced them
+//     for (let i = 0; i < deployment.subgraphCount; i++) {
+//       let id = deployment.id.concat('-').concat(BigInt.fromI32(i).toString())
+//       let relationEntity = CurrentSubgraphDeploymentRelation.load(id)!
+//       if (relationEntity.active) {
+//         let subgraphEntity = Subgraph.load(relationEntity.subgraph)!
+//         updateAdvancedNSignalMetrics(subgraphEntity)
+//       }
+//     }
+//     store.remove('DeploymentSignalsQueue', i.toString())
+//     i++
+//   }
+// }
 // END GRAPHSCAN PATCH

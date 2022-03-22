@@ -23,11 +23,8 @@ import {
   DelegatorRewardHistoryEntity,
   DelegationPoolHistoryEntity,
   RewardCutHistoryEntity,
-  DeploymentSignalsQueue,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
-import { GNSStitched } from '../types/GNS/GNSStitched'
-import { Curation } from '../types/Curation/Curation'
 import { Controller } from '../types/Controller/Controller'
 import { fetchSubgraphDeploymentManifest } from './metadataHelpers'
 import { addresses } from '../../config/addresses'
@@ -63,7 +60,6 @@ export function createOrLoadSubgraph(
     subgraph.nameSignalCount = 0
     // GRAPHSCAN PATCH
     subgraph.currentNameSignalCount = 0
-    subgraph.curatorsList = []
     // END GRAPHSCAN PATCH
 
     subgraph.metadataHash = changetype<Bytes>(Bytes.fromI32(0))
@@ -408,11 +404,6 @@ export function createOrLoadNameSignal(
     curatorEntity.save()
 
     let subgraphEntity = Subgraph.load(subgraphID)!
-    // GRAPHSCAN PATCH
-    let newCuratorsList = subgraphEntity.curatorsList
-    newCuratorsList.push(curator)
-    subgraphEntity.curatorsList = newCuratorsList
-    // END GRAPHSCAN PATCH
     let relation = new NameSignalSubgraphRelation(
       joinID([subgraphID, BigInt.fromI32(subgraphEntity.nameSignalCount).toString()]),
     )
@@ -1028,7 +1019,6 @@ export function duplicateOrUpdateSubgraphWithNewID(
   subgraph.currentNameSignalCount = entity.currentNameSignalCount
   // GRAPHSCAN PATCH
   subgraph.currentNameSignalCount = entity.currentNameSignalCount
-  subgraph.curatorsList = entity.curatorsList
   // END GRAPHSCAN PATCH
   // subgraph.pastVersions = entity.pastVersions This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
   // subgraph.versions = entity.versions This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
@@ -1123,9 +1113,7 @@ export function createDelegatorRewardHistoryEntityFromIndexer(
     let delegator = Delegator.load(delegatorsList[i])!
     let id = indexer.id + delegatedStake.delegator + event.block.number.toString()
     // вычитам старое значение текущего стейка
-    delegator.currentStaked = delegator.currentStaked.minus(
-      delegatedStake.currentDelegationAmount,
-    )
+    delegator.currentStaked = delegator.currentStaked.minus(delegatedStake.currentDelegationAmount)
     // вычитаем старое значение неанрелиженных ревардов
     delegator.unreleasedReward = delegator.unreleasedReward.minus(delegatedStake.unreleasedReward)
     delegator.totalRewards = delegator.totalRewards.minus(delegatedStake.unreleasedReward)
@@ -1214,110 +1202,111 @@ function createRewardsCutHistoryEntity(indexer: Indexer, event: ethereum.Event):
   }
 }
 
-export function queueDeploymentSignalsUpdate(deployment: SubgraphDeployment): void {
-  // DARK MAGIC ZONE
-  let i = 0
-  // find first non empty slot for queue
-  let loadedEntity = DeploymentSignalsQueue.load(i.toString())
-  while (true) {
-    if (loadedEntity === null) {
-      break
-    }
-    if (loadedEntity.subgraphDeployment === deployment.id) {
-      return
-    }
-    i++
-  }
-  // create queue entity in empty slot with subgraph
-  let queueEntity = new DeploymentSignalsQueue(i.toString())
-  queueEntity.subgraphDeployment = deployment.id
-  queueEntity.save()
-}
+// export function queueDeploymentSignalsUpdate(deployment: SubgraphDeployment): void {
+//   // DARK MAGIC ZONE
+//   let i = 0
+//   // find first non empty slot for queue
+//   let loadedEntity = DeploymentSignalsQueue.load(i.toString())
+//   while (true) {
+//     if (loadedEntity === null) {
+//       break
+//     }
+//     if (loadedEntity.subgraphDeployment === deployment.id) {
+//       return
+//     }
+//     i++
+//   }
+//   // create queue entity in empty slot with subgraph
+//   let queueEntity = new DeploymentSignalsQueue(i.toString())
+//   queueEntity.subgraphDeployment = deployment.id
+//   queueEntity.save()
+// }
 
-export function updateAdvancedNSignalMetrics(subgraph: Subgraph): void {
-  // iterate over all subgraph curators
-  let curatorsListStrings = subgraph.curatorsList
-  let gnsAddr = GraphNetwork.load('1')!.gns as Address
-  let GNScontract =  GNSStitched.bind(gnsAddr)
-  let splitted = subgraph.id.split('-')
-  let subgraphAddress = splitted[0]
-  let subgraphNumberStr = splitted[1]
-  let subgraphNumber: BigInt = BigInt.fromI32(parseInt(subgraphNumberStr, 10) as i32)
-  for (let i = 0; i < curatorsListStrings.length; i++) {
-    let curatorId = curatorsListStrings[i]
-    let nSignal = NameSignal.load(joinID([curatorId, subgraph.id]))!
-    let curator = Curator.load(curatorId)!
-    curator.allCurrentGRTValue = curator.allCurrentGRTValue.minus(nSignal.currentGRTValue)
-    if (nSignal.nameSignal.isZero()) {
-      nSignal.currentGRTValue = BigInt.fromI32(0)
-    } else {
-      let call = GNScontract.try_nSignalToTokens(
-        Address.fromString(subgraphAddress),
-        subgraphNumber,
-        nSignal.nameSignal,
-      )
-      nSignal.currentGRTValue = call.reverted ? BigInt.fromI32(0) : call.value.value1
-    }
-    curator.allCurrentGRTValue = curator.allCurrentGRTValue.plus(nSignal.currentGRTValue)
+// export function updateAdvancedNSignalMetrics(subgraph: Subgraph): void {
+//   // iterate over all subgraph curators
+//   let gnsAddr = GraphNetwork.load('1')!.gns as Address
+//   let GNScontract = GNSStitched.bind(gnsAddr)
+//   let splitted = subgraph.id.split('-')
+//   let subgraphAddress = splitted[0]
+//   let subgraphNumberStr = splitted[1]
+//   let subgraphNumber: BigInt = BigInt.fromI32(parseInt(subgraphNumberStr, 10) as i32)
+//   for (let i = 0; i < subgraph.nameSignalCount; i++) {
+//     let relation = NameSignalSubgraphRelation.load(
+//       joinID([subgraph.id, BigInt.fromI32(i).toString()]),
+//     )!
+//     let nSignal = NameSignal.load(relation.nameSignal)!
+//     let curator = Curator.load(nSignal.curator)!
+//     curator.allCurrentGRTValue = curator.allCurrentGRTValue.minus(nSignal.currentGRTValue)
+//     if (nSignal.nameSignal.isZero()) {
+//       nSignal.currentGRTValue = BigInt.fromI32(0)
+//     } else {
+//       let call = GNScontract.try_nSignalToTokens(
+//         Address.fromString(subgraphAddress),
+//         subgraphNumber,
+//         nSignal.nameSignal,
+//       )
+//       nSignal.currentGRTValue = call.reverted ? BigInt.fromI32(0) : call.value.value1
+//     }
+//     curator.allCurrentGRTValue = curator.allCurrentGRTValue.plus(nSignal.currentGRTValue)
 
-    curator.unrealizedPLGrt = curator.unrealizedPLGrt.minus(nSignal.unrealizedPLGrt)
-    nSignal.unrealizedPLGrt = nSignal.currentGRTValue
-      .toBigDecimal()
-      .minus(nSignal.nameSignal.toBigDecimal().times(nSignal.lastBuyInPrice))
-    curator.unrealizedPLGrt = curator.unrealizedPLGrt.plus(nSignal.unrealizedPLGrt)
+//     curator.unrealizedPLGrt = curator.unrealizedPLGrt.minus(nSignal.unrealizedPLGrt)
+//     nSignal.unrealizedPLGrt = nSignal.currentGRTValue
+//       .toBigDecimal()
+//       .minus(nSignal.nameSignal.toBigDecimal().times(nSignal.lastBuyInPrice))
+//     curator.unrealizedPLGrt = curator.unrealizedPLGrt.plus(nSignal.unrealizedPLGrt)
 
-    curator.PLGrt = curator.PLGrt.minus(nSignal.PLGrt)
-    nSignal.PLGrt = nSignal.unsignalledTokens
-      .minus(nSignal.signalledTokens)
-      .plus(nSignal.currentGRTValue)
-      .toBigDecimal()
-    // OR
-    // nSignal.PLGrt = nSignal.unrealizedPLGrt.plus(nSignal.realizedPLGrt)
-    curator.PLGrt = curator.PLGrt.plus(nSignal.PLGrt)
+//     curator.PLGrt = curator.PLGrt.minus(nSignal.PLGrt)
+//     nSignal.PLGrt = nSignal.unsignalledTokens
+//       .minus(nSignal.signalledTokens)
+//       .plus(nSignal.currentGRTValue)
+//       .toBigDecimal()
+//     // OR
+//     // nSignal.PLGrt = nSignal.unrealizedPLGrt.plus(nSignal.realizedPLGrt)
+//     curator.PLGrt = curator.PLGrt.plus(nSignal.PLGrt)
 
-    nSignal.save()
-    curator.save()
-  }
-}
+//     nSignal.save()
+//     curator.save()
+//   }
+// }
 
-export function updateAdvancedSignalMetrics(subgraphDeployment: SubgraphDeployment): void {
-  // iterate over all deployment curators
-  let curatorsListStrings = subgraphDeployment.curatorsList
-  let curationAddr = GraphNetwork.load('1')!.curation as Address
-  let CurationContract = Curation.bind(curationAddr)
-  for (let i = 0; i < curatorsListStrings.length; i++) {
-    let curatorId = curatorsListStrings[i]
-    let signal = Signal.load(joinID([curatorId, subgraphDeployment.id]))!
-    let curator = Curator.load(curatorId)!
-    curator.allCurrentGRTValue = curator.allCurrentGRTValue.minus(signal.currentGRTValue)
-    if (signal.signal.isZero()) {
-      signal.currentGRTValue = BigInt.fromI32(0)
-    } else {
-      let call = CurationContract.try_signalToTokens(
-        Bytes.fromHexString(subgraphDeployment.id) as Bytes,
-        signal.signal,
-      )
-      signal.currentGRTValue = call.reverted ? BigInt.fromI32(0) : call.value
-    }
-    curator.allCurrentGRTValue = curator.allCurrentGRTValue.plus(signal.currentGRTValue)
+// export function updateAdvancedSignalMetrics(subgraphDeployment: SubgraphDeployment): void {
+//   // iterate over all deployment curators
+//   let curatorsListStrings = subgraphDeployment.curatorsList
+//   let curationAddr = GraphNetwork.load('1')!.curation as Address
+//   let CurationContract = Curation.bind(curationAddr)
+//   for (let i = 0; i < curatorsListStrings.length; i++) {
+//     let curatorId = curatorsListStrings[i]
+//     let signal = Signal.load(joinID([curatorId, subgraphDeployment.id]))!
+//     let curator = Curator.load(curatorId)!
+//     curator.allCurrentGRTValue = curator.allCurrentGRTValue.minus(signal.currentGRTValue)
+//     if (signal.signal.isZero()) {
+//       signal.currentGRTValue = BigInt.fromI32(0)
+//     } else {
+//       let call = CurationContract.try_signalToTokens(
+//         Bytes.fromHexString(subgraphDeployment.id) as Bytes,
+//         signal.signal,
+//       )
+//       signal.currentGRTValue = call.reverted ? BigInt.fromI32(0) : call.value
+//     }
+//     curator.allCurrentGRTValue = curator.allCurrentGRTValue.plus(signal.currentGRTValue)
 
-    curator.unrealizedPLGrt = curator.unrealizedPLGrt.minus(signal.unrealizedPLGrt)
-    signal.unrealizedPLGrt = signal.currentGRTValue
-      .toBigDecimal()
-      .minus(signal.signal.toBigDecimal().times(signal.lastBuyInPrice))
-    curator.unrealizedPLGrt = curator.unrealizedPLGrt.plus(signal.unrealizedPLGrt)
+//     curator.unrealizedPLGrt = curator.unrealizedPLGrt.minus(signal.unrealizedPLGrt)
+//     signal.unrealizedPLGrt = signal.currentGRTValue
+//       .toBigDecimal()
+//       .minus(signal.signal.toBigDecimal().times(signal.lastBuyInPrice))
+//     curator.unrealizedPLGrt = curator.unrealizedPLGrt.plus(signal.unrealizedPLGrt)
 
-    curator.PLGrt = curator.PLGrt.minus(signal.PLGrt)
-    signal.PLGrt = signal.unsignalledTokens
-      .minus(signal.signalledTokens)
-      .plus(signal.currentGRTValue)
-      .toBigDecimal()
-    // OR
-    // nSignal.PLGrt = nSignal.unrealizedPLGrt.plus(nSignal.realizedPLGrt)
-    curator.PLGrt = curator.PLGrt.plus(signal.PLGrt)
+//     curator.PLGrt = curator.PLGrt.minus(signal.PLGrt)
+//     signal.PLGrt = signal.unsignalledTokens
+//       .minus(signal.signalledTokens)
+//       .plus(signal.currentGRTValue)
+//       .toBigDecimal()
+//     // OR
+//     // nSignal.PLGrt = nSignal.unrealizedPLGrt.plus(nSignal.realizedPLGrt)
+//     curator.PLGrt = curator.PLGrt.plus(signal.PLGrt)
 
-    signal.save()
-    curator.save()
-  }
-}
+//     signal.save()
+//     curator.save()
+//   }
+// }
 // END GRAPHSCAN PATCH
