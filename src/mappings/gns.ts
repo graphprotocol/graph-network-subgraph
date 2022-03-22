@@ -391,10 +391,14 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
+    curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+    subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount + 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount + 1
     subgraph.save()
     curator.save()
+    subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, oldID, 1)
+    subgraphDuplicate.save()
   }
   // END GRAPHSCAN PATCH
   let isNameSignalBecomingActive =
@@ -588,10 +592,13 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nSignalTransaction.save()
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
+    curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+    subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount - 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
     subgraph.save()
     curator.save()
+    subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, oldID, 1)
   }
   // END GRAPHSCAN PATCH
 }
@@ -738,10 +745,14 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   curator.save()
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
+    curator = Curator.load(event.params.nameCurator.toHexString())!
+    subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount - 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
     subgraph.save()
     curator.save()
+    subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, oldID, 1)
+    subgraphDuplicate.save()
   }
   // END GRAPHSCAN PATCH
 }
@@ -935,10 +946,16 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
+    curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+    subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount + 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount + 1
     subgraph.save()
     curator.save()
+    if (subgraph.linkedEntity != null) {
+      let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, subgraph.linkedEntity!, 1)
+      subgraphDuplicate.save()
+    }
   }
   // END GRAPHSCAN PATCH
   let isNameSignalBecomingActive =
@@ -1140,10 +1157,16 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   nSignalTransaction.save()
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
+    subgraph = Subgraph.load(subgraphID)!
+    curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
     curator.currentNameSignalCount = curator.currentNameSignalCount - 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
     subgraph.save()
     curator.save()
+    if (subgraph.linkedEntity != null) {
+      let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, subgraph.linkedEntity!, 1)
+      subgraphDuplicate.save()
+    }
   }
   // END GRAPHSCAN PATCH
 }
@@ -1201,10 +1224,16 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
   curator.save()
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
+    subgraph = Subgraph.load(subgraphID)!
+    curator = Curator.load(event.params.curator.toHexString())!
     curator.currentNameSignalCount = curator.currentNameSignalCount - 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
     subgraph.save()
     curator.save()
+    if (subgraph.linkedEntity != null) {
+      let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, subgraph.linkedEntity!, 1)
+      subgraphDuplicate.save()
+    }
   }
   // END GRAPHSCAN PATCH
 }

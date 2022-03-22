@@ -108,6 +108,8 @@ export function handleSignalled(event: Signalled): void {
   deployment.save()
   // GRAPHSCAN PATCH
   if (signal.signal.equals(event.params.signal)) {
+    curator = Curator.load(id)!
+    deployment = SubgraphDeployment.load(subgraphDeploymentID)!
     curator.currentSignalCount = curator.currentSignalCount + 1
     deployment.currentSignalCount = deployment.currentSignalCount + 1
     curator.save()
@@ -247,6 +249,8 @@ export function handleBurned(event: Burned): void {
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
   // GRAPHSCAN PATCH
   if (signal.signal.isZero()) {
+    curator = Curator.load(id)!
+    deployment = SubgraphDeployment.load(subgraphDeploymentID)!
     curator.currentSignalCount = curator.currentSignalCount - 1
     deployment.currentSignalCount = deployment.currentSignalCount - 1
     curator.save()
