@@ -852,6 +852,7 @@ export function updateCurrentDeploymentLinks(
     newDeployment.save()
 
     subgraph.currentVersionRelationEntity = newRelationEntity.id
+    subgraph.currentSignalledTokens = newDeployment.signalledTokens
     subgraph.save()
   }
 }

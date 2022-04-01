@@ -41,7 +41,6 @@ export function handleTokenLockCreated(event: TokenLockCreated): void {
   manager.save()
 
   let id = event.params.contractAddress.toHexString()
-  log.warning('[TOKEN LOCK CREATED] id used: {}', [id])
   let tokenLock = new TokenLockWallet(id)
   tokenLock.manager = event.address
   tokenLock.initHash = event.params.initHash
@@ -67,7 +66,6 @@ export function handleTokenLockCreated(event: TokenLockCreated): void {
     tokenLock.revocable = 'Disabled'
   }
   tokenLock.save()
-  log.warning('[TOKEN LOCK CREATED] entity saved with id: {}', [id])
   GraphTokenLockWallet.create(event.params.contractAddress)
 
   createOrLoadGraphAccount(event.params.contractAddress, event.block.timestamp)
