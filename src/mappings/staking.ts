@@ -47,7 +47,7 @@ import {
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
   let id = event.params.indexer.toHexString()
   // Quick fix to avoid creating new Indexer entities if they don't exist yet.
-  let account = GraphAccount.load(id)!
+  let account = GraphAccount.load(id)
   if (account != null) {
     let indexer = createOrLoadIndexer(id, event.block.timestamp)
     indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
