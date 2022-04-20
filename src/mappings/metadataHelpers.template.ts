@@ -1,7 +1,7 @@
 import { json, ipfs, Bytes, JSONValueKind, log } from '@graphprotocol/graph-ts'
-import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment } from '../types/schema'
+import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment, Contract, ContractEvent } from '../types/schema'
 import { jsonToString } from './utils'
-import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork } from './helpers'
+import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork, createOrLoadContract, createOrLoadContractEvent } from './helpers'
 
 export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: string): void {
   {{#ipfs}}
@@ -121,4 +121,142 @@ export function fetchSubgraphDeploymentManifest(deployment: SubgraphDeployment, 
   }
   {{/ipfs}}
   return deployment as SubgraphDeployment
+}
+
+/* Subgraph Contract Metadata Extraction & Helpers */
+
+export function stripQuotes(str: String): String {
+  let res = ''
+  let remove = ['\'','"',' ']
+  for(let i = 0; i < str.length; i++) {
+    if(!remove.includes(str[i])) res = res.concat(str[i])
+  }
+  return res as String
+}
+
+export function formatEvent(str: String): String {
+  let res = ''
+  let pass = ''
+  // Strip Quotes - TODO breakout into function common to stripQuotes()
+  let remove = ['\'','"']
+  for(let i = 0; i < str.length; i++) {
+    if(!remove.includes(str[i])) pass = pass.concat(str[i])
+  }
+  // Newline handling
+  pass = pass.replaceAll('\r',' ')
+  pass = pass.replaceAll('\n',' ')
+  pass = pass.replaceAll('>-',' ')
+  // Space handling
+  let last = ' '
+  for(let i = 0; i < pass.length; i++) {
+    if(pass[i] == ' ' && last == ' ') {
+      continue
+    } else {
+      res = res.concat(pass[i])
+    }
+    last = pass[i]
+  }
+  res = res.trim()
+  return res as String
+}
+
+export function extractContractEvents(kind: String, contract: Contract): void {
+  let eventHandlersSplit = kind.split("eventHandlers:",2)
+  let eventHandlersStr = ''
+  if(eventHandlersSplit.length >= 2) {
+    eventHandlersStr = eventHandlersSplit[1]
+  }
+  let eventSplit = eventHandlersStr.split("- event:")
+  for(let i = 1; i < eventSplit.length; i++) {
+    let sanitizeSplit = eventSplit[i].split("handler:",2)
+    let eventIso = formatEvent(sanitizeSplit[0])
+    log.debug("Contract event extracted: '{}'",[eventIso])
+    let contractEvent = createOrLoadContractEvent(contract.id,eventIso)
+  }
+}
+
+export function extractContractAddresses(ipfsData: String): Array<String> {
+  let res = new Array<String>(0)
+  // Use split() until a suitable YAML parser is found.  Approach was used in graph-network-subgraph.
+  let dataSourcesSplit = ipfsData.split('dataSources:\n',2)
+  let dataSourcesStr = ''
+  if(dataSourcesSplit.length >= 2) {
+    dataSourcesStr = dataSourcesSplit[1];
+  } else {
+    // Problem
+    return res as Array<String>
+  }
+  // Determine where 'dataSources:' ends, exclude everything thereafter.
+  let sanitizeSplit = dataSourcesStr.split('\n')
+  let shouldDelete = false
+  // Assumes 32 for space.
+  dataSourcesStr = ''
+  for(let i = 0; i < sanitizeSplit.length; i++) {
+    if(sanitizeSplit[i].charAt(0) != ' ' || shouldDelete) {
+      shouldDelete = true
+    } else {
+      dataSourcesStr = dataSourcesStr.concat(sanitizeSplit[i])
+      if(i < sanitizeSplit.length - 1) {
+        dataSourcesStr = dataSourcesStr.concat('\n')
+      }
+    }
+  }
+  // Extract
+  let kindSplit = dataSourcesStr.split('- kind:')
+  let sourceStr = ''
+  let addressStr = ''
+  let addressIso = ''
+  for(let i = 1; i < kindSplit.length; i++) {
+    addressIso = ''
+    // Source Address
+    let sourceSplit = kindSplit[i].split(' source:',2)
+    if(sourceSplit.length < 2) continue
+    else sourceStr = sourceSplit[1]
+    
+    let addressSplit = sourceStr.split(' address:',2)
+    if(addressSplit.length < 2) continue
+    else addressStr = addressSplit[1]
+    
+    let addressStrSplit = addressStr.split('\n',2)
+    if(addressStrSplit.length < 2) continue
+    else addressIso = addressStrSplit[0]
+    
+    log.debug("Contract address '{}' extracted",[addressIso])
+    res.push(stripQuotes(addressIso))
+
+    // Isolate contract events
+    let contract = createOrLoadContract(stripQuotes(addressIso))
+    extractContractEvents(kindSplit[i],contract)
+  }
+  
+  return res as Array<String>
+}
+
+export function processManifestForContracts(subgraph: Subgraph, deployment: SubgraphDeployment): void {
+  {{#ipfs}}
+  let subgraphDeploymentID = deployment.id
+  let subgraphID = subgraph.id
+  let prefix = '1220'
+  let ipfsHash = Bytes.fromHexString(prefix.concat(subgraphDeploymentID.slice(2))).toBase58()
+
+  log.debug("Checking IPFS for hash '{}'",[ipfsHash])
+  
+  let ipfsData = ipfs.cat(ipfsHash)
+  
+  if(ipfsData !== null) {
+    let contractAddresses = extractContractAddresses(ipfsData.toString())
+    let address = ''
+    for(let i = 0; i < contractAddresses.length; i++) {
+      address = contractAddresses[i]
+      log.debug("Associating address '{}'",[address])
+      let contract = createOrLoadContract(address)
+      let assoc = deployment.contracts
+      if(assoc.indexOf(address) == -1) {
+        assoc.push(address)
+        deployment.contracts = assoc
+        deployment.save()
+      }
+    }
+  }
+  {{/ipfs}}
 }

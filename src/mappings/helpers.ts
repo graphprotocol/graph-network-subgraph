@@ -19,6 +19,8 @@ import {
   SubgraphCategoryRelation,
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
+  Contract,
+  ContractEvent
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
@@ -537,6 +539,28 @@ export function createOrLoadGraphNetwork(
   }
   return graphNetwork as GraphNetwork
 }
+
+export function createOrLoadContract(contractID: String): Contract {
+  let contract = Contract.load(contractID)
+  if(contract == null) {
+    contract = new Contract(contractID)
+    contract.save()
+  }
+  return contract as Contract
+}
+
+export function createOrLoadContractEvent(contractID: String,event: String): ContractEvent {
+// TODO This could really benefit from the use of name mangling, if possible.  There might be contract event redundancies without it.
+  let contractEvent = ContractEvent.load(joinID([contractID,event]))
+  if(contractEvent == null) {
+    contractEvent = new ContractEvent(joinID([contractID,event]))
+  }
+  contractEvent.contract = contractID
+  contractEvent.event = event
+  contractEvent.save()
+  return contractEvent as ContractEvent
+}
+
 
 export function addQm(a: ByteArray): ByteArray {
   let out = new Uint8Array(34)

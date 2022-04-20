@@ -522,6 +522,9 @@ type SubgraphDeployment @entity {
   activeSubgraphCount: Int!
   "Amount of Subgraph entities that were currently using this deployment when they got deprecated"
   deprecatedSubgraphCount: Int!
+
+  "The contract sources in this subgraph deployment's manifest"
+  contracts: [Contract!]!
 }
 
 # TODO - add when we have the ability to parse data sources
@@ -1220,6 +1223,32 @@ enum Revocability {
 }
 
 """
+Events from contract sources in subgraph manifests
+"""
+type ContractEvent @entity {
+  "Address-Event"
+  id: ID!
+  "Event"
+  event: String
+  "The contract this event is associated with"
+  contract: Contract!
+}
+
+"""
+Contracts in subgraph manifests
+"""
+type Contract @entity {
+  "Contract Address"
+  id: ID!
+  "Placeholder for contract name, if it can be determined"
+  name: String
+  "Subgraph deployments which include this contract in their manifests"
+  subgraphDeployments: [SubgraphDeployment!]! @derivedFrom(field: "contracts")
+  "Events associated with this contract"  
+  contractEvents: [ContractEvent!]! @derivedFrom(field: "contract")
+}
+
+"""
 Full test search for displayName and description on the Subgraph Entity
 """
 type _Schema_
@@ -1240,4 +1269,16 @@ type _Schema_
     language: en
     algorithm: rank
     include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
+  )
+  @fulltext(
+    name: "contractEventSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "ContractEvent", fields: [{ name: "event" }] }]
+  )
+  @fulltext(
+    name: "contractSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "Contract", fields: [{ name: "id" }] }]
   )

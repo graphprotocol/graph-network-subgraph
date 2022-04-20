@@ -54,9 +54,9 @@ import {
   convertBigIntSubgraphIDToBase58,
   duplicateOrUpdateSubgraphWithNewID,
   duplicateOrUpdateSubgraphVersionWithNewID,
-  duplicateOrUpdateNameSignalWithNewID,
+  duplicateOrUpdateNameSignalWithNewID
 } from './helpers'
-import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './metadataHelpers'
+import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata, processManifestForContracts } from './metadataHelpers'
 
 export function handleSetDefaultName(event: SetDefaultName): void {
   let graphAccount = createOrLoadGraphAccount(event.params.graphAccount, event.block.timestamp)
@@ -250,7 +250,10 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
-
+  
+  //Associate Contracts and Events with Deployment
+  processManifestForContracts(subgraph,deployment)
+  
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionIDNew)
   subgraphVersion.entityVersion = 2
@@ -765,6 +768,9 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  
+  //Associate Contracts and Events with Deployment
+  processManifestForContracts(subgraph,deployment)
 
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
@@ -774,6 +780,7 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
   subgraphVersion.version = versionNumber.toI32()
   subgraphVersion.createdAt = event.block.timestamp.toI32()
   subgraphVersion.save()
+  
 
   let oldDeployment: SubgraphDeployment | null = null
   if (oldVersionID != null) {
@@ -1277,6 +1284,8 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
     let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
     let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+    //Associate Contracts and Events with Deployment
+    processManifestForContracts(subgraph,deployment)
 
     // Create subgraph version
     let subgraphVersion = new SubgraphVersion(versionID)
