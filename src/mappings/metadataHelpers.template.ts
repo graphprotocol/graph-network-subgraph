@@ -104,6 +104,7 @@ export function fetchSubgraphDeploymentManifest(deployment: SubgraphDeployment, 
     deployment.manifest = getManifestFromIPFS.toString()
 
     let manifest = deployment.manifest!
+    /* Commenting out this, since it might be related to a weird error
     // we take the right side of the split, since it's the one which will have the schema ipfs hash
     let schemaSplit = manifest.split('schema:\n', 2)[1]
     let schemaFileSplit = schemaSplit.split('/ipfs/', 2)[1]
@@ -118,9 +119,9 @@ export function fetchSubgraphDeploymentManifest(deployment: SubgraphDeployment, 
     // We get the first occurrence of `network` since subgraphs can only have data sources for the same network
     let networkSplit = manifest.split('network: ', 2)[1]
     let network = networkSplit.split('\n', 2)[0]
-
     createOrLoadNetwork(network)
     deployment.network = network
+    */
   }
   {{/ipfs}}
   return deployment as SubgraphDeployment
