@@ -1,6 +1,9 @@
 specVersion: 0.0.2
 description: The Graph Network Smart Contracts on Ethereum
 repository: https://github.com/graphprotocol/graph-network-subgraph
+graft:
+  base: Qmdrvprm1V4chW1JAXjLMPrQyqJLCMSrDCQ5jdGXpmB6AL
+  block: 14658972
 schema:
   file: ./schema.graphql
 dataSources:
