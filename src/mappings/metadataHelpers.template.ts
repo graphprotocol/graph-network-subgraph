@@ -7,31 +7,34 @@ export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: 
   {{#ipfs}}
   let ipfsData = ipfs.cat(ipfsHash)
   if (ipfsData !== null) {
-    let data = json.fromBytes(ipfsData as Bytes).toObject()
-    graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
-    graphAccount.description = jsonToString(data.get('description'))
-    graphAccount.image = jsonToString(data.get('image'))
-    graphAccount.displayName = jsonToString(data.get('displayName'))
-    let isOrganization = data.get('isOrganization')
-    if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
-      graphAccount.isOrganization = isOrganization.toBool()
-    }
-    graphAccount.website = jsonToString(data.get('website'))
-    graphAccount.save()
-
-    // Update all associated vesting contract addresses
-    let tlws = graphAccount.tokenLockWallets
-    for (let i = 0; i < tlws.length; i++) {
-      let tlw = GraphAccount.load(tlws[i])!
-      tlw.codeRepository = graphAccount.codeRepository
-      tlw.description = graphAccount.description
-      tlw.image = graphAccount.image
-      tlw.displayName = graphAccount.displayName
+    let tryData = json.try_fromBytes(ipfsData as Bytes)
+    if(tryData.isOk) {
+      let data = tryData.value.toObject()
+      graphAccount.codeRepository = jsonToString(data.get('codeRepository'))
+      graphAccount.description = jsonToString(data.get('description'))
+      graphAccount.image = jsonToString(data.get('image'))
+      graphAccount.displayName = jsonToString(data.get('displayName'))
+      let isOrganization = data.get('isOrganization')
       if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
-        tlw.isOrganization = isOrganization.toBool()
+        graphAccount.isOrganization = isOrganization.toBool()
       }
-      tlw.website = graphAccount.website
-      tlw.save()
+      graphAccount.website = jsonToString(data.get('website'))
+      graphAccount.save()
+
+      // Update all associated vesting contract addresses
+      let tlws = graphAccount.tokenLockWallets
+      for (let i = 0; i < tlws.length; i++) {
+        let tlw = GraphAccount.load(tlws[i])!
+        tlw.codeRepository = graphAccount.codeRepository
+        tlw.description = graphAccount.description
+        tlw.image = graphAccount.image
+        tlw.displayName = graphAccount.displayName
+        if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
+          tlw.isOrganization = isOrganization.toBool()
+        }
+        tlw.website = graphAccount.website
+        tlw.save()
+      }
     }
   }
   {{/ipfs}}
@@ -101,6 +104,7 @@ export function fetchSubgraphDeploymentManifest(deployment: SubgraphDeployment, 
     deployment.manifest = getManifestFromIPFS.toString()
 
     let manifest = deployment.manifest!
+    /* Commenting out this, since it might be related to a weird error
     // we take the right side of the split, since it's the one which will have the schema ipfs hash
     let schemaSplit = manifest.split('schema:\n', 2)[1]
     let schemaFileSplit = schemaSplit.split('/ipfs/', 2)[1]
@@ -115,9 +119,9 @@ export function fetchSubgraphDeploymentManifest(deployment: SubgraphDeployment, 
     // We get the first occurrence of `network` since subgraphs can only have data sources for the same network
     let networkSplit = manifest.split('network: ', 2)[1]
     let network = networkSplit.split('\n', 2)[0]
-
     createOrLoadNetwork(network)
     deployment.network = network
+    */
   }
   {{/ipfs}}
   return deployment as SubgraphDeployment
