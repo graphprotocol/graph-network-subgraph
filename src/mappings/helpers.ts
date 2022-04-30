@@ -20,11 +20,12 @@ import {
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
   Contract,
-  ContractEvent
+  ContractEvent,
+  SubgraphDeploymentContract
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
-import { fetchSubgraphDeploymentManifest } from './metadataHelpers'
+import { fetchSubgraphDeploymentManifest, processManifestForContracts } from './metadataHelpers'
 import { addresses } from '../../config/addresses'
 
 export function createOrLoadSubgraph(
@@ -82,6 +83,10 @@ export function createOrLoadSubgraphDeployment(
       deployment as SubgraphDeployment,
       deployment.ipfsHash,
     )
+    
+    //Associate Contracts and Events with Deployment
+    processManifestForContracts(deployment)
+    
     deployment.createdAt = timestamp.toI32()
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
@@ -538,6 +543,21 @@ export function createOrLoadGraphNetwork(
     graphNetwork.save()
   }
   return graphNetwork as GraphNetwork
+}
+
+export function createOrLoadSubgraphDeploymentContract(
+  deployment: SubgraphDeployment,
+  contract: Contract
+): SubgraphDeploymentContract {
+  let assocID = joinID([deployment.id,contract.id])
+  let assoc = SubgraphDeploymentContract.load(assocID)
+  if (assoc == null) {
+    assoc = new SubgraphDeploymentContract(assocID)
+    assoc.subgraphDeployment = deployment.id
+    assoc.contract = contract.id
+    assoc.save()
+  }
+  return assoc as SubgraphDeploymentContract
 }
 
 export function createOrLoadContract(contractID: String): Contract {

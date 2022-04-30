@@ -524,7 +524,7 @@ type SubgraphDeployment @entity {
   deprecatedSubgraphCount: Int!
 
   "The contract sources in this subgraph deployment's manifest"
-  contracts: [Contract!]!
+  contracts: [SubgraphDeploymentContract!]! @derivedFrom(field:"subgraphDeployment")
 }
 
 # TODO - add when we have the ability to parse data sources
@@ -1243,9 +1243,18 @@ type Contract @entity {
   "Placeholder for contract name, if it can be determined"
   name: String
   "Subgraph deployments which include this contract in their manifests"
-  subgraphDeployments: [SubgraphDeployment!]! @derivedFrom(field: "contracts")
+  subgraphDeployments: [SubgraphDeploymentContract!]! @derivedFrom(field:"contract")
   "Events associated with this contract"  
   contractEvents: [ContractEvent!]! @derivedFrom(field: "contract")
+}
+
+"""
+Deployment-to-Contract relational entity
+"""
+type SubgraphDeploymentContract @entity {
+  id: ID! # Concat: Deployment ID, Contract Address
+  subgraphDeployment: SubgraphDeployment!
+  contract: Contract!
 }
 
 """

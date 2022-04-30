@@ -1,7 +1,7 @@
 import { json, ipfs, Bytes, JSONValueKind, log } from '@graphprotocol/graph-ts'
-import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment, Contract, ContractEvent } from '../types/schema'
+import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment, Contract, ContractEvent, SubgraphDeploymentContract } from '../types/schema'
 import { jsonToString } from './utils'
-import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork, createOrLoadContract, createOrLoadContractEvent } from './helpers'
+import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork, createOrLoadContract, createOrLoadContractEvent, createOrLoadSubgraphDeploymentContract } from './helpers'
 
 export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: string): void {
   {{#ipfs}}
@@ -232,31 +232,16 @@ export function extractContractAddresses(ipfsData: String): Array<String> {
   return res as Array<String>
 }
 
-export function processManifestForContracts(subgraph: Subgraph, deployment: SubgraphDeployment): void {
-  {{#ipfs}}
-  let subgraphDeploymentID = deployment.id
-  let subgraphID = subgraph.id
-  let prefix = '1220'
-  let ipfsHash = Bytes.fromHexString(prefix.concat(subgraphDeploymentID.slice(2))).toBase58()
-
-  log.debug("Checking IPFS for hash '{}'",[ipfsHash])
-  
-  let ipfsData = ipfs.cat(ipfsHash)
-  
-  if(ipfsData !== null) {
-    let contractAddresses = extractContractAddresses(ipfsData.toString())
+export function processManifestForContracts(deployment: SubgraphDeployment): void {
+  let manifest = deployment.manifest
+  if(manifest !== null) {
+    let contractAddresses = extractContractAddresses(manifest)
     let address = ''
     for(let i = 0; i < contractAddresses.length; i++) {
       address = contractAddresses[i]
       log.debug("Associating address '{}'",[address])
       let contract = createOrLoadContract(address)
-      let assoc = deployment.contracts
-      if(assoc.indexOf(address) == -1) {
-        assoc.push(address)
-        deployment.contracts = assoc
-        deployment.save()
-      }
+      let assoc = createOrLoadSubgraphDeploymentContract(deployment,contract)
     }
   }
-  {{/ipfs}}
 }
