@@ -560,6 +560,13 @@ export function createOrLoadSubgraphDeploymentContract(
   return assoc as SubgraphDeploymentContract
 }
 
+export function standardizeAddress(address:String): String {
+  if(address.length == 40) {
+    address = '0x' + address
+  }
+  return address.toLowerCase() as String
+}
+
 export function createOrLoadContract(contractID: String): Contract {
   let contract = Contract.load(contractID)
   if(contract == null) {

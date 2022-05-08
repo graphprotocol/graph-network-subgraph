@@ -1,7 +1,7 @@
 import { json, ipfs, Bytes, JSONValueKind, log } from '@graphprotocol/graph-ts'
 import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment, Contract, ContractEvent, SubgraphDeploymentContract } from '../types/schema'
 import { jsonToString } from './utils'
-import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork, createOrLoadContract, createOrLoadContractEvent, createOrLoadSubgraphDeploymentContract } from './helpers'
+import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork, createOrLoadContract, createOrLoadContractEvent, createOrLoadSubgraphDeploymentContract, standardizeAddress } from './helpers'
 
 export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: string): void {
   {{#ipfs}}
@@ -226,10 +226,10 @@ export function extractContractAddresses(ipfsData: String): Array<String> {
     else addressIso = addressStrSplit[0]
     
     log.debug("Contract address '{}' extracted",[addressIso])
-    res.push(stripQuotes(addressIso))
+    res.push(standardizeAddress(stripQuotes(addressIso)))
 
     // Isolate contract events
-    let contract = createOrLoadContract(stripQuotes(addressIso))
+    let contract = createOrLoadContract(standardizeAddress(stripQuotes(addressIso)))
     extractContractEvents(kindSplit[i],contract)
   }
   

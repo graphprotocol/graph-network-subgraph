@@ -48,6 +48,9 @@ dataSources:
         - Subgraph
         - SubgraphVersion
         - SubgraphDeployment
+        - SubgraphDeploymentContract
+        - Contract
+        - ContractEvent
         - GraphAccount
         - NameSignal
       abis:
