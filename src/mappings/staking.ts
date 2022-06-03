@@ -49,7 +49,7 @@ import {
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
   let id = event.params.indexer.toHexString()
   // Quick fix to avoid creating new Indexer entities if they don't exist yet.
-  let account = GraphAccount.load(id)!
+  let account = GraphAccount.load(id)
   if (account != null) {
     let indexer = createOrLoadIndexer(id, event.block.timestamp)
     indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
@@ -406,8 +406,14 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   allocation.curatorRewards = allocation.curatorRewards.plus(event.params.curationFees)
   allocation.save()
 
+  // since we don't get the protocol tax explicitly, we will use tokens - (curation + rebate) to calculate it
+  // This could also be calculated by doing: protocolPercentage * event.params.tokens
+  let taxedFees = event.params.tokens.minus(event.params.rebateFees.plus(event.params.curationFees))
+
   // Update epoch
   let epoch = createOrLoadEpoch(event.block.number)
+  epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokens)
+  epoch.taxedQueryFees = epoch.taxedQueryFees.plus(taxedFees)
   epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.rebateFees)
   epoch.curatorQueryFees = epoch.curatorQueryFees.plus(event.params.curationFees)
   epoch.save()
@@ -435,9 +441,6 @@ export function handleAllocationCollected(event: AllocationCollected): void {
 
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
 
-  // since we don't get the protocol tax explicitly, we will use tokens - (curation + rebate) to calculate it
-  // This could also be calculated by doing: protocolPercentage * event.params.tokens
-  let taxedFees = event.params.tokens.minus(event.params.rebateFees.plus(event.params.curationFees))
 
   // update graph network
   let graphNetwork = GraphNetwork.load('1')!

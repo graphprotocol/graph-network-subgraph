@@ -114,11 +114,14 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 // }
 
 export function handleRewardsDenyListUpdated(event: RewardsDenylistUpdated): void {
-  let subgraphDeployment = SubgraphDeployment.load(event.params.subgraphDeploymentID.toHexString())!
-  if (event.params.sinceBlock.toI32() == 0) {
-    subgraphDeployment.deniedAt = 0
-  } else {
-    subgraphDeployment.deniedAt = event.params.sinceBlock.toI32()
+  let subgraphDeployment = SubgraphDeployment.load(event.params.subgraphDeploymentID.toHexString())
+  if (subgraphDeployment != null) {
+    if (event.params.sinceBlock.toI32() == 0) {
+      subgraphDeployment.deniedAt = 0
+    } else {
+      subgraphDeployment.deniedAt = event.params.sinceBlock.toI32()
+    }
+    subgraphDeployment.save()
   }
-  subgraphDeployment.save()
+  // We might need to handle the case where the subgraph deployment doesn't exists later
 }

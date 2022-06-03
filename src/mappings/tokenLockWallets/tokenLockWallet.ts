@@ -30,7 +30,6 @@ export function handleTokensRevoked(event: TokensRevoked): void {
 
 export function handleManagerUpdated(event: ManagerUpdated): void {
   let id = event.address.toHexString()
-  log.warning('address id: {}', [id])
   let tokenLockWallet = TokenLockWallet.load(id)
   if (tokenLockWallet == null) {
     log.warning("wallet doesn't exist", [])
