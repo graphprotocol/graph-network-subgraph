@@ -1158,7 +1158,7 @@ interface Transaction {
 """
 All relevant data for a Name Signal Transaction in The Graph Network
 """
-type NameSignalTransaction implements Transaction @entity {
+type NameSignalTransaction implements Transaction @entity(immutable: true) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1177,7 +1177,7 @@ type NameSignalTransaction implements Transaction @entity {
 """
 All relevant data for a Signal Transaction in The Graph Network
 """
-type SignalTransaction implements Transaction @entity {
+type SignalTransaction implements Transaction @entity(immutable: true) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1314,7 +1314,7 @@ type RewardCutHistoryEntity @entity {
   epoch: Int!
 }
 
-type DelegationPoolHistoryEntity @entity {
+type DelegationPoolHistoryEntity @entity(immutable: true) {
   "Concatenation of indexer address and blocknumber and maybe something more"
   id: ID!
   indexer: GraphAccount!
@@ -1328,7 +1328,7 @@ type DelegationPoolHistoryEntity @entity {
 """
 Rewards history entity
 """
-type DelegatorRewardHistoryEntity @entity {
+type DelegatorRewardHistoryEntity @entity(immutable: true) {
   "Concatenation of indexer address delegator address and blocknumber"
   id: ID!
   indexer: GraphAccount!
