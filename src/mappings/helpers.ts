@@ -491,6 +491,8 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
   epoch.totalRewards = BigInt.fromI32(0)
   epoch.totalIndexerRewards = BigInt.fromI32(0)
   epoch.totalDelegatorRewards = BigInt.fromI32(0)
+  epoch.totalQueryFees = BigInt.fromI32(0)
+  epoch.taxedQueryFees = BigInt.fromI32(0)
   epoch.save()
   return epoch
 }
@@ -1081,10 +1083,15 @@ export function duplicateOrUpdateNameSignalWithNewID(
   signal.nameSignalAverageCostBasisPerSignal = entity.nameSignalAverageCostBasisPerSignal
   signal.signalAverageCostBasis = entity.signalAverageCostBasis
   signal.signalAverageCostBasisPerSignal = entity.signalAverageCostBasisPerSignal
-
   signal.entityVersion = newEntityVersion
   signal.linkedEntity = entity.id
-
+  // GRAPHSCAN PATCH
+  signal.currentGRTValue = entity.currentGRTValue
+  signal.PLGrt = entity.PLGrt
+  signal.unrealizedPLGrt = entity.unrealizedPLGrt
+  signal.realizedPLGrt = entity.realizedPLGrt
+  signal.lastBuyInPrice = entity.lastBuyInPrice
+  // END GRAPHSCAN PATCH
   return signal as NameSignal
 }
 

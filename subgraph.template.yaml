@@ -1,6 +1,9 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 description: The Graph Network Smart Contracts on Ethereum for Graphscan.io
 repository: https://github.com/Ryabina-io/graphscan
+features:
+  - fullTextSearch
+  - ipfsOnEthereumContracts
 schema:
   file: ./schema.graphql
 dataSources:
