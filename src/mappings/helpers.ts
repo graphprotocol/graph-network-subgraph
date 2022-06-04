@@ -23,6 +23,7 @@ import {
   DelegatorRewardHistoryEntity,
   DelegationPoolHistoryEntity,
   RewardCutHistoryEntity,
+  IndexerDelegatortRelation,
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
@@ -112,7 +113,6 @@ export function createOrLoadSubgraphDeployment(
     deployment.currentSignalCount = 0
     deployment.indexersCount = 0
     deployment.allocationsCount = 0
-    deployment.curatorsList = []
     // END GRAPHSCAN PATCH
 
     deployment.save()
@@ -171,7 +171,6 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.delegationRemaining = BigInt.fromI32(0)
     indexer.indexerQueryFees = BigInt.fromI32(0)
     indexer.delegatorsCount = 0
-    indexer.delegatorsList = []
     // END GRAPHSCAN PATCH
     let graphAccount = GraphAccount.load(id)!
     graphAccount.indexer = id
@@ -252,10 +251,13 @@ export function createOrLoadDelegatedStake(
 
     // GRAPHSCAN PATCH
     let indexerEntity = Indexer.load(indexer)!
-    let newDelegatorsList = indexerEntity.delegatorsList
-    newDelegatorsList.push(delegator)
-    indexerEntity.delegatorsList = newDelegatorsList
+    let indexerDelegatorRelation = new IndexerDelegatortRelation(
+      joinID([indexer, BigInt.fromI32(indexerEntity.delegatorsCount).toString()]),
+    )
+    indexerDelegatorRelation.delegator = delegator
+    indexerDelegatorRelation.save()
     indexerEntity.delegatorsCount = indexerEntity.delegatorsCount + 1
+
     indexerEntity.save()
     // END GRAPHSCAN PATCH
 
@@ -1115,10 +1117,14 @@ export function createDelegatorRewardHistoryEntityFromIndexer(
 ): void {
   let graphNetwork = GraphNetwork.load('1')!
   let indexer = Indexer.load(indexerId)!
-  let delegatorsList = indexer.delegatorsList
-  for (let i = 0; i < delegatorsList.length; i++) {
-    let delegatedStake = DelegatedStake.load(joinID([delegatorsList[i], indexer.id]))!
-    let delegator = Delegator.load(delegatorsList[i])!
+  for (let i = 0; i < indexer.delegatorsCount; i++) {
+    let indexerDelegatorRelation = IndexerDelegatortRelation.load(
+      joinID([indexerId, BigInt.fromI32(i).toString()]),
+    )!
+    let delegatedStake = DelegatedStake.load(
+      joinID([indexerDelegatorRelation.delegator, indexer.id]),
+    )!
+    let delegator = Delegator.load(indexerDelegatorRelation.delegator)!
     let id = indexer.id + delegatedStake.delegator + event.block.number.toString()
     // вычитам старое значение текущего стейка
     delegator.currentStaked = delegator.currentStaked.minus(delegatedStake.currentDelegationAmount)

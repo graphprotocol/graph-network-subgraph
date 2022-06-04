@@ -531,8 +531,6 @@ type SubgraphDeployment @entity {
   indexersCount: Int!
   "Allocations to this deployments count"
   allocationsCount: Int!
-
-  curatorsList: [Curator!]!
 }
 
 # TODO - add when we have the ability to parse data sources
@@ -660,7 +658,12 @@ type Indexer @entity {
   "The total amount of query fees given to indexer"
   indexerQueryFees: BigInt!
   delegatorsCount: Int!
-  delegatorsList: [Delegator!]!
+}
+
+type IndexerDelegatortRelation @entity(immutable: true) {
+  "Indexer-index"
+  id: ID!
+  delegator: Delegator!
 }
 
 """
