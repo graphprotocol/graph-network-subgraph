@@ -1,12 +1,12 @@
 import { BigInt, ByteArray, Address, Bytes, crypto, log, BigDecimal } from '@graphprotocol/graph-ts'
 
-function hexToBI(hexString: string): BigInt {
+export function hexToBI(hexString: string): BigInt {
   return BigInt.fromUnsignedBytes(changetype<Bytes>(Bytes.fromHexString(hexString).reverse()))
 }
 function BIZERO(): BigInt {
   return BigInt.fromI32(0)
 }
-let maxExpArray: BigInt[]
+let maxExpArray: BigInt[] = new Array<BigInt>(127)
 maxExpArray[32] = hexToBI('0x1c35fedd14ffffffffffffffffffffffff')
 maxExpArray[33] = hexToBI('0x1b0ce43b323fffffffffffffffffffffff')
 maxExpArray[34] = hexToBI('0x19f0028ec1ffffffffffffffffffffffff')
@@ -103,17 +103,17 @@ maxExpArray[124] = hexToBI('0x00976bd9952c7aa957f5937d790ef65037')
 maxExpArray[125] = hexToBI('0x009131271922eaa6064b73a22d0bd4f2bf')
 maxExpArray[126] = hexToBI('0x008b380f3558668c46c91c49a2f8e967b9')
 maxExpArray[127] = hexToBI('0x00857ddf0117efa215952912839f6473e6')
-let MAX_NUM = hexToBI('0x200000000000000000000000000000000')
+let MAX_NUM = hexToBI('0x0200000000000000000000000000000000')
 let MAX_RATIO = BigInt.fromI32(1000000)
 let MAX_PRECISION: u8 = 127
 let MIN_PRECISION: u8 = 32
 export let FIXED_1 = hexToBI('0x80000000000000000000000000000000')
-let OPT_LOG_MAX_VAL = hexToBI('0x15bf0a8b1457695355fb8ac404e7a79e3')
+let OPT_LOG_MAX_VAL = hexToBI('0x015bf0a8b1457695355fb8ac404e7a79e3')
 let ONE = BigInt.fromI32(1)
-let OPT_EXP_MAX_VAL = hexToBI('0x15bf0a8b1457695355fb8ac404e7a79e3')
-let FIXED_2 = hexToBI('0x100000000000000000000000000000000')
-let LN2_NUMERATOR = hexToBI('0x3f80fe03f80fe03f80fe03f80fe03f8')
-let LN2_DENOMINATOR = hexToBI('0x5b9de1d10bf4103d647b0955897ba80')
+let OPT_EXP_MAX_VAL = hexToBI('0x015bf0a8b1457695355fb8ac404e7a79e3')
+let FIXED_2 = hexToBI('0x0100000000000000000000000000000000')
+let LN2_NUMERATOR = hexToBI('0x03f80fe03f80fe03f80fe03f80fe03f8')
+let LN2_DENOMINATOR = hexToBI('0x05b9de1d10bf4103d647b0955897ba80')
 class PowerResult {
   result: BigInt
   precision: u8
@@ -220,43 +220,43 @@ function optimalLog(x: BigInt): BigInt {
   w = (y * y) / FIXED_1
   res =
     res +
-    (z * (hexToBI('0x100000000000000000000000000000000') - y)) /
-      hexToBI('0x100000000000000000000000000000000')
+    (z * (hexToBI('0x0100000000000000000000000000000000') - y)) /
+      hexToBI('0x0100000000000000000000000000000000')
   z = (z * w) / FIXED_1 // add y^01 / 01 - y^02 / 02
   res =
     res +
-    (z * (hexToBI('0x0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') - y)) /
-      hexToBI('0x200000000000000000000000000000000')
+    (z * (hexToBI('0x00aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') - y)) /
+      hexToBI('0x0200000000000000000000000000000000')
   z = (z * w) / FIXED_1 // add y^03 / 03 - y^04 / 04
   res =
     res +
-    (z * (hexToBI('0x099999999999999999999999999999999') - y)) /
-      hexToBI('0x300000000000000000000000000000000')
+    (z * (hexToBI('0x0099999999999999999999999999999999') - y)) /
+      hexToBI('0x0300000000000000000000000000000000')
   z = (z * w) / FIXED_1 // add y^05 / 05 - y^06 / 06
   res =
     res +
-    (z * (hexToBI('0x092492492492492492492492492492492') - y)) /
-      hexToBI('0x400000000000000000000000000000000')
+    (z * (hexToBI('0x0092492492492492492492492492492492') - y)) /
+      hexToBI('0x0400000000000000000000000000000000')
   z = (z * w) / FIXED_1 // add y^07 / 07 - y^08 / 08
   res =
     res +
-    (z * (hexToBI('0x08e38e38e38e38e38e38e38e38e38e38e') - y)) /
-      hexToBI('0x500000000000000000000000000000000')
+    (z * (hexToBI('0x008e38e38e38e38e38e38e38e38e38e38e') - y)) /
+      hexToBI('0x0500000000000000000000000000000000')
   z = (z * w) / FIXED_1 // add y^09 / 09 - y^10 / 10
   res =
     res +
-    (z * (hexToBI('0x08ba2e8ba2e8ba2e8ba2e8ba2e8ba2e8b') - y)) /
-      hexToBI('0x600000000000000000000000000000000')
+    (z * (hexToBI('0x008ba2e8ba2e8ba2e8ba2e8ba2e8ba2e8b') - y)) /
+      hexToBI('0x0600000000000000000000000000000000')
   z = (z * w) / FIXED_1 // add y^11 / 11 - y^12 / 12
   res =
     res +
-    (z * (hexToBI('0x089d89d89d89d89d89d89d89d89d89d89') - y)) /
-      hexToBI('0x700000000000000000000000000000000')
+    (z * (hexToBI('0x0089d89d89d89d89d89d89d89d89d89d89') - y)) /
+      hexToBI('0x0700000000000000000000000000000000')
   z = (z * w) / FIXED_1 // add y^13 / 13 - y^14 / 14
   res =
     res +
-    (z * (hexToBI('0x088888888888888888888888888888888') - y)) /
-      hexToBI('0x800000000000000000000000000000000') // add y^15 / 15 - y^16 / 16
+    (z * (hexToBI('0x0088888888888888888888888888888888') - y)) /
+      hexToBI('0x0800000000000000000000000000000000') // add y^15 / 15 - y^16 / 16
 
   return res
 }
@@ -308,34 +308,34 @@ function optimalExp(x: BigInt): BigInt {
   res = res + z * hexToBI('0x0000000000000001') // add y^20 * (20! / 20!)
   res = res / hexToBI('0x21c3677c82b40000') + y + FIXED_1 // divide by 20! and then add y^1 / 1! + y^0 / 0!
 
-  if (!(x & hexToBI('0x010000000000000000000000000000000')).isZero())
+  if (!(x & hexToBI('0x0010000000000000000000000000000000')).isZero())
     res =
-      (res * hexToBI('0x1c3d6a24ed82218787d624d3e5eba95f9')) /
-      hexToBI('0x18ebef9eac820ae8682b9793ac6d1e776') // multiply by e^2^(-3)
-  if (!(x & hexToBI('0x020000000000000000000000000000000')).isZero())
+      (res * hexToBI('0x01c3d6a24ed82218787d624d3e5eba95f9')) /
+      hexToBI('0x018ebef9eac820ae8682b9793ac6d1e776') // multiply by e^2^(-3)
+  if (!(x & hexToBI('0x0020000000000000000000000000000000')).isZero())
     res =
-      (res * hexToBI('0x18ebef9eac820ae8682b9793ac6d1e778')) /
-      hexToBI('0x1368b2fc6f9609fe7aceb46aa619baed4') // multiply by e^2^(-2)
-  if (!(x & hexToBI('0x040000000000000000000000000000000')).isZero())
+      (res * hexToBI('0x018ebef9eac820ae8682b9793ac6d1e778')) /
+      hexToBI('0x01368b2fc6f9609fe7aceb46aa619baed4') // multiply by e^2^(-2)
+  if (!(x & hexToBI('0x0040000000000000000000000000000000')).isZero())
     res =
-      (res * hexToBI('0x1368b2fc6f9609fe7aceb46aa619baed5')) /
-      hexToBI('0x0bc5ab1b16779be3575bd8f0520a9f21f') // multiply by e^2^(-1)
-  if (!(x & hexToBI('0x080000000000000000000000000000000')).isZero())
+      (res * hexToBI('0x01368b2fc6f9609fe7aceb46aa619baed5')) /
+      hexToBI('0x00bc5ab1b16779be3575bd8f0520a9f21f') // multiply by e^2^(-1)
+  if (!(x & hexToBI('0x0080000000000000000000000000000000')).isZero())
     res =
-      (res * hexToBI('0x0bc5ab1b16779be3575bd8f0520a9f21e')) /
-      hexToBI('0x0454aaa8efe072e7f6ddbab84b40a55c9') // multiply by e^2^(+0)
-  if (!(x & hexToBI('0x100000000000000000000000000000000')).isZero())
+      (res * hexToBI('0x00bc5ab1b16779be3575bd8f0520a9f21e')) /
+      hexToBI('0x00454aaa8efe072e7f6ddbab84b40a55c9') // multiply by e^2^(+0)
+  if (!(x & hexToBI('0x0100000000000000000000000000000000')).isZero())
     res =
-      (res * hexToBI('0x0454aaa8efe072e7f6ddbab84b40a55c5')) /
-      hexToBI('0x00960aadc109e7a3bf4578099615711ea') // multiply by e^2^(+1)
-  if (!(x & hexToBI('0x200000000000000000000000000000000')).isZero())
+      (res * hexToBI('0x00454aaa8efe072e7f6ddbab84b40a55c5')) /
+      hexToBI('0x000960aadc109e7a3bf4578099615711ea') // multiply by e^2^(+1)
+  if (!(x & hexToBI('0x0200000000000000000000000000000000')).isZero())
     res =
-      (res * hexToBI('0x00960aadc109e7a3bf4578099615711d7')) /
-      hexToBI('0x0002bf84208204f5977f9a8cf01fdce3d') // multiply by e^2^(+2)
-  if (!(x & hexToBI('0x400000000000000000000000000000000')).isZero())
+      (res * hexToBI('0x000960aadc109e7a3bf4578099615711d7')) /
+      hexToBI('0x00002bf84208204f5977f9a8cf01fdce3d') // multiply by e^2^(+2)
+  if (!(x & hexToBI('0x0400000000000000000000000000000000')).isZero())
     res =
-      (res * hexToBI('0x0002bf84208204f5977f9a8cf01fdc307')) /
-      hexToBI('0x0000003c6ab775dd0b95b4cbee7e65d11') // multiply by e^2^(+3)
+      (res * hexToBI('0x00002bf84208204f5977f9a8cf01fdc307')) /
+      hexToBI('0x00000003c6ab775dd0b95b4cbee7e65d11') // multiply by e^2^(+3)
 
   return res
 }
@@ -345,71 +345,71 @@ function generalExp(_x: BigInt, _precision: u8): BigInt {
   let res: BigInt = BIZERO()
 
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x3442c4e6074a82f1797f72ac0000000') // add x^02 * (33! / 02!)
+  res = res + xi * hexToBI('0x03442c4e6074a82f1797f72ac0000000') // add x^02 * (33! / 02!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x116b96f757c380fb287fd0e40000000') // add x^03 * (33! / 03!)
+  res = res + xi * hexToBI('0x0116b96f757c380fb287fd0e40000000') // add x^03 * (33! / 03!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x045ae5bdd5f0e03eca1ff4390000000') // add x^04 * (33! / 04!)
+  res = res + xi * hexToBI('0x0045ae5bdd5f0e03eca1ff4390000000') // add x^04 * (33! / 04!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00defabf91302cd95b9ffda50000000') // add x^05 * (33! / 05!)
+  res = res + xi * hexToBI('0x000defabf91302cd95b9ffda50000000') // add x^05 * (33! / 05!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x002529ca9832b22439efff9b8000000') // add x^06 * (33! / 06!)
+  res = res + xi * hexToBI('0x0002529ca9832b22439efff9b8000000') // add x^06 * (33! / 06!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00054f1cf12bd04e516b6da88000000') // add x^07 * (33! / 07!)
+  res = res + xi * hexToBI('0x000054f1cf12bd04e516b6da88000000') // add x^07 * (33! / 07!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000a9e39e257a09ca2d6db51000000') // add x^08 * (33! / 08!)
+  res = res + xi * hexToBI('0x00000a9e39e257a09ca2d6db51000000') // add x^08 * (33! / 08!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x000012e066e7b839fa050c309000000') // add x^09 * (33! / 09!)
+  res = res + xi * hexToBI('0x0000012e066e7b839fa050c309000000') // add x^09 * (33! / 09!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x000001e33d7d926c329a1ad1a800000') // add x^10 * (33! / 10!)
+  res = res + xi * hexToBI('0x0000001e33d7d926c329a1ad1a800000') // add x^10 * (33! / 10!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000002bee513bdb4a6b19b5f800000') // add x^11 * (33! / 11!)
+  res = res + xi * hexToBI('0x00000002bee513bdb4a6b19b5f800000') // add x^11 * (33! / 11!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00000003a9316fa79b88eccf2a00000') // add x^12 * (33! / 12!)
+  res = res + xi * hexToBI('0x000000003a9316fa79b88eccf2a00000') // add x^12 * (33! / 12!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000048177ebe1fa812375200000') // add x^13 * (33! / 13!)
+  res = res + xi * hexToBI('0x00000000048177ebe1fa812375200000') // add x^13 * (33! / 13!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000005263fe90242dcbacf00000') // add x^14 * (33! / 14!)
+  res = res + xi * hexToBI('0x00000000005263fe90242dcbacf00000') // add x^14 * (33! / 14!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x000000000057e22099c030d94100000') // add x^15 * (33! / 15!)
+  res = res + xi * hexToBI('0x0000000000057e22099c030d94100000') // add x^15 * (33! / 15!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000000057e22099c030d9410000') // add x^16 * (33! / 16!)
+  res = res + xi * hexToBI('0x00000000000057e22099c030d9410000') // add x^16 * (33! / 16!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00000000000052b6b54569976310000') // add x^17 * (33! / 17!)
+  res = res + xi * hexToBI('0x000000000000052b6b54569976310000') // add x^17 * (33! / 17!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00000000000004985f67696bf748000') // add x^18 * (33! / 18!)
+  res = res + xi * hexToBI('0x000000000000004985f67696bf748000') // add x^18 * (33! / 18!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x000000000000003dea12ea99e498000') // add x^19 * (33! / 19!)
+  res = res + xi * hexToBI('0x0000000000000003dea12ea99e498000') // add x^19 * (33! / 19!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00000000000000031880f2214b6e000') // add x^20 * (33! / 20!)
+  res = res + xi * hexToBI('0x000000000000000031880f2214b6e000') // add x^20 * (33! / 20!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x000000000000000025bcff56eb36000') // add x^21 * (33! / 21!)
+  res = res + xi * hexToBI('0x0000000000000000025bcff56eb36000') // add x^21 * (33! / 21!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x000000000000000001b722e10ab1000') // add x^22 * (33! / 22!)
+  res = res + xi * hexToBI('0x0000000000000000001b722e10ab1000') // add x^22 * (33! / 22!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000000000000001317c70077000') // add x^23 * (33! / 23!)
+  res = res + xi * hexToBI('0x00000000000000000001317c70077000') // add x^23 * (33! / 23!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00000000000000000000cba84aafa00') // add x^24 * (33! / 24!)
+  res = res + xi * hexToBI('0x000000000000000000000cba84aafa00') // add x^24 * (33! / 24!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00000000000000000000082573a0a00') // add x^25 * (33! / 25!)
+  res = res + xi * hexToBI('0x000000000000000000000082573a0a00') // add x^25 * (33! / 25!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00000000000000000000005035ad900') // add x^26 * (33! / 26!)
+  res = res + xi * hexToBI('0x000000000000000000000005035ad900') // add x^26 * (33! / 26!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x000000000000000000000002f881b00') // add x^27 * (33! / 27!)
+  res = res + xi * hexToBI('0x0000000000000000000000002f881b00') // add x^27 * (33! / 27!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000000000000000000001b29340') // add x^28 * (33! / 28!)
+  res = res + xi * hexToBI('0x00000000000000000000000001b29340') // add x^28 * (33! / 28!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x00000000000000000000000000efc40') // add x^29 * (33! / 29!)
+  res = res + xi * hexToBI('0x000000000000000000000000000efc40') // add x^29 * (33! / 29!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000000000000000000000007fe0') // add x^30 * (33! / 30!)
+  res = res + xi * hexToBI('0x00000000000000000000000000007fe0') // add x^30 * (33! / 30!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000000000000000000000000420') // add x^31 * (33! / 31!)
+  res = res + xi * hexToBI('0x00000000000000000000000000000420') // add x^31 * (33! / 31!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000000000000000000000000021') // add x^32 * (33! / 32!)
+  res = res + xi * hexToBI('0x00000000000000000000000000000021') // add x^32 * (33! / 32!)
   xi = (xi * _x) >> _precision
-  res = res + xi * hexToBI('0x0000000000000000000000000000001') // add x^33 * (33! / 33!)
+  res = res + xi * hexToBI('0x00000000000000000000000000000001') // add x^33 * (33! / 33!)
 
-  return res / hexToBI('0x688589cc0e9505e2f2fee5580000000') + _x + (ONE << _precision) // divide by 33! and then add x^1 / 1! + x^0 / 0!
+  return res / hexToBI('0x0688589cc0e9505e2f2fee5580000000') + _x + (ONE << _precision) // divide by 33! and then add x^1 / 1! + x^0 / 0!
 }
 
 function generalLog(x: BigInt): BigInt {
@@ -439,15 +439,15 @@ function generalLog(x: BigInt): BigInt {
 function floorLog2(_n: BigInt): u8 {
   let res: u8 = 0
 
-  if (_n < 256) {
+  if (_n < BigInt.fromI32(256)) {
     // At most 8 iterations
-    while (_n > 1) {
+    while (_n > BigInt.fromI32(1)) {
       _n = _n >> 1
       res = res + 1
     }
   } else {
     // Exactly 8 iterations
-    for (let s = 128; s > 0; s >>= 1) {
+    for (let s: u8 = 128; s > 0; s >>= 1) {
       if (_n >= ONE << s) {
         _n = _n >> s
         res = res | s
@@ -471,6 +471,6 @@ function findPositionInMaxExpArray(_x: BigInt): u8 {
   if (maxExpArray[hi] >= _x) return hi
   if (maxExpArray[lo] >= _x) return lo
 
-  require(false)
+  assert(false)
   return 0
 }
