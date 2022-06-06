@@ -349,11 +349,11 @@ export function createOrLoadSignal(
     signal.unrealizedPLGrt = BigDecimal.fromString('0')
     signal.realizedPLGrt = BigDecimal.fromString('0')
     signal.lastBuyInPrice = BigDecimal.fromString('0')
-    let deploymentEntity = SubgraphDeployment.load(subgraphDeploymentID)!
-    let newCuratorsList = deploymentEntity.curatorsList
-    newCuratorsList.push(curator)
-    deploymentEntity.curatorsList = newCuratorsList
-    deploymentEntity.save()
+    // let deploymentEntity = SubgraphDeployment.load(subgraphDeploymentID)!
+    // let newCuratorsList = deploymentEntity.curatorsList
+    // newCuratorsList.push(curator)
+    // deploymentEntity.curatorsList = newCuratorsList
+    // deploymentEntity.save()
     // END GRAPHSCAN PATCH
     signal.save()
 
@@ -1215,26 +1215,6 @@ function createRewardsCutHistoryEntity(indexer: Indexer, event: ethereum.Event):
     cutHistory.save()
   }
 }
-
-// export function queueDeploymentSignalsUpdate(deployment: SubgraphDeployment): void {
-//   // DARK MAGIC ZONE
-//   let i = 0
-//   // find first non empty slot for queue
-//   let loadedEntity = DeploymentSignalsQueue.load(i.toString())
-//   while (true) {
-//     if (loadedEntity === null) {
-//       break
-//     }
-//     if (loadedEntity.subgraphDeployment === deployment.id) {
-//       return
-//     }
-//     i++
-//   }
-//   // create queue entity in empty slot with subgraph
-//   let queueEntity = new DeploymentSignalsQueue(i.toString())
-//   queueEntity.subgraphDeployment = deployment.id
-//   queueEntity.save()
-// }
 
 // export function updateAdvancedNSignalMetrics(subgraph: Subgraph): void {
 //   // iterate over all subgraph curators

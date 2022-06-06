@@ -6,6 +6,7 @@ export function hexToBI(hexString: string): BigInt {
 function BIZERO(): BigInt {
   return BigInt.fromI32(0)
 }
+// INIT CONSTANTS
 let maxExpArray: BigInt[] = new Array<BigInt>(127)
 maxExpArray[32] = hexToBI('0x1c35fedd14ffffffffffffffffffffffff')
 maxExpArray[33] = hexToBI('0x1b0ce43b323fffffffffffffffffffffff')
@@ -107,17 +108,14 @@ let MAX_NUM = hexToBI('0x0200000000000000000000000000000000')
 let MAX_RATIO = BigInt.fromI32(1000000)
 let MAX_PRECISION: u8 = 127
 let MIN_PRECISION: u8 = 32
-export let FIXED_1 = hexToBI('0x80000000000000000000000000000000')
+let FIXED_1 = hexToBI('0x80000000000000000000000000000000')
 let OPT_LOG_MAX_VAL = hexToBI('0x015bf0a8b1457695355fb8ac404e7a79e3')
 let ONE = BigInt.fromI32(1)
 let OPT_EXP_MAX_VAL = hexToBI('0x015bf0a8b1457695355fb8ac404e7a79e3')
 let FIXED_2 = hexToBI('0x0100000000000000000000000000000000')
 let LN2_NUMERATOR = hexToBI('0x03f80fe03f80fe03f80fe03f80fe03f8')
 let LN2_DENOMINATOR = hexToBI('0x05b9de1d10bf4103d647b0955897ba80')
-class PowerResult {
-  result: BigInt
-  precision: u8
-}
+
 export function calculateSaleReturn(
   _supply: BigInt,
   _reserveBalance: BigInt,
@@ -150,6 +148,11 @@ export function calculateSaleReturn(
   let temp1 = _reserveBalance.times(result)
   let temp2 = _reserveBalance << precision
   return (temp1 - temp2) / result
+}
+
+class PowerResult {
+  result: BigInt
+  precision: u8
 }
 
 function power(_baseN: BigInt, _baseD: BigInt, _expN: BigInt, _expD: BigInt): PowerResult {
