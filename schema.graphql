@@ -803,6 +803,10 @@ type Delegator @entity {
   unreleasedPercent: BigDecimal!
   currentStaked: BigDecimal!
   totalRewards: BigDecimal!
+  "Last time this delegator delegated"
+  lastDelegatedAt: Int
+  "Last time this delegator undelegated"
+  lastUndelegatedAt: Int
 }
 
 """

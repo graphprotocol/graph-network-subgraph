@@ -189,6 +189,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let delegatorID = event.params.delegator.toHexString()
   let delegator = createOrLoadDelegator(delegatorID, event.block.timestamp)
   delegator.totalStakedTokens = delegator.totalStakedTokens.plus(event.params.tokens)
+  delegator.lastDelegatedAt = event.block.timestamp.toI32()
   delegator.save()
 
   // update delegated stake
@@ -280,7 +281,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   let delegator = Delegator.load(delegatorID)!
   delegator.totalUnstakedTokens = delegator.totalUnstakedTokens.plus(event.params.tokens)
   delegator.totalRealizedRewards = delegator.totalRealizedRewards.plus(realizedRewards)
-
+  delegator.lastUndelegatedAt = event.block.timestamp.toI32()
   // upgrade graph network
   let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
