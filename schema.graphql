@@ -1380,8 +1380,14 @@ type _Schema_
     include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
   )
   @fulltext(
+    name: "indexerSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "Indexer", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
+  )
+  @fulltext(
     name: "accountSearch"
     language: en
     algorithm: rank
-    include: [{ entity: "GraphAccount", fields: [{ name: "id" }, { name: "defaultDisplayName" }] }]
+    include: [{ entity: "GraphAccount", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
   )
