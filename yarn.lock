@@ -385,10 +385,10 @@
     "@ethersproject/properties" "^5.6.0"
     "@ethersproject/strings" "^5.6.0"
 
-"@graphprotocol/contracts@1.10.2":
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-1.10.2.tgz#ffbb9abf20e57d50a4b63d9a7933a091860a37cb"
-  integrity sha512-6jolf+4SLpssc0s/GS5f1ai539NXSLpE+rGUJEoFQZldtWlDe55LlLKKnOvzPn8rd+SIyACAUt6gJ8VeP9gjqw==
+"@graphprotocol/contracts@1.13.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-1.13.0.tgz#0289f9ef725f342ad1c69a9ac70bc5129c3eb0a3"
+  integrity sha512-1s6559hsvOQv6bbEGYOvkvuO4DkurwNKeHQ4wM3qT3j0v96sEd1xJSXL9fIOTPyg53BDfz8pZHe2+xaohXvVbg==
   dependencies:
     ethers "^5.4.4"
 
@@ -1801,9 +1801,9 @@ globals@^13.6.0, globals@^13.9.0:
   dependencies:
     type-fest "^0.20.2"
 
-"gluegun@git+https://github.com/edgeandnode/gluegun.git#v4.3.1-pin-colors-dep":
+"gluegun@https://github.com/edgeandnode/gluegun#v4.3.1-pin-colors-dep":
   version "4.3.1"
-  resolved "git+https://github.com/edgeandnode/gluegun.git#b34b9003d7bf556836da41b57ef36eb21570620a"
+  resolved "https://github.com/edgeandnode/gluegun#b34b9003d7bf556836da41b57ef36eb21570620a"
   dependencies:
     apisauce "^1.0.1"
     app-module-path "^2.2.0"

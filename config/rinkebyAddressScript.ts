@@ -32,6 +32,7 @@ const main = (): void => {
     output.blockNumber = '7560000' // Hardcoded from first contract deploy of the latest phase
     output.network = 'rinkeby'
     output.tokenLockManager = '0x7B0809048370E69aC0C0844E1188Ecd3aB3A0C5f'
+    output.useTokenLockManager = true
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)

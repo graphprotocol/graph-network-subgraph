@@ -1,4 +1,4 @@
-name: Production Subgraph (Testnet)
+name: Production Subgraph (Goerli)
 
 on:
   push:
@@ -30,8 +30,8 @@ jobs:
       - name: Prepare IPFS enabled files
         run: ./node_modules/.bin/mustache ./config/ipfs.json ./src/mappings/metadataHelpers.template.ts > ./src/mappings/metadataHelpers.ts
       - name: Prepare addresses testnet
-        run: ./node_modules/.bin/ts-node config/rinkebyAddressScript.ts && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
+        run: ./node_modules/.bin/ts-node config/goerliAddressScript.ts && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
       - name: Prepare testnet
         run: ./node_modules/.bin/mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && ./node_modules/@graphprotocol/graph-cli/bin/graph codegen --output-dir src/types/
       - name: Deploy to testnet
-        run: ./node_modules/@graphprotocol/graph-cli/bin/graph deploy graphprotocol/graph-network-testnet --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{secrets.access_token}}
+        run: ./node_modules/@graphprotocol/graph-cli/bin/graph deploy graphprotocol/graph-network-goerli --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{secrets.access_token}}
