@@ -760,6 +760,7 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
   subgraph.reserveRatio = event.params.reserveRatio.toI32()
   subgraph.migrated = true
   subgraph.initializing = true
+  subgraph.creatorAddress = changetype<Bytes>(event.transaction.from)
   subgraph.save()
 
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
