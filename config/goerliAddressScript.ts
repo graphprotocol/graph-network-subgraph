@@ -31,8 +31,8 @@ const main = (): void => {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
     output.blockNumber = '7210000' // Hardcoded from before first contract deploy of the latest phase
     output.network = 'goerli'
-    output.tokenLockManager = '0x7B0809048370E69aC0C0844E1188Ecd3aB3A0C5f' // we don't have one, this is rinkebys'
-    output.useTokenLockManager = false
+    output.tokenLockManager = '0x9a7a54e86560f4304d8862Ea00F45D1090c59ac8' // we don't have one, this is rinkebys'
+    output.useTokenLockManager = true
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
