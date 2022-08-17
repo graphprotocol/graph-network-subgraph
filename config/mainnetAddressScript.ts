@@ -32,7 +32,9 @@ const main = (): void => {
     output.blockNumber = '11440000' // Hardcoded a few thousand blocks before 1st contract deployed
     output.network = 'mainnet'
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
+    output.gossipRegistry = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
     output.useTokenLockManager = true
+    output.useGossipRegistry = false
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
