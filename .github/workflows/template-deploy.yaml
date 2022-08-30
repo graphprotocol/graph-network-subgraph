@@ -23,7 +23,7 @@ jobs:
         run: |
           echo "ENV_SUFFIX=-staging" >> $GITHUB_ENV
 
-      - name: Set goerli production environment variables
+      - name: Set mainnet staging environment variables
         if: ${{ inputs.ENVIRONMENT == 'staging-mainnet' }}
         run: |
           echo "ENV_SUFFIX=-mainnet-staging" >> $GITHUB_ENV
