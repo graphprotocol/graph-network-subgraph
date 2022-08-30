@@ -1,0 +1,73 @@
+name: Production Subgraph (Mainnet)
+
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: false
+        type: string
+        default: 'testnet'
+    secrets:
+      NODE_AUTH_TOKEN:
+        required: true
+      ACCESS_TOKEN:
+        required: true
+
+jobs:
+  template-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set staging environment variables
+        if: ${{ inputs.ENVIRONMENT == 'staging' }}
+        run: |
+          echo "ENV_SUFFIX=-staging" >> $GITHUB_ENV
+
+      - name: Set goerli production environment variables
+        if: ${{ inputs.ENVIRONMENT == 'staging-mainnet' }}
+        run: |
+          echo "ENV_SUFFIX=-mainnet-staging" >> $GITHUB_ENV
+
+      - name: Set testnet environment variables
+        if: ${{ inputs.ENVIRONMENT == 'testnet' }}
+        run: |
+          echo "ENV_SUFFIX=-testnet" >> $GITHUB_ENV
+
+      - name: Set mainnet environment variables
+        if: ${{ inputs.ENVIRONMENT == 'production' }}
+        run: |
+          echo "ENV_SUFFIX=-mainnet" >> $GITHUB_ENV
+
+      - name: Set goerli production environment variables
+        if: ${{ inputs.ENVIRONMENT == 'production-goerli' }}
+        run: |
+          echo "ENV_SUFFIX=-goerli" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Install commands
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          registry-url: https://registry.npmjs.org
+      - name: yarn add ts-node
+        run: yarn add ts-node
+      - name: yarn install
+        run: yarn install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      # Run scripts
+      - name: Prepare IPFS enabled files
+        run: ./node_modules/.bin/mustache ./config/ipfs.json ./src/mappings/metadataHelpers.template.ts > ./src/mappings/metadataHelpers.ts
+
+      - name: Prepare addresses ${{ inputs.ENVIRONMENT }}
+        run: ./node_modules/.bin/ts-node config/mainnetAddressScript.ts && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
+
+      - name: Prepare ${{ inputs.ENVIRONMENT }}
+        run: ./node_modules/.bin/mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && ./node_modules/@graphprotocol/graph-cli/bin/graph codegen --output-dir src/types/
+
+      - name: Deploy to ${{ inputs.ENVIRONMENT }}
+        run: ./node_modules/@graphprotocol/graph-cli/bin/graph deploy graphprotocol/graph-network${{ env.ENV_SUFFIX }} --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{ secrets.ACCESS_TOKEN }}
