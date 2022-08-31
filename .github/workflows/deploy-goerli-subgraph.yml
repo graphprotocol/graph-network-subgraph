@@ -14,6 +14,7 @@ jobs:
     uses: graphprotocol/graph-network-subgraph/.github/workflows/template-deploy.yaml@main
     with:
       ENVIRONMENT: production-goerli
+      CONFIG: goerliAddressScript.ts
     secrets:
       NODE_AUTH_TOKEN: ${{ secrets.graphprotocol_npm_token }}
       ACCESS_TOKEN: ${{ secrets.access_token }}
