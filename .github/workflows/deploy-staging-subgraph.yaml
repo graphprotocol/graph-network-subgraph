@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   deploy:
-    uses: graphprotocol/graph-network-subgraph/.github/workflows/template-deploy.yaml@main
+    uses: graphprotocol/graph-network-subgraph/.github/workflows/template-deploy.yaml@master
     with:
       ENVIRONMENT: staging-mainnet
       CONFIG: mainnetAddressScript.ts
