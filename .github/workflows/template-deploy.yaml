@@ -47,6 +47,11 @@ jobs:
         run: |
           echo "ENV_SUFFIX=-goerli" >> $GITHUB_ENV
 
+      - name: Set goerli arbitrum environment variables
+        if: ${{ inputs.ENVIRONMENT == 'arbitrum-goerli' }}
+        run: |
+          echo "ENV_SUFFIX=-arbitrum-devnet" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v3
 

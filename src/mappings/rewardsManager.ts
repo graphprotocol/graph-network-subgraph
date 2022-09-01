@@ -96,7 +96,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   let rewardsManager = RewardsManager.bind(event.address as Address)
 
   if (parameter == 'issuanceRate') {
-    graphNetwork.networkGRTIssuance = rewardsManager.issuanceRate()
+    //graphNetwork.networkGRTIssuance = rewardsManager.issuanceRate()
   } else if (parameter == 'subgraphAvailabilityOracle') {
     graphNetwork.subgraphAvailabilityOracle = rewardsManager.subgraphAvailabilityOracle()
   }
