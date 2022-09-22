@@ -385,6 +385,7 @@ dataSources:
           handler: handleDisputeLinked
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
+  {{#useTokenLockManager}}
   - kind: ethereum/contract
     name: GraphTokenLockManager
     network: {{network}}
@@ -415,6 +416,7 @@ dataSources:
           handler: handleFunctionCallAuth
         - event: TokenDestinationAllowed(indexed address,bool)
           handler: handleTokenDestinationAllowed
+    {{/useTokenLockManager}}
 templates:
   - kind: ethereum/contract
     name: GraphTokenLockWallet

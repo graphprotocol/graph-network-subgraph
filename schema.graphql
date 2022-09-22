@@ -1036,6 +1036,17 @@ type NameSignalSubgraphRelation @entity {
 
   subgraph: Subgraph!
 }
+"""
+Auxiliary entity to be able to batch update Signal entities
+"""
+type SignalSubgraphDeploymentRelation @entity {
+  "SubgraphDeployment ID + index"
+  id: ID!
+
+  signal: Signal!
+
+  subgraphDeployment: SubgraphDeployment!
+}
 
 """
 Dispute of a query. Includes single query, conflicting attestation, and indexing disputes
