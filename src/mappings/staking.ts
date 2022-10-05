@@ -398,18 +398,20 @@ export function handleAllocationCollected(event: AllocationCollected): void {
 
   // Update epoch
   let epoch = createOrLoadEpoch(allocation.closedAtBlockNumber? allocation.closedAtBlockNumber : event.block.number)
+  if (allocation.status == 'Closed'){
+    epoch.queryFeesCollected = epoch.queryFeesCollected.plus(allocation.queryFeesCollected)
+  }
   epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokens)
   epoch.taxedQueryFees = epoch.taxedQueryFees.plus(taxedFees)
-  epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.rebateFees)
   epoch.curatorQueryFees = epoch.curatorQueryFees.plus(event.params.curationFees)
   epoch.save()
 
   // update pool
-  let pool = createOrLoadPool(epoch.id? epoch.id : event.params.epoch)
+  let pool = createOrLoadPool(epoch.id)
   // ONLY if allocation is closed. Otherwise it gets collected into an allocation, and it will
   // get added to the pool where the allocation gets closed
   if (allocation.status == 'Closed') {
-    pool.totalQueryFees = pool.totalQueryFees.plus(event.params.rebateFees)
+    pool.totalQueryFees = pool.totalQueryFees.plus(allocation.queryFeesCollected)
   }
   // Curator rewards in pool is not stored in the contract, so we take the actual value of it
   // happening. Every time an allocation is collected, curator rewards get transferred into
