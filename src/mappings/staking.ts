@@ -397,7 +397,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   let taxedFees = event.params.tokens.minus(event.params.rebateFees.plus(event.params.curationFees))
 
   // Update epoch
-  let epoch = createOrLoadEpoch(event.block.number)
+  let epoch = createOrLoadEpoch(allocation.closedAtBlockNumber? allocation.closedAtBlockNumber : event.block.number)
   epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokens)
   epoch.taxedQueryFees = epoch.taxedQueryFees.plus(taxedFees)
   epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.rebateFees)
@@ -405,7 +405,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   epoch.save()
 
   // update pool
-  let pool = createOrLoadPool(event.params.epoch)
+  let pool = createOrLoadPool(epoch.id? epoch.id : event.params.epoch)
   // ONLY if allocation is closed. Otherwise it gets collected into an allocation, and it will
   // get added to the pool where the allocation gets closed
   if (allocation.status == 'Closed') {
