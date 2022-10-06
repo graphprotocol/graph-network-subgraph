@@ -419,6 +419,8 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
   epoch.totalRewards = BigInt.fromI32(0)
   epoch.totalIndexerRewards = BigInt.fromI32(0)
   epoch.totalDelegatorRewards = BigInt.fromI32(0)
+  epoch.totalQueryFees = BigInt.fromI32(0)
+  epoch.taxedQueryFees = BigInt.fromI32(0)
   epoch.save()
   return epoch
 }
