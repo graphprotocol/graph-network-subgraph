@@ -18,7 +18,11 @@ import {
   SignalBurned,
   SignalMinted,
   SubgraphDeprecated1,
-  SubgraphMetadataUpdated1
+  SubgraphMetadataUpdated1,
+  SubgraphPublished1,
+  SubgraphUpgraded,
+  SubgraphVersionUpdated,
+  Transfer
 } from '../../src/types/GNS/GNSStitched'
 import { Address, BigInt, ethereum, Bytes } from '@graphprotocol/graph-ts'
 
@@ -641,6 +645,135 @@ export function mockSubgraphMetadataUpdated1(
   )
   event.parameters.push(
     new ethereum.EventParam('subgraphMetaData', ethereum.Value.fromBytes(subgraphMetaData)),
+  )
+
+  return event
+}
+
+export function mockSubgraphPublished1(
+  subgrapID: BigInt,
+  subgraphDeploymenID: Bytes,
+  reserveRatio: BigInt,
+): SubgraphPublished1 {
+  let mockEvent = newMockEvent()
+  let event = new SubgraphPublished1(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+    mockEvent.receipt,
+  )
+
+  event.parameters = []
+  event.parameters.push(
+    new ethereum.EventParam('subgrapID', ethereum.Value.fromSignedBigInt(subgrapID)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('subgraphDeploymenID', ethereum.Value.fromBytes(subgraphDeploymenID)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('reserveRatio', ethereum.Value.fromUnsignedBigInt(reserveRatio)),
+  )
+
+  return event
+}
+
+export function mockSubgraphUpgraded(
+
+  subgraphID: BigInt,
+  vSignalCreated: BigInt,
+  tokensSignalled: BigInt,
+  subgraphDeploymentID: Bytes
+): SubgraphUpgraded {
+  let mockEvent = newMockEvent()
+  let event = new SubgraphUpgraded(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+    mockEvent.receipt,
+  )
+
+  event.parameters = []
+  event.parameters.push(
+    new ethereum.EventParam('subgraphID', ethereum.Value.fromSignedBigInt(subgraphID)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('vSignalCreated', ethereum.Value.fromUnsignedBigInt(vSignalCreated)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('tokensSignalled', ethereum.Value.fromUnsignedBigInt(tokensSignalled)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('subgraphDeploymentID', ethereum.Value.fromBytes(subgraphDeploymentID)),
+  )
+
+  return event
+}
+
+export function mockSubgraphVersionUpdated(
+  subgraphID: BigInt,
+  subgraphDeploymentID: Bytes,
+  versionMetaData: Bytes
+): SubgraphVersionUpdated {
+  let mockEvent = newMockEvent()
+  let event = new SubgraphVersionUpdated(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+    mockEvent.receipt,
+  )
+
+  event.parameters = []
+  event.parameters.push(
+    new ethereum.EventParam('subgraphID', ethereum.Value.fromSignedBigInt(subgraphID)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('subgraphDeploymentID', ethereum.Value.fromBytes(subgraphDeploymentID)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('versionMetaData', ethereum.Value.fromBytes(versionMetaData)),
+  )
+
+  return event
+}
+
+export function mockTransfer(
+  from: Address,
+  to: Address,
+  tokenID: BigInt
+): Transfer {
+  let mockEvent = newMockEvent()
+  let event = new Transfer(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+    mockEvent.receipt,
+  )
+
+  event.parameters = []
+  event.parameters.push(
+    new ethereum.EventParam('from', ethereum.Value.fromAddress(from)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('to', ethereum.Value.fromAddress(to)),
+  )
+  event.parameters.push(
+    new ethereum.EventParam('tokenID', ethereum.Value.fromUnsignedBigInt(tokenID)),
   )
 
   return event
