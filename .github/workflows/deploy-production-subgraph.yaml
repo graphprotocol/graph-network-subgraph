@@ -1,4 +1,4 @@
-name: Deploy Subgraph
+name: Production Subgraph (Goerli)
 
 on:
   push:
