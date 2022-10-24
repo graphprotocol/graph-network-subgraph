@@ -2,8 +2,8 @@ name: Production Subgraph (Rinkeby)
 
 on:
   push:
-    branches:
-      - mainnet-staging
+    tags:
+      - v*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
