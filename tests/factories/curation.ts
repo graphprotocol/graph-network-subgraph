@@ -2,6 +2,12 @@ import { newMockEvent, createMockedFunction } from 'matchstick-as/assembly/index
 import { Signalled, Burned, ParameterUpdated } from '../../src/types/Curation/Curation'
 import { Address, BigInt, ethereum, Bytes } from '@graphprotocol/graph-ts'
 
+// CONSTANTS 
+const defaultReserveRatio = 11
+const curationTaxPercentage = 12
+const minimumCurationDeposit = 13
+
+
 export function mockSignalled(
   curator: Address,
   subgraphDeploymentID: Bytes,
@@ -83,12 +89,12 @@ export function mockParameterUpdated(param: string): ParameterUpdated {
   let curation = mockEvent.address
   createMockedFunction(curation, 'defaultReserveRatio', 'defaultReserveRatio():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(11)])
+    .returns([ethereum.Value.fromI32(defaultReserveRatio)])
   createMockedFunction(curation, 'curationTaxPercentage', 'curationTaxPercentage():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(11)])
+    .returns([ethereum.Value.fromI32(curationTaxPercentage)])
   createMockedFunction(curation, 'minimumCurationDeposit', 'minimumCurationDeposit():(uint256)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(11)])
+    .returns([ethereum.Value.fromI32(minimumCurationDeposit)])
   return event
 }
