@@ -19,6 +19,21 @@ import {
 } from '../../src/types/Staking/Staking'
 import { Address, BigInt, ethereum, Bytes } from '@graphprotocol/graph-ts'
 
+// CONSTANTS 
+// Note that these values have to match the values in staking.test.ts
+const minimumIndexerStake = 11
+const thawingPeriod = 12
+const curationPercentage = 13
+const protocolPercentage = 14
+const channelDisputeEpochs = 15
+const maxAllocationEpochs = 16
+const alphaNumerator = 17
+const alphaDenominator = 1
+const delegationRatio = 18
+const delegationParametersCooldown = 19
+const delegationUnbondingPeriod = 20
+const delegationTaxPercentage = 21
+
 export function mockDelegationParametersUpdated(
   indexer: Address,
   indexingRewardCut: BigInt,
@@ -57,9 +72,10 @@ export function mockDelegationParametersUpdated(
 
 export function mockStakeDeposited(
   indexer: Address,
-  tokens: BigInt, //this is supposed to be uint256
+  tokens: BigInt, 
 ): StakeDeposited {
   let mockEvent = newMockEvent()
+  // block.number is picked in a way to make epoch calculations work for the tests
   mockEvent.block.number = BigInt.fromI32(5)
 
   let event = new StakeDeposited(
@@ -124,7 +140,7 @@ export function mockStakeWithdrawn(indexer: Address, tokens: BigInt): StakeWithd
 export function mockStakeSlashed(
   indexer: Address,
   tokens: BigInt,
-  reward: BigInt, //this is supposed to be uint256
+  reward: BigInt, 
   beneficiary: Address,
 ): StakeSlashed {
   let mockEvent = newMockEvent()
@@ -280,7 +296,7 @@ export function mockAllocationCollected(
   indexer: Address,
   subgraphDeploymentID: Bytes,
   epoch: BigInt,
-  tokens: BigInt, //this is supposed to be uint256
+  tokens: BigInt, 
   allocationID: Address,
   from: Address,
   curationFees: BigInt,
@@ -453,47 +469,47 @@ export function mockParameterUpdated(param: string): ParameterUpdated {
   event.parameters = []
   event.parameters.push(new ethereum.EventParam('param', ethereum.Value.fromString(param)))
 
-  let staking = mockEvent.address
+  let staking = mockEvent.address 
   createMockedFunction(staking, 'minimumIndexerStake', 'minimumIndexerStake():(uint256)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(11)])
+    .returns([ethereum.Value.fromI32(minimumIndexerStake)])
   createMockedFunction(staking, 'thawingPeriod', 'thawingPeriod():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(12)])
+    .returns([ethereum.Value.fromI32(thawingPeriod)])
   createMockedFunction(staking, 'curationPercentage', 'curationPercentage():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(13)])
+    .returns([ethereum.Value.fromI32(curationPercentage)])
   createMockedFunction(staking, 'protocolPercentage', 'protocolPercentage():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(14)])
+    .returns([ethereum.Value.fromI32(protocolPercentage)])
   createMockedFunction(staking, 'channelDisputeEpochs', 'channelDisputeEpochs():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(15)])
+    .returns([ethereum.Value.fromI32(channelDisputeEpochs)])
   createMockedFunction(staking, 'maxAllocationEpochs', 'maxAllocationEpochs():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(16)])
+    .returns([ethereum.Value.fromI32(maxAllocationEpochs)])
   createMockedFunction(staking, 'alphaNumerator', 'alphaNumerator():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(171)])
+    .returns([ethereum.Value.fromI32(alphaNumerator)])
   createMockedFunction(staking, 'alphaDenominator', 'alphaDenominator():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(171)])
+    .returns([ethereum.Value.fromI32(alphaDenominator)])
   createMockedFunction(staking, 'delegationRatio', 'delegationRatio():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(18)])
+    .returns([ethereum.Value.fromI32(delegationRatio)])
   createMockedFunction(
     staking,
     'delegationParametersCooldown',
     'delegationParametersCooldown():(uint32)',
   )
     .withArgs([])
-    .returns([ethereum.Value.fromI32(19)])
+    .returns([ethereum.Value.fromI32(delegationParametersCooldown)])
   createMockedFunction(staking, 'delegationUnbondingPeriod', 'delegationUnbondingPeriod():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(20)])
+    .returns([ethereum.Value.fromI32(delegationUnbondingPeriod)])
   createMockedFunction(staking, 'delegationTaxPercentage', 'delegationTaxPercentage():(uint32)')
     .withArgs([])
-    .returns([ethereum.Value.fromI32(21)])
+    .returns([ethereum.Value.fromI32(delegationTaxPercentage)])
 
   return event
 }

@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, ethereum, Value} from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, ethereum, Value } from '@graphprotocol/graph-ts'
 
 import {
   assert,
@@ -49,7 +49,7 @@ import {
   mockSlasherUpdate,
   mockAssetHolderUpdate,
 } from './factories/staking'
-import { createOrLoadGraphAccount, createOrLoadGraphNetwork } from '../src/mappings/helpers'
+import { createOrLoadGraphNetwork } from '../src/mappings/helpers'
 import { mockTransfer } from './factories/graphToken'
 import { GraphNetwork, GraphAccount } from '../src/types/schema'
 
@@ -75,11 +75,13 @@ const allocationID = '0x0000000000000000000000000000000000000008'
 const allocationAddress = Address.fromString(allocationID)
 const metadata = Address.fromString('0x0000000000000000000000000000000000000009')
 const poi = Bytes.fromHexString('0x0000000000000000000000000000000000000010')
-
+const assetHolderAddress = Address.fromString('0x0000000000000000000000000000000000000011')
 
 // CONSTANT NUMBERS OR BIGINTS
 // blockNumber and epochLength are picked in a way to let createOrLoadEpoch create new epoch
-// when first called. The other values are rather random.
+// when first called. Note that to the same end mockStakeDeposited sets block.number of the event as 5 in factories/statking.ts
+// The other values are rather random.
+
 const blockNumber = BigInt.fromI32(1)
 const timeStamp = BigInt.fromI32(2)
 const indexingRewardCut = BigInt.fromI32(3)
@@ -100,6 +102,17 @@ const epoch = BigInt.fromI32(1)
 const curationFees = BigInt.fromI32(1)
 const rebateFees = BigInt.fromI32(2)
 const effectiveAllocation = BigInt.fromI32(3)
+const minimumIndexerStake = BigInt.fromI32(11)
+const thawingPeriod = BigInt.fromI32(12)
+const curationPercentage = BigInt.fromI32(13)
+const protocolPercentage = BigInt.fromI32(14)
+const channelDisputeEpochs = BigInt.fromI32(15)
+const maxAllocationEpochs = BigInt.fromI32(16)
+const rebateRatio = BigInt.fromI32(17)
+const delegationRatio1 = BigInt.fromI32(18)
+const delegationParametersCooldown = BigInt.fromI32(19)
+const delegationUnbondingPeriod = BigInt.fromI32(20)
+const delegationTaxPercentage = BigInt.fromI32(21)
 
 // MOCKS
 // createOrLoadGraphNetwork calls the getGovernor function of controllerAddress so we mock it here
@@ -107,29 +120,15 @@ createMockedFunction(controllerAddress, 'getGovernor', 'getGovernor():(address)'
   .withArgs([])
   .returns([ethereum.Value.fromAddress(controllerAddress)])
 
-
 // INDEXER STAKE RELATED TESTS
 describe('INDEXER STAKE', () => {
-  // Because of a Matcstick bug, these tests don't work right now.
-  // Also, lots of parameters are set to random whole numbers
-  // with the sole intention of making them (or related results) nonzero to avoid errors.
-
   describe('DelegationParametersUpdated', () => {
-    // Currently, this handler does not work properly when setDelegationParameters
-    // is called by a non-network participant (an address with no graph account).
-    // When an address comes and sets their delegation parameters to nonzero values,
-    // no change will happen in the store since there is no graph account, thus no indexer entity.
-    // However, when the same address calls Staking.stake, an indexer entity will be stored
-    // and the delegation paramateres of the indexer in the store will be set to zero.
-    // This is inconsistent with the actual delegation parameters set before staking.
-    // This case is not testable, hence the comment.
-
     beforeAll(() => {
       createOrLoadGraphNetwork(blockNumber, controllerAddress)
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
@@ -143,6 +142,7 @@ describe('INDEXER STAKE', () => {
       // This leads to a graph account creation as well as initialization of some values needed.
       let transfer = mockTransfer(graphAddress, indexerAddress, value)
       handleTransfer(transfer)
+
       let event = mockDelegationParametersUpdated(
         indexerAddress,
         indexingRewardCut,
@@ -199,7 +199,7 @@ describe('INDEXER STAKE', () => {
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
@@ -218,6 +218,8 @@ describe('INDEXER STAKE', () => {
     })
 
     test('correctly updates epoch.stakeDeposited', () => {
+      // Epoch id turns out as 2 when we set graphNetwork.blockNumber = 1, epochLength = 2, event.block.number = 5
+      // see createOrLoadEpoch in handleStakeDeposited for calculations
       assert.fieldEquals('Epoch', '2', 'stakeDeposited', value.toString())
     })
 
@@ -233,6 +235,8 @@ describe('INDEXER STAKE', () => {
   })
 
   describe('StakeLocked', () => {
+    // Note that indexer.stakedTokens are not decremented when _unstake is called but when _withdraw is called
+    // Note StakeLocked event is emitted when _unstake is called
     beforeAll(() => {
       // We need epoch length and delegation ratio to be nonzero for these tests
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
@@ -254,19 +258,34 @@ describe('INDEXER STAKE', () => {
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
-    test('assigns correct values to lockedTokens and tokensLockedUntil', () => {
+    test('correctly updates indexer.lockedTokens and indexer.tokensLockedUntil', () => {
       let stakeLocked = mockStakeLocked(indexerAddress, value2, lockedUntil)
       handleStakeLocked(stakeLocked)
       assert.fieldEquals('Indexer', indexerID, 'lockedTokens', value2.toString())
       assert.fieldEquals('Indexer', indexerID, 'tokensLockedUntil', lockedUntil.toString())
     })
+
+    test('correctly updates graphNetwork.totalUnstakedTokensLocked', () => {
+      assert.fieldEquals('GraphNetwork', '1', 'totalUnstakedTokensLocked', value2.toString())
+    })
+
+    test('does not descrease graphNetwork.stakedIndexersCount if indexer did not lock all its stake', () => {
+      assert.fieldEquals('GraphNetwork', '1', 'stakedIndexersCount', '1')
+    })
+
+    test('descreases graphNetwork.stakedIndexersCount if indexer locked all its stake', () => {
+      let stakeLocked = mockStakeLocked(indexerAddress, value, lockedUntil)
+      handleStakeLocked(stakeLocked)
+      assert.fieldEquals('GraphNetwork', '1', 'stakedIndexersCount', '0')
+    })
   })
 
   describe('StakeWithdrawn', () => {
+    // Note indexer.stakedTokens are decremented in _withdraw but not in _unstake
     beforeAll(() => {
       // We need epoch length and delegation ratio to be nonzero for these tests
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
@@ -280,35 +299,33 @@ describe('INDEXER STAKE', () => {
       let transfer = mockTransfer(graphAddress, indexerAddress, value)
       handleTransfer(transfer)
 
-      // StakeLocked event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
-      // before unstake is called since it is a requirement in unstake
-      // thus we stake first
+      // StakeWithdrawn event can only be emitted if _stake and _unstake are called before
+      // thus we first emit the corresponding events
       let stakeDeposited = mockStakeDeposited(indexerAddress, value)
       handleStakeDeposited(stakeDeposited)
       let stakeDeposited2 = mockStakeDeposited(indexerAddress, value2)
       handleStakeDeposited(stakeDeposited2)
 
-      let stakeLocked = mockStakeLocked(indexerAddress, value2, lockedUntil)
+      let stakeLocked = mockStakeLocked(indexerAddress, value, lockedUntil)
       handleStakeLocked(stakeLocked)
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
     test('correctly updates indexer.stakedTokens', () => {
-      let totalValue = value.plus(value2)
-      assert.fieldEquals('Indexer', indexerID, 'stakedTokens', totalValue.toString())
-      let StakeWithdrawn = mockStakeWithdrawn(indexerAddress, value)
+      // Total staked tokens are value + value2
+      let StakeWithdrawn = mockStakeWithdrawn(indexerAddress, value2)
       handleStakeWithdrawn(StakeWithdrawn)
-      assert.fieldEquals('Indexer', indexerID, 'stakedTokens', value2.toString())
+      assert.fieldEquals('Indexer', indexerID, 'stakedTokens', value.toString())
     })
 
     test('correctly updates indexer.lockedTokens', () => {
-      // 'value' amount of tokens are withdrawn from the  'value2' amount of lockedTokens
-      // hence the "final lockedTokens = value2 - value"
-      let diff = value2.minus(value)
+      // 'value2' amount of tokens are withdrawn from the  'value' amount of lockedTokens
+      // hence the "final lockedTokens = value - value2"
+      let diff = value.minus(value2)
       assert.fieldEquals('Indexer', indexerID, 'lockedTokens', diff.toString())
     })
 
@@ -317,13 +334,13 @@ describe('INDEXER STAKE', () => {
     })
 
     test('correctly updates graphNetwork.totalTokensStaked', () => {
-      assert.fieldEquals('GraphNetwork', '1', 'totalTokensStaked', value2.toString())
+      assert.fieldEquals('GraphNetwork', '1', 'totalTokensStaked', value.toString())
     })
 
-    // 'value' amount of tokens are withdrawn from the  'value2' amount of lockedTokens
-    // hence the "final lockedTokens = value2 - value" at the end
+    // 'value2' amount of tokens are withdrawn from the  'value' amount of lockedTokens
+    // hence the "final lockedTokens = value - value2"
     test('correctly updates graphNetwork.totalUnstakedTokensLocked', () => {
-      let diff = value2.minus(value)
+      let diff = value.minus(value2)
       assert.fieldEquals('GraphNetwork', '1', 'totalUnstakedTokensLocked', diff.toString())
     })
   })
@@ -350,7 +367,7 @@ describe('INDEXER STAKE', () => {
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
@@ -369,8 +386,6 @@ describe('INDEXER STAKE', () => {
 // DELEGATOR STAKE RELATED TESTS
 describe('DELEGATOR STAKE', () => {
   describe('StakeDelegated', () => {
-    // StakeSlashed event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
-
     beforeAll(() => {
       // We need epoch length and delegation ratio to be nonzero for these tests
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
@@ -394,7 +409,7 @@ describe('DELEGATOR STAKE', () => {
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
@@ -420,7 +435,7 @@ describe('DELEGATOR STAKE', () => {
       assert.fieldEquals('GraphNetwork', '1', 'totalDelegatedTokens', value.toString())
     })
 
-    test('increases graphNetwork.activeDelegatorCount if delegator.activeStakesCount becomes zero', () => {
+    test('increases graphNetwork.activeDelegatorCount if delegator.activeStakesCount was initially zero', () => {
       assert.fieldEquals('GraphNetwork', '1', 'activeDelegatorCount', '1')
     })
 
@@ -442,8 +457,6 @@ describe('DELEGATOR STAKE', () => {
   })
 
   describe('StakeDelegatedLocked', () => {
-    // StakeDelegatedLocked event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
-
     beforeAll(() => {
       // We need epoch length and delegation ratio to be nonzero for these tests
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
@@ -471,7 +484,7 @@ describe('DELEGATOR STAKE', () => {
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
@@ -507,7 +520,8 @@ describe('DELEGATOR STAKE', () => {
       assert.fieldEquals('GraphNetwork', '1', 'activeDelegatorCount', '1')
     })
 
-    //TODO totalRealizedRewards
+    //TODO totalRealizedRewards after helpers about exchange rate
+
     test('correctly updates delegatedStake', () => {
       assert.fieldEquals('DelegatedStake', delegatedStakeID, 'unstakedTokens', value.toString())
       assert.fieldEquals('DelegatedStake', delegatedStakeID, 'shareAmount', shares2.toString())
@@ -533,8 +547,6 @@ describe('DELEGATOR STAKE', () => {
   })
 
   describe('StakeDelegatedWithdrawn', () => {
-    // StakeDelegatedWithdrawn event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
-
     beforeAll(() => {
       // We need epoch length and delegation ratio to be nonzero for these tests
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
@@ -550,7 +562,8 @@ describe('DELEGATOR STAKE', () => {
       let transfer2 = mockTransfer(graphAddress, delegatorAddress, value)
       handleTransfer(transfer2)
 
-      // StakeDelegatedWithdrawn event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
+      // StakeDelegatedWithdrawn event can only be emitted if _stake is called before
+      // Also, StakeDelegated and StakeDelegatedLocked events must be emitted before
       let stakeDeposited = mockStakeDeposited(indexerAddress, value)
       handleStakeDeposited(stakeDeposited)
 
@@ -568,7 +581,7 @@ describe('DELEGATOR STAKE', () => {
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
@@ -591,8 +604,6 @@ describe('DELEGATOR STAKE', () => {
 // ALLOCATION LIFE CYCLE RELATED TESTS
 describe('ALLOCATION LIFE CYCLE', () => {
   describe('AllocationCreated', () => {
-    // StakeSlashed event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
-
     beforeAll(() => {
       // We need epoch length and delegation ratio to be nonzero for these tests
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
@@ -608,7 +619,7 @@ describe('ALLOCATION LIFE CYCLE', () => {
       let transfer2 = mockTransfer(graphAddress, delegatorAddress, value)
       handleTransfer(transfer2)
 
-      // StakeDelegatedWithdrawn event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
+      // AllocationCreated event can only be emitted if _stake is called before
       let stakeDeposited = mockStakeDeposited(indexerAddress, value)
       handleStakeDeposited(stakeDeposited)
 
@@ -617,7 +628,7 @@ describe('ALLOCATION LIFE CYCLE', () => {
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
@@ -663,8 +674,6 @@ describe('ALLOCATION LIFE CYCLE', () => {
   })
 
   describe('AllocationCollected', () => {
-    // StakeSlashed event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
-
     beforeAll(() => {
       // We need epoch length and delegation ratio to be nonzero for these tests
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
@@ -680,12 +689,13 @@ describe('ALLOCATION LIFE CYCLE', () => {
       let transfer2 = mockTransfer(graphAddress, delegatorAddress, value)
       handleTransfer(transfer2)
 
-      // StakeDelegatedWithdrawn event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
+      // AllocationCollected event can only be emitted if _stake is called before
       let stakeDeposited = mockStakeDeposited(indexerAddress, value)
       handleStakeDeposited(stakeDeposited)
 
       let stakeDelegated = mockStakeDelegated(indexerAddress, delegatorAddress, value, shares)
       handleStakeDelegated(stakeDelegated)
+
       let allocationCreated = mockAllocationCreated(
         indexerAddress,
         subgraphDeploymentAddress,
@@ -698,7 +708,7 @@ describe('ALLOCATION LIFE CYCLE', () => {
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
@@ -725,122 +735,52 @@ describe('ALLOCATION LIFE CYCLE', () => {
       assert.fieldEquals('Allocation', allocationID, 'curatorRewards', curationFees.toString())
     })
 
-    // TODO figure out why epoch is 2, right now I got it from handler directly
     test('creates and correctly updates epoch', () => {
       assert.fieldEquals('Epoch', '2', 'totalQueryFees', value.toString())
       assert.fieldEquals('Epoch', '2', 'queryFeesCollected', rebateFees.toString())
       assert.fieldEquals('Epoch', '2', 'curatorQueryFees', curationFees.toString())
     })
-  })
 
-  describe('AllocationClosed', () => {
-    beforeAll(() => {
-      // We need epoch length and delegation ratio to be nonzero for these tests
-      let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
-      graphNetwork.delegationRatio = delegationRatio
-      graphNetwork.epochLength = epochLength
-      graphNetwork.save()
+    test('creates and correctly updates pool', () => {
+      assert.fieldEquals('Pool', '1', 'curatorRewards', curationFees.toString())
+    })
 
-      // When _stake is successfully run, before any event we are considering here can be emitted
-      // a transaction occurs for staking. Therefore we moch this transaction.
-      // This leads to a graph account creation as well as initialization of some values needed.
-      let transfer = mockTransfer(graphAddress, indexerAddress, value)
-      handleTransfer(transfer)
-      let transfer2 = mockTransfer(graphAddress, delegatorAddress, value)
-      handleTransfer(transfer2)
-
-      // StakeDelegatedWithdrawn event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
-      let stakeDeposited = mockStakeDeposited(indexerAddress, value)
-      handleStakeDeposited(stakeDeposited)
-
-      let stakeDelegated = mockStakeDelegated(indexerAddress, delegatorAddress, value, shares)
-      handleStakeDelegated(stakeDelegated)
-      let allocationCreated = mockAllocationCreated(
-        indexerAddress,
-        subgraphDeploymentAddress,
-        epoch,
-        value,
-        allocationAddress,
-        metadata,
+    test('creates and correctly updates deployment', () => {
+      assert.fieldEquals(
+        'SubgraphDeployment',
+        subgraphDeploymentID,
+        'queryFeesAmount',
+        rebateFees.toString(),
       )
-      handleAllocationCreated(allocationCreated)
-    })
-
-    afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
-      clearStore()
-    })
-    test('AllocationClosed', () => {
-      //let allocationClosed = mockAllocationClosed(
-      //   indexerAddress,
-      //   subgraphDeploymentAddress,
-      //   epoch,
-      //   value,
-      //   allocationAddress,
-      //   effectiveAllocation,
-      //   indexerAddress,
-      //   poi,
-      //   false,
-      // )
-      //handleAllocationClosed(allocationClosed)
-      //assert.fieldEquals('Indexer', indexerID, 'allocatedTokens', '0')
-    })
-  })
-
-  describe('RebateClaimed', () => {
-    // StakeSlashed event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
-
-    beforeAll(() => {
-      let graphNetwork = createOrLoadGraphNetwork(BigInt.fromI32(1), controllerAddress)
-      graphNetwork.delegationRatio = 10
-      // Experimental
-      graphNetwork.epochLength = 2
-
-      graphNetwork.save()
-
-      // Instead of creating a graph account, we imitate the reason why the graph account would be created
-      // which is the transfer of tokens from the indexer to staking contract
-      // that always happens when _stake works and before stakeDeposited is emitted
-      let transfer = mockTransfer(graphAddress, indexerAddress, BigInt.fromI32(54321))
-      handleTransfer(transfer)
-      let stakeDeposited = mockStakeDeposited(indexerAddress, BigInt.fromI32(123))
-      handleStakeDeposited(stakeDeposited)
-      let stakeDelegated = mockStakeDelegated(
-        indexerAddress,
-        indexerAddress,
-        BigInt.fromI32(20),
-        BigInt.fromI32(10),
+      assert.fieldEquals(
+        'SubgraphDeployment',
+        subgraphDeploymentID,
+        'signalledTokens',
+        curationFees.toString(),
       )
-      handleStakeDelegated(stakeDelegated)
-
-      let allocationCreated = mockAllocationCreated(
-        indexerAddress,
-        Bytes.fromHexString(indexerID),
-        BigInt.fromI32(1),
-        BigInt.fromI32(10),
-        indexerAddress,
-        Bytes.fromHexString(indexerID),
+      assert.fieldEquals(
+        'SubgraphDeployment',
+        subgraphDeploymentID,
+        'curatorFeeRewards',
+        curationFees.toString(),
       )
-      handleAllocationCreated(allocationCreated)
     })
 
-    afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
-      clearStore()
-    })
-    test('RebateClaimed', () => {
-      let rebateClaimed = mockRebateClaimed(
-        indexerAddress,
-        Bytes.fromHexString(indexerID),
-        indexerAddress,
-        BigInt.fromI32(1),
-        BigInt.fromI32(5),
-        BigInt.fromI32(1),
-        BigInt.fromI32(5),
-        BigInt.fromI32(10),
+    test('correctly updates graphNetwork', () => {
+      assert.fieldEquals('GraphNetwork', '1', 'totalQueryFees', value.toString())
+      assert.fieldEquals(
+        'GraphNetwork',
+        '1',
+        'totalIndexerQueryFeesCollected',
+        rebateFees.toString(),
       )
-      handleRebateClaimed(rebateClaimed)
-      assert.fieldEquals('Indexer', indexerID, 'queryFeeRebates', '5')
+      assert.fieldEquals('GraphNetwork', '1', 'totalCuratorQueryFees', curationFees.toString())
+      assert.fieldEquals(
+        'GraphNetwork',
+        '1',
+        'totalUnclaimedQueryFeeRebates',
+        rebateFees.toString(),
+      )
     })
   })
 })
@@ -849,105 +789,134 @@ describe('ALLOCATION LIFE CYCLE', () => {
 describe('NETWORK SETS AND UPDATES', () => {
   describe('ParameterUpdated', () => {
     beforeAll(() => {
-      createOrLoadGraphNetwork(BigInt.fromI32(1), controllerAddress)
+      createOrLoadGraphNetwork(blockNumber, controllerAddress)
     })
 
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
     test('minimumIndexerStake correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('minimumIndexerStake')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'minimumIndexerStake', '11')
+      assert.fieldEquals('GraphNetwork', '1', 'minimumIndexerStake', minimumIndexerStake.toString())
     })
     test('thawingPeriod correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('thawingPeriod')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'thawingPeriod', '12')
+      assert.fieldEquals('GraphNetwork', '1', 'thawingPeriod', thawingPeriod.toString())
     })
     test('curationPercentage correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('curationPercentage')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'curationPercentage', '13')
+      assert.fieldEquals('GraphNetwork', '1', 'curationPercentage', curationPercentage.toString())
     })
     test('protocolPercentage correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('protocolPercentage')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'protocolFeePercentage', '14')
+      assert.fieldEquals(
+        'GraphNetwork',
+        '1',
+        'protocolFeePercentage',
+        protocolPercentage.toString(),
+      )
     })
     test('channelDisputeEpochs correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('channelDisputeEpochs')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'channelDisputeEpochs', '15')
+      assert.fieldEquals(
+        'GraphNetwork',
+        '1',
+        'channelDisputeEpochs',
+        channelDisputeEpochs.toString(),
+      )
     })
     test('maxAllocationEpochs correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('maxAllocationEpochs')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'maxAllocationEpochs', '16')
+      assert.fieldEquals('GraphNetwork', '1', 'maxAllocationEpochs', maxAllocationEpochs.toString())
     })
     test('rebateRatio correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('rebateRatio')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'rebateRatio', '1')
+      assert.fieldEquals('GraphNetwork', '1', 'rebateRatio', rebateRatio.toString())
     })
     test('delegationRatio correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('delegationRatio')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'delegationRatio', '18')
+      assert.fieldEquals('GraphNetwork', '1', 'delegationRatio', delegationRatio1.toString())
     })
     test('delegationParametersCooldown correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('delegationParametersCooldown')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'delegationParametersCooldown', '19')
+      assert.fieldEquals(
+        'GraphNetwork',
+        '1',
+        'delegationParametersCooldown',
+        delegationParametersCooldown.toString(),
+      )
     })
     test('delegationUnbondingPeriod correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('delegationUnbondingPeriod')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'delegationUnbondingPeriod', '20')
+      assert.fieldEquals(
+        'GraphNetwork',
+        '1',
+        'delegationUnbondingPeriod',
+        delegationUnbondingPeriod.toString(),
+      )
     })
     test('delegationTaxPercentage correctly updated', () => {
       let parameterUpdated = mockParameterUpdated('delegationTaxPercentage')
       handleParameterUpdated(parameterUpdated)
-      assert.fieldEquals('GraphNetwork', '1', 'delegationTaxPercentage', '21')
+      assert.fieldEquals(
+        'GraphNetwork',
+        '1',
+        'delegationTaxPercentage',
+        delegationTaxPercentage.toString(),
+      )
     })
   })
 
   describe('SetOperator', () => {
+    beforeAll(() => {
+      createOrLoadGraphNetwork(blockNumber, controllerAddress)
+
+      let transfer = mockTransfer(graphAddress, indexerAddress, value)
+      handleTransfer(transfer)
+    })
+
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
-    test('Set Operator', () => {
-      createOrLoadGraphNetwork(BigInt.fromI32(1), controllerAddress)
-      let transfer = mockTransfer(graphAddress, indexerAddress, BigInt.fromI32(54321))
-      handleTransfer(transfer)
-      createOrLoadGraphAccount(indexerAddress, BigInt.fromI32(1))
-
-      let operator = mockSetOperator(indexerAddress, indexerAddress, true)
+    test('correctly updates operator', () => {
+      let operator = mockSetOperator(indexerAddress, operatorAddress, true)
       handleSetOperator(operator)
       let graphAccount = GraphAccount.load(indexerID)!
       let operators = graphAccount.operators
 
       if (operators !== null) {
         let first = operators[0]
-        assert.addressEquals(Address.fromString(first), indexerAddress)
+        assert.addressEquals(Address.fromString(first), operatorAddress)
       }
     })
   })
 
   describe('SlasherUpdate', () => {
+    beforeAll(() => {
+      createOrLoadGraphNetwork(blockNumber, controllerAddress)
+    })
+
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
-    test('slasher updated', () => {
-      createOrLoadGraphNetwork(BigInt.fromI32(1), controllerAddress)
-
-      let slasher = mockSlasherUpdate(indexerAddress, indexerAddress, true)
+    test('correctly updates slasher', () => {
+      let slasher = mockSlasherUpdate(indexerAddress, slasherAddress, true)
       handleSlasherUpdate(slasher)
 
       let graphNetwork = GraphNetwork.load('1')!
@@ -955,21 +924,23 @@ describe('NETWORK SETS AND UPDATES', () => {
 
       if (slashers !== null) {
         let first = slashers[0]
-        assert.addressEquals(Address.fromBytes(first), indexerAddress)
+        assert.addressEquals(Address.fromBytes(first), slasherAddress)
       }
     })
   })
 
   describe('AssetHolderUpdate', () => {
+    beforeAll(() => {
+      createOrLoadGraphNetwork(blockNumber, controllerAddress)
+    })
+
     afterAll(() => {
-      // Clear the store in order to start the next test off on a clean slate
+      // Clear the store in order to start the next test off on a clean state
       clearStore()
     })
 
-    test('asset holder updated', () => {
-      createOrLoadGraphNetwork(BigInt.fromI32(1), controllerAddress)
-
-      let assetHolder = mockAssetHolderUpdate(indexerAddress, indexerAddress, true)
+    test('correctly updates asset holder', () => {
+      let assetHolder = mockAssetHolderUpdate(indexerAddress, assetHolderAddress, true)
       handleAssetHolderUpdate(assetHolder)
 
       let graphNetwork = GraphNetwork.load('1')!
@@ -977,7 +948,7 @@ describe('NETWORK SETS AND UPDATES', () => {
 
       if (assetHolders !== null) {
         let first = assetHolders[0]
-        assert.addressEquals(Address.fromBytes(first), indexerAddress)
+        assert.addressEquals(Address.fromBytes(first), assetHolderAddress)
       }
     })
   })

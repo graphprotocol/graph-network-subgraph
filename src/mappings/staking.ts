@@ -57,6 +57,7 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer.save()
   }
+
 }
 
 /**
