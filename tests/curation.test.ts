@@ -10,7 +10,6 @@ import {
   logStore,
   log,
   createMockedFunction,
-
 } from 'matchstick-as/assembly/index'
 
 import { handleSignalled, handleBurned, handleParameterUpdated } from '../src/mappings/curation'
@@ -26,7 +25,7 @@ import { mockStakeDeposited, mockAllocationCreated, mockStakeDelegated } from '.
 
 import { mockSignalled, mockBurned, mockParameterUpdated } from './factories/curation'
 
-import { createOrLoadGraphAccount, createOrLoadGraphNetwork } from '../src/mappings/helpers'
+import { createOrLoadGraphNetwork } from '../src/mappings/helpers'
 
 import { mockTransfer } from './factories/graphToken'
 
@@ -46,8 +45,9 @@ const subgraphDeploymentAddress = Address.fromString(subgraphDeploymentID)
 const allocationID = '0x0000000000000000000000000000000000000008'
 const allocationAddress = Address.fromString(allocationID)
 const metadata = Bytes.fromHexString('0x0000000000000000000000000000000000000009')
-const signalID = curatorID.concat("-").concat(subgraphDeploymentID)
-// CONSTANT NUMBERS OR BIGINTS
+const signalID = curatorID.concat('-').concat(subgraphDeploymentID)
+
+// CONSTANTS
 // blockNumber and epochLength are picked in a way to let createOrLoadEpoch create new epoch
 // when first called. The other values are rather random.
 const blockNumber = BigInt.fromI32(1)
@@ -60,14 +60,15 @@ const signal = BigInt.fromI32(6)
 const curationTax = BigInt.fromI32(5)
 const burnedValue = BigInt.fromI32(33)
 const burnedSignal = BigInt.fromI32(3)
-
+const defaultReserveRatio = BigInt.fromI32(11)
+const curationTaxPercentage = BigInt.fromI32(12)
+const minimumCurationDeposit = BigInt.fromI32(13)
 
 // MOCKS
 // createOrLoadGraphNetwork calls the getGovernor function of controllerAddress so we mock it here
 createMockedFunction(controllerAddress, 'getGovernor', 'getGovernor():(address)')
   .withArgs([])
   .returns([ethereum.Value.fromAddress(controllerAddress)])
-
 
 describe('Signalled', () => {
   beforeAll(() => {
@@ -86,12 +87,13 @@ describe('Signalled', () => {
     handleTransfer(transfer2)
     let transfer3 = mockTransfer(graphAddress, curatorAddress, value)
     handleTransfer(transfer3)
-    // StakeDelegatedWithdrawn event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
+
     let stakeDeposited = mockStakeDeposited(indexerAddress, value)
     handleStakeDeposited(stakeDeposited)
 
     let stakeDelegated = mockStakeDelegated(indexerAddress, delegatorAddress, value, shares)
     handleStakeDelegated(stakeDelegated)
+
     let allocationCreated = mockAllocationCreated(
       indexerAddress,
       subgraphDeploymentAddress,
@@ -149,8 +151,18 @@ describe('Signalled', () => {
   test('creates and correctly updates subgraph deployment', () => {
     let totalSignalled = value.minus(curationTax)
 
-    assert.fieldEquals('SubgraphDeployment', subgraphDeploymentID, 'signalledTokens', totalSignalled.toString())
-    assert.fieldEquals('SubgraphDeployment', subgraphDeploymentID, 'signalAmount', signal.toString())
+    assert.fieldEquals(
+      'SubgraphDeployment',
+      subgraphDeploymentID,
+      'signalledTokens',
+      totalSignalled.toString(),
+    )
+    assert.fieldEquals(
+      'SubgraphDeployment',
+      subgraphDeploymentID,
+      'signalAmount',
+      signal.toString(),
+    )
   })
 
   test('correctly updates epoch', () => {
@@ -180,8 +192,6 @@ describe('Signalled', () => {
   test('does not increase graphNetwork.activeCuratorCount if not new curator', () => {
     assert.fieldEquals('GraphNetwork', '1', 'activeCuratorCount', '1')
   })
-
-  
 })
 
 describe('Burned', () => {
@@ -201,7 +211,7 @@ describe('Burned', () => {
     handleTransfer(transfer2)
     let transfer3 = mockTransfer(graphAddress, curatorAddress, value)
     handleTransfer(transfer3)
-    // StakeDelegatedWithdrawn event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
+
     let stakeDeposited = mockStakeDeposited(indexerAddress, value)
     handleStakeDeposited(stakeDeposited)
 
@@ -215,6 +225,7 @@ describe('Burned', () => {
       allocationAddress,
       metadata,
     )
+
     handleAllocationCreated(allocationCreated)
     let signalled = mockSignalled(
       curatorAddress,
@@ -224,7 +235,6 @@ describe('Burned', () => {
       curationTax,
     )
     handleSignalled(signalled)
-
   })
 
   afterAll(() => {
@@ -233,24 +243,17 @@ describe('Burned', () => {
   })
 
   test('correctly updates curator', () => {
-    let burned = mockBurned(
-      curatorAddress,
-      subgraphDeploymentAddress,
-      burnedValue,
-      burnedSignal
-    )
+    let burned = mockBurned(curatorAddress, subgraphDeploymentAddress, burnedValue, burnedSignal)
     handleBurned(burned)
     let totalSignal = signal.minus(burnedSignal)
     assert.fieldEquals('Curator', curatorID, 'totalUnsignalledTokens', burnedValue.toString())
     assert.fieldEquals('Curator', curatorID, 'totalSignal', totalSignal.toString())
-    // TODO check totalAverageCostBasisPerSignal vs is correct 
   })
 
   test('correctly updates signal', () => {
     let totalSignal = signal.minus(burnedSignal)
     assert.fieldEquals('Signal', signalID, 'unsignalledTokens', burnedValue.toString())
     assert.fieldEquals('Signal', signalID, 'signal', totalSignal.toString())
-    // TODO check averageCostBasis vs is correct 
   })
 
   test('does not decrease curator.activeSignalCount and .activeCombinedSignalCount if signal does not drop to zero', () => {
@@ -265,10 +268,19 @@ describe('Burned', () => {
   test('correctly updates subgraph deployment', () => {
     let totalTokens = value.minus(curationTax).minus(burnedValue)
     let totalSignal = signal.minus(burnedSignal)
-    assert.fieldEquals('SubgraphDeployment', subgraphDeploymentID, 'signalledTokens', totalTokens.toString())
-    assert.fieldEquals('SubgraphDeployment', subgraphDeploymentID, 'signalAmount', totalSignal.toString())
+    assert.fieldEquals(
+      'SubgraphDeployment',
+      subgraphDeploymentID,
+      'signalledTokens',
+      totalTokens.toString(),
+    )
+    assert.fieldEquals(
+      'SubgraphDeployment',
+      subgraphDeploymentID,
+      'signalAmount',
+      totalSignal.toString(),
+    )
   })
-
 
   test('correctly updates graphNetwork.totalTokensSignalled', () => {
     let totalTokens = value.minus(curationTax).minus(burnedValue)
@@ -281,12 +293,7 @@ describe('Burned', () => {
     let leftTokens = value.minus(totalTokens)
     let leftSignal = signal.minus(totalSignal)
 
-    let burned2 = mockBurned(
-      curatorAddress,
-      subgraphDeploymentAddress,
-      leftTokens,
-      leftSignal,
-    )
+    let burned2 = mockBurned(curatorAddress, subgraphDeploymentAddress, leftTokens, leftSignal)
     handleBurned(burned2)
 
     assert.fieldEquals('Curator', curatorID, 'activeSignalCount', '0')
@@ -296,9 +303,7 @@ describe('Burned', () => {
   test('decreases graphNetwork.activeCuratorCount if signal drops to zero', () => {
     assert.fieldEquals('GraphNetwork', '1', 'activeCuratorCount', '0')
   })
-
 })
-
 
 describe('ParameterUpdated', () => {
   beforeAll(() => {
@@ -317,12 +322,13 @@ describe('ParameterUpdated', () => {
     handleTransfer(transfer2)
     let transfer3 = mockTransfer(graphAddress, curatorAddress, value)
     handleTransfer(transfer3)
-    // StakeDelegatedWithdrawn event can only be emitted if _stake is called and indexer.stakedTokens are nonzero
+
     let stakeDeposited = mockStakeDeposited(indexerAddress, value)
     handleStakeDeposited(stakeDeposited)
 
     let stakeDelegated = mockStakeDelegated(indexerAddress, delegatorAddress, value, shares)
     handleStakeDelegated(stakeDelegated)
+
     let allocationCreated = mockAllocationCreated(
       indexerAddress,
       subgraphDeploymentAddress,
@@ -342,22 +348,26 @@ describe('ParameterUpdated', () => {
   test('defaultReserveRatio correctly updated', () => {
     let parameterUpdated = mockParameterUpdated('defaultReserveRatio')
     handleParameterUpdated(parameterUpdated)
-    assert.fieldEquals('GraphNetwork', '1', 'defaultReserveRatio', '11')
+    assert.fieldEquals('GraphNetwork', '1', 'defaultReserveRatio', defaultReserveRatio.toString())
   })
   test('curationTaxPercentage correctly updated', () => {
     let parameterUpdated = mockParameterUpdated('curationTaxPercentage')
     handleParameterUpdated(parameterUpdated)
-    assert.fieldEquals('GraphNetwork', '1', 'curationTaxPercentage', '11')
+    assert.fieldEquals(
+      'GraphNetwork',
+      '1',
+      'curationTaxPercentage',
+      curationTaxPercentage.toString(),
+    )
   })
   test('minimumCurationDeposit correctly updated', () => {
     let parameterUpdated = mockParameterUpdated('minimumCurationDeposit')
     handleParameterUpdated(parameterUpdated)
-    assert.fieldEquals('GraphNetwork', '1', 'minimumCurationDeposit', '11')
-    assert.fieldEquals('GraphNetwork', '1', 'defaultReserveRatio', '11')
-  })
-  test('minimumCurationDeposit correctly updated', () => {
-    let parameterUpdated = mockParameterUpdated('minimumCurationDeposit')
-    handleParameterUpdated(parameterUpdated)
-    assert.fieldEquals('GraphNetwork', '1', 'minimumCurationDeposit', '11')
+    assert.fieldEquals(
+      'GraphNetwork',
+      '1',
+      'minimumCurationDeposit',
+      minimumCurationDeposit.toString(),
+    )
   })
 })
