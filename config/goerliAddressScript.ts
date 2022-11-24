@@ -21,18 +21,22 @@ export let addresses: Addresses = {
   ens: '{{goerli.IENS.address}}',
   ensPublicResolver: '{{goerli.IPublicResolver.address}}',
   blockNumber: '',
+  bridgeBlockNumber: '',
   network: '',
   tokenLockManager: '',
   subgraphNFT: '{{goerli.SubgraphNFT.address}}',
+  l1GraphTokenGateway: '{{goerli.L1GraphTokenGateway.address}}',
 }
 
 const main = (): void => {
   try {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
     output.blockNumber = '7210000' // Hardcoded from before first contract deploy of the latest phase
+    output.bridgeBlockNumber = '7891183' // Bridge deployment block
     output.network = 'goerli'
     output.tokenLockManager = '0x9a7a54e86560f4304d8862Ea00F45D1090c59ac8' // we don't have one, this is rinkebys'
     output.useTokenLockManager = true
+    output.isL1 = true
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)

@@ -407,6 +407,50 @@ dataSources:
         - event: TokenDestinationAllowed(indexed address,bool)
           handler: handleTokenDestinationAllowed
     {{/useTokenLockManager}}
+  {{#isL1}}
+  - kind: ethereum/contract
+    name: L1GraphTokenGateway
+    network: {{network}}
+    source:
+      address: "{{l1GraphTokenGateway}}"
+      abi: L1GraphTokenGateway
+      startBlock: {{bridgeBlockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/l1Gateway.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: L1GraphTokenGateway
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L1GraphTokenGateway.json
+      eventHandlers:
+        - event: DepositInitiated(address,indexed address,indexed address,indexed uint256,uint256)
+          handler: handleDepositInitiated
+    {{/isL1}}
+  {{^isL1}}
+  - kind: ethereum/contract
+    name: L2GraphTokenGateway
+    network: {{network}}
+    source:
+      address: "{{l2GraphTokenGateway}}"
+      abi: L2GraphTokenGateway
+      startBlock: {{bridgeBlockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/l2Gateway.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: L2GraphTokenGateway
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L2GraphTokenGateway.json
+      eventHandlers:
+        - event: WithdrawalInitiated(address,indexed address,indexed address,indexed uint256,uint256,uint256)
+          handler: handleWithdrawalInitiated
+    {{/isL1}}
 templates:
   - kind: ethereum/contract
     name: GraphTokenLockWallet

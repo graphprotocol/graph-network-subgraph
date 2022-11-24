@@ -12,9 +12,12 @@ export class Addresses {
   ens: string
   ensPublicResolver: string
   blockNumber: string
+  bridgeBlockNumber: string
   network: string
   tokenLockManager: string
   subgraphNFT: string
+  l1GraphTokenGateway?: string
+  l2GraphTokenGateway?: string
 }
 
 // AS compiler does not like const
@@ -31,7 +34,10 @@ export let addresses: Addresses = {
   ens: '{{ens}}',
   ensPublicResolver: '{{ensPublicResolver}}',
   blockNumber: '{{blockNumber}}',
+  bridgeBlockNumber: '{{bridgeBlockNumber}}',
   network: '{{network}}',
   tokenLockManager: '{{tokenLockManager}}',
   subgraphNFT: '{{subgraphNFT}}',
+  l1GraphTokenGateway: '{{l1GraphTokenGateway}}',
+  l2GraphTokenGateway: '{{l2GraphTokenGateway}}',
 }
