@@ -195,6 +195,12 @@ type GraphNetwork @entity {
   minimumDisputeDeposit: BigInt!
   "Reward to Fisherman on successful disputes. In parts per million"
   fishermanRewardPercentage: Int!
+
+  # Bridge totals
+  "Total amount of GRT deposited to the L1 gateway. Only available on L1 networks."
+  totalGRTDeposited: BigInt!
+  "Total amount of GRT withdrawn from the L2 gateway. Only available on L2 networks."
+  totalGRTWithdrawn: BigInt!
 }
 
 """
