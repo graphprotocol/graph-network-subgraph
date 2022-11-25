@@ -10,7 +10,7 @@ renameAddresses['arbgor'] = networkAddresses['421613']
 
 export let addresses: Addresses = {
   controller: '{{arbgor.Controller.address}}',
-  graphToken: '{{arbgor.GraphToken.address}}',
+  graphToken: '{{arbgor.L2GraphToken.address}}',
   epochManager: '{{arbgor.EpochManager.address}}',
   disputeManager: '{{arbgor.DisputeManager.address}}',
   staking: '{{arbgor.Staking.address}}',
@@ -25,6 +25,7 @@ export let addresses: Addresses = {
   network: '',
   tokenLockManager: '',
   subgraphNFT: '{{arbgor.SubgraphNFT.address}}',
+  l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbgor.L2GraphTokenGateway.address}}',
 }
 

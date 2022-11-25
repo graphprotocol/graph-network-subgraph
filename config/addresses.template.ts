@@ -16,8 +16,8 @@ export class Addresses {
   network: string
   tokenLockManager: string
   subgraphNFT: string
-  l1GraphTokenGateway?: string
-  l2GraphTokenGateway?: string
+  l1GraphTokenGateway: string
+  l2GraphTokenGateway: string
 }
 
 // AS compiler does not like const
