@@ -1,4 +1,4 @@
-import { WithdrawalInitiated } from '../types/L1GraphTokenGateway/L2GraphTokenGateway'
+import { WithdrawalInitiated } from '../types/L2GraphTokenGateway/L2GraphTokenGateway'
 import { GraphNetwork } from '../types/schema'
 
 export function handleWithdrawalInitiated(event: WithdrawalInitiated): void {
