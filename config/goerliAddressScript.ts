@@ -26,6 +26,7 @@ export let addresses: Addresses = {
   tokenLockManager: '',
   subgraphNFT: '{{goerli.SubgraphNFT.address}}',
   l1GraphTokenGateway: '{{goerli.L1GraphTokenGateway.address}}',
+  l2GraphTokenGateway: '',
 }
 
 const main = (): void => {
