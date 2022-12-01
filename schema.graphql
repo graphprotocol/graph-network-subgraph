@@ -196,10 +196,16 @@ type GraphNetwork @entity {
   "Reward to Fisherman on successful disputes. In parts per million"
   fishermanRewardPercentage: Int!
 
-  # Bridge totals
-  "Total amount of GRT deposited to the L1 gateway. Only available on L1 networks."
-  totalGRTDeposited: BigInt!
-  "Total amount of GRT withdrawn from the L2 gateway. Only available on L2 networks."
+  # Bridge totals (Only available on L1 networks)
+  "Total amount of GRT deposited to the L1 gateway. Note that the actual amount claimed in L2 might be lower due to tickets not redeemed."
+  totalGRTDeposited: BigInt!\
+  "NOT IMPLEMENTED - Total amount of GRT withdrawn from the L2 gateway and claimed in L1."
+  totalGRTWithdrawnConfirmed: BigInt!
+
+  # Bridge totals (Only available on L2 networks)
+  "NOT IMPLEMENTED - Total amount of GRT deposited to the L1 gateway and redeemed in L2."
+  totalGRTDepositedConfirmed: BigInt!
+  "Total amount of GRT withdrawn from the L2 gateway. Note that the actual amount claimed in L1 might be lower due to outbound transactions not finalized."
   totalGRTWithdrawn: BigInt!
 }
 
