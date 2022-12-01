@@ -198,7 +198,7 @@ type GraphNetwork @entity {
 
   # Bridge totals (Only available on L1 networks)
   "Total amount of GRT deposited to the L1 gateway. Note that the actual amount claimed in L2 might be lower due to tickets not redeemed."
-  totalGRTDeposited: BigInt!\
+  totalGRTDeposited: BigInt!
   "NOT IMPLEMENTED - Total amount of GRT withdrawn from the L2 gateway and claimed in L1."
   totalGRTWithdrawnConfirmed: BigInt!
 
