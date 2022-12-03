@@ -387,11 +387,12 @@
     "@ethersproject/properties" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
-"@graphprotocol/contracts@l2-testnet":
-  version "2.0.0-testnet"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-2.0.0-testnet.tgz#95f3156a03bffc754f523240bf47801a4cbc7eca"
-  integrity sha512-ZJ/dxGeSnN4cFI7HGUcU2HBe7hZtNat/5UX2B4f27sQyfV9IJBcXy+6wBugn97rmZFPGj3yk7K1PMvJVVOFKpA==
+"@graphprotocol/contracts@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-2.1.0.tgz#c2e9131973af231e3f6f84ada31baebccc77ed48"
+  integrity sha512-SeymJCUxBp488K/KNi77EKvrkPT0t/7rERGp8zFkmf5KByerjihhE9Ty9oXJAU9RzbUpxsU0JkPBSmiw9/2DYQ==
   dependencies:
+    console-table-printer "^2.11.1"
     ethers "^5.6.0"
 
 "@graphprotocol/graph-cli@^0.25.1":
@@ -1189,6 +1190,13 @@ concat-stream@~1.6.2:
     inherits "^2.0.3"
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
+
+console-table-printer@^2.11.1:
+  version "2.11.1"
+  resolved "https://registry.yarnpkg.com/console-table-printer/-/console-table-printer-2.11.1.tgz#c2dfe56e6343ea5bcfa3701a4be29fe912dbd9c7"
+  integrity sha512-8LfFpbF/BczoxPwo2oltto5bph8bJkGOATXsg3E9ddMJOGnWJciKHldx2zDj5XIBflaKzPfVCjOTl6tMh7lErg==
+  dependencies:
+    simple-wcswidth "^1.0.1"
 
 core-util-is@1.0.2:
   version "1.0.2"
@@ -3368,6 +3376,11 @@ signed-varint@^2.0.1:
   integrity sha1-UKmYnafJjCxh2tEZvJdHDvhSgSk=
   dependencies:
     varint "~5.0.0"
+
+simple-wcswidth@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/simple-wcswidth/-/simple-wcswidth-1.0.1.tgz#8ab18ac0ae342f9d9b629604e54d2aa1ecb018b2"
+  integrity sha512-xMO/8eNREtaROt7tJvWJqHBDTMFN4eiQ5I4JRMuilwfnFcV5W9u7RUkueNkdw0jPqGMX36iCywelS5yilTuOxg==
 
 slice-ansi@^4.0.0:
   version "4.0.0"
