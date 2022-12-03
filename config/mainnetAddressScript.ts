@@ -25,7 +25,7 @@ export let addresses: Addresses = {
   network: '',
   tokenLockManager: '',
   subgraphNFT: '{{mainnet.SubgraphNFT.address}}',
-  l1GraphTokenGateway: '{{goerli.L1GraphTokenGateway.address}}',
+  l1GraphTokenGateway: '{{mainnet.L1GraphTokenGateway.address}}',
   l2GraphTokenGateway: '',
 }
 
@@ -34,7 +34,7 @@ const main = (): void => {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
     output.blockNumber = '11440000' // Hardcoded a few thousand blocks before 1st contract deployed
     output.network = 'mainnet'
-    output.bridgeBlockNumber = '' // TBD
+    output.bridgeBlockNumber = '16083315' // TBD
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
     output.useTokenLockManager = true
     output.isL1 = true
