@@ -1,4 +1,4 @@
-name: Production Subgraph (Mainnet)
+name: Production Subgraph (Arbitrum Goerli)
 
 on:
   push:
@@ -13,8 +13,8 @@ jobs:
   deploy:
     uses: graphprotocol/graph-network-subgraph/.github/workflows/template-deploy.yaml@master
     with:
-      ENVIRONMENT: production
-      CONFIG: mainnetAddressScript.ts
+      ENVIRONMENT: production-arbitrum-goerli
+      CONFIG: arbitrumGoerliAddressScript.ts
     secrets:
       NODE_AUTH_TOKEN: ${{ secrets.graphprotocol_npm_token }}
       ACCESS_TOKEN: ${{ secrets.access_token }}
