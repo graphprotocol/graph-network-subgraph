@@ -22,30 +22,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set staging environment variables
-        if: ${{ inputs.ENVIRONMENT == 'staging' }}
+      - name: Set arbitrum staging environment variables
+        if: ${{ inputs.ENVIRONMENT == 'staging-arbitrum' }}
         run: |
-          echo "ENV_SUFFIX=-staging" >> $GITHUB_ENV
+          echo "ENV_SUFFIX=-arbitrum-staging" >> $GITHUB_ENV
 
       - name: Set mainnet staging environment variables
         if: ${{ inputs.ENVIRONMENT == 'staging-mainnet' }}
         run: |
           echo "ENV_SUFFIX=-mainnet-staging" >> $GITHUB_ENV
 
-      - name: Set testnet environment variables
-        if: ${{ inputs.ENVIRONMENT == 'testnet' }}
-        run: |
-          echo "ENV_SUFFIX=-testnet" >> $GITHUB_ENV
-
       - name: Set mainnet environment variables
         if: ${{ inputs.ENVIRONMENT == 'production' }}
         run: |
           echo "ENV_SUFFIX=-mainnet" >> $GITHUB_ENV
 
+      - name: Set arbitrum environment variables
+        if: ${{ inputs.ENVIRONMENT == 'production-arbitrum' }}
+        run: |
+          echo "ENV_SUFFIX=-arbitrum" >> $GITHUB_ENV
+
       - name: Set goerli production environment variables
         if: ${{ inputs.ENVIRONMENT == 'production-goerli' }}
         run: |
           echo "ENV_SUFFIX=-goerli" >> $GITHUB_ENV
+
+      - name: Set arbitrum goerli production environment variables
+        if: ${{ inputs.ENVIRONMENT == 'production-arbitrum-goerli' }}
+        run: |
+          echo "ENV_SUFFIX=-arbitrum-goerli" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
