@@ -1,9 +1,9 @@
-name: Production Subgraph (Mainnet)
+name: Staging Subgraph (Arbitrum)
 
 on:
   push:
-    tags:
-      - v*
+    branches:
+      - mainnet-staging
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,8 +13,8 @@ jobs:
   deploy:
     uses: graphprotocol/graph-network-subgraph/.github/workflows/template-deploy.yaml@master
     with:
-      ENVIRONMENT: production
-      CONFIG: mainnetAddressScript.ts
+      ENVIRONMENT: staging-arbitrum
+      CONFIG: mainnetArbitrumAddressScript.ts
     secrets:
       NODE_AUTH_TOKEN: ${{ secrets.graphprotocol_npm_token }}
       ACCESS_TOKEN: ${{ secrets.access_token }}
