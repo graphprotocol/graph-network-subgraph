@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   deploy:
-    uses: graphprotocol/graph-network-subgraph/.github/workflows/template-deploy.yaml
+    uses: ./.github/workflows/template-deploy.yaml
     with:
       ENVIRONMENT: production-arbitrum-goerli
       CONFIG: arbitrumGoerliAddressScript.ts
