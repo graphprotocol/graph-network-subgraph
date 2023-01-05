@@ -27,6 +27,7 @@ export let addresses: Addresses = {
   subgraphNFT: '{{mainnet.SubgraphNFT.address}}',
   l1GraphTokenGateway: '{{mainnet.L1GraphTokenGateway.address}}',
   l2GraphTokenGateway: '',
+  ethereumDIDRegistry: '{{mainnet.IEthereumDIDRegistry.address}}',
 }
 
 const main = (): void => {

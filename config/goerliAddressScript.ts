@@ -27,6 +27,7 @@ export let addresses: Addresses = {
   subgraphNFT: '{{goerli.SubgraphNFT.address}}',
   l1GraphTokenGateway: '{{goerli.L1GraphTokenGateway.address}}',
   l2GraphTokenGateway: '',
+  ethereumDIDRegistry: '{{goerli.IEthereumDIDRegistry.address}}',
 }
 
 const main = (): void => {

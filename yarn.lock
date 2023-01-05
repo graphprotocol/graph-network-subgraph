@@ -387,10 +387,10 @@
     "@ethersproject/properties" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
-"@graphprotocol/contracts@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-2.1.0.tgz#c2e9131973af231e3f6f84ada31baebccc77ed48"
-  integrity sha512-SeymJCUxBp488K/KNi77EKvrkPT0t/7rERGp8zFkmf5KByerjihhE9Ty9oXJAU9RzbUpxsU0JkPBSmiw9/2DYQ==
+"@graphprotocol/contracts@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-2.2.0.tgz#19353a59237bd0769b73770da1fe15d4015ba9e3"
+  integrity sha512-jC//c6fYjKoUzAVsagUnrBe4rWdMv+FSxu0FMoyNB3wPVrI7qzly1LFB785wteEtHQzWnJPE6+EUMOlxXGMgsA==
   dependencies:
     console-table-printer "^2.11.1"
     ethers "^5.6.0"

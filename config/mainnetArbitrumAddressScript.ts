@@ -27,6 +27,7 @@ export let addresses: Addresses = {
   subgraphNFT: '{{arbitrum.SubgraphNFT.address}}',
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbitrum.L2GraphTokenGateway.address}}',
+  ethereumDIDRegistry: '{{arbitrum.IEthereumDIDRegistry.address}}',
 }
 
 const main = (): void => {
