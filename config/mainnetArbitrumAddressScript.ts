@@ -38,6 +38,9 @@ const main = (): void => {
     output.bridgeBlockNumber = '42449749' // TBD
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
     output.useTokenLockManager = false
+    if(output.ethereumDIDRegistry == '') {
+      output.ethereumDIDRegistry = '0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B' // since the package doens't have it yet
+    }
     output.isL1 = false
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
