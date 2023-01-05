@@ -18,6 +18,7 @@ export class Addresses {
   subgraphNFT: string
   l1GraphTokenGateway: string
   l2GraphTokenGateway: string
+  ethereumDIDRegistry: string
 }
 
 // AS compiler does not like const
@@ -40,4 +41,5 @@ export let addresses: Addresses = {
   subgraphNFT: '{{subgraphNFT}}',
   l1GraphTokenGateway: '{{l1GraphTokenGateway}}',
   l2GraphTokenGateway: '{{l2GraphTokenGateway}}',
+  ethereumDIDRegistry: '{{ethereumDIDRegistry}}',
 }
