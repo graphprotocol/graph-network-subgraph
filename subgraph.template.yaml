@@ -270,7 +270,7 @@ dataSources:
     name: EthereumDIDRegistry
     network: {{network}}
     source:
-      address: "0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B"
+      address: "{{ethereumDIDRegistry}}"
       abi: EthereumDIDRegistry
       startBlock: {{blockNumber}}
     mapping:
