@@ -27,6 +27,7 @@ export let addresses: Addresses = {
   subgraphNFT: '{{arbgor.SubgraphNFT.address}}',
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbgor.L2GraphTokenGateway.address}}',
+  ethereumDIDRegistry: '{{arbgor.IEthereumDIDRegistry.address}}',
 }
 
 const main = (): void => {
