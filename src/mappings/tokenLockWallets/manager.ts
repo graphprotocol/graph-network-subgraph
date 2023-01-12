@@ -9,7 +9,8 @@ import {
 } from '../../types/GraphTokenLockManager/GraphTokenLockManager'
 import { GraphTokenLockWallet } from '../../types/templates'
 import { TokenManager, TokenLockWallet, AuthorizedFunction } from '../../types/schema'
-import { createOrLoadGraphAccount } from '../helpers'
+import { createOrLoadGraphAccount, createOrLoadGraphNetwork } from '../helpers'
+import { addresses } from '../../../config/addresses'
 
 export function handleMasterCopyUpdated(event: MasterCopyUpdated): void {
   let tokenLock = TokenManager.load(event.address.toHexString())
@@ -36,6 +37,7 @@ export function handleMasterCopyUpdated(event: MasterCopyUpdated): void {
  * @param _vestingCliffTime Time the cliff vests, 0 if no cliff
  */
 export function handleTokenLockCreated(event: TokenLockCreated): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let manager = TokenManager.load(event.address.toHexString())!
   manager.tokenLockCount = manager.tokenLockCount.plus(BigInt.fromI32(1))
   manager.save()
@@ -56,7 +58,7 @@ export function handleTokenLockCreated(event: TokenLockCreated): void {
   tokenLock.tokensWithdrawn = BigInt.fromI32(0)
   tokenLock.tokensRevoked = BigInt.fromI32(0)
   tokenLock.tokensReleased = BigInt.fromI32(0)
-  tokenLock.blockNumberCreated = event.block.number
+  tokenLock.blockNumberCreated = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!)
   tokenLock.txHash = event.transaction.hash
   if (event.params.revocable == 0) {
     tokenLock.revocable = 'NotSet'

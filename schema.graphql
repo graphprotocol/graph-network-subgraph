@@ -207,6 +207,8 @@ type GraphNetwork @entity {
   totalGRTDepositedConfirmed: BigInt!
   "Total amount of GRT withdrawn from the L2 gateway. Note that the actual amount claimed in L1 might be lower due to outbound transactions not finalized."
   totalGRTWithdrawn: BigInt!
+  "Block number for L1. Only implemented for L2 deployments to properly reflect the L1 block used for timings"
+  currentL1BlockNumber: BigInt
 }
 
 """

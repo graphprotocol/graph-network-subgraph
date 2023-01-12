@@ -55,8 +55,10 @@ import {
   duplicateOrUpdateSubgraphWithNewID,
   duplicateOrUpdateSubgraphVersionWithNewID,
   duplicateOrUpdateNameSignalWithNewID,
+  createOrLoadGraphNetwork
 } from './helpers'
 import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './metadataHelpers'
+import { addresses } from '../../config/addresses'
 
 export function handleSetDefaultName(event: SetDefaultName): void {
   let graphAccount = createOrLoadGraphAccount(event.params.graphAccount, event.block.timestamp)
@@ -303,7 +305,7 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, oldID, 1)
   subgraphDuplicate.save()
 
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount - 1
   graphNetwork.save()
 
@@ -333,6 +335,7 @@ export function handleNameSignalEnabled(event: NameSignalEnabled): void {
 }
 
 export function handleNSignalMinted(event: NSignalMinted): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let curatorID = event.params.nameCurator.toHexString()
   let oldID = joinID([
     event.params.graphAccount.toHexString(),
@@ -433,7 +436,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
 
     if (curator.activeCombinedSignalCount == 1) {
-      let graphNetwork = GraphNetwork.load('1')!
+      let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount + 1
       graphNetwork.save()
     }
@@ -444,7 +447,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   let nSignalTransaction = new NameSignalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
-  nSignalTransaction.blockNumber = event.block.number.toI32()
+  nSignalTransaction.blockNumber = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
   nSignalTransaction.timestamp = event.block.timestamp.toI32()
   nSignalTransaction.signer = event.params.nameCurator.toHexString()
   nSignalTransaction.type = 'MintNSignal'
@@ -456,6 +459,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
 }
 
 export function handleNSignalBurned(event: NSignalBurned): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let curatorID = event.params.nameCurator.toHexString()
   let oldID = joinID([
     event.params.graphAccount.toHexString(),
@@ -554,7 +558,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
 
     if (curator.activeCombinedSignalCount == 0) {
-      let graphNetwork = GraphNetwork.load('1')!
+      let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount - 1
       graphNetwork.save()
     }
@@ -566,7 +570,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   let nSignalTransaction = new NameSignalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
-  nSignalTransaction.blockNumber = event.block.number.toI32()
+  nSignalTransaction.blockNumber = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
   nSignalTransaction.timestamp = event.block.timestamp.toI32()
   nSignalTransaction.signer = event.params.nameCurator.toHexString()
   nSignalTransaction.type = 'BurnNSignal'
@@ -726,7 +730,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let gns = GNS.bind(event.address)
 
   if (parameter == 'ownerTaxPercentage') {
@@ -804,7 +808,7 @@ export function handleSubgraphDeprecatedV2(event: SubgraphDeprecated1): void {
     subgraphDuplicate.save()
   }
 
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount - 1
   graphNetwork.save()
 
@@ -857,6 +861,7 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
 //   handler: handleNSignalMintedV2
 
 export function handleNSignalMintedV2(event: SignalMinted): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let curatorID = event.params.curator.toHexString()
   let bigIntID = event.params.subgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
@@ -959,7 +964,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount + 1
 
     if (curator.activeCombinedSignalCount == 1) {
-      let graphNetwork = GraphNetwork.load('1')!
+      let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount + 1
       graphNetwork.save()
     }
@@ -970,7 +975,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   let nSignalTransaction = new NameSignalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
-  nSignalTransaction.blockNumber = event.block.number.toI32()
+  nSignalTransaction.blockNumber = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
   nSignalTransaction.timestamp = event.block.timestamp.toI32()
   nSignalTransaction.signer = event.params.curator.toHexString()
   nSignalTransaction.type = 'MintNSignal'
@@ -985,6 +990,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
 //   handler: handleNSignalBurnedV2
 
 export function handleNSignalBurnedV2(event: SignalBurned): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let bigIntID = event.params.subgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
@@ -1084,7 +1090,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
     curator.activeCombinedSignalCount = curator.activeCombinedSignalCount - 1
 
     if (curator.activeCombinedSignalCount == 0) {
-      let graphNetwork = GraphNetwork.load('1')!
+      let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
       graphNetwork.activeCuratorCount = graphNetwork.activeCuratorCount - 1
       graphNetwork.save()
     }
@@ -1096,7 +1102,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   let nSignalTransaction = new NameSignalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
-  nSignalTransaction.blockNumber = event.block.number.toI32()
+  nSignalTransaction.blockNumber = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
   nSignalTransaction.timestamp = event.block.timestamp.toI32()
   nSignalTransaction.signer = event.params.curator.toHexString()
   nSignalTransaction.type = 'BurnNSignal'

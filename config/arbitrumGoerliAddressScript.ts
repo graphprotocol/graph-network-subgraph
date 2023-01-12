@@ -28,6 +28,7 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbgor.L2GraphTokenGateway.address}}',
   ethereumDIDRegistry: '{{arbgor.IEthereumDIDRegistry.address}}',
+  isL1: false,
 }
 
 const main = (): void => {
@@ -37,7 +38,6 @@ const main = (): void => {
     output.bridgeBlockNumber = '1023272' // Bridge deployment block
     output.network = 'arbitrum-goerli'
     output.useTokenLockManager = false
-    output.isL1 = false
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)

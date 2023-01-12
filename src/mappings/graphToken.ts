@@ -1,5 +1,5 @@
 import { Approval, Transfer, GraphToken } from '../types/GraphToken/GraphToken'
-import { createOrLoadGraphAccount } from './helpers'
+import { createOrLoadGraphAccount, createOrLoadGraphNetwork } from './helpers'
 import { GraphNetwork } from '../types/schema'
 
 /**
@@ -10,7 +10,7 @@ import { GraphNetwork } from '../types/schema'
 export function handleTransfer(event: Transfer): void {
   // The first transaction ever emitted in the network is the minting of GRT
   // And with this, we instantiate GraphNetwork // TODO - can probably LOAD here now
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let staking = graphNetwork.staking
   let curation = graphNetwork.curation
   let gns = graphNetwork.gns
@@ -60,7 +60,7 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleApproval(event: Approval): void {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let staking = graphNetwork.staking
   let curation = graphNetwork.curation
   let gns = graphNetwork.gns

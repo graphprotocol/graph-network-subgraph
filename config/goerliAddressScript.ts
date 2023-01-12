@@ -28,6 +28,7 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '{{goerli.L1GraphTokenGateway.address}}',
   l2GraphTokenGateway: '',
   ethereumDIDRegistry: '{{goerli.IEthereumDIDRegistry.address}}',
+  isL1: true,
 }
 
 const main = (): void => {
@@ -38,7 +39,6 @@ const main = (): void => {
     output.network = 'goerli'
     output.tokenLockManager = '0x9a7a54e86560f4304d8862Ea00F45D1090c59ac8' // we don't have one, this is rinkebys'
     output.useTokenLockManager = true
-    output.isL1 = true
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
