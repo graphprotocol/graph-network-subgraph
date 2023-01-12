@@ -11,6 +11,7 @@ import {
   DisputeManager,
 } from '../types/DisputeManager/DisputeManager'
 import { DisputeManagerStitched } from '../types/DisputeManager/DisputeManagerStitched'
+import { createOrLoadGraphNetwork } from './helpers'
 
 // This handles  Single query and Conflicting disputes
 export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
@@ -150,7 +151,7 @@ export function handleDisputeLinked(event: DisputeLinked): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let disputeManager = DisputeManagerStitched.bind(event.address as Address)
 
   if (parameter == 'arbitrator') {

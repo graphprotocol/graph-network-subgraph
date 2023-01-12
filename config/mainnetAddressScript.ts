@@ -28,6 +28,7 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '{{mainnet.L1GraphTokenGateway.address}}',
   l2GraphTokenGateway: '',
   ethereumDIDRegistry: '{{mainnet.IEthereumDIDRegistry.address}}',
+  isL1: true,
 }
 
 const main = (): void => {
@@ -38,7 +39,6 @@ const main = (): void => {
     output.bridgeBlockNumber = '16083315' // TBD
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
     output.useTokenLockManager = true
-    output.isL1 = true
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
