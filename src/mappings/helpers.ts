@@ -1,4 +1,13 @@
-import { BigInt, ByteArray, Address, Bytes, crypto, log, BigDecimal } from '@graphprotocol/graph-ts'
+import {
+  BigInt,
+  ByteArray,
+  Address,
+  Bytes,
+  crypto,
+  log,
+  BigDecimal,
+  dataSource,
+} from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
   GraphNetwork,
@@ -22,6 +31,7 @@ import {
 } from '../types/schema'
 import { ENS } from '../types/GNS/ENS'
 import { Controller } from '../types/Controller/Controller'
+import { EpochManager } from '../types/EpochManager/EpochManager'
 import { fetchSubgraphDeploymentManifest } from './metadataHelpers'
 import { addresses } from '../../config/addresses'
 
@@ -510,7 +520,16 @@ export function createOrLoadGraphNetwork(
     graphNetwork.epochLength = 0
     graphNetwork.lastRunEpoch = 0
     graphNetwork.lastLengthUpdateEpoch = 0
-    graphNetwork.lastLengthUpdateBlock = blockNumber.toI32() // start it first block it was created
+    if (addresses.isL1) {
+      graphNetwork.lastLengthUpdateBlock = blockNumber.toI32() // Use chain native block
+    } else {
+      let epochManagerAddress = dataSource.address()
+      let contract = EpochManager.bind(epochManagerAddress)
+      let response = contract.try_blockNum()
+      if (!response.reverted) {
+        graphNetwork.lastLengthUpdateBlock = response.value.toI32() // Use L1 block
+      }
+    }
     graphNetwork.currentEpoch = 0
     graphNetwork.epochCount = 0
 
@@ -534,6 +553,9 @@ export function createOrLoadGraphNetwork(
     graphNetwork.fishermanRewardPercentage = 0
 
     graphNetwork.save()
+  }
+  if(!addresses.isL1) {
+    graphNetwork = updateL1BlockNumber(graphNetwork)
   }
   return graphNetwork as GraphNetwork
 }
@@ -894,7 +916,11 @@ export function getSubgraphID(graphAccount: Address, subgraphNumber: BigInt): Bi
   return bigIntRepresentation
 }
 
-export function duplicateOrUpdateSubgraphWithNewID(entity: Subgraph, newID: String, newEntityVersion: i32): Subgraph {
+export function duplicateOrUpdateSubgraphWithNewID(
+  entity: Subgraph,
+  newID: String,
+  newEntityVersion: i32,
+): Subgraph {
   let subgraph = Subgraph.load(newID)
   if (subgraph == null) {
     subgraph = new Subgraph(newID)
@@ -939,7 +965,11 @@ export function duplicateOrUpdateSubgraphWithNewID(entity: Subgraph, newID: Stri
   return subgraph as Subgraph
 }
 
-export function duplicateOrUpdateSubgraphVersionWithNewID(entity: SubgraphVersion, newID: String, newEntityVersion: i32): SubgraphVersion {
+export function duplicateOrUpdateSubgraphVersionWithNewID(
+  entity: SubgraphVersion,
+  newID: String,
+  newEntityVersion: i32,
+): SubgraphVersion {
   let version = SubgraphVersion.load(newID)
   if (version == null) {
     version = new SubgraphVersion(newID)
@@ -959,7 +989,11 @@ export function duplicateOrUpdateSubgraphVersionWithNewID(entity: SubgraphVersio
   return version as SubgraphVersion
 }
 
-export function duplicateOrUpdateNameSignalWithNewID(entity: NameSignal, newID: String, newEntityVersion: i32): NameSignal {
+export function duplicateOrUpdateNameSignalWithNewID(
+  entity: NameSignal,
+  newID: String,
+  newEntityVersion: i32,
+): NameSignal {
   let signal = NameSignal.load(newID)
   if (signal == null) {
     signal = new NameSignal(newID)
@@ -985,4 +1019,15 @@ export function duplicateOrUpdateNameSignalWithNewID(entity: NameSignal, newID: 
   signal.linkedEntity = entity.id
 
   return signal as NameSignal
+}
+
+export function updateL1BlockNumber(graphNetwork: GraphNetwork): GraphNetwork {
+  let epochManagerAddress = dataSource.address()
+  let contract = EpochManager.bind(epochManagerAddress)
+  let response = contract.try_blockNum()
+  if (!response.reverted) {
+    graphNetwork.currentL1BlockNumber = response.value
+    graphNetwork.save()
+  }
+  return graphNetwork
 }
