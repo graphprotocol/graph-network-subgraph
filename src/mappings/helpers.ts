@@ -387,7 +387,7 @@ export function createOrLoadPool(id: BigInt): Pool {
 }
 
 export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(blockNumber, Bytes.fromHexString(addresses.controller) as Bytes) // Random address since at this point it's already initialized
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
@@ -554,7 +554,7 @@ export function createOrLoadGraphNetwork(
 
     graphNetwork.save()
   }
-  if(!addresses.isL1) {
+  if (!addresses.isL1) {
     graphNetwork = updateL1BlockNumber(graphNetwork)
   }
   return graphNetwork as GraphNetwork
@@ -1022,12 +1022,14 @@ export function duplicateOrUpdateNameSignalWithNewID(
 }
 
 export function updateL1BlockNumber(graphNetwork: GraphNetwork): GraphNetwork {
-  let epochManagerAddress = dataSource.address()
+  let epochManagerAddress = Address.fromString(addresses.epochManager)
   let contract = EpochManager.bind(epochManagerAddress)
   let response = contract.try_blockNum()
   if (!response.reverted) {
     graphNetwork.currentL1BlockNumber = response.value
     graphNetwork.save()
+  } else {
+    log.warning("Failed to update L1BlockNumber. Transaction reverted. Address used: {}", [epochManagerAddress.toHexString()])
   }
   return graphNetwork
 }
