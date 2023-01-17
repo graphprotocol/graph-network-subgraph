@@ -283,6 +283,7 @@ type GraphAccount @entity {
   # Transactions / activity feed
   "Name signal transactions created by this GraphAccount"
   nameSignalTransactions: [NameSignalTransaction!]! @derivedFrom(field: "signer")
+  bridgeWithdrawalTransactions: [BridgeWithdrawalTransaction!]! @derivedFrom(field: "signer")
 
   # Token Lock Wallets that this account is associated with
   tokenLockWallets: [TokenLockWallet!]!
@@ -1146,6 +1147,33 @@ type SignalTransaction implements Transaction @entity {
   withdrawalFees: BigInt!
 }
 
+"""
+All relevant data for a bridge withdrawal Transaction in The Graph Network
+"""
+type BridgeWithdrawalTransaction implements Transaction @entity {
+  id: ID!
+  blockNumber: Int!
+  timestamp: Int!
+  signer: GraphAccount!
+  type: TransactionType!
+
+  "On both subgraphs"
+  txHash: Bytes!
+  from: Bytes
+  to: Bytes
+  """
+  transactionIndex is the unique value that allows matching an L2 transaction with its L1 counterpart
+  - On L1, Arbitrum's Outbox contract emits OutBoxTransactionExecuted event with a transactionIndex property
+  - On L2, the Graph gateway emits WithdrawalInitiated with the transaction index as l2ToL1Id
+  """
+  transactionIndex: Int!
+
+  "Only on L2 subgraph"
+  exitNum: Int
+  amount: BigInt
+  l1Token: Bytes
+}
+
 enum TransactionType {
   Stake
   Unstake
@@ -1153,6 +1181,7 @@ enum TransactionType {
   BurnSignal
   MintNSignal
   BurnNSignal
+  BridgeWithdrawal
 }
 
 """
