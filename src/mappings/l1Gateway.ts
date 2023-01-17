@@ -1,5 +1,4 @@
 import { DepositInitiated } from '../types/L1GraphTokenGateway/L1GraphTokenGateway'
-import { GraphNetwork } from '../types/schema'
 import { createOrLoadGraphNetwork } from './helpers'
 
 export function handleDepositInitiated(event: DepositInitiated): void {
