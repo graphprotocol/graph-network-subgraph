@@ -54,9 +54,7 @@ export function handleWithdrawalFinalized(event: WithdrawalFinalized): void {
         // Parse event data to get the transactionIndex
         let data = logs[i].data
         if (data.length === 32) {
-          let hexStringData = strip0xPrefix(data.toHexString())
-
-          let amountBytes = Bytes.fromHexString(hexStringData)
+          let amountBytes = Bytes.fromHexString(strip0xPrefix(data.toHexString()))
           entity.transactionIndex = BigInt.fromUnsignedBytes(amountBytes.reverse() as Bytes)
         } else {
           log.error('Invalid data length', [data.length.toString(), data.toHexString()])
