@@ -495,29 +495,6 @@ dataSources:
   #     blockHandlers:
   #       - handler: handleBlock
     {{/isL1}}
-  {{#isL1}}
-  - kind: ethereum/contract
-    name: Outbox
-    network: {{network}}
-    source:
-      address: "{{arbitrumOutbox}}"
-      abi: ArbitrumOutbox
-      startBlock: {{bridgeBlockNumber}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      file: ./src/mappings/arbitrumOutbox.ts
-      entities:
-        - BridgeWithdrawalTransaction
-      abis:
-        - name: ArbitrumOutbox
-          file: ./abis/ArbitrumOutbox.json
-      eventHandlers:
-        - event: OutBoxTransactionExecuted(indexed address,indexed address,indexed uint256,uint256)
-          handler: handleOutBoxTransactionExecuted
-          receipt: true
-    {{/isL1}}
 templates:
   - kind: ethereum/contract
     name: GraphTokenLockWallet
