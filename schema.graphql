@@ -199,7 +199,7 @@ type GraphNetwork @entity {
   # Bridge totals (Only available on L1 networks)
   "Total amount of GRT deposited to the L1 gateway. Note that the actual amount claimed in L2 might be lower due to tickets not redeemed."
   totalGRTDeposited: BigInt!
-  "NOT IMPLEMENTED - Total amount of GRT withdrawn from the L2 gateway and claimed in L1."
+  "Total amount of GRT withdrawn from the L2 gateway and claimed in L1."
   totalGRTWithdrawnConfirmed: BigInt!
 
   # Bridge totals (Only available on L2 networks)
@@ -1156,22 +1156,19 @@ type BridgeWithdrawalTransaction implements Transaction @entity {
   timestamp: Int!
   signer: GraphAccount!
   type: TransactionType!
-
-  "On both subgraphs"
+  "txHash refers to the tx on the chain corresponding to this subgraph deployment"
   txHash: Bytes!
   from: Bytes
   to: Bytes
+  exitNum: Int
+  amount: BigInt
+  l1Token: Bytes
   """
   transactionIndex is the unique value that allows matching an L2 transaction with its L1 counterpart
   - On L1, Arbitrum's Outbox contract emits OutBoxTransactionExecuted event with a transactionIndex property
   - On L2, the Graph gateway emits WithdrawalInitiated with the transaction index as l2ToL1Id
   """
   transactionIndex: Int!
-
-  "Only on L2 subgraph"
-  exitNum: Int
-  amount: BigInt
-  l1Token: Bytes
 }
 
 enum TransactionType {

@@ -29,6 +29,7 @@ export let addresses: Addresses = {
   l2GraphTokenGateway: '{{arbgor.L2GraphTokenGateway.address}}',
   ethereumDIDRegistry: '{{arbgor.IEthereumDIDRegistry.address}}',
   isL1: false,
+  arbitrumOutbox: '',
 }
 
 const main = (): void => {
