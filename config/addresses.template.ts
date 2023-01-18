@@ -20,7 +20,6 @@ export class Addresses {
   l2GraphTokenGateway: string
   ethereumDIDRegistry: string
   isL1: boolean
-  arbitrumOutbox: string
 }
 
 // AS compiler does not like const
@@ -45,5 +44,4 @@ export let addresses: Addresses = {
   l2GraphTokenGateway: '{{l2GraphTokenGateway}}',
   ethereumDIDRegistry: '{{ethereumDIDRegistry}}',
   isL1: {{isL1}},
-  arbitrumOutbox: '{{arbitrumOutbox}}',
 }
