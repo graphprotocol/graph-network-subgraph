@@ -10,7 +10,7 @@ export function handleWithdrawalInitiated(event: WithdrawalInitiated): void {
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
 
-  // Note that this only runs on L2, so we can fix block number to the current L1 estimate
+  // Note that this only runs on L2, so we can take the block number directly from the L1 estimate
   withdrawalTransaction.blockNumber = graphNetwork.currentL1BlockNumber!.toI32()
   withdrawalTransaction.timestamp = event.block.timestamp.toI32()
   withdrawalTransaction.signer = event.params.from.toHexString()
