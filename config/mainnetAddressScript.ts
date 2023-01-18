@@ -29,6 +29,7 @@ export let addresses: Addresses = {
   l2GraphTokenGateway: '',
   ethereumDIDRegistry: '{{mainnet.IEthereumDIDRegistry.address}}',
   isL1: true,
+  arbitrumOutbox: '',
 }
 
 const main = (): void => {
@@ -39,6 +40,7 @@ const main = (): void => {
     output.bridgeBlockNumber = '16083315' // TBD
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
     output.useTokenLockManager = true
+    output.arbitrumOutbox = '0x0b9857ae2d4a3dbe74ffe1d7df045bb7f96e4840'
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
