@@ -29,7 +29,6 @@ export let addresses: Addresses = {
   l2GraphTokenGateway: '',
   ethereumDIDRegistry: '{{goerli.IEthereumDIDRegistry.address}}',
   isL1: true,
-  arbitrumOutbox: '',
 }
 
 const main = (): void => {
@@ -40,7 +39,6 @@ const main = (): void => {
     output.network = 'goerli'
     output.tokenLockManager = '0x9a7a54e86560f4304d8862Ea00F45D1090c59ac8' // we don't have one, this is rinkebys'
     output.useTokenLockManager = true
-    output.arbitrumOutbox = '0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049'
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
