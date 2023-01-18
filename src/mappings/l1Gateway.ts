@@ -1,4 +1,4 @@
-import { Bytes, BigInt, log } from '@graphprotocol/graph-ts'
+import { Bytes, BigInt, log, crypto } from '@graphprotocol/graph-ts'
 import {
   DepositInitiated,
   WithdrawalFinalized,
@@ -77,5 +77,8 @@ function strip0xPrefix(input: string): string {
 }
 
 function isOutBoxTransactionExecutedEvent(topic: Bytes): boolean {
-  return topic.toHexString() == '0x20af7f3bbfe38132b8900ae295cd9c8d1914be7052d061a511f3f728dab18964'
+  return (
+    topic ==
+    crypto.keccak256(Bytes.fromUTF8('OutBoxTransactionExecuted(address,address,uint256,uint256)'))
+  )
 }
