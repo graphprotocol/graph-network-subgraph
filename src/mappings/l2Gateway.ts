@@ -19,7 +19,6 @@ export function handleWithdrawalInitiated(event: WithdrawalInitiated): void {
   withdrawalTransaction.from = event.params.from
   withdrawalTransaction.to = event.params.to
   withdrawalTransaction.transactionIndex = event.params.l2ToL1Id
-  withdrawalTransaction.exitNum = event.params.exitNum
   withdrawalTransaction.amount = event.params.amount
   withdrawalTransaction.l1Token = event.params.l1Token
   withdrawalTransaction.save()
