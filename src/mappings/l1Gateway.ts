@@ -1,9 +1,9 @@
-import { Bytes, BigInt, log, crypto } from '@graphprotocol/graph-ts'
 import {
   DepositInitiated,
   WithdrawalFinalized,
 } from '../types/L1GraphTokenGateway/L1GraphTokenGateway'
 import { BridgeWithdrawalTransaction } from '../types/schema'
+import { getTransactionIndex } from './bridgeHelpers'
 import { createOrLoadGraphNetwork } from './helpers'
 
 export function handleDepositInitiated(event: DepositInitiated): void {
@@ -33,52 +33,10 @@ export function handleWithdrawalFinalized(event: WithdrawalFinalized): void {
   entity.from = event.params.from
   entity.to = event.params.to
 
-  entity.exitNum = event.params.exitNum.toI32()
   entity.amount = event.params.amount
   entity.l1Token = event.params.l1Token
 
-  // Loop through the receipt logs to find the OutBoxTransactionExecuted event on the same tx
-  // This event is emited by Arbitrum's Outbox contract and contains the withdrawal transactionIndex
-  let receipt = event.receipt
-  let eventFound = false
-  if (receipt && receipt.logs.length > 0) {
-    let logs = receipt.logs
-
-    for (let i = 0; i < logs.length; i++) {
-      let topics = logs[i].topics
-
-      // OutBoxTransactionExecuted event
-      if (isOutBoxTransactionExecutedEvent(topics[0])) {
-        eventFound = true
-
-        // Parse event data to get the transactionIndex
-        let data = logs[i].data
-        if (data.length === 32) {
-          let amountBytes = Bytes.fromHexString(strip0xPrefix(data.toHexString()))
-          entity.transactionIndex = BigInt.fromUnsignedBytes(amountBytes.reverse() as Bytes)
-        } else {
-          log.error('Invalid data length', [data.length.toString(), data.toHexString()])
-        }
-      }
-    }
-  } else {
-    log.error('Could not find transaction receipt!', [])
-  }
-
-  if (!eventFound) {
-    log.error('Could not find WithdrawalFinalized event!', [])
-  }
+  entity.transactionIndex = getTransactionIndex(event)
 
   entity.save()
-}
-
-function strip0xPrefix(input: string): string {
-  return input.startsWith('0x') ? input.slice(2) : input
-}
-
-function isOutBoxTransactionExecutedEvent(topic: Bytes): boolean {
-  return (
-    topic ==
-    crypto.keccak256(Bytes.fromUTF8('OutBoxTransactionExecuted(address,address,uint256,uint256)'))
-  )
 }
