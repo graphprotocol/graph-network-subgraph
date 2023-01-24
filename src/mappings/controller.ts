@@ -6,7 +6,7 @@ import {
   NewPauseGuardian,
 } from '../types/Controller/Controller'
 
-import { createOrLoadGraphNetwork } from './helpers'
+import { createOrLoadGraphNetwork } from './helpers/helpers'
 
 /**
  * @dev handleSetContractProxy

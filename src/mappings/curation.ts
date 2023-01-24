@@ -16,7 +16,7 @@ import {
   joinID,
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
-} from './helpers'
+} from './helpers/helpers'
 import { zeroBD } from './utils'
 import { addresses } from '../../config/addresses'
 

@@ -1,7 +1,7 @@
 import { ServiceRegistered, ServiceUnregistered } from '../types/ServiceRegistry/ServiceRegistry'
 import { Indexer } from '../types/schema'
 
-import { createOrLoadIndexer, createOrLoadGraphAccount } from './helpers'
+import { createOrLoadIndexer, createOrLoadGraphAccount } from './helpers/helpers'
 
 /**
  * @dev handleServiceRegistered

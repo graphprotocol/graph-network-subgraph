@@ -70,7 +70,7 @@ jobs:
 
       # Run scripts
       - name: Prepare IPFS enabled files
-        run: ./node_modules/.bin/mustache ./config/ipfs.json ./src/mappings/metadataHelpers.template.ts > ./src/mappings/metadataHelpers.ts
+        run: ./node_modules/.bin/mustache ./config/ipfs.json ./src/mappings/helpers/metadata.template.ts > ./src/mappings/helpers/metadata.ts
 
       - name: Prepare addresses ${{ inputs.ENVIRONMENT }}
         run: ./node_modules/.bin/ts-node config/${{ inputs.CONFIG }} && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
