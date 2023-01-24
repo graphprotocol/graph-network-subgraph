@@ -203,7 +203,7 @@ type GraphNetwork @entity {
   totalGRTWithdrawnConfirmed: BigInt!
 
   # Bridge totals (Only available on L2 networks)
-  "NOT IMPLEMENTED - Total amount of GRT deposited to the L1 gateway and redeemed in L2."
+  "Total amount of GRT deposited to the L1 gateway and redeemed in L2."
   totalGRTDepositedConfirmed: BigInt!
   "Total amount of GRT withdrawn from the L2 gateway. Note that the actual amount claimed in L1 might be lower due to outbound transactions not finalized."
   totalGRTWithdrawn: BigInt!
@@ -284,6 +284,7 @@ type GraphAccount @entity {
   "Name signal transactions created by this GraphAccount"
   nameSignalTransactions: [NameSignalTransaction!]! @derivedFrom(field: "signer")
   bridgeWithdrawalTransactions: [BridgeWithdrawalTransaction!]! @derivedFrom(field: "signer")
+  bridgeDepositTransactions: [BridgeDepositTransaction!]! @derivedFrom(field: "signer")
 
   # Token Lock Wallets that this account is associated with
   tokenLockWallets: [TokenLockWallet!]!
@@ -1183,8 +1184,27 @@ type BridgeDepositTransaction implements Transaction @entity {
   l1Token: Bytes
   "retryableTicketId is the unique value that allows matching an L2 transaction with its L1 counterpart"
   retryableTicketId: String
-  "Wether the deposit was initiated through Arbitrum's gateway router (Only available on L1 networks)"
+  "Whether the deposit was initiated through Arbitrum's gateway router (Only available on L1 networks)"
   routed: Boolean
+}
+
+"""
+All relevant data for arbitrum retryable tickets
+"""
+type RetryableTicket @entity {
+  id: ID!
+  "hash of the retryable ticket creation transaction"
+  txHash: Bytes
+  redeemAttempts: [RetryableTicketRedeemAttempt!]! @derivedFrom(field: "ticketId")
+  "The amount of times the ticket has been scheduled for redeeming"
+  redeemCount: Int
+}
+
+type RetryableTicketRedeemAttempt @entity {
+  id: ID!
+  ticketId: RetryableTicket!
+  txHash: Bytes
+  sequenceNumber: Int
 }
 
 enum TransactionType {

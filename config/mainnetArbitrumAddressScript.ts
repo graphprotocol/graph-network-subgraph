@@ -36,7 +36,7 @@ const main = (): void => {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
     output.blockNumber = '42440000' // Hardcoded a few thousand blocks before 1st contract deployed
     output.network = 'arbitrum-one'
-    output.bridgeBlockNumber = '42449749' // TBD
+    output.bridgeBlockNumber = '42449749' // Bridge deployment block on L2
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
     output.useTokenLockManager = false
     if(output.ethereumDIDRegistry == '') {

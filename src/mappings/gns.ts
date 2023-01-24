@@ -33,7 +33,6 @@ import {
   Indexer,
   GraphAccountName,
   SubgraphDeployment,
-  GraphNetwork,
   GraphAccount,
   NameSignalSubgraphRelation,
   NameSignal,
