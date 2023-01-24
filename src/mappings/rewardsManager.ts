@@ -1,5 +1,5 @@
 import { Address, BigInt } from '@graphprotocol/graph-ts'
-import { Indexer, Allocation, GraphNetwork, SubgraphDeployment } from '../types/schema'
+import { Indexer, Allocation, SubgraphDeployment } from '../types/schema'
 import {
   RewardsAssigned,
   ParameterUpdated,

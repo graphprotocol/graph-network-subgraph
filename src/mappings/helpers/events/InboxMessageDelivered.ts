@@ -1,4 +1,4 @@
-import { log, BigInt, Bytes, ethereum, Address } from "@graphprotocol/graph-ts";
+import { log, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { ensureEvenLength } from "../byte";
 import { getDataFromEventLog } from "../event-log";
 
