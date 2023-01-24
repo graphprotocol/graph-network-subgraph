@@ -1,8 +1,8 @@
 import { Bytes } from '@graphprotocol/graph-ts'
 import { DIDAttributeChanged } from '../types/EthereumDIDRegistry/EthereumDIDRegistry'
 
-import { addQm, createOrLoadGraphAccount } from './helpers'
-import { fetchGraphAccountMetadata } from './metadataHelpers'
+import { addQm, createOrLoadGraphAccount } from './helpers/helpers'
+import { fetchGraphAccountMetadata } from './helpers/metadata'
 
 export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
   let graphAccount = createOrLoadGraphAccount(event.params.identity, event.block.timestamp)

@@ -1,11 +1,14 @@
 import { WithdrawalInitiated } from '../types/L2GraphTokenGateway/L2GraphTokenGateway'
-import { createOrLoadGraphNetwork } from './helpers'
+import { createOrLoadGraphNetwork } from './helpers/helpers'
 import { BridgeWithdrawalTransaction } from '../types/schema'
 
 export function handleWithdrawalInitiated(event: WithdrawalInitiated): void {
+  // Update total GRT withdrawn
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  graphNetwork.totalGRTWithdrawn = graphNetwork.totalGRTWithdrawn.plus(event.params.amount)
+  graphNetwork.save()
 
-  // Save the withdrawal transaction
+  // Save withdrawal data
   let withdrawalTransaction = new BridgeWithdrawalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
@@ -21,9 +24,10 @@ export function handleWithdrawalInitiated(event: WithdrawalInitiated): void {
   withdrawalTransaction.transactionIndex = event.params.l2ToL1Id
   withdrawalTransaction.amount = event.params.amount
   withdrawalTransaction.l1Token = event.params.l1Token
-  withdrawalTransaction.save()
 
-  // Update total GRT withdrawn
-  graphNetwork.totalGRTWithdrawn = graphNetwork.totalGRTWithdrawn.plus(event.params.amount)
-  graphNetwork.save()
+  withdrawalTransaction.save()
+}
+
+export function handleDepositFinalized(event: DepositFinalized): void {
+  
 }

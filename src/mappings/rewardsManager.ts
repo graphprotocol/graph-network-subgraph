@@ -12,7 +12,7 @@ import {
   updateAdvancedIndexerMetrics,
   updateDelegationExchangeRate,
   createOrLoadGraphNetwork
-} from './helpers'
+} from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {

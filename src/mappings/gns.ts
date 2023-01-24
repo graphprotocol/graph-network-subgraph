@@ -56,8 +56,8 @@ import {
   duplicateOrUpdateSubgraphVersionWithNewID,
   duplicateOrUpdateNameSignalWithNewID,
   createOrLoadGraphNetwork
-} from './helpers'
-import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './metadataHelpers'
+} from './helpers/helpers'
+import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './helpers/metadata'
 import { addresses } from '../../config/addresses'
 
 export function handleSetDefaultName(event: SetDefaultName): void {

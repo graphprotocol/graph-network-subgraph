@@ -1157,17 +1157,13 @@ type BridgeWithdrawalTransaction implements Transaction @entity {
   signer: GraphAccount!
   type: TransactionType!
   "txHash refers to the tx on the chain corresponding to this subgraph deployment"
-  txHash: Bytes!
+  txHash: Bytes
   from: Bytes
   to: Bytes
   amount: BigInt
   l1Token: Bytes
-  """
-  transactionIndex is the unique value that allows matching an L2 transaction with its L1 counterpart
-  - On L1, Arbitrum's Outbox contract emits OutBoxTransactionExecuted event with a transactionIndex property
-  - On L2, the Graph gateway emits WithdrawalInitiated with the transaction index as l2ToL1Id
-  """
-  transactionIndex: Int
+  "transactionIndex is the unique value that allows matching an L2 transaction with its L1 counterpart"
+  transactionIndex: BigInt
 }
 
 """
@@ -1185,12 +1181,10 @@ type BridgeDepositTransaction implements Transaction @entity {
   to: Bytes
   amount: BigInt
   l1Token: Bytes
-  """
-  retryableTicketId is the unique value that allows matching an L2 transaction with its L1 counterpart
-  - On L1, Arbitrum's Outbox contract emits OutBoxTransactionExecuted event with a transactionIndex property
-  - On L2, the Graph gateway emits WithdrawalInitiated with the transaction index as l2ToL1Id
-  """
-  retryableTicketId: Bytes!
+  "retryableTicketId is the unique value that allows matching an L2 transaction with its L1 counterpart"
+  retryableTicketId: String
+  "Wether the deposit was initiated through Arbitrum's gateway router (Only available on L1 networks)"
+  routed: Boolean
 }
 
 enum TransactionType {
@@ -1201,6 +1195,7 @@ enum TransactionType {
   MintNSignal
   BurnNSignal
   BridgeWithdrawal
+  BridgeDeposit
 }
 
 """
