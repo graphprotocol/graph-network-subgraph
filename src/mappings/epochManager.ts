@@ -1,6 +1,6 @@
 import { GraphNetwork } from '../types/schema'
 import { EpochRun, EpochLengthUpdate } from '../types/EpochManager/EpochManager'
-import { createOrLoadEpoch, createEpoch, createOrLoadGraphNetwork } from './helpers'
+import { createOrLoadEpoch, createEpoch, createOrLoadGraphNetwork } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
 /**

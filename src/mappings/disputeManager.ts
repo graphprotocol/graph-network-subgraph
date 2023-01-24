@@ -11,7 +11,7 @@ import {
   DisputeManager,
 } from '../types/DisputeManager/DisputeManager'
 import { DisputeManagerStitched } from '../types/DisputeManager/DisputeManagerStitched'
-import { createOrLoadGraphNetwork } from './helpers'
+import { createOrLoadGraphNetwork } from './helpers/helpers'
 
 // This handles  Single query and Conflicting disputes
 export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
