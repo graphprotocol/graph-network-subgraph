@@ -1,0 +1,124 @@
+[
+  { "type": "error", "name": "NoTicketWithID", "inputs": [] },
+  { "type": "error", "name": "NotCallable", "inputs": [] },
+  {
+    "type": "event",
+    "name": "Canceled",
+    "inputs": [
+      { "type": "bytes32", "name": "ticketId", "internalType": "bytes32", "indexed": true }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LifetimeExtended",
+    "inputs": [
+      { "type": "bytes32", "name": "ticketId", "internalType": "bytes32", "indexed": true },
+      { "type": "uint256", "name": "newTimeout", "internalType": "uint256", "indexed": false }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RedeemScheduled",
+    "inputs": [
+      { "type": "bytes32", "name": "ticketId", "internalType": "bytes32", "indexed": true },
+      { "type": "bytes32", "name": "retryTxHash", "internalType": "bytes32", "indexed": true },
+      { "type": "uint64", "name": "sequenceNum", "internalType": "uint64", "indexed": true },
+      { "type": "uint64", "name": "donatedGas", "internalType": "uint64", "indexed": false },
+      { "type": "address", "name": "gasDonor", "internalType": "address", "indexed": false },
+      { "type": "uint256", "name": "maxRefund", "internalType": "uint256", "indexed": false },
+      {
+        "type": "uint256",
+        "name": "submissionFeeRefund",
+        "internalType": "uint256",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Redeemed",
+    "inputs": [
+      { "type": "bytes32", "name": "userTxHash", "internalType": "bytes32", "indexed": true }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TicketCreated",
+    "inputs": [
+      { "type": "bytes32", "name": "ticketId", "internalType": "bytes32", "indexed": true }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "cancel",
+    "inputs": [{ "type": "bytes32", "name": "ticketId", "internalType": "bytes32" }]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [{ "type": "address", "name": "", "internalType": "address" }],
+    "name": "getBeneficiary",
+    "inputs": [{ "type": "bytes32", "name": "ticketId", "internalType": "bytes32" }]
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [{ "type": "address", "name": "", "internalType": "address" }],
+    "name": "getCurrentRedeemer",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
+    "name": "getLifetime",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "stateMutability": "view",
+    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
+    "name": "getTimeout",
+    "inputs": [{ "type": "bytes32", "name": "ticketId", "internalType": "bytes32" }]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
+    "name": "keepalive",
+    "inputs": [{ "type": "bytes32", "name": "ticketId", "internalType": "bytes32" }]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [{ "type": "bytes32", "name": "", "internalType": "bytes32" }],
+    "name": "redeem",
+    "inputs": [{ "type": "bytes32", "name": "ticketId", "internalType": "bytes32" }]
+  },
+  {
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "outputs": [],
+    "name": "submitRetryable",
+    "inputs": [
+      { "type": "bytes32", "name": "requestId", "internalType": "bytes32" },
+      { "type": "uint256", "name": "l1BaseFee", "internalType": "uint256" },
+      { "type": "uint256", "name": "deposit", "internalType": "uint256" },
+      { "type": "uint256", "name": "callvalue", "internalType": "uint256" },
+      { "type": "uint256", "name": "gasFeeCap", "internalType": "uint256" },
+      { "type": "uint64", "name": "gasLimit", "internalType": "uint64" },
+      { "type": "uint256", "name": "maxSubmissionFee", "internalType": "uint256" },
+      { "type": "address", "name": "feeRefundAddress", "internalType": "address" },
+      { "type": "address", "name": "beneficiary", "internalType": "address" },
+      { "type": "address", "name": "retryTo", "internalType": "address" },
+      { "type": "bytes", "name": "retryData", "internalType": "bytes" }
+    ]
+  }
+]

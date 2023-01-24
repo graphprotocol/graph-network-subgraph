@@ -6,14 +6,14 @@ import {
   crypto,
   ByteArray,
 } from "@graphprotocol/graph-ts";
-import { DepositInitiated } from "../../generated/L1GraphTokenGateway/L1GraphTokenGateway";
-import { bigIntToBytes, ensureEvenLength, padZeros, strip0xPrefix } from "./byte";
+import { DepositInitiated } from "../../types/L1GraphTokenGateway/L1GraphTokenGateway";
+import { bigIntToBytes, padZeros, strip0xPrefix } from "./byte";
 import { RLPEncodeArray } from "./rlp";
 import { getOutBoxTransactionExecutedData } from "./events/OutBoxTransactionExecuted";
 import { getMessageDeliveredData } from "./events/MessageDelivered";
 import { getInboxMessageDeliveredData } from "./events/InboxMessageDelivered";
 import { getTxToL2Data } from "./events/TxToL2";
-import { BridgeDepositTransaction } from "../../generated/schema";
+import { BridgeDepositTransaction } from "../../types/schema";
 
 // Gets transactionIndex
 // Returns null if the withdrawal call is made under the following conditions:

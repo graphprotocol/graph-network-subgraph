@@ -1,4 +1,4 @@
-import { log, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
+import { log, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { getDataFromEventLog } from "../event-log";
 
 let EVENT_NAME = "TxToL2";
