@@ -28,12 +28,12 @@ import {
   SubgraphCategoryRelation,
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
-} from '../types/schema'
-import { ENS } from '../types/GNS/ENS'
-import { Controller } from '../types/Controller/Controller'
-import { EpochManager } from '../types/EpochManager/EpochManager'
-import { fetchSubgraphDeploymentManifest } from './metadataHelpers'
-import { addresses } from '../../config/addresses'
+} from '../../types/schema'
+import { ENS } from '../../types/GNS/ENS'
+import { Controller } from '../../types/Controller/Controller'
+import { EpochManager } from '../../types/EpochManager/EpochManager'
+import { fetchSubgraphDeploymentManifest } from './metadata'
+import { addresses } from '../../../config/addresses'
 
 export function createOrLoadSubgraph(
   bigIntID: BigInt,

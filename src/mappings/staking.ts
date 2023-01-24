@@ -43,7 +43,7 @@ import {
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
   createOrLoadGraphNetwork,
-} from './helpers'
+} from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
