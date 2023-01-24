@@ -443,6 +443,8 @@ dataSources:
       abis:
         - name: L1GraphTokenGateway
           file: ./node_modules/@graphprotocol/contracts/dist/abis/L1GraphTokenGateway.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: DepositInitiated(address,indexed address,indexed address,indexed uint256,uint256)
           handler: handleDepositInitiated
@@ -468,6 +470,8 @@ dataSources:
       abis:
         - name: L2GraphTokenGateway
           file: ./node_modules/@graphprotocol/contracts/dist/abis/L2GraphTokenGateway.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: WithdrawalInitiated(address,indexed address,indexed address,indexed uint256,uint256,uint256)
           handler: handleWithdrawalInitiated
