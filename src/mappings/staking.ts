@@ -43,6 +43,8 @@ import {
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
   createOrLoadGraphNetwork,
+  createOrLoadIndexerDeployment,
+  createDelegatorRewardHistoryEntityFromIndexer
 } from './helpers'
 import { addresses } from '../../config/addresses'
 
