@@ -18,6 +18,7 @@ import {
   batchUpdateSubgraphSignalledTokens,
 } from './helpers'
 import { zeroBD } from './utils'
+import { addresses } from '../../config/addresses'
 
 /**
  * @dev handleStaked
@@ -52,7 +53,7 @@ export function handleSignalled(event: Signalled): void {
   let signal = createOrLoadSignal(
     id,
     subgraphDeploymentID,
-    event.block.number.toI32(),
+    (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32(),
     event.block.timestamp.toI32(),
   )
 
@@ -66,7 +67,7 @@ export function handleSignalled(event: Signalled): void {
 
   signal.signal = signal.signal.plus(event.params.signal)
   signal.lastUpdatedAt = event.block.timestamp.toI32()
-  signal.lastUpdatedAtBlock = event.block.number.toI32()
+  signal.lastUpdatedAtBlock = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
   signal.averageCostBasis = signal.averageCostBasis.plus(event.params.tokens.toBigDecimal())
 
   let gnsSignalNewAmount = signal.signal.toBigDecimal()
@@ -119,7 +120,7 @@ export function handleSignalled(event: Signalled): void {
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
 
   // Update epoch
-  let epoch = createOrLoadEpoch(event.block.number)
+  let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))
   epoch.signalledTokens = epoch.signalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
   )
@@ -155,7 +156,7 @@ export function handleSignalled(event: Signalled): void {
   let signalTransaction = new SignalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
-  signalTransaction.blockNumber = event.block.number.toI32()
+  signalTransaction.blockNumber = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
   signalTransaction.timestamp = event.block.timestamp.toI32()
   signalTransaction.signer = event.params.curator.toHexString()
   signalTransaction.type = 'MintSignal'
@@ -188,7 +189,7 @@ export function handleBurned(event: Burned): void {
   // Note - if you immediately deposited and then withdrew, you would lose 5%, and you were
   // realize this loss by seeing unsignaled tokens being 95 and signalled 100
   signal.lastUpdatedAt = event.block.timestamp.toI32()
-  signal.lastUpdatedAtBlock = event.block.number.toI32()
+  signal.lastUpdatedAtBlock = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
   signal.unsignalledTokens = signal.unsignalledTokens.plus(event.params.tokens)
   signal.signal = signal.signal.minus(event.params.signal)
 
@@ -287,7 +288,7 @@ export function handleBurned(event: Burned): void {
   let signalTransaction = new SignalTransaction(
     event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString()),
   )
-  signalTransaction.blockNumber = event.block.number.toI32()
+  signalTransaction.blockNumber = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
   signalTransaction.timestamp = event.block.timestamp.toI32()
   signalTransaction.signer = event.params.curator.toHexString()
   signalTransaction.type = 'BurnSignal'

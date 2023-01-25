@@ -42,20 +42,23 @@ import {
   updateDelegationExchangeRate,
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
-  createOrLoadIndexerDeployment,
-  createDelegatorRewardHistoryEntityFromIndexer,
+  createOrLoadGraphNetwork,
 } from './helpers'
+import { addresses } from '../../config/addresses'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
   let id = event.params.indexer.toHexString()
   // Quick fix to avoid creating new Indexer entities if they don't exist yet.
   let account = GraphAccount.load(id)
   if (account != null) {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
     let indexer = createOrLoadIndexer(id, event.block.timestamp)
     indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
     indexer.queryFeeCut = event.params.queryFeeCut.toI32()
     indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
-    indexer.lastDelegationParameterUpdate = event.block.number.toI32()
+    indexer.lastDelegationParameterUpdate = (
+      addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
+    ).toI32()
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
     indexer.save()
   }
@@ -68,6 +71,7 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
  * - updates the GraphNetwork total stake
  */
 export function handleStakeDeposited(event: StakeDeposited): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   // update indexer
   let id = event.params.indexer.toHexString()
   let indexer = createOrLoadIndexer(id, event.block.timestamp)
@@ -78,7 +82,6 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   indexer.save()
 
   // Update graph network
-  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.plus(event.params.tokens)
   if (previousStake == BigInt.fromI32(0)) {
     graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount + 1
@@ -86,7 +89,9 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   graphNetwork.save()
 
   // Update epoch
-  let epoch = createOrLoadEpoch(event.block.number)
+  let epoch = createOrLoadEpoch(
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+  )
   epoch.stakeDeposited = epoch.stakeDeposited.plus(event.params.tokens)
   epoch.save()
 }
@@ -98,6 +103,7 @@ export function handleStakeDeposited(event: StakeDeposited): void {
  *          get changed
  */
 export function handleStakeLocked(event: StakeLocked): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   // update indexer
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)!
@@ -108,7 +114,6 @@ export function handleStakeLocked(event: StakeLocked): void {
   indexer.save()
 
   // update graph network
-  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.plus(
     event.params.tokens,
   )
@@ -124,6 +129,7 @@ export function handleStakeLocked(event: StakeLocked): void {
  * - updates the GraphNetwork total stake
  */
 export function handleStakeWithdrawn(event: StakeWithdrawn): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   // update indexer
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)!
@@ -135,7 +141,6 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   indexer.save()
 
   // Update graph network
-  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.tokens)
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.minus(
     event.params.tokens,
@@ -148,6 +153,7 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
  * - update the Indexers stake
  */
 export function handleStakeSlashed(event: StakeSlashed): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)!
 
@@ -156,7 +162,6 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   // We need to call into stakes mapping, because locked tokens might have been
   // decremented, and this is not released in the event
   // To fix this we would need to indicate in the event how many locked tokens were released
-  let graphNetwork = GraphNetwork.load('1')!
   let staking = Staking.bind(event.address)
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.lockedTokens = indexerStored.value2
@@ -223,7 +228,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   delegator = Delegator.load(delegatorID) as Delegator
 
   // upgrade graph network
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
 
   if (isStakeBecomingActive) {
@@ -283,7 +288,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   delegator.totalRealizedRewards = delegator.totalRealizedRewards.plus(realizedRewards)
   delegator.lastUndelegatedAt = event.block.timestamp.toI32()
   // upgrade graph network
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
 
   if (isStakeBecomingInactive) {
@@ -319,6 +324,7 @@ export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): v
  * - create a new channel
  */
 export function handleAllocationCreated(event: AllocationCreated): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let channelID = event.params.allocationID.toHexString()
@@ -334,7 +340,6 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   indexer.save()
 
   // update graph network
-  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.plus(event.params.tokens)
   graphNetwork.save()
 
@@ -362,7 +367,9 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.effectiveAllocation = BigInt.fromI32(0)
   allocation.createdAtEpoch = event.params.epoch.toI32()
   allocation.createdAtBlockHash = event.block.hash
-  allocation.createdAtBlockNumber = event.block.number.toI32()
+  allocation.createdAtBlockNumber = (
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
+  ).toI32()
   allocation.queryFeesCollected = BigInt.fromI32(0)
   allocation.queryFeeRebates = BigInt.fromI32(0)
   allocation.curatorRewards = BigInt.fromI32(0)
@@ -391,6 +398,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
 // Note - the name event.param.rebateFees is confusing. Rebate fees are better described
 // as query Fees. rebate is from cobbs douglas, which we get from claim()
 export function handleAllocationCollected(event: AllocationCollected): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
@@ -412,7 +420,9 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   let taxedFees = event.params.tokens.minus(event.params.rebateFees.plus(event.params.curationFees))
 
   // Update epoch
-  let epoch = createOrLoadEpoch(event.block.number)
+  let epoch = createOrLoadEpoch(
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+  )
   epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokens)
   epoch.taxedQueryFees = epoch.taxedQueryFees.plus(taxedFees)
   epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.rebateFees)
@@ -442,9 +452,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
 
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
 
-
   // update graph network
-  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalQueryFees = graphNetwork.totalQueryFees.plus(event.params.tokens)
   graphNetwork.totalIndexerQueryFeesCollected = graphNetwork.totalIndexerQueryFeesCollected.plus(
     event.params.rebateFees,
@@ -468,6 +476,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
  * - update and close the channel
  */
 export function handleAllocationClosed(event: AllocationClosed): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
 
@@ -492,7 +501,9 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.activeForIndexer = null
   allocation.closedAtEpoch = event.params.epoch.toI32()
   allocation.closedAtBlockHash = event.block.hash
-  allocation.closedAtBlockNumber = event.block.number.toI32()
+  allocation.closedAtBlockNumber = (
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
+  ).toI32()
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
   allocation.closedAt = event.block.timestamp.toI32()
@@ -506,7 +517,9 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   // update epoch - We do it here to have more epochs created, instead of seeing none created
   // Likely this problem would go away with a live network with long epochs
   // But we keep it here anyway. We might think of adding data in the future, like epoch.tokensClosed
-  let epoch = createOrLoadEpoch(event.block.number)
+  let epoch = createOrLoadEpoch(
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+  )
   epoch.save()
   // update pool
   let pool = createOrLoadPool(event.params.epoch)
@@ -540,7 +553,6 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   deployment.save()
 
   // update graph network
-  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
   graphNetwork.save()
 }
@@ -554,6 +566,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
  *          the other case, if it is restaked, it will be handled by handleStakeDeposited
  */
 export function handleRebateClaimed(event: RebateClaimed): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
@@ -580,7 +593,9 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   allocation.save()
 
   // Update epoch
-  let epoch = createOrLoadEpoch(event.block.number)
+  let epoch = createOrLoadEpoch(
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+  )
   epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokens)
   epoch.save()
 
@@ -595,7 +610,6 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   subgraphDeployment.save()
 
   // update graph network
-  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalIndexerQueryFeeRebates = graphNetwork.totalIndexerQueryFeeRebates.plus(
     event.params.tokens,
   )
@@ -616,7 +630,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let staking = Staking.bind(event.address)
 
   if (parameter == 'minimumIndexerStake') {
@@ -670,7 +684,7 @@ export function handleSetOperator(event: SetOperator): void {
 }
 
 export function handleSlasherUpdate(event: SlasherUpdate): void {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let slashers = graphNetwork.slashers
   if (slashers == null) {
     slashers = []
@@ -697,7 +711,7 @@ export function handleSlasherUpdate(event: SlasherUpdate): void {
 }
 
 export function handleAssetHolderUpdate(event: AssetHolderUpdate): void {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let assetHolders = graphNetwork.assetHolders
   if (assetHolders == null) {
     assetHolders = []

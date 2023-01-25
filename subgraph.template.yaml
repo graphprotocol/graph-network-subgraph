@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 description: The Graph Network Smart Contracts on Ethereum for Graphscan.io
-repository: https://github.com/Ryabina-io/graphscan
+repository: https://github.com/graphscan/graphscan-subgraph
 features:
   - fullTextSearch
   - ipfsOnEthereumContracts
@@ -25,6 +25,8 @@ dataSources:
       abis:
         - name: Controller
           file: ./node_modules/@graphprotocol/contracts/dist/abis/Controller.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: SetContractProxy(indexed bytes32,address)
           handler: handleSetContractProxy
@@ -65,6 +67,8 @@ dataSources:
           file: ./node_modules/@graphprotocol/contracts/dist/abis/IENS.json
         - name: ENSPublicResolver
           file: ./node_modules/@graphprotocol/contracts/dist/abis/IPublicResolver.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
           # v1
         - event: SubgraphPublished(indexed address,indexed uint256,indexed bytes32,bytes32)
@@ -131,6 +135,8 @@ dataSources:
       abis:
         - name: SubgraphNFT
           file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
@@ -151,6 +157,8 @@ dataSources:
       abis:
         - name: ServiceRegistry
           file: ./node_modules/@graphprotocol/contracts/dist/abis/ServiceRegistry.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: ServiceRegistered(indexed address,string,string)
           handler: handleServiceRegistered
@@ -242,6 +250,8 @@ dataSources:
       abis:
         - name: Curation
           file: ./node_modules/@graphprotocol/contracts/dist/abis/Curation.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: Signalled(indexed address,indexed bytes32,uint256,uint256,uint256)
           handler: handleSignalled
@@ -271,6 +281,8 @@ dataSources:
       abis:
         - name: GraphToken
           file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
@@ -280,7 +292,7 @@ dataSources:
     name: EthereumDIDRegistry
     network: {{network}}
     source:
-      address: "0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B"
+      address: "{{ethereumDIDRegistry}}"
       abi: EthereumDIDRegistry
       startBlock: {{blockNumber}}
     mapping:
@@ -342,6 +354,8 @@ dataSources:
       abis:
         - name: RewardsManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/RewardsManager.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: RewardsAssigned(indexed address,indexed address,uint256,uint256)
           handler: handleRewardsAssigned
@@ -370,6 +384,8 @@ dataSources:
           file: ./node_modules/@graphprotocol/contracts/dist/abis/DisputeManager.json
         - name: DisputeManagerStitched
           file: ./abis/DisputeManagerStitched.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: QueryDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,bytes32,bytes)
           handler: handleQueryDisputeCreated
@@ -403,6 +419,8 @@ dataSources:
       abis:
         - name: GraphTokenLockManager
           file: ./abis/GraphTokenLockManager.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: MasterCopyUpdated(indexed address)
           handler: handleMasterCopyUpdated
@@ -417,6 +435,73 @@ dataSources:
         - event: TokenDestinationAllowed(indexed address,bool)
           handler: handleTokenDestinationAllowed
     {{/useTokenLockManager}}
+  {{#isL1}}
+  - kind: ethereum/contract
+    name: L1GraphTokenGateway
+    network: {{network}}
+    source:
+      address: "{{l1GraphTokenGateway}}"
+      abi: L1GraphTokenGateway
+      startBlock: {{bridgeBlockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/l1Gateway.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: L1GraphTokenGateway
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L1GraphTokenGateway.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: DepositInitiated(address,indexed address,indexed address,indexed uint256,uint256)
+          handler: handleDepositInitiated
+    {{/isL1}}
+  {{^isL1}}
+  - kind: ethereum/contract
+    name: L2GraphTokenGateway
+    network: {{network}}
+    source:
+      address: "{{l2GraphTokenGateway}}"
+      abi: L2GraphTokenGateway
+      startBlock: {{bridgeBlockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/l2Gateway.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: L2GraphTokenGateway
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L2GraphTokenGateway.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: WithdrawalInitiated(address,indexed address,indexed address,indexed uint256,uint256,uint256)
+          handler: handleWithdrawalInitiated
+  # - kind: ethereum/contract
+  #   name: BlockHandler
+  #   network: {{network}}
+  #   source:
+  #     address: "{{epochManager}}"
+  #     abi: EpochManager
+  #     startBlock: {{blockNumber}}
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.5
+  #     language: wasm/assemblyscript
+  #     file: ./src/mappings/block.ts
+  #     entities:
+  #       - GraphNetwork
+  #     abis:
+  #       - name: EpochManager
+  #         file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+  #     blockHandlers:
+  #       - handler: handleBlock
+    {{/isL1}}
 templates:
   - kind: ethereum/contract
     name: GraphTokenLockWallet
@@ -433,6 +518,8 @@ templates:
       abis:
         - name: GraphTokenLockWallet
           file: ./abis/GraphTokenLockWallet.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: TokensReleased(indexed address,uint256)
           handler: handleTokensReleased

@@ -12,9 +12,12 @@ import {
   updateAdvancedIndexerMetrics,
   updateDelegationExchangeRate,
   createDelegatorRewardHistoryEntityFromIndexer,
+  createOrLoadGraphNetwork
 } from './helpers'
+import { addresses } from '../../config/addresses'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
 
@@ -52,7 +55,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   allocation.save()
 
   // Update epoch
-  let epoch = createOrLoadEpoch(event.block.number)
+  let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))
   epoch.totalRewards = epoch.totalRewards.plus(event.params.amount)
   epoch.totalIndexerRewards = epoch.totalIndexerRewards.plus(indexerIndexingRewards)
   epoch.totalDelegatorRewards = epoch.totalDelegatorRewards.plus(delegatorIndexingRewards)
@@ -76,7 +79,6 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   subgraphDeployment.save()
 
   // update graph network
-  let graphNetwork = GraphNetwork.load('1')!
   graphNetwork.totalIndexingRewards = graphNetwork.totalIndexingRewards.plus(event.params.amount)
   graphNetwork.totalIndexingIndexerRewards = graphNetwork.totalIndexingIndexerRewards.plus(
     indexerIndexingRewards,
@@ -94,7 +96,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let rewardsManager = RewardsManager.bind(event.address as Address)
 
   if (parameter == 'issuanceRate') {

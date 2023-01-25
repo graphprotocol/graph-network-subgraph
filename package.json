@@ -1,7 +1,7 @@
 {
   "name": "@ryabina/graphscan-subgraph",
   "description": "Subgraph for the Graphscan.io",
-  "repository": "https://github.com/Ryabina-io/graphscan",
+  "repository": "https://github.com/graphscan/graphscan-subgraph",
   "license": "MIT",
   "files": [
     "src",
@@ -20,17 +20,25 @@
     "deploy-mainnet-staging-no-ipfs": "yarn && yarn prep:no-ipfs && yarn prepare:mainnet && graph deploy ryabina-io/graphscan-staging --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-mainnet": "yarn && yarn prep:ipfs && yarn prepare:mainnet && graph deploy ryabina-io/graphscan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-mainnet-no-ipfs": "yarn && yarn prep:no-ipfs && yarn prepare:mainnet && graph deploy ryabina-io/graphscan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-arbitrum": "yarn && yarn prep:ipfs && yarn prepare:arbitrum && graph deploy ryabina-io/graphscan-arbitrum --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-arbitrum-no-ipfs": "yarn && yarn prep:no-ipfs && yarn prepare:arbitrum && graph deploy ryabina-io/graphscan-arbitrum --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-goerli": "yarn && yarn prep:ipfs && yarn prepare:goerli && graph deploy ryabina-io/graphscan-goerli --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-goerli-no-ipfs": "yarn && yarn prep:no-ipfs && yarn prepare:goerli && graph deploy ryabina-io/graphscan-goerli --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-testing": "yarn && yarn prep:<ipfs/no-ipfs> && yarn prepare:<mainnet/rinkeby/goerli> && graph deploy <subgraph name> --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-arbitrum-goerli": "yarn && yarn prep:ipfs && yarn prepare:arbitrum-goerli && graph deploy ryabina-io/graphscan-arbitrum-goerli --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-arbitrum-goerli-no-ipfs": "yarn && yarn prep:no-ipfs && yarn prepare:arbitrum-goerli && graph deploy ryabina-io/graphscan-arbitrum-goerli --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-testing": "yarn && yarn prep:<ipfs/no-ipfs> && yarn prepare:<mainnet/arbitrum/goerli/arbitrum-goerli> && graph deploy <subgraph name> --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "prep:addresses:rinkeby": "ts-node config/rinkebyAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
     "prepare:rinkeby": "yarn prep:addresses:rinkeby && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
     "prep:addresses:goerli": "ts-node config/goerliAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
     "prepare:goerli": "yarn prep:addresses:goerli && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
+    "prepare:mainnet": "yarn prep:addresses:mainnet && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
+    "prepare:arbitrum": "yarn prep:addresses:arbitrum && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
     "prep:addresses:mainnet": "ts-node config/mainnetAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
+    "prep:addresses:arbitrum": "ts-node config/mainnetArbitrumAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
+    "prep:addresses:arbitrum-goerli": "ts-node config/arbitrumGoerliAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
+    "prepare:arbitrum-goerli": "yarn prep:addresses:arbitrum-goerli && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
     "prep:ipfs": "mustache ./config/ipfs.json ./src/mappings/metadataHelpers.template.ts > ./src/mappings/metadataHelpers.ts",
     "prep:no-ipfs": "mustache ./config/no-ipfs.json ./src/mappings/metadataHelpers.template.ts > ./src/mappings/metadataHelpers.ts",
-    "prepare:mainnet": "yarn prep:addresses:mainnet && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
     "lint": "yarn eslint .",
     "lint-fix": "eslint . --fix",
     "prettier": "prettier '**/*.ts'",
@@ -40,7 +48,7 @@
     "test:convert": "graph test convert"
   },
   "devDependencies": {
-    "@graphprotocol/contracts": "1.14.0",
+    "@graphprotocol/contracts": "2.3.0",
     "@graphprotocol/graph-cli": "^0.25.1",
     "@graphprotocol/graph-ts": "^0.24.1",
     "@types/node": "^14.0.13",
@@ -54,8 +62,8 @@
   },
   "author": "",
   "bugs": {
-    "url": "https://github.com/graphprotocol/graph-network-subgraph/issues"
+    "url": "https://github.com/graphscan/graphscan-subgraph/issues"
   },
-  "homepage": "https://github.com/graphprotocol/graph-network-subgraph#readme",
+  "homepage": "https://github.com/graphscan/graphscan-subgraph#readme",
   "dependencies": {}
 }
