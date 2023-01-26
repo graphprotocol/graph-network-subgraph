@@ -3,6 +3,9 @@ description: The Graph Network Smart Contracts on Ethereum
 repository: https://github.com/graphprotocol/graph-network-subgraph
 schema:
   file: ./schema.graphql
+features:
+  - ipfsOnEthereumContracts
+  - fullTextSearch
 dataSources:
   - kind: ethereum/contract
     name: Controller
