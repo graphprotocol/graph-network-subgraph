@@ -409,6 +409,16 @@
     "@ethersproject/properties" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
+"@float-capital/float-subgraph-uncrashable@^0.0.0-alpha.4":
+  version "0.0.0-internal-testing.4"
+  resolved "https://registry.yarnpkg.com/@float-capital/float-subgraph-uncrashable/-/float-subgraph-uncrashable-0.0.0-internal-testing.4.tgz#7886b6fc1c75ea5b36d4c953e7150875954b94cf"
+  integrity sha512-jjGnze6R8ro5Stf1mQwOPVCCmOf6smEZeDD7q2QEP14Mg8O5zTfvE/3U2bHAiV1y8G+affZsBu9sG1yarD/WRw==
+  dependencies:
+    "@rescript/std" "9.0.0"
+    graphql "^16.6.0"
+    graphql-import-node "^0.0.5"
+    js-yaml "^4.1.0"
+
 "@graphprotocol/contracts@2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-2.3.0.tgz#dfc648732e2bfe1cba66bc26ba7dfa9b81d62a3b"
