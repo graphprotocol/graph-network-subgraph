@@ -429,6 +429,8 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
   epoch.totalRewards = BigInt.fromI32(0)
   epoch.totalIndexerRewards = BigInt.fromI32(0)
   epoch.totalDelegatorRewards = BigInt.fromI32(0)
+  epoch.totalQueryFees = BigInt.fromI32(0)
+  epoch.taxedQueryFees = BigInt.fromI32(0)
   epoch.save()
   return epoch
 }
@@ -520,6 +522,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.epochLength = 0
     graphNetwork.lastRunEpoch = 0
     graphNetwork.lastLengthUpdateEpoch = 0
+    graphNetwork.lastLengthUpdateBlock = 0
     if (addresses.isL1) {
       graphNetwork.lastLengthUpdateBlock = blockNumber.toI32() // Use chain native block
     } else {
@@ -551,6 +554,11 @@ export function createOrLoadGraphNetwork(
     graphNetwork.slashingPercentage = 0 // keeping it for backwards compatibility for now
     graphNetwork.minimumDisputeDeposit = BigInt.fromI32(0)
     graphNetwork.fishermanRewardPercentage = 0
+
+    graphNetwork.totalGRTDeposited = BigInt.fromI32(0)
+    graphNetwork.totalGRTDepositedConfirmed = BigInt.fromI32(0)
+    graphNetwork.totalGRTWithdrawn = BigInt.fromI32(0)
+    graphNetwork.totalGRTWithdrawnConfirmed = BigInt.fromI32(0)
 
     graphNetwork.save()
   }
