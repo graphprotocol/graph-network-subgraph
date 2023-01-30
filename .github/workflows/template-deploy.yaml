@@ -59,7 +59,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
           registry-url: https://registry.npmjs.org
       - name: yarn add ts-node
         run: yarn add ts-node
