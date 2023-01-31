@@ -13,7 +13,6 @@ import { getOutBoxTransactionExecutedData } from "./events/OutBoxTransactionExec
 import { getMessageDeliveredData } from "./events/MessageDelivered";
 import { getInboxMessageDeliveredData } from "./events/InboxMessageDelivered";
 import { getTxToL2Data } from "./events/TxToL2";
-import { BridgeDepositTransaction } from "../../types/schema";
 
 // Gets transactionIndex
 // Returns null if the withdrawal call is made under the following conditions:
@@ -77,8 +76,7 @@ export function getTransactionIndexFromLogs(
 // Calculates Arbitrum's retryable ticket ID using tx event data
 // Returns null if the required events are not found or if there are multiple duplicate events (i.e: a multicall call)
 export function getRetryableTicketId(
-  event: DepositInitiated,
-  entity: BridgeDepositTransaction
+  event: DepositInitiated
 ): string | null {
   // Get the data from the events
   let messageDeliveredData = getMessageDeliveredData(event);
