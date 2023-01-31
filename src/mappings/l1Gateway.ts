@@ -54,7 +54,7 @@ export function handleDepositInitiated(event: DepositInitiated): void {
   entity.to = event.params.to
   entity.amount = event.params.amount
   entity.l1Token = event.params.l1Token
-  entity.retryableTicketId = getRetryableTicketId(event, entity)
+  entity.retryableTicketId = getRetryableTicketId(event)
 
   // Deposits initiated through Arbitrum's gateway router will emit a TransferRouted event
   let EVENT_SIGNATURE = 'TransferRouted(address,address,address,address)'

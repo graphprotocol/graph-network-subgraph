@@ -451,6 +451,7 @@ dataSources:
       eventHandlers:
         - event: DepositInitiated(address,indexed address,indexed address,indexed uint256,uint256)
           handler: handleDepositInitiated
+          receipt: true
         - event: WithdrawalFinalized(address,indexed address,indexed address,indexed uint256,uint256)
           handler: handleWithdrawalFinalized
           receipt: true
@@ -478,8 +479,10 @@ dataSources:
       eventHandlers:
         - event: WithdrawalInitiated(address,indexed address,indexed address,indexed uint256,uint256,uint256)
           handler: handleWithdrawalInitiated
+          receipt: true
         - event: DepositFinalized(indexed address,indexed address,indexed address,uint256)
           handler: handleDepositFinalized
+          receipt: true
   - kind: ethereum/contract
     name: ArbRetryableTx
     network: {{network}}
