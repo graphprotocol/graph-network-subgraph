@@ -424,7 +424,29 @@ dataSources:
           handler: handleFunctionCallAuth
         - event: TokenDestinationAllowed(indexed address,bool)
           handler: handleTokenDestinationAllowed
-    {{/useTokenLockManager}}
+  {{/useTokenLockManager}}
+  {{#useGossipRegistry}}
+  - kind: ethereum/contract
+    name: GossipRegistry
+    network: {{network}}
+    source:
+      address: "{{gossipRegistry}}"
+      abi: GossipRegistry
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/gossipRegistry.ts
+      entities:
+        - TODO
+      abis:
+        - name: GossipRegistry
+          file: ./abis/GossipRegistry.json
+      eventHandlers:
+        - event: SetGossipOperator(indexed address,indexed address)
+          handler: handleSetGossipOperator
+    {{/useGossipRegistry}}
   {{#isL1}}
   - kind: ethereum/contract
     name: L1GraphTokenGateway

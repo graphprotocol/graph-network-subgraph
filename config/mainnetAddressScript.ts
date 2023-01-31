@@ -38,6 +38,8 @@ const main = (): void => {
     output.network = 'mainnet'
     output.bridgeBlockNumber = '16083315' // TBD
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
+    output.gossipRegistry = '_____'
+    output.useGossipRegistry = false
     output.useTokenLockManager = true
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {

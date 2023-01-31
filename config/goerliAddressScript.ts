@@ -38,7 +38,9 @@ const main = (): void => {
     output.bridgeBlockNumber = '7891183' // Bridge deployment block
     output.network = 'goerli'
     output.tokenLockManager = '0x9a7a54e86560f4304d8862Ea00F45D1090c59ac8' // we don't have one, this is rinkebys'
+    output.gossipRegistry = '0xBFdA8191D1ec09bB8ADc138DAbf413d00DAfb6c8'
     output.useTokenLockManager = true
+    output.useGossipRegistry = true
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)

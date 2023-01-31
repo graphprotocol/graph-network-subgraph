@@ -248,6 +248,11 @@ type GraphAccount @entity {
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
   "Operators of this Graph Accounts"
   operators: [GraphAccount!]!
+  # GossipOperator info
+  "Operator of other Graph Accounts"
+  gossipOperatorOf: GraphAccount @derivedFrom(field: "gossipOperator")
+  "Gossip operators of this Graph Accounts"
+  gossipOperator: GraphAccount
 
   # GRT info
   "Graph token balance"
