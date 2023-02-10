@@ -2,12 +2,11 @@ import {
   Bytes,
   BigInt,
   ethereum,
-  log,
   crypto,
   ByteArray,
 } from "@graphprotocol/graph-ts";
 import { DepositInitiated } from "../../types/L1GraphTokenGateway/L1GraphTokenGateway";
-import { bigIntToBytes, padZeros, strip0xPrefix } from "./byte";
+import { bigIntToBytes, padZeros } from "./byte";
 import { RLPEncodeArray } from "./rlp";
 import { getOutBoxTransactionExecutedData } from "./events/OutBoxTransactionExecuted";
 import { getMessageDeliveredData } from "./events/MessageDelivered";
@@ -15,53 +14,9 @@ import { getInboxMessageDeliveredData } from "./events/InboxMessageDelivered";
 import { getTxToL2Data } from "./events/TxToL2";
 
 // Gets transactionIndex
-// Returns null if the withdrawal call is made under the following conditions:
-// - Call is made from another contract (i.e: a multicall call) and
-// - Call contains multiple 'OutBoxTransactionExecuted' events (i.e: multiple withdrawals on same multicall call)
+// Returns null if the withdrawal call contains multiple 'OutBoxTransactionExecuted' events (i.e: multiple withdrawals on same multicall call)
 export function getTransactionIndex(event: ethereum.Event): BigInt | null {
-  return (
-    getTransactionIndexFromCalldata(event) || getTransactionIndexFromLogs(event)
-  );
-}
-
-// Gets transactionIndex from the calldata
-// Returns null if the call is made from another contract (i.e: a multicall call)
-export function getTransactionIndexFromCalldata(
-  event: ethereum.Event
-): BigInt | null {
-  let stringCallData = event.transaction.input.toHexString();
-  let strippedCallData = strip0xPrefix(stringCallData);
-
-  // Validate selector
-  // Method signature: executeTransaction(bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)
-  // MethodID: 0x08635a95
-  let selector = strippedCallData.slice(0, 8);
-  if (selector != "08635a95") {
-    log.error("Invalid function selector", [selector]);
-    return null;
-  }
-
-  // Decode ABI using a modified types mapping since the decode method fails with dynamic types
-  // - Original types mapping: (bytes32[],uint256,address,address,uint256,uint256,uint256,uint256,bytes)
-  // - Modified types mapping: (uint256,uint256,address,address,uint256,uint256,uint256,uint256)
-  //
-  // The bytes32[] is replaced with uint256, this is ok since it's a dynamic type so the actual value stored
-  // is the length of the bytes array which is a uint256 and the array contents are appended at the end of the calldata
-  //
-  // The bytes at the end can easily be dropped since we don't use it
-  let types =
-    "(uint256,uint256,address,address,uint256,uint256,uint256,uint256)";
-
-  let decoded = ethereum.decode(
-    types,
-    Bytes.fromHexString(strippedCallData.substring(8))
-  );
-  if (decoded !== null) {
-    return decoded.toTuple()[1].toBigInt(); // transactionIndex
-  } else {
-    log.error("Could not decode call data!", []);
-    return null;
-  }
+  return getTransactionIndexFromLogs(event);
 }
 
 // Get transactionIndex from the 'OutBoxTransactionExecuted' event, emitted by Arbitrum's Outbox contract on the same tx
