@@ -45,6 +45,7 @@ export function handleDepositFinalized(event: DepositFinalized): void {
     event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   );
 
+  // Note that this only runs on L2, so we can take the block number directly from the L1 estimate
   entity.blockNumber = graphNetwork.currentL1BlockNumber!.toI32();
   entity.timestamp = event.block.timestamp.toI32();
   entity.signer = event.params.from.toHexString();
