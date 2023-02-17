@@ -45,7 +45,7 @@ export function handleDepositFinalized(event: DepositFinalized): void {
     event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   );
 
-  entity.blockNumber = event.block.number.toI32();
+  entity.blockNumber = graphNetwork.currentL1BlockNumber!.toI32();
   entity.timestamp = event.block.timestamp.toI32();
   entity.signer = event.params.from.toHexString();
   entity.type = 'BridgeDeposit'
