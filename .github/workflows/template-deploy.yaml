@@ -25,32 +25,52 @@ jobs:
       - name: Set arbitrum staging environment variables
         if: ${{ inputs.ENVIRONMENT == 'staging-arbitrum' }}
         run: |
-          echo "ENV_SUFFIX=-arbitrum-staging" >> $GITHUB_ENV
+          echo "ENV_SUFFIX=graph-network-arbitrum-staging" >> $GITHUB_ENV
 
       - name: Set mainnet staging environment variables
         if: ${{ inputs.ENVIRONMENT == 'staging-mainnet' }}
         run: |
-          echo "ENV_SUFFIX=-mainnet-staging" >> $GITHUB_ENV
+          echo "ENV_SUFFIX=graph-network-mainnet-staging" >> $GITHUB_ENV
 
       - name: Set mainnet environment variables
         if: ${{ inputs.ENVIRONMENT == 'production' }}
         run: |
-          echo "ENV_SUFFIX=-mainnet" >> $GITHUB_ENV
+          echo "ENV_SUFFIX=graph-network-mainnet" >> $GITHUB_ENV
 
       - name: Set arbitrum environment variables
         if: ${{ inputs.ENVIRONMENT == 'production-arbitrum' }}
         run: |
-          echo "ENV_SUFFIX=-arbitrum" >> $GITHUB_ENV
+          echo "ENV_SUFFIX=graph-network-arbitrum" >> $GITHUB_ENV
 
       - name: Set goerli production environment variables
         if: ${{ inputs.ENVIRONMENT == 'production-goerli' }}
         run: |
-          echo "ENV_SUFFIX=-goerli" >> $GITHUB_ENV
+          echo "ENV_SUFFIX=graph-network-goerli" >> $GITHUB_ENV
 
       - name: Set arbitrum goerli production environment variables
         if: ${{ inputs.ENVIRONMENT == 'production-arbitrum-goerli' }}
         run: |
-          echo "ENV_SUFFIX=-arbitrum-goerli" >> $GITHUB_ENV
+          echo "ENV_SUFFIX=graph-network-arbitrum-goerli" >> $GITHUB_ENV
+
+      - name: Set mainnet environment variables no ipfs
+        if: ${{ inputs.ENVIRONMENT == 'production-no-ipfs' }}
+        run: |
+          echo "ENV_SUFFIX=no-ipfs-network-ethereum" >> $GITHUB_ENV
+
+      - name: Set arbitrum environment variables no ipfs
+        if: ${{ inputs.ENVIRONMENT == 'production-arbitrum-no-ipfs' }}
+        run: |
+          echo "ENV_SUFFIX=no-ipfs-network-arbitrum" >> $GITHUB_ENV
+
+      - name: Set goerli production environment variables no ipfs
+        if: ${{ inputs.ENVIRONMENT == 'production-goerli-no-ipfs' }}
+        run: |
+          echo "ENV_SUFFIX=no-ipfs-network-goerli" >> $GITHUB_ENV
+
+      - name: Set arbitrum goerli production environment variables no ipfs
+        if: ${{ inputs.ENVIRONMENT == 'production-arbitrum-goerli-no-ipfs' }}
+        run: |
+          echo "ENV_SUFFIX=no-ipfs-network-arb-goerli" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -79,4 +99,4 @@ jobs:
         run: ./node_modules/.bin/mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && ./node_modules/@graphprotocol/graph-cli/dist/bin.js codegen --output-dir src/types/
 
       - name: Deploy to ${{ inputs.ENVIRONMENT }}
-        run: ./node_modules/@graphprotocol/graph-cli/dist/bin.js deploy graphprotocol/graph-network${{ env.ENV_SUFFIX }} --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{ secrets.ACCESS_TOKEN }}
+        run: ./node_modules/@graphprotocol/graph-cli/dist/bin.js deploy graphprotocol/${{ env.ENV_SUFFIX }} --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{ secrets.ACCESS_TOKEN }}
