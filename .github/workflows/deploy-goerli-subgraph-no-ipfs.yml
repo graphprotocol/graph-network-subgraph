@@ -1,0 +1,20 @@
+name: Production Subgraph (Goerli)
+
+on:
+  push:
+    tags:
+      - v*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/template-deploy.yaml
+    with:
+      ENVIRONMENT: production-goerli-no-ipfs
+      CONFIG: goerliAddressScript.ts
+    secrets:
+      NODE_AUTH_TOKEN: ${{ secrets.graphprotocol_npm_token }}
+      ACCESS_TOKEN: ${{ secrets.access_token }}
