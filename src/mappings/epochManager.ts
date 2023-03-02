@@ -26,7 +26,7 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
     // Will only ever be 0 on initialization in the contracts
     graphNetwork.epochLength = event.params.epochLength.toI32()
     graphNetwork.lastLengthUpdateBlock = (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32()
-    graphNetwork.currentEpoch = 0
+    graphNetwork.currentEpoch = event.params.epoch.toI32()
     graphNetwork.epochCount = 1
     graphNetwork.lastLengthUpdateEpoch = graphNetwork.currentEpoch
     graphNetwork.save()
