@@ -9,7 +9,7 @@ import {
 } from '../../types/GraphTokenLockManager/GraphTokenLockManager'
 import { GraphTokenLockWallet } from '../../types/templates'
 import { TokenManager, TokenLockWallet, AuthorizedFunction } from '../../types/schema'
-import { createOrLoadGraphAccount, createOrLoadGraphNetwork } from '../helpers'
+import { createOrLoadGraphAccount, createOrLoadGraphNetwork } from '../helpers/helpers'
 import { addresses } from '../../../config/addresses'
 
 export function handleMasterCopyUpdated(event: MasterCopyUpdated): void {

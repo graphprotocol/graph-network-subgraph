@@ -1,10 +1,9 @@
-specVersion: 0.0.4
+specVersion: 0.0.5
 description: The Graph Network Smart Contracts on Ethereum for Graphscan.io
 repository: https://github.com/graphscan/graphscan-subgraph
 features:
-  - fullTextSearch
   - ipfsOnEthereumContracts
-  - grafting
+  - fullTextSearch
 schema:
   file: ./schema.graphql
 dataSources:
@@ -17,7 +16,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/controller.ts
       entities:
@@ -47,7 +46,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/gns.ts
       entities:
@@ -123,7 +122,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/gns.ts
       entities:
@@ -149,7 +148,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/serviceRegistry.ts
       entities:
@@ -173,7 +172,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/staking.ts
       entities:
@@ -238,7 +237,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/curation.ts
       entities:
@@ -272,7 +271,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/graphToken.ts
       entities:
@@ -297,7 +296,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/ethereumDIDRegistry.ts
       entities:
@@ -317,7 +316,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/epochManager.ts
       entities:
@@ -342,7 +341,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/rewardsManager.ts
       entities:
@@ -374,7 +373,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/disputeManager.ts
       entities:
@@ -411,7 +410,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/tokenLockWallets/manager.ts
       entities:
@@ -445,7 +444,7 @@ dataSources:
       startBlock: {{bridgeBlockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/l1Gateway.ts
       entities:
@@ -458,6 +457,10 @@ dataSources:
       eventHandlers:
         - event: DepositInitiated(address,indexed address,indexed address,indexed uint256,uint256)
           handler: handleDepositInitiated
+          receipt: true
+        - event: WithdrawalFinalized(address,indexed address,indexed address,indexed uint256,uint256)
+          handler: handleWithdrawalFinalized
+          receipt: true
     {{/isL1}}
   {{^isL1}}
   - kind: ethereum/contract
@@ -469,7 +472,7 @@ dataSources:
       startBlock: {{bridgeBlockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/l2Gateway.ts
       entities:
@@ -482,25 +485,30 @@ dataSources:
       eventHandlers:
         - event: WithdrawalInitiated(address,indexed address,indexed address,indexed uint256,uint256,uint256)
           handler: handleWithdrawalInitiated
-  # - kind: ethereum/contract
-  #   name: BlockHandler
-  #   network: {{network}}
-  #   source:
-  #     address: "{{epochManager}}"
-  #     abi: EpochManager
-  #     startBlock: {{blockNumber}}
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.5
-  #     language: wasm/assemblyscript
-  #     file: ./src/mappings/block.ts
-  #     entities:
-  #       - GraphNetwork
-  #     abis:
-  #       - name: EpochManager
-  #         file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
-  #     blockHandlers:
-  #       - handler: handleBlock
+          receipt: true
+        - event: DepositFinalized(indexed address,indexed address,indexed address,uint256)
+          handler: handleDepositFinalized
+          receipt: true
+  - kind: ethereum/contract
+    name: ArbRetryableTx
+    network: {{network}}
+    source:
+      abi: ArbRetryableTx
+      address: "0x000000000000000000000000000000000000006E"
+      startBlock: {{bridgeBlockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/arbRetryableTx.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: ArbRetryableTx
+          file: ./abis/ArbRetryableTx.json
+      eventHandlers:
+        - event: RedeemScheduled(indexed bytes32,indexed bytes32,indexed uint64,uint64,address,uint256,uint256)
+          handler: handleRedeemScheduled
     {{/isL1}}
 templates:
   - kind: ethereum/contract
@@ -510,7 +518,7 @@ templates:
       abi: GraphTokenLockWallet
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/mappings/tokenLockWallets/tokenLockWallet.ts
       entities:

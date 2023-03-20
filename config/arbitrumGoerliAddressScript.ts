@@ -35,7 +35,7 @@ const main = (): void => {
   try {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
     output.blockNumber = '1023264' // Protocol deployment
-    output.bridgeBlockNumber = '1023272' // Bridge deployment block
+    output.bridgeBlockNumber = '1023272' // Bridge deployment block on L2
     output.network = 'arbitrum-goerli'
     output.useTokenLockManager = false
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))

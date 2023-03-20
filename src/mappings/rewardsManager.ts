@@ -1,5 +1,5 @@
 import { Address, BigInt } from '@graphprotocol/graph-ts'
-import { Indexer, Allocation, GraphNetwork, SubgraphDeployment } from '../types/schema'
+import { Indexer, Allocation, SubgraphDeployment } from '../types/schema'
 import {
   RewardsAssigned,
   ParameterUpdated,
@@ -13,7 +13,7 @@ import {
   updateDelegationExchangeRate,
   createDelegatorRewardHistoryEntityFromIndexer,
   createOrLoadGraphNetwork
-} from './helpers'
+} from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
 export function handleRewardsAssigned(event: RewardsAssigned): void {

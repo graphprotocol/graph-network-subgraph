@@ -1,6 +1,5 @@
 import { Approval, Transfer, GraphToken } from '../types/GraphToken/GraphToken'
-import { createOrLoadGraphAccount, createOrLoadGraphNetwork } from './helpers'
-import { GraphNetwork } from '../types/schema'
+import { createOrLoadGraphAccount, createOrLoadGraphNetwork } from './helpers/helpers'
 
 /**
  * @dev handleTransfer
