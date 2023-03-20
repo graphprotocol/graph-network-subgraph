@@ -1,7 +1,8 @@
 import { json, ipfs, Bytes, JSONValueKind, log } from '@graphprotocol/graph-ts'
 import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment } from '../../types/schema'
+import { SubgraphMetadata} from '../../types/templates'
 import { jsonToString } from '../utils'
-import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork } from './helpers'
+import { createOrLoadNetwork } from './helpers'
 
 export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: string): void {
   {{#ipfs}}
@@ -42,39 +43,8 @@ export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: 
 
 export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Subgraph {
   {{#ipfs}}
-  let metadata = ipfs.cat(ipfsHash)
-  if (metadata !== null) {
-    let tryData = json.try_fromBytes(metadata as Bytes)
-    if (tryData.isOk) {
-      let data = tryData.value.toObject()
-      subgraph.description = jsonToString(data.get('description'))
-      subgraph.displayName = jsonToString(data.get('displayName'))
-      subgraph.codeRepository = jsonToString(data.get('codeRepository'))
-      subgraph.website = jsonToString(data.get('website'))
-      let categories = data.get('categories')
-
-      if(categories != null && !categories.isNull()) {
-        let categoriesArray = categories.toArray()
-
-        for(let i = 0; i < categoriesArray.length; i++) {
-          let categoryId = jsonToString(categoriesArray[i])
-          createOrLoadSubgraphCategory(categoryId)
-          createOrLoadSubgraphCategoryRelation(categoryId, subgraph.id)
-          if(subgraph.linkedEntity != null) {
-            createOrLoadSubgraphCategoryRelation(categoryId, subgraph.linkedEntity!)
-          }
-        }
-      }
-      let image = jsonToString(data.get('image'))
-      let subgraphImage = data.get('subgraphImage')
-      if (subgraphImage != null && subgraphImage.kind === JSONValueKind.STRING)  {
-        subgraph.nftImage = image
-        subgraph.image = jsonToString(subgraphImage)
-      } else {
-        subgraph.image = image
-      }
-    }
-  }
+  subgraph.metadata = ipfsHash;
+  SubgraphMetadata.create(ipfsHash);
   {{/ipfs}}
   return subgraph
 }

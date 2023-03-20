@@ -384,6 +384,13 @@ type Subgraph @entity {
   metadataHash: Bytes!
   "Subgraph metadata ipfs hash"
   ipfsMetadataHash: String
+  metadata: SubgraphMetadata
+  # Auxiliary fields
+  currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
+}
+
+type SubgraphMetadata @entity {
+  id: ID!
   "Short description of the subgraph"
   description: String
   "Image in string format"
@@ -396,11 +403,8 @@ type Subgraph @entity {
   website: String
   "Display name"
   displayName: String
-  "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
-  categories: [SubgraphCategoryRelation!]! @derivedFrom(field: "subgraph")
-
-  # Auxiliary fields
-  currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
+  # "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
+  # categories: [SubgraphCategoryRelation!]! @derivedFrom(field: "subgraph")
 }
 
 type CurrentSubgraphDeploymentRelation @entity {
@@ -421,19 +425,19 @@ type Network @entity {
   deployments: [SubgraphDeployment!]! @derivedFrom(field: "network")
 }
 
-type SubgraphCategoryRelation @entity {
-  id: ID!
+# type SubgraphCategoryRelation @entity {
+#   id: ID!
 
-  subgraph: Subgraph!
+#   subgraph: Subgraph!
 
-  category: SubgraphCategory!
-}
+#   category: SubgraphCategory!
+# }
 
-type SubgraphCategory @entity {
-  id: ID!
+# type SubgraphCategory @entity {
+#   id: ID!
 
-  subgraphs: [SubgraphCategoryRelation!]! @derivedFrom(field: "category")
-}
+#   subgraphs: [SubgraphCategoryRelation!]! @derivedFrom(field: "category")
+# }
 
 """
 The SubgraphVersion entity represents a version of the Subgraph. A new SubgraphVersion is created
@@ -1449,12 +1453,12 @@ type DelegatorRewardHistoryEntity @entity(immutable: true) {
 Full test search for displayName and description on the Subgraph Entity
 """
 type _Schema_
-  @fulltext(
-    name: "subgraphSearch"
-    language: en
-    algorithm: rank
-    include: [{ entity: "Subgraph", fields: [{ name: "displayName" }, { name: "description" }] }]
-  )
+  # @fulltext(
+  #   name: "subgraphSearch"
+  #   language: en
+  #   algorithm: rank
+  #   include: [{ entity: "Subgraph", fields: [{ name: "displayName" }] }]
+  # )
   @fulltext(
     name: "curatorSearch"
     language: en

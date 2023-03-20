@@ -186,23 +186,23 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
 
   subgraph.metadataHash = event.params.subgraphMetadata
   subgraph.ipfsMetadataHash = addQm(subgraph.metadataHash).toBase58()
-  subgraph = fetchSubgraphMetadata(subgraph, base58Hash)
+  subgraph = fetchSubgraphMetadata(subgraph, subgraph.ipfsMetadataHash!)
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
   let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, oldID, 1)
   subgraphDuplicate.save()
 
-  // Add the original subgraph name to the subgraph deployment
-  // This is a temporary solution until we can filter on nested queries
-  let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
-  let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
-  // Not super robust, someone could deploy blank, then point a subgraph to here
-  // It is more appropriate to say this is the first name 'claimed' for the deployment
-  if (subgraphDeployment.originalName == null) {
-    subgraphDeployment.originalName = subgraph.displayName
-    subgraphDeployment.save()
-  }
+  // // Add the original subgraph name to the subgraph deployment
+  // // This is a temporary solution until we can filter on nested queries
+  // let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
+  // let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
+  // // Not super robust, someone could deploy blank, then point a subgraph to here
+  // // It is more appropriate to say this is the first name 'claimed' for the deployment
+  // if (subgraphDeployment.originalName == null) {
+  //   subgraphDeployment.originalName = subgraph.displayName
+  //   subgraphDeployment.save()
+  // }
 }
 
 /**
@@ -870,7 +870,7 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
 
   subgraph.metadataHash = event.params.subgraphMetadata
   subgraph.ipfsMetadataHash = addQm(subgraph.metadataHash).toBase58()
-  subgraph = fetchSubgraphMetadata(subgraph, base58Hash)
+  subgraph = fetchSubgraphMetadata(subgraph, subgraph.ipfsMetadataHash!)
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
@@ -881,14 +881,14 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
 
   // Add the original subgraph name to the subgraph deployment
   // This is a temporary solution until we can filter on nested queries
-  let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
-  let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
-  // Not super robust, someone could deploy blank, then point a subgraph to here
-  // It is more appropriate to say this is the first name 'claimed' for the deployment
-  if (subgraphDeployment.originalName == null) {
-    subgraphDeployment.originalName = subgraph.displayName
-    subgraphDeployment.save()
-  }
+  // let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
+  // let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
+  // // Not super robust, someone could deploy blank, then point a subgraph to here
+  // // It is more appropriate to say this is the first name 'claimed' for the deployment
+  // if (subgraphDeployment.originalName == null) {
+  //   subgraphDeployment.originalName = subgraph.displayName
+  //   subgraphDeployment.save()
+  // }
 }
 
 // - event: SignalMinted(indexed uint256,indexed address,uint256,uint256,uint256)

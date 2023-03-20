@@ -25,8 +25,8 @@ import {
   Delegator,
   DelegatedStake,
   Network,
-  SubgraphCategory,
-  SubgraphCategoryRelation,
+  // SubgraphCategory,
+  // SubgraphCategoryRelation,
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
   IndexerDeployment,
@@ -906,31 +906,31 @@ export function createOrLoadNetwork(id: string): Network {
   return network as Network
 }
 
-export function createOrLoadSubgraphCategory(id: string): SubgraphCategory {
-  let category = SubgraphCategory.load(id)
-  if (category == null) {
-    category = new SubgraphCategory(id)
+// export function createOrLoadSubgraphCategory(id: string): SubgraphCategory {
+//   let category = SubgraphCategory.load(id)
+//   if (category == null) {
+//     category = new SubgraphCategory(id)
 
-    category.save()
-  }
-  return category as SubgraphCategory
-}
+//     category.save()
+//   }
+//   return category as SubgraphCategory
+// }
 
-export function createOrLoadSubgraphCategoryRelation(
-  categoryId: string,
-  subgraphId: string,
-): SubgraphCategoryRelation {
-  let id = joinID([categoryId, subgraphId])
-  let relation = SubgraphCategoryRelation.load(id)
-  if (relation == null) {
-    relation = new SubgraphCategoryRelation(id)
-    relation.subgraph = subgraphId
-    relation.category = categoryId
+// export function createOrLoadSubgraphCategoryRelation(
+//   categoryId: string,
+//   subgraphId: string,
+// ): SubgraphCategoryRelation {
+//   let id = joinID([categoryId, subgraphId])
+//   let relation = SubgraphCategoryRelation.load(id)
+//   if (relation == null) {
+//     relation = new SubgraphCategoryRelation(id)
+//     relation.subgraph = subgraphId
+//     relation.category = categoryId
 
-    relation.save()
-  }
-  return relation as SubgraphCategoryRelation
-}
+//     relation.save()
+//   }
+//   return relation as SubgraphCategoryRelation
+// }
 
 export function updateCurrentDeploymentLinks(
   oldDeployment: SubgraphDeployment | null,
@@ -1044,11 +1044,11 @@ export function duplicateOrUpdateSubgraphWithNewID(
   subgraph.nameSignalCount = entity.nameSignalCount
   subgraph.metadataHash = entity.metadataHash
   subgraph.ipfsMetadataHash = entity.ipfsMetadataHash
-  subgraph.description = entity.description
-  subgraph.image = entity.image
-  subgraph.codeRepository = entity.codeRepository
-  subgraph.website = entity.website
-  subgraph.displayName = entity.displayName
+  // subgraph.description = entity.description
+  // subgraph.image = entity.image
+  // subgraph.codeRepository = entity.codeRepository
+  // subgraph.website = entity.website
+  // subgraph.displayName = entity.displayName
   subgraph.currentNameSignalCount = entity.currentNameSignalCount
   // GRAPHSCAN PATCH
   subgraph.currentNameSignalCount = entity.currentNameSignalCount
