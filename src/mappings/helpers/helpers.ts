@@ -7,6 +7,7 @@ import {
   log,
   BigDecimal,
   dataSource,
+  ethereum
 } from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
@@ -29,17 +30,16 @@ import {
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
   IndexerDeployment,
-  DelegatorRewardHistoryEntity,
-  DelegationPoolHistoryEntity,
   RewardCutHistoryEntity,
+  DelegationPoolHistoryEntity,
   IndexerDelegatortRelation,
-} from '../types/schema'
-import { ENS } from '../types/GNS/ENS'
-import { Controller } from '../types/Controller/Controller'
-import { EpochManager } from '../types/EpochManager/EpochManager'
-import { fetchSubgraphDeploymentManifest } from './metadataHelpers'
-import { addresses } from '../../config/addresses'
-import { ethereum } from '@graphprotocol/graph-ts'
+  DelegatorRewardHistoryEntity
+} from '../../types/schema'
+import { ENS } from '../../types/GNS/ENS'
+import { Controller } from '../../types/Controller/Controller'
+import { EpochManager } from '../../types/EpochManager/EpochManager'
+import { fetchSubgraphDeploymentManifest } from './metadata'
+import { addresses } from '../../../config/addresses'
 
 export function createOrLoadSubgraph(
   bigIntID: BigInt,
@@ -596,6 +596,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.epochLength = 0
     graphNetwork.lastRunEpoch = 0
     graphNetwork.lastLengthUpdateEpoch = 0
+    graphNetwork.lastLengthUpdateBlock = 0
     if (addresses.isL1) {
       graphNetwork.lastLengthUpdateBlock = blockNumber.toI32() // Use chain native block
     } else {
@@ -627,6 +628,11 @@ export function createOrLoadGraphNetwork(
     graphNetwork.slashingPercentage = 0 // keeping it for backwards compatibility for now
     graphNetwork.minimumDisputeDeposit = BigInt.fromI32(0)
     graphNetwork.fishermanRewardPercentage = 0
+
+    graphNetwork.totalGRTDeposited = BigInt.fromI32(0)
+    graphNetwork.totalGRTDepositedConfirmed = BigInt.fromI32(0)
+    graphNetwork.totalGRTWithdrawn = BigInt.fromI32(0)
+    graphNetwork.totalGRTWithdrawnConfirmed = BigInt.fromI32(0)
 
     graphNetwork.save()
   }

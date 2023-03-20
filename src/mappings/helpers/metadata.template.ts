@@ -1,6 +1,6 @@
 import { json, ipfs, Bytes, JSONValueKind, log } from '@graphprotocol/graph-ts'
-import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment } from '../types/schema'
-import { jsonToString } from './utils'
+import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment } from '../../types/schema'
+import { jsonToString } from '../utils'
 import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation, createOrLoadNetwork } from './helpers'
 
 export function fetchGraphAccountMetadata(graphAccount: GraphAccount, ipfsHash: string): void {
