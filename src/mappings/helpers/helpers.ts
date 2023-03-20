@@ -7,6 +7,7 @@ import {
   log,
   BigDecimal,
   dataSource,
+  ethereum
 } from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
@@ -28,6 +29,11 @@ import {
   SubgraphCategoryRelation,
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
+  IndexerDeployment,
+  RewardCutHistoryEntity,
+  DelegationPoolHistoryEntity,
+  IndexerDelegatortRelation,
+  DelegatorRewardHistoryEntity
 } from '../../types/schema'
 import { ENS } from '../../types/GNS/ENS'
 import { Controller } from '../../types/Controller/Controller'
