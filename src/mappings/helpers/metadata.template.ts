@@ -1,6 +1,6 @@
 import { json, ipfs, Bytes, log } from '@graphprotocol/graph-ts'
 import { GraphAccount, Subgraph, SubgraphVersion, SubgraphDeployment } from '../../types/schema'
-import { AccountMetadata, SubgraphMetadata} from '../../types/templates'
+import { AccountMetadata, SubgraphMetadata, SubgraphVersionMetadata} from '../../types/templates'
 import { jsonToString } from '../utils'
 import { createOrLoadNetwork } from './helpers'
 
@@ -27,18 +27,8 @@ export function fetchSubgraphMetadata(subgraph: Subgraph, ipfsHash: string): Sub
 
 export function fetchSubgraphVersionMetadata(subgraphVersion: SubgraphVersion, ipfsHash: string): SubgraphVersion {
   {{#ipfs}}
-  let getVersionDataFromIPFS = ipfs.cat(ipfsHash)
-  if (getVersionDataFromIPFS !== null) {
-    let tryData = json.try_fromBytes(getVersionDataFromIPFS as Bytes)
-    if (tryData.isOk) {
-      let data = tryData.value.toObject()
-      subgraphVersion.description = jsonToString(data.get('description'))
-      subgraphVersion.label = jsonToString(data.get('label'))
-    } else {
-      subgraphVersion.description = ''
-      subgraphVersion.label = ''
-    }
-  }
+  subgraphVersion.metadata = ipfsHash
+  SubgraphVersionMetadata.create(ipfsHash);
   {{/ipfs}}
   return subgraphVersion
 }

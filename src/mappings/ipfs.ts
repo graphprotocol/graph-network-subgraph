@@ -1,5 +1,5 @@
 import { json, Bytes, JSONValueKind, dataSource } from '@graphprotocol/graph-ts'
-import { AccountMetadata, SubgraphMetadata } from '../types/schema'
+import { AccountMetadata, SubgraphMetadata, SubgraphVersionMetadata } from '../types/schema'
 import { jsonToString } from './utils'
 
 export function handleSubgraphMetadata(metadata: Bytes): void {
@@ -42,6 +42,19 @@ export function handleAccountMetadata(metadata: Bytes): void {
       }
       accountMetadata.website = jsonToString(data.get('website'))
       accountMetadata.save()
+    }
+  }
+}
+
+export function handleSubgraphVersionMetadata(metadata: Bytes): void {
+  let subgraphVersionMetadata = new SubgraphVersionMetadata(dataSource.stringParam())
+  if (metadata !== null) {
+    let tryData = json.try_fromBytes(metadata as Bytes)
+    if (tryData.isOk) {
+      let data = tryData.value.toObject()
+      subgraphVersionMetadata.description = jsonToString(data.get('description'))
+      subgraphVersionMetadata.label = jsonToString(data.get('label'))
+      subgraphVersionMetadata.save()
     }
   }
 }

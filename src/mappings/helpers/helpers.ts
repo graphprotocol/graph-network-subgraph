@@ -1078,8 +1078,7 @@ export function duplicateOrUpdateSubgraphVersionWithNewID(
   version.version = entity.version
   version.createdAt = entity.createdAt
   version.metadataHash = entity.metadataHash
-  version.description = entity.description
-  version.label = entity.label
+  version.metadata = entity.metadata
   //version.subgraph = entity.subgraph
 
   version.entityVersion = newEntityVersion

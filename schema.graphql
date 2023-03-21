@@ -467,13 +467,17 @@ type SubgraphVersion @entity {
   # Metadata from IPFS linked in GNS
   "Subgraph version metadata content address"
   metadataHash: Bytes
+  metadata: SubgraphVersionMetadata
+  entityVersion: Int!
+  linkedEntity: SubgraphVersion
+}
+
+type SubgraphVersionMetadata @entity {
+  id: ID!
   "Short description of the version"
   description: String
   "Semantic versioning label"
   label: String
-
-  entityVersion: Int!
-  linkedEntity: SubgraphVersion
 }
 
 """

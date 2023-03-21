@@ -565,3 +565,15 @@ templates:
       abis:
         - name: SubgraphNFT
           file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json
+  - name: SubgraphVersionMetadata
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/ipfs.ts
+      handler: handleSubgraphVersionMetadata
+      entities:
+        - SubgraphVersionMetadata
+      abis:
+        - name: SubgraphNFT
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json
