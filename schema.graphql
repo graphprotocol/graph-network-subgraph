@@ -227,22 +227,10 @@ type GraphAccount @entity {
   "Default display name is the current default name. Used for filtered queries in the explorer"
   defaultDisplayName: String
 
-  # IPFS Metadata
-  "True if it is an organization. False if it is an individual"
-  isOrganization: Boolean
   "IPFS hash with account metadata details"
   metadataHash: Bytes
-  "Main repository of code for the graph account"
-  codeRepository: String
-  "Description of the graph account"
-  description: String
-  "Image URL"
-  image: String
-  "Website URL"
-  website: String
-  "Display name. Not unique"
-  displayName: String
 
+  metadata: AccountMetadata
   # Operator info
   "Operator of other Graph Accounts"
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
@@ -288,6 +276,23 @@ type GraphAccount @entity {
 
   # Token Lock Wallets that this account is associated with
   tokenLockWallets: [TokenLockWallet!]!
+}
+
+type AccountMetadata @entity {
+  id: ID!
+  # IPFS Metadata
+  "True if it is an organization. False if it is an individual"
+  isOrganization: Boolean
+  "Main repository of code for the graph account"
+  codeRepository: String
+  "Description of the graph account"
+  description: String
+  "Image URL"
+  image: String
+  "Website URL"
+  website: String
+  "Display name. Not unique"
+  displayName: String
 }
 
 """

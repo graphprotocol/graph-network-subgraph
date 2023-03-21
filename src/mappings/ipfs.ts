@@ -1,5 +1,5 @@
 import { json, Bytes, JSONValueKind, dataSource } from '@graphprotocol/graph-ts'
-import { SubgraphMetadata } from '../types/schema'
+import { AccountMetadata, SubgraphMetadata } from '../types/schema'
 import { jsonToString } from './utils'
 
 export function handleSubgraphMetadata(metadata: Bytes): void {
@@ -22,6 +22,26 @@ export function handleSubgraphMetadata(metadata: Bytes): void {
         subgraphMetadata.image = image
       }
       subgraphMetadata.save()
+    }
+  }
+}
+
+export function handleAccountMetadata(metadata: Bytes): void {
+  let accountMetadata = new AccountMetadata(dataSource.stringParam())
+  if (metadata !== null) {
+    let tryData = json.try_fromBytes(metadata as Bytes)
+    if (tryData.isOk) {
+      let data = tryData.value.toObject()
+      accountMetadata.codeRepository = jsonToString(data.get('codeRepository'))
+      accountMetadata.description = jsonToString(data.get('description'))
+      accountMetadata.image = jsonToString(data.get('image'))
+      accountMetadata.displayName = jsonToString(data.get('displayName'))
+      let isOrganization = data.get('isOrganization')
+      if (isOrganization != null && isOrganization.kind === JSONValueKind.BOOL) {
+        accountMetadata.isOrganization = isOrganization.toBool()
+      }
+      accountMetadata.website = jsonToString(data.get('website'))
+      accountMetadata.save()
     }
   }
 }
