@@ -2,7 +2,6 @@ specVersion: 0.0.5
 description: The Graph Network Smart Contracts on Ethereum for Graphscan.io
 repository: https://github.com/graphscan/graphscan-subgraph
 features:
-  - ipfsOnEthereumContracts
   - fullTextSearch
 schema:
   file: ./schema.graphql
@@ -574,6 +573,18 @@ templates:
       handler: handleSubgraphVersionMetadata
       entities:
         - SubgraphVersionMetadata
+      abis:
+        - name: SubgraphNFT
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json
+  - name: SubgraphDeploymentMetadata
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/ipfs.ts
+      handler: handleSubgraphDeploymentMetadata
+      entities:
+        - SubgraphDeploymentMetadata
       abis:
         - name: SubgraphNFT
           file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json

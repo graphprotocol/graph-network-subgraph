@@ -427,7 +427,7 @@ type CurrentSubgraphDeploymentRelation @entity {
 type Network @entity {
   id: ID!
 
-  deployments: [SubgraphDeployment!]! @derivedFrom(field: "network")
+  # deployments: [SubgraphDeployment!]! @derivedFrom(field: "network")
 }
 
 # type SubgraphCategoryRelation @entity {
@@ -537,15 +537,7 @@ type SubgraphDeployment @entity {
 
   # From Subgraph Manifest
   # dataSources: [DataSource!]
-  "Manifest file for this subgraph deployment"
-  manifest: String
-  "Network where the contracts that the subgraph indexes are located"
-  network: Network
-  "Schema file for this subgraph deployment"
-  schema: String
-  "IPFS hash of the schema file"
-  schemaIpfsHash: String
-
+  metadata: SubgraphDeploymentMetadata
   # Counters for currentSignalledTokens tracking on Subgraph
   "Total amount of Subgraph entities that used this deployment at some point. subgraphCount >= activeSubgraphCount + deprecatedSubgraphCount"
   subgraphCount: Int!
@@ -561,6 +553,16 @@ type SubgraphDeployment @entity {
   "Allocations to this deployments count"
   allocationsCount: Int!
 }
+type SubgraphDeploymentMetadata @entity {
+  id: ID!
+  "Manifest file for this subgraph deployment"
+  manifest: String
+  "Network where the contracts that the subgraph indexes are located"
+  network: String
+  "IPFS hash of the schema file"
+  schemaIpfsHash: String
+}
+
 
 # TODO - add when we have the ability to parse data sources
 # """Data source obtained from the subgraph manifest"""
