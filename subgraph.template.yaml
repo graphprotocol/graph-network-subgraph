@@ -542,6 +542,7 @@ templates:
           handler: handleRevokeTokenDestinations
   - name: SubgraphMetadata
     kind: file/ipfs
+    network: {{network}}
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
@@ -554,6 +555,7 @@ templates:
           file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json
   - name: AccountMetadata
     kind: file/ipfs
+    network: {{network}}
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
@@ -566,6 +568,7 @@ templates:
           file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json
   - name: SubgraphVersionMetadata
     kind: file/ipfs
+    network: {{network}}
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
@@ -578,6 +581,7 @@ templates:
           file: ./node_modules/@graphprotocol/contracts/dist/abis/SubgraphNFT.json
   - name: SubgraphDeploymentMetadata
     kind: file/ipfs
+    network: {{network}}
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
