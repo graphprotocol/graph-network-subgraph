@@ -34,7 +34,9 @@ also have many decimal places. These should all be understood by the consumer of
 ## Network Issuance rate
 
 Network Issuance is stored in an interesting way, and it is worth pointing out in more detail
-here. To have an issuance rate of `3%`, one would do the following:
+here.
+
+Before GIP-0037, the networkGRTIssuance field specified the compound interest issuance per block. So to have an issuance rate of `3%`, one would do the following:
 
 ```
 normalizedIssuanceRate = (networkGRTIssuance * 10^-18)^(blocksPerYear)
@@ -44,9 +46,8 @@ networkGRTIssuance = 1.000000012184945188^(2425846.15)
 networkGRTIssuance = 1.03
 ```
 
-The reason it is done this way is because each block that passes allows for more GRT to be minted
-by the Rewards Manager, and thus we calculate the issuance based on blocks.
-
+After the deployment of GIP-0037 issuance switched to a linear formula,
+and the networkGRTIssuance field is deprecated. A new field called networkGRTIssuancePerBlock is introduced, and issuance in GRT is now simply this field multiplied by the number of blocks.
 
 ## Fields using Parts Per Million (ppm)
 
