@@ -113,8 +113,10 @@ type GraphNetwork @entity {
   totalIndexingIndexerRewards: BigInt!
 
   # Rewards manager global parameters
-  "The issuance rate of GRT per block. To get annual rate do (networkGRTIssuance * 10^-18)^(blocksPerYear)"
+  "(Deprecated) The issuance rate of GRT per block before GIP-0037. To get annual rate do (networkGRTIssuance * 10^-18)^(blocksPerYear)"
   networkGRTIssuance: BigInt!
+  "The issuance rate of GRT per block after GIP-0037. To get annual rate do (networkGRTIssuancePerBlock * blocksPerYear)"
+  networkGRTIssuancePerBlock: BigInt!
   "Address of the availability oracle"
   subgraphAvailabilityOracle: Bytes!
 

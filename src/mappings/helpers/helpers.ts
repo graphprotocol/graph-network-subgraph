@@ -503,6 +503,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalIndexingDelegatorRewards = BigInt.fromI32(0)
 
     graphNetwork.networkGRTIssuance = BigInt.fromI32(0)
+    graphNetwork.networkGRTIssuancePerBlock = BigInt.fromI32(0)
     graphNetwork.subgraphAvailabilityOracle = Address.fromString(
       '0x0000000000000000000000000000000000000000',
     )
