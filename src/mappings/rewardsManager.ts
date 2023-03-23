@@ -99,6 +99,8 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 
   if (parameter == 'issuanceRate') {
     graphNetwork.networkGRTIssuance = rewardsManager.issuanceRate()
+  } else if (parameter == 'issuancePerBlock') {
+    graphNetwork.networkGRTIssuancePerBlock = rewardsManager.issuancePerBlock()
   } else if (parameter == 'subgraphAvailabilityOracle') {
     graphNetwork.subgraphAvailabilityOracle = rewardsManager.subgraphAvailabilityOracle()
   }
