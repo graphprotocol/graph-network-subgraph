@@ -1,6 +1,7 @@
 import {
   WithdrawalFinalized,
   DepositInitiated,
+  TokensMintedFromL2,
 } from '../types/L1GraphTokenGateway/L1GraphTokenGateway'
 import { BridgeWithdrawalTransaction, BridgeDepositTransaction } from '../types/schema'
 import { getRetryableTicketId, getTransactionIndex } from './helpers/bridge'
@@ -62,4 +63,11 @@ export function handleDepositInitiated(event: DepositInitiated): void {
   entity.routed = data !== null
 
   entity.save()
+}
+
+export function handleTokensMintedFromL2 (event: TokensMintedFromL2): void {
+  // Update total GRT minted by bridge
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  graphNetwork.totalGRTMintedFromL2 = graphNetwork.totalGRTMintedFromL2.plus(event.params.amount)
+  graphNetwork.save()
 }
