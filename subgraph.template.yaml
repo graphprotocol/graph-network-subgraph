@@ -455,6 +455,8 @@ dataSources:
         - event: WithdrawalFinalized(address,indexed address,indexed address,indexed uint256,uint256)
           handler: handleWithdrawalFinalized
           receipt: true
+        - event: TokensMintedFromL2(uint256)
+          handler: handleTokensMintedFromL2
     {{/isL1}}
   {{^isL1}}
   - kind: ethereum/contract
