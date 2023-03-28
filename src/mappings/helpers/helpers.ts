@@ -509,6 +509,7 @@ export function createOrLoadGraphNetwork(
     )
 
     graphNetwork.totalGRTMinted = BigInt.fromI32(0)
+    graphNetwork.totalGRTMintedFromL2 = BigInt.fromI32(0)
     graphNetwork.totalGRTBurned = BigInt.fromI32(0)
 
     graphNetwork.defaultReserveRatio = 0
