@@ -227,22 +227,10 @@ type GraphAccount @entity {
   "Default display name is the current default name. Used for filtered queries in the explorer"
   defaultDisplayName: String
 
-  # IPFS Metadata
-  "True if it is an organization. False if it is an individual"
-  isOrganization: Boolean
   "IPFS hash with account metadata details"
   metadataHash: Bytes
-  "Main repository of code for the graph account"
-  codeRepository: String
-  "Description of the graph account"
-  description: String
-  "Image URL"
-  image: String
-  "Website URL"
-  website: String
-  "Display name. Not unique"
-  displayName: String
 
+  metadata: AccountMetadata
   # Operator info
   "Operator of other Graph Accounts"
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
@@ -288,6 +276,23 @@ type GraphAccount @entity {
 
   # Token Lock Wallets that this account is associated with
   tokenLockWallets: [TokenLockWallet!]!
+}
+
+type AccountMetadata @entity {
+  id: ID!
+  # IPFS Metadata
+  "True if it is an organization. False if it is an individual"
+  isOrganization: Boolean
+  "Main repository of code for the graph account"
+  codeRepository: String
+  "Description of the graph account"
+  description: String
+  "Image URL"
+  image: String
+  "Website URL"
+  website: String
+  "Display name. Not unique"
+  displayName: String
 }
 
 """
@@ -384,6 +389,13 @@ type Subgraph @entity {
   metadataHash: Bytes!
   "Subgraph metadata ipfs hash"
   ipfsMetadataHash: String
+  metadata: SubgraphMetadata
+  # Auxiliary fields
+  currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
+}
+
+type SubgraphMetadata @entity {
+  id: ID!
   "Short description of the subgraph"
   description: String
   "Image in string format"
@@ -396,11 +408,8 @@ type Subgraph @entity {
   website: String
   "Display name"
   displayName: String
-  "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
-  categories: [SubgraphCategoryRelation!]! @derivedFrom(field: "subgraph")
-
-  # Auxiliary fields
-  currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
+  # "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
+  # categories: [SubgraphCategoryRelation!]! @derivedFrom(field: "subgraph")
 }
 
 type CurrentSubgraphDeploymentRelation @entity {
@@ -418,22 +427,22 @@ type CurrentSubgraphDeploymentRelation @entity {
 type Network @entity {
   id: ID!
 
-  deployments: [SubgraphDeployment!]! @derivedFrom(field: "network")
+  # deployments: [SubgraphDeployment!]! @derivedFrom(field: "network")
 }
 
-type SubgraphCategoryRelation @entity {
-  id: ID!
+# type SubgraphCategoryRelation @entity {
+#   id: ID!
 
-  subgraph: Subgraph!
+#   subgraph: Subgraph!
 
-  category: SubgraphCategory!
-}
+#   category: SubgraphCategory!
+# }
 
-type SubgraphCategory @entity {
-  id: ID!
+# type SubgraphCategory @entity {
+#   id: ID!
 
-  subgraphs: [SubgraphCategoryRelation!]! @derivedFrom(field: "category")
-}
+#   subgraphs: [SubgraphCategoryRelation!]! @derivedFrom(field: "category")
+# }
 
 """
 The SubgraphVersion entity represents a version of the Subgraph. A new SubgraphVersion is created
@@ -458,13 +467,17 @@ type SubgraphVersion @entity {
   # Metadata from IPFS linked in GNS
   "Subgraph version metadata content address"
   metadataHash: Bytes
+  metadata: SubgraphVersionMetadata
+  entityVersion: Int!
+  linkedEntity: SubgraphVersion
+}
+
+type SubgraphVersionMetadata @entity {
+  id: ID!
   "Short description of the version"
   description: String
   "Semantic versioning label"
   label: String
-
-  entityVersion: Int!
-  linkedEntity: SubgraphVersion
 }
 
 """
@@ -524,15 +537,7 @@ type SubgraphDeployment @entity {
 
   # From Subgraph Manifest
   # dataSources: [DataSource!]
-  "Manifest file for this subgraph deployment"
-  manifest: String
-  "Network where the contracts that the subgraph indexes are located"
-  network: Network
-  "Schema file for this subgraph deployment"
-  schema: String
-  "IPFS hash of the schema file"
-  schemaIpfsHash: String
-
+  metadata: SubgraphDeploymentMetadata
   # Counters for currentSignalledTokens tracking on Subgraph
   "Total amount of Subgraph entities that used this deployment at some point. subgraphCount >= activeSubgraphCount + deprecatedSubgraphCount"
   subgraphCount: Int!
@@ -548,6 +553,16 @@ type SubgraphDeployment @entity {
   "Allocations to this deployments count"
   allocationsCount: Int!
 }
+type SubgraphDeploymentMetadata @entity {
+  id: ID!
+  "Manifest file for this subgraph deployment"
+  manifest: String
+  "Network where the contracts that the subgraph indexes are located"
+  network: String
+  "IPFS hash of the schema file"
+  schemaIpfsHash: String
+}
+
 
 # TODO - add when we have the ability to parse data sources
 # """Data source obtained from the subgraph manifest"""
@@ -1449,12 +1464,12 @@ type DelegatorRewardHistoryEntity @entity(immutable: true) {
 Full test search for displayName and description on the Subgraph Entity
 """
 type _Schema_
-  @fulltext(
-    name: "subgraphSearch"
-    language: en
-    algorithm: rank
-    include: [{ entity: "Subgraph", fields: [{ name: "displayName" }, { name: "description" }] }]
-  )
+  # @fulltext(
+  #   name: "subgraphSearch"
+  #   language: en
+  #   algorithm: rank
+  #   include: [{ entity: "Subgraph", fields: [{ name: "displayName" }] }]
+  # )
   @fulltext(
     name: "curatorSearch"
     language: en
