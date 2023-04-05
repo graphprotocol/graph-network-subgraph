@@ -3,9 +3,9 @@ import { Indexer, Allocation, SubgraphDeployment } from '../types/schema'
 import {
   RewardsAssigned,
   ParameterUpdated,
-  RewardsManager,
+  RewardsManagerStitched as RewardsManager,
   RewardsDenylistUpdated,
-} from '../types/RewardsManager/RewardsManager'
+} from '../types/RewardsManager/RewardsManagerStitched'
 import {
   createOrLoadSubgraphDeployment,
   createOrLoadEpoch,

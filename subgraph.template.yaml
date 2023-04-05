@@ -445,7 +445,7 @@ dataSources:
         - GraphNetwork
       abis:
         - name: L1GraphTokenGateway
-          file: ./node_modules/@graphprotocol/contracts/dist/abis/L1GraphTokenGateway.json
+          file: ./abis/L1GraphTokenGateway.json
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
