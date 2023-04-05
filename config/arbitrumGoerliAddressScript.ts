@@ -18,6 +18,8 @@ export let addresses: Addresses = {
   rewardsManager: '{{arbgor.RewardsManager.address}}',
   serviceRegistry: '{{arbgor.ServiceRegistry.address}}',
   gns: '{{arbgor.GNS.address}}',
+  l1gns: '{{arbgor.L1GNS.address}}',
+  l2gns: '{{arbgor.L2GNS.address}}',
   ens: '{{arbgor.IENS.address}}',
   ensPublicResolver: '{{arbgor.IPublicResolver.address}}',
   blockNumber: '',
