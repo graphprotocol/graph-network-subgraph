@@ -41,7 +41,12 @@ dataSources:
     name: GNS
     network: {{network}}
     source:
-      address: "{{gns}}"
+      {{#isL1}}
+      address: "{{l1gns}}"
+      {{/isL1}}
+      {{^isL1}}
+      address: "{{l2gns}}"
+      {{/isL1}}
       abi: GNSStitched
       startBlock: {{blockNumber}}
     mapping:
@@ -107,6 +112,60 @@ dataSources:
           handler: handleSubgraphVersionUpdated
         - event: LegacySubgraphClaimed(indexed address,uint256)
           handler: handleLegacySubgraphClaimed
+{{#isL1}}
+  - kind: ethereum/contract
+    name: L1GNS
+    network: {{network}}
+    source:
+      address: "{{l1gns}}"
+      abi: L1GNS
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/l1gns.ts
+      entities:
+        - Subgraph
+        - SubgraphVersion
+        - SubgraphDeployment
+        - GraphAccount
+        - NameSignal
+      abis:
+        - name: L1GNS
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L1GNS.json
+      eventHandlers:
+        - event: SubgraphSentToL2(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleSubgraphSentToL2
+{{/isL1}}
+{{^isL1}}
+  - kind: ethereum/contract
+    name: L2GNS
+    network: {{network}}
+    source:
+      address: "{{l2gns}}"
+      abi: L2GNS
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/l2gns.ts
+      entities:
+        - Subgraph
+        - SubgraphVersion
+        - SubgraphDeployment
+        - GraphAccount
+        - NameSignal
+      abis:
+        - name: L2GNS
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L2GNS.json
+      eventHandlers:
+        - event: SubgraphReceivedFromL1(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handleSubgraphReceivedFromL1
+        - event: SubgraphMigrationFinalized(indexed uint256)
+          handler: handleSubgraphMigrationFinalized
+{{/isL1}}
   - kind: ethereum/contract
     name: SubgraphNFT
     network: {{network}}

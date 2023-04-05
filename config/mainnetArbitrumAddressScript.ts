@@ -18,6 +18,8 @@ export let addresses: Addresses = {
   rewardsManager: '{{arbitrum.RewardsManager.address}}',
   serviceRegistry: '{{arbitrum.ServiceRegistry.address}}',
   gns: '{{arbitrum.GNS.address}}',
+  l1gns: '{{arbitrum.L1GNS.address}}',
+  l2gns: '{{arbitrum.L2GNS.address}}',
   ens: '{{arbitrum.IENS.address}}',
   ensPublicResolver: '{{arbitrum.IPublicResolver.address}}',
   blockNumber: '',

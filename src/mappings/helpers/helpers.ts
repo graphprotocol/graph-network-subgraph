@@ -50,6 +50,8 @@ export function createOrLoadSubgraph(
     subgraph.updatedAt = timestamp.toI32()
     subgraph.active = true
     subgraph.migrated = false
+    subgraph.migratedToL2 = false
+    subgraph.startedMigrationToL2 = false
     subgraph.entityVersion = 2
     subgraph.nftID = bigIntID.toString()
     subgraph.initializing = false
@@ -1042,4 +1044,13 @@ export function updateL1BlockNumber(graphNetwork: GraphNetwork): GraphNetwork {
     log.warning("Failed to update L1BlockNumber. Transaction reverted. Address used: {}", [epochManagerAddress.toHexString()])
   }
   return graphNetwork
+}
+
+export function getAliasedL2SubgraphID(id: BigInt): BigInt {
+  // offset === 0x1111000000000000000000000000000000000000000000000000000000001111 or "7719354826016761135949426780745810995650277145449579228033297493447455805713"
+  // base === 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff + 1 or "115792089237316195423570985008687907853269984665640564039457584007913129639936"
+  // const expectedL2SubgraphId = l1SubgraphId.add(offset).mod(base)
+  let offset = BigInt.fromString("7719354826016761135949426780745810995650277145449579228033297493447455805713")
+  let base = BigInt.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639936")
+  return (id.plus(offset)).mod(base)
 }
