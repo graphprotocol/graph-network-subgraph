@@ -18,6 +18,8 @@ export let addresses: Addresses = {
   rewardsManager: '{{mainnet.RewardsManager.address}}',
   serviceRegistry: '{{mainnet.ServiceRegistry.address}}',
   gns: '{{mainnet.GNS.address}}',
+  l1gns: '{{mainnet.L1GNS.address}}',
+  l2gns: '{{mainnet.L2GNS.address}}',
   ens: '{{mainnet.IENS.address}}',
   ensPublicResolver: '{{mainnet.IPublicResolver.address}}',
   blockNumber: '',

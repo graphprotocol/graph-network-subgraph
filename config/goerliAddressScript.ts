@@ -18,6 +18,8 @@ export let addresses: Addresses = {
   rewardsManager: '{{goerli.RewardsManager.address}}',
   serviceRegistry: '{{goerli.ServiceRegistry.address}}',
   gns: '{{goerli.GNS.address}}',
+  l1gns: '{{goerli.L1GNS.address}}',
+  l2gns: '{{goerli.L2GNS.address}}',
   ens: '{{goerli.IENS.address}}',
   ensPublicResolver: '{{goerli.IPublicResolver.address}}',
   blockNumber: '',
