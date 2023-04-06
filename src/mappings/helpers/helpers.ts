@@ -446,7 +446,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork = new GraphNetwork('1')
 
     let contract = Controller.bind(changetype<Address>(controllerAddress))
-    let governor = contract.getGovernor()
+    let governorCall = contract.try_getGovernor()
 
     // All of the 0x0000 addresses will be replaced in controller deployment calls
     // Service registry is not stored in the Controller so we get it manually
@@ -465,7 +465,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.rewardsManagerImplementations = []
     graphNetwork.isPaused = false
     graphNetwork.isPartialPaused = false
-    graphNetwork.governor = governor
+    graphNetwork.governor = !governorCall.reverted ? governorCall.value : Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.pauseGuardian = Address.fromString('0x0000000000000000000000000000000000000000')
 
     // let contract = GraphNetwork.bind(event.params.a)
