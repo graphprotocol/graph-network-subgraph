@@ -41,12 +41,7 @@ dataSources:
     name: GNS
     network: {{network}}
     source:
-      {{#isL1}}
-      address: "{{l1gns}}"
-      {{/isL1}}
-      {{^isL1}}
-      address: "{{l2gns}}"
-      {{/isL1}}
+      address: "{{gns}}"
       abi: GNSStitched
       startBlock: {{blockNumber}}
     mapping:
@@ -117,7 +112,7 @@ dataSources:
     name: L1GNS
     network: {{network}}
     source:
-      address: "{{l1gns}}"
+      address: "{{gns}}"
       abi: L1GNS
       startBlock: {{blockNumber}}
     mapping:
@@ -143,7 +138,7 @@ dataSources:
     name: L2GNS
     network: {{network}}
     source:
-      address: "{{l2gns}}"
+      address: "{{gns}}"
       abi: L2GNS
       startBlock: {{blockNumber}}
     mapping:
