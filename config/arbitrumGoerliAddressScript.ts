@@ -14,7 +14,7 @@ export let addresses: Addresses = {
   epochManager: '{{arbgor.EpochManager.address}}',
   disputeManager: '{{arbgor.DisputeManager.address}}',
   staking: '{{arbgor.Staking.address}}',
-  curation: '{{arbgor.Curation.address}}',
+  curation: '{{arbgor.L2Curation.address}}',
   rewardsManager: '{{arbgor.RewardsManager.address}}',
   serviceRegistry: '{{arbgor.ServiceRegistry.address}}',
   gns: '{{arbgor.GNS.address}}',
