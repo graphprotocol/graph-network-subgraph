@@ -473,6 +473,8 @@ dataSources:
           file: ./abis/GraphTokenLockManager.json
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+        - name: Controller
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/Controller.json
       eventHandlers:
         - event: MasterCopyUpdated(indexed address)
           handler: handleMasterCopyUpdated
