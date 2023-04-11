@@ -42,6 +42,9 @@ const main = (): void => {
     if(output.ethereumDIDRegistry == '') {
       output.ethereumDIDRegistry = '0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B' // since the package doens't have it yet
     }
+    if(output.ens == '') {
+      output.ens = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
