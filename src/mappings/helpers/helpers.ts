@@ -651,6 +651,7 @@ function checkTLD(name: string, node: string): boolean {
  * @returns - true if name is verified
  */
 function verifyNameOwnership(graphAccount: string, node: Bytes): boolean {
+  if (!addresses.ens) {return false}
   let ens = ENS.bind(changetype<Address>(Address.fromHexString(addresses.ens)))
   let ownerOnENS = ens.try_owner(node)
   if (ownerOnENS.reverted == true) {
