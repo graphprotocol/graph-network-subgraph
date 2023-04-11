@@ -39,6 +39,9 @@ const main = (): void => {
     output.bridgeBlockNumber = '16083315' // Bridge deployment block on L1
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
     output.useTokenLockManager = true
+    if(output.ens == '') {
+      output.ens = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)

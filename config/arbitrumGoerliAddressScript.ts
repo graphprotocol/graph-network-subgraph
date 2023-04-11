@@ -38,6 +38,9 @@ const main = (): void => {
     output.bridgeBlockNumber = '1023272' // Bridge deployment block on L2
     output.network = 'arbitrum-goerli'
     output.useTokenLockManager = false
+    if(output.ens == '') {
+      output.ens = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
     console.log(`Error saving artifacts: ${e.message}`)
