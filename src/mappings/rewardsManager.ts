@@ -3,9 +3,9 @@ import { Indexer, Allocation, SubgraphDeployment } from '../types/schema'
 import {
   RewardsAssigned,
   ParameterUpdated,
-  RewardsManager,
+  RewardsManagerStitched as RewardsManager,
   RewardsDenylistUpdated,
-} from '../types/RewardsManager/RewardsManager'
+} from '../types/RewardsManager/RewardsManagerStitched'
 import {
   createOrLoadSubgraphDeployment,
   createOrLoadEpoch,
@@ -101,6 +101,8 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 
   if (parameter == 'issuanceRate') {
     graphNetwork.networkGRTIssuance = rewardsManager.issuanceRate()
+  } else if (parameter == 'issuancePerBlock') {
+    graphNetwork.networkGRTIssuancePerBlock = rewardsManager.issuancePerBlock()
   } else if (parameter == 'subgraphAvailabilityOracle') {
     graphNetwork.subgraphAvailabilityOracle = rewardsManager.subgraphAvailabilityOracle()
   }
