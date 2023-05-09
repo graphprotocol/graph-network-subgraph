@@ -50,8 +50,8 @@ export function createOrLoadSubgraph(
     subgraph.updatedAt = timestamp.toI32()
     subgraph.active = true
     subgraph.migrated = false
-    subgraph.migratedToL2 = false
-    subgraph.startedMigrationToL2 = false
+    subgraph.transferredToL2 = false
+    subgraph.startedTransferToL2 = false
     subgraph.entityVersion = 2
     subgraph.nftID = bigIntID.toString()
     subgraph.initializing = false
@@ -65,6 +65,8 @@ export function createOrLoadSubgraph(
     subgraph.withdrawableTokens = BigInt.fromI32(0)
     subgraph.withdrawnTokens = BigInt.fromI32(0)
     subgraph.nameSignalCount = 0
+    subgraph.signalledTokensSentToL2 = BigInt.fromI32(0)
+    subgraph.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
 
     subgraph.metadataHash = changetype<Bytes>(Bytes.fromI32(0))
 
@@ -324,6 +326,8 @@ export function createOrLoadNameSignal(
     nameSignal.curator = underlyingCurator.id
     nameSignal.subgraph = subgraphID
     nameSignal.signalledTokens = BigInt.fromI32(0)
+    nameSignal.signalledTokensSentToL2 = BigInt.fromI32(0)
+    nameSignal.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
     nameSignal.unsignalledTokens = BigInt.fromI32(0)
     nameSignal.withdrawnTokens = BigInt.fromI32(0)
     nameSignal.nameSignal = BigInt.fromI32(0)
