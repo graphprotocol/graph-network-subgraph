@@ -132,6 +132,8 @@ dataSources:
       eventHandlers:
         - event: SubgraphSentToL2(indexed uint256,indexed address,indexed address,uint256)
           handler: handleSubgraphSentToL2
+        - event: CuratorBalanceSentToL2(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleCuratorBalanceSentToL2
 {{/isL1}}
 {{^isL1}}
   - kind: ethereum/contract
@@ -160,6 +162,10 @@ dataSources:
           handler: handleSubgraphReceivedFromL1
         - event: SubgraphMigrationFinalized(indexed uint256)
           handler: handleSubgraphMigrationFinalized
+        - event: CuratorBalanceReceived(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handleCuratorBalanceReceived
+        - event: CuratorBalanceReturnedToBeneficiary(indexed uint256,indexed address,uint256)
+          handler: handleCuratorBalanceReturnedToBeneficiary
 {{/isL1}}
   - kind: ethereum/contract
     name: SubgraphNFT
