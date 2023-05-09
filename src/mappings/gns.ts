@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Bytes, log } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphPublished1,
@@ -191,17 +191,6 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
 
   let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, oldID, 1)
   subgraphDuplicate.save()
-
-  // Add the original subgraph name to the subgraph deployment
-  // This is a temporary solution until we can filter on nested queries
-  let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
-  let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
-  // Not super robust, someone could deploy blank, then point a subgraph to here
-  // It is more appropriate to say this is the first name 'claimed' for the deployment
-  if (subgraphDeployment.originalName == null) {
-    subgraphDeployment.originalName = subgraph.displayName
-    subgraphDeployment.save()
-  }
 }
 
 /**
@@ -843,17 +832,6 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
     let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, subgraph.linkedEntity!, 1)
     subgraphDuplicate.save()
   }
-
-  // Add the original subgraph name to the subgraph deployment
-  // This is a temporary solution until we can filter on nested queries
-  let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
-  let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
-  // Not super robust, someone could deploy blank, then point a subgraph to here
-  // It is more appropriate to say this is the first name 'claimed' for the deployment
-  if (subgraphDeployment.originalName == null) {
-    subgraphDeployment.originalName = subgraph.displayName
-    subgraphDeployment.save()
-  }
 }
 
 // - event: SignalMinted(indexed uint256,indexed address,uint256,uint256,uint256)
@@ -1187,56 +1165,59 @@ export function handleSubgraphUpgraded(event: SubgraphUpgraded): void {
     subgraphDuplicate.save()
   }
 
-  let signalRatio = subgraph.signalAmount.toBigDecimal() / subgraph.nameSignalAmount.toBigDecimal()
+  if (!subgraph.nameSignalAmount.isZero()) {
 
-  for (let i = 0; i < subgraph.nameSignalCount; i++) {
-    let relation = NameSignalSubgraphRelation.load(
-      joinID([subgraphID, BigInt.fromI32(i).toString()]),
-    )!
-    let nameSignal = NameSignal.load(relation.nameSignal)!
-    if (!nameSignal.nameSignal.isZero()) {
-      let curator = Curator.load(nameSignal.curator)!
+    let signalRatio = subgraph.signalAmount.toBigDecimal() / subgraph.nameSignalAmount.toBigDecimal()
 
-      let oldSignal = nameSignal.signal
-      nameSignal.signal = nameSignal.nameSignal.toBigDecimal() * signalRatio
-      nameSignal.signal = nameSignal.signal.truncate(18)
+    for (let i = 0; i < subgraph.nameSignalCount; i++) {
+      let relation = NameSignalSubgraphRelation.load(
+        joinID([subgraphID, BigInt.fromI32(i).toString()]),
+      )!
+      let nameSignal = NameSignal.load(relation.nameSignal)!
+      if (!nameSignal.nameSignal.isZero()) {
+        let curator = Curator.load(nameSignal.curator)!
 
-      // zero division protection
-      if (nameSignal.signal != zeroBD) {
-        nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis
-          .div(nameSignal.signal)
+        let oldSignal = nameSignal.signal
+        nameSignal.signal = nameSignal.nameSignal.toBigDecimal() * signalRatio
+        nameSignal.signal = nameSignal.signal.truncate(18)
+
+        // zero division protection
+        if (nameSignal.signal != zeroBD) {
+          nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis
+            .div(nameSignal.signal)
+            .truncate(18)
+        }
+
+        let previousACBSignal = nameSignal.signalAverageCostBasis
+        nameSignal.signalAverageCostBasis = nameSignal.signal
+          .times(nameSignal.signalAverageCostBasisPerSignal)
           .truncate(18)
-      }
 
-      let previousACBSignal = nameSignal.signalAverageCostBasis
-      nameSignal.signalAverageCostBasis = nameSignal.signal
-        .times(nameSignal.signalAverageCostBasisPerSignal)
-        .truncate(18)
+        let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
+        if (nameSignal.signalAverageCostBasis == zeroBD) {
+          nameSignal.signalAverageCostBasisPerSignal = zeroBD
+        }
 
-      let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
-      if (nameSignal.signalAverageCostBasis == zeroBD) {
-        nameSignal.signalAverageCostBasisPerSignal = zeroBD
-      }
+        curator.totalSignal = curator.totalSignal.minus(oldSignal).plus(nameSignal.signal)
+        curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACBSignal)
+        if (curator.totalSignal == zeroBD) {
+          curator.totalAverageCostBasisPerSignal = zeroBD
+        } else {
+          curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis
+            .div(curator.totalSignal)
+            .truncate(18)
+        }
+        nameSignal.save()
+        curator.save()
 
-      curator.totalSignal = curator.totalSignal.minus(oldSignal).plus(nameSignal.signal)
-      curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACBSignal)
-      if (curator.totalSignal == zeroBD) {
-        curator.totalAverageCostBasisPerSignal = zeroBD
-      } else {
-        curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis
-          .div(curator.totalSignal)
-          .truncate(18)
-      }
-      nameSignal.save()
-      curator.save()
-
-      if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
-        let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
-          nameSignal,
-          nameSignal.linkedEntity!,
-          1,
-        )
-        nameSignalDuplicate.save()
+        if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
+          let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
+            nameSignal,
+            nameSignal.linkedEntity!,
+            1,
+          )
+          nameSignalDuplicate.save()
+        }
       }
     }
   }
