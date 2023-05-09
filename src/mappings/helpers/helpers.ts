@@ -369,6 +369,7 @@ export function createOrLoadGraphAccount(owner: Bytes, timeStamp: BigInt): Graph
     graphAccount.createdAt = timeStamp.toI32()
     graphAccount.operators = []
     graphAccount.balance = BigInt.fromI32(0)
+    graphAccount.balanceReceivedFromL1 = BigInt.fromI32(0)
     graphAccount.curationApproval = BigInt.fromI32(0)
     graphAccount.stakingApproval = BigInt.fromI32(0)
     graphAccount.gnsApproval = BigInt.fromI32(0)
