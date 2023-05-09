@@ -256,6 +256,8 @@ type GraphAccount @entity {
   # GRT info
   "Graph token balance"
   balance: BigInt!
+  "Balance received due to failed signal transfer from L1"
+  balanceReceivedFromL1: BigInt!
   "Amount this account has approved staking to transfer their GRT"
   curationApproval: BigInt!
   "Amount this account has approved curation to transfer their GRT"
@@ -342,25 +344,29 @@ type Subgraph @entity {
   active: Boolean!
   "Whether the subgraph has been claimed/migrated. Can only be false for subgraphs created with V1 contracts that have not been claimed/migrated"
   migrated: Boolean!
-  "Whether the subgraph has been migrated from L1 to L2. Subgraphs published on L2 will have this as false unless they were published through a migration"
-  startedMigrationToL2: Boolean!
-  "Timestamp for the L1 -> L2 Migration. Null if the migration hasn't started yet"
-  startedMigrationToL2At: BigInt
-  "Block number for the L1 -> L2 Migration. Null if the migration hasn't started yet"
-  startedMigrationToL2AtBlockNumber: BigInt
-  "Transaction hash for the L1 -> L2 Migration. Null if the migration hasn't started yet"
-  startedMigrationToL2AtTx: String
-  "Whether the subgraph has been fully migrated from L1 to L2. Subgraphs published on L2 will have this as false unless they were published through a migration"
-  migratedToL2: Boolean!
-  "Timestamp for the L1 -> L2 Migration. Null if it's not fully migrated or if it's an L1 deployment"
-  migratedToL2At: BigInt
-  "Block number for the L1 -> L2 Migration. Null if it's not fully migrated or if it's an L1 deployment"
-  migratedToL2AtBlockNumber: BigInt
-  "Transaction hash for the L1 -> L2 Migration. Null if it's not fully migrated or if it's an L1 deployment"
-  migratedToL2AtTx: String
-  "ID of the subgraph on L2. Null if it's not migrated"
+  "Whether the subgraph has been transferred from L1 to L2. Subgraphs published on L2 will have this as false unless they were published through a transfer"
+  startedTransferToL2: Boolean!
+  "Timestamp for the L1 -> L2 Transfer. Null if the transfer hasn't started yet"
+  startedTransferToL2At: BigInt
+  "Block number for the L1 -> L2 Transfer. Null if the transfer hasn't started yet"
+  startedTransferToL2AtBlockNumber: BigInt
+  "Transaction hash for the L1 -> L2 Transfer. Null if the transfer hasn't started yet"
+  startedTransferToL2AtTx: String
+  "Whether the subgraph has been fully transferred from L1 to L2. Subgraphs published on L2 will have this as false unless they were published through a transfer"
+  transferredToL2: Boolean!
+  "Timestamp for the L1 -> L2 Transfer. Null if it's not fully transferred or if it's an L1 deployment"
+  transferredToL2At: BigInt
+  "Block number for the L1 -> L2 Transfer. Null if it's not fully transferred or if it's an L1 deployment"
+  transferredToL2AtBlockNumber: BigInt
+  "Transaction hash for the L1 -> L2 Transfer. Null if it's not fully transferred or if it's an L1 deployment"
+  transferredToL2AtTx: String
+  "Amount of GRT transferred to L2"
+  signalledTokensSentToL2: BigInt!
+  "Amount of GRT received on L2"
+  signalledTokensReceivedOnL2: BigInt!
+  "ID of the subgraph on L2. Null if it's not transferred"
   idOnL2: String
-  "ID of the subgraph on L1. Null if it's not migrated"
+  "ID of the subgraph on L1. Null if it's not transferred"
   idOnL1: String
   "The actual ID of the subgraph on the contracts subgraph NFT implementation. BigInt represented as a String. It's only actually valid once the subgraph is migrated (migrated == true)"
   nftID: String
@@ -507,7 +513,7 @@ type SubgraphDeployment @entity {
   createdAt: Int!
   "The block at which this deployment was denied for rewards. Null if not denied"
   deniedAt: Int!
-  "The original Subgraph that was deployed through GNS. Can be null if never created through GNS. Used for filtering in the Explorer"
+  "[DEPRECATED] The original Subgraph that was deployed through GNS. Can be null if never created through GNS. Used for filtering in the Explorer. Always null now"
   originalName: String
 
   # From Staking
@@ -971,6 +977,14 @@ type NameSignal @entity {
   nameSignal: BigInt!
   "Actual signal shares that the name pool minted with the GRT provided by the curator"
   signal: BigDecimal!
+  "Amount of GRT transferred to L2"
+  signalledTokensSentToL2: BigInt!
+  "Amount of GRT received on L2"
+  signalledTokensReceivedOnL2: BigInt!
+  "ID of the NameSignal entity on L2. Null if it's not transferred"
+  idOnL2: String
+  "ID of the NameSignal entity on L1. Null if it's not transferred"
+  idOnL1: String
 
   # Metrics
   "Block for which the curator last entered or exited the curve"
