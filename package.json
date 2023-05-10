@@ -41,7 +41,7 @@
     "test": "graph test -v 0.5.2"
   },
   "devDependencies": {
-    "@graphprotocol/contracts": "4.0.0-scratch2r1",
+    "@graphprotocol/contracts": "4.0.0-scratch5r1",
     "@graphprotocol/graph-cli": "^0.42.2",
     "@graphprotocol/graph-ts": "^0.29.1",
     "@types/node": "^14.0.13",

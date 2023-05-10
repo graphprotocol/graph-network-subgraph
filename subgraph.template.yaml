@@ -160,8 +160,8 @@ dataSources:
       eventHandlers:
         - event: SubgraphReceivedFromL1(indexed uint256,indexed uint256,indexed address,uint256)
           handler: handleSubgraphReceivedFromL1
-        - event: SubgraphMigrationFinalized(indexed uint256)
-          handler: handleSubgraphMigrationFinalized
+        - event: SubgraphL2TransferFinalized(indexed uint256)
+          handler: handleSubgraphL2TransferFinalized
         - event: CuratorBalanceReceived(indexed uint256,indexed uint256,indexed address,uint256)
           handler: handleCuratorBalanceReceived
         - event: CuratorBalanceReturnedToBeneficiary(indexed uint256,indexed address,uint256)
