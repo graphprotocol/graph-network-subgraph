@@ -1,6 +1,6 @@
 import {
   SubgraphReceivedFromL1,
-  SubgraphMigrationFinalized,
+  SubgraphL2TransferFinalized,
   CuratorBalanceReturnedToBeneficiary,
   CuratorBalanceReceived,
 } from '../types/L2GNS/L2GNS'
@@ -42,8 +42,8 @@ export function handleSubgraphReceivedFromL1(event: SubgraphReceivedFromL1): voi
   subgraph.save()
 }
 
-// event SubgraphMigrationFinalized(uint256 indexed _l2SubgraphID);
-export function handleSubgraphMigrationFinalized(event: SubgraphMigrationFinalized): void {
+// event SubgraphL2TransferFinalized(uint256 indexed _l2SubgraphID);
+export function handleSubgraphL2TransferFinalized(event: SubgraphL2TransferFinalized): void {
   let bigIntID = event.params._l2SubgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   // Can't use createOrLoadSubgraph, loading it directly, as it's also assumed already created
