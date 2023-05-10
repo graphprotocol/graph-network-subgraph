@@ -419,10 +419,10 @@
     graphql-import-node "^0.0.5"
     js-yaml "^4.1.0"
 
-"@graphprotocol/contracts@4.0.0-scratch2r1":
-  version "4.0.0-scratch2r1"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-4.0.0-scratch2r1.tgz#b7a137720a03cd1ba5203ca8fcd152202cf24b65"
-  integrity sha512-JVG3yYBxFcRfwCY6bp/3twohIO+zJeCg1Yn9H5oQdnEFMF2JJ0zAMDCiC+3YVly0BYyotZl6tamEpu0Fg2KRBg==
+"@graphprotocol/contracts@4.0.0-scratch5r1":
+  version "4.0.0-scratch5r1"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/contracts/-/contracts-4.0.0-scratch5r1.tgz#fc3f1ce261235a201f4c3b713b1ab04a500ebc33"
+  integrity sha512-ALJ+Scos45V7AnahNMDiBQ9sdIf6jgugaQMD6+62oMuUxa/kGF+3Pd1QcsjS3Xm095C0+5jxv4oKbhqN2uw9iQ==
   dependencies:
     console-table-printer "^2.11.1"
     ethers "^5.6.0"
