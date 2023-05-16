@@ -5,6 +5,7 @@ export class Addresses {
   epochManager: string
   disputeManager: string
   staking: string
+  stakingExtension: string
   curation: string
   rewardsManager: string
   serviceRegistry: string
@@ -29,6 +30,7 @@ export let addresses: Addresses = {
   epochManager: '{{epochManager}}',
   disputeManager: '{{disputeManager}}',
   staking: '{{staking}}',
+  stakingExtension: '{{stakingExtension}}',
   curation: '{{curation}}',
   rewardsManager: '{{rewardsManager}}',
   serviceRegistry: '{{serviceRegistry}}',
