@@ -7,7 +7,6 @@ import {
   AllocationCreated,
   AllocationClosed,
   RebateClaimed,
-  ParameterUpdated,
   Staking,
   SetOperator,
   StakeDelegated,
@@ -18,6 +17,10 @@ import {
   SlasherUpdate,
   AssetHolderUpdate,
 } from '../types/Staking/Staking'
+import {
+  StakingExtension,
+  ParameterUpdated,
+} from '../types/StakingExtension/StakingExtension'
 import {
   Indexer,
   Allocation,
@@ -162,9 +165,9 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   // We need to call into stakes mapping, because locked tokens might have been
   // decremented, and this is not released in the event
   // To fix this we would need to indicate in the event how many locked tokens were released
-  let staking = Staking.bind(event.address)
+  let staking = StakingExtension.bind(event.address)
   let indexerStored = staking.stakes(event.params.indexer)
-  indexer.lockedTokens = indexerStored.value2
+  indexer.lockedTokens = indexerStored.tokensLocked
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
@@ -602,7 +605,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-  let staking = Staking.bind(event.address)
+  let staking = StakingExtension.bind(event.address)
 
   if (parameter == 'minimumIndexerStake') {
     graphNetwork.minimumIndexerStake = staking.minimumIndexerStake()
