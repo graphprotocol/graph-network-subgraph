@@ -240,7 +240,7 @@ dataSources:
         - Epoch
       abis:
         - name: Staking
-          file: ./node_modules/@graphprotocol/contracts/dist/abis/Staking.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/IStaking.json
         - name: GraphToken
           file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
         - name: EpochManager
@@ -272,8 +272,6 @@ dataSources:
         #   handler: handleAllocationClosed
         - event: RebateClaimed(indexed address,indexed bytes32,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
-        - event: ParameterUpdated(string)
-          handler: handleParameterUpdated
         - event: SetOperator(indexed address,indexed address,bool)
           handler: handleSetOperator
         - event: SlasherUpdate(indexed address,indexed address,bool)
@@ -282,6 +280,30 @@ dataSources:
           handler: handleAssetHolderUpdate
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
+  - kind: ethereum/contract
+    name: StakingExtension
+    network: {{network}}
+    source:
+      address: "{{staking}}"
+      abi: StakingExtension
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/staking.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: StakingExtension
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/StakingExtension.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
