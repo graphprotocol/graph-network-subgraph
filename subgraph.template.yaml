@@ -217,6 +217,78 @@ dataSources:
           handler: handleServiceRegistered
         - event: ServiceUnregistered(indexed address)
           handler: handleServiceUnregistered
+
+
+{{#isL1}}
+  - kind: ethereum/contract
+    name: L1Staking
+    network: {{network}}
+    source:
+      address: "{{staking}}"
+      abi: L1Staking
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/l1staking.ts
+      entities:
+        - Indexer
+        - Allocation
+        - GraphNetwork
+        - SubgraphDeployment
+        - GraphAccount
+        - Delegator
+        - DelegatedStake
+        - Epoch
+      abis:
+        - name: L1Staking
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L1Staking.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: DelegationTransferredToL2(indexed address,indexed address,indexed address,address,uint256)
+          handler: handleDelegationTransferredToL2
+        - event: IndexerStakeTransferredToL2(indexed address,indexed address,uint256)
+          handler: handleIndexerStakeTransferredToL2
+        - event: StakeDelegatedUnlockedDueToL2Transfer(indexed address,indexed address)
+          handler: handleStakeDelegatedUnlockedDueToL2Transfer
+{{/isL1}}
+{{^isL1}}
+  - kind: ethereum/contract
+    name: L2Staking
+    network: {{network}}
+    source:
+      address: "{{staking}}"
+      abi: L2Staking
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/l2staking.ts
+      entities:
+        - Indexer
+        - Allocation
+        - GraphNetwork
+        - SubgraphDeployment
+        - GraphAccount
+        - Delegator
+        - DelegatedStake
+        - Epoch
+      abis:
+        - name: L2Staking
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L2Staking.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: TransferredDelegationReturnedToDelegator(indexed address,indexed address,uint256)
+          handler: handleTransferredDelegationReturnedToDelegator
+{{/isL1}}
   - kind: ethereum/contract
     name: Staking
     network: {{network}}

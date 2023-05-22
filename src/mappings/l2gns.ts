@@ -116,6 +116,6 @@ export function handleCuratorBalanceReturnedToBeneficiary(
   event: CuratorBalanceReturnedToBeneficiary,
 ): void {
   let graphAccount = createOrLoadGraphAccount(event.params._l2Curator, event.block.timestamp)
-  graphAccount.balanceReceivedFromL1 = graphAccount.balanceReceivedFromL1.plus(event.params._tokens)
+  graphAccount.balanceReceivedFromL1Signalling = graphAccount.balanceReceivedFromL1Signalling.plus(event.params._tokens)
   graphAccount.save()
 }
