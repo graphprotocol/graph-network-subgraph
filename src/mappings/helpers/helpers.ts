@@ -133,6 +133,8 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.account = id
 
     indexer.stakedTokens = BigInt.fromI32(0)
+    indexer.transferredToL2 = false
+    indexer.stakedTokensTransferredToL2 = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
     indexer.unstakedTokens = BigInt.fromI32(0)
@@ -220,6 +222,8 @@ export function createOrLoadDelegatedStake(
     delegatedStake.indexer = indexer
     delegatedStake.delegator = delegator
     delegatedStake.stakedTokens = BigInt.fromI32(0)
+    delegatedStake.transferredToL2 = false
+    delegatedStake.stakedTokensTransferredToL2 = BigInt.fromI32(0)
     delegatedStake.unstakedTokens = BigInt.fromI32(0)
     delegatedStake.lockedTokens = BigInt.fromI32(0)
     delegatedStake.lockedUntil = 0
@@ -374,7 +378,8 @@ export function createOrLoadGraphAccount(owner: Bytes, timeStamp: BigInt): Graph
     graphAccount.createdAt = timeStamp.toI32()
     graphAccount.operators = []
     graphAccount.balance = BigInt.fromI32(0)
-    graphAccount.balanceReceivedFromL1 = BigInt.fromI32(0)
+    graphAccount.balanceReceivedFromL1Signalling = BigInt.fromI32(0)
+    graphAccount.balanceReceivedFromL1Delegation = BigInt.fromI32(0)
     graphAccount.curationApproval = BigInt.fromI32(0)
     graphAccount.stakingApproval = BigInt.fromI32(0)
     graphAccount.gnsApproval = BigInt.fromI32(0)
