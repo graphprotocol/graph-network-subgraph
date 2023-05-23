@@ -148,6 +148,8 @@ export function fetchSubgraphDeploymentManifest(deployment: SubgraphDeployment, 
     } else {
       log.warning("[MANIFEST PARSING FAIL] Deployment: {}, network can't be parsed. Error: networkSplitTry.length isn't 2, actual length: {}", [ipfsHash, networkSplitTry.length.toString()])
     }
+    let substreamsSplitTry = manifest.split('- kind: substreams', 2)
+    deployment.poweredBySubstreams = substreamsSplitTry.length > 1
   }
   {{/ipfs}}
   return deployment as SubgraphDeployment
