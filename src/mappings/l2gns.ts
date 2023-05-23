@@ -37,6 +37,9 @@ export function handleSubgraphReceivedFromL1(event: SubgraphReceivedFromL1): voi
   subgraph.startedTransferToL2At = event.block.timestamp
   subgraph.startedTransferToL2AtBlockNumber = event.block.number
   subgraph.startedTransferToL2AtTx = event.transaction.hash.toHexString()
+  subgraph.signalledTokensReceivedOnL2 = subgraph.signalledTokensReceivedOnL2.plus(
+    event.params._tokens,
+  )
   subgraph.idOnL1 = convertBigIntSubgraphIDToBase58(event.params._l1SubgraphID)
   subgraph.idOnL2 = convertBigIntSubgraphIDToBase58(event.params._l2SubgraphID)
   subgraph.save()
