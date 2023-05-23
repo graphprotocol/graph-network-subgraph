@@ -530,6 +530,8 @@ type SubgraphDeployment @entity {
   manifest: String
   "Network where the contracts that the subgraph indexes are located"
   network: Network
+  "Whether the subgraph is a SpS/SbS. Null if we can't parse it"
+  poweredBySubstreams: Boolean
   "Schema file for this subgraph deployment"
   schema: String
   "IPFS hash of the schema file"
