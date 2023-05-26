@@ -12,6 +12,7 @@ import { getOutBoxTransactionExecutedData } from "./events/OutBoxTransactionExec
 import { getMessageDeliveredData } from "./events/MessageDelivered";
 import { getInboxMessageDeliveredData } from "./events/InboxMessageDelivered";
 import { getTxToL2Data } from "./events/TxToL2";
+import { addresses } from "../../../config/addresses";
 
 // Gets transactionIndex
 // Returns null if the withdrawal call contains multiple 'OutBoxTransactionExecuted' events (i.e: multiple withdrawals on same multicall call)
@@ -48,10 +49,11 @@ export function getRetryableTicketId(
   // Build the input array
   let fields: ByteArray[] = [];
 
-  // TODO: get chainId dynamically
+  // Get the L2 chain id based on the L1 network
   // 0x066EED = 421613 (Arbitrum Goerli)
   // 0xA4B1 = 42161 (Arbitrum One)
-  let l2ChainId = Bytes.fromHexString("0xA4B1");
+  let l2ChainIdHex = addresses.network === "mainnet" ? "0xA4B1" : "0x066EED";
+  let l2ChainId = Bytes.fromHexString(l2ChainIdHex);
   fields.push(l2ChainId);
 
   let messageNumber = Bytes.fromHexString(
@@ -86,7 +88,7 @@ export function getRetryableTicketId(
 
   let callValueRefundAddress = inboxMessageDeliveredData.callValueRefundAddress;
   fields.push(callValueRefundAddress);
-
+ 
   let maxSubmissionFee = bigIntToBytes(
     inboxMessageDeliveredData.maxSubmissionCost
   );
