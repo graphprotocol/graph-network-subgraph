@@ -25,6 +25,10 @@ import {
 } from '../types/GNS/GNSStitched'
 
 import {
+  SubgraphMetadata as SubgraphMetadataTemplate
+} from '../types/templates'
+
+import {
   Subgraph,
   SubgraphVersion,
   NameSignalTransaction,
@@ -56,7 +60,6 @@ import {
   duplicateOrUpdateNameSignalWithNewID,
   createOrLoadGraphNetwork
 } from './helpers/helpers'
-import { fetchSubgraphMetadata, fetchSubgraphVersionMetadata } from './helpers/metadata'
 import { addresses } from '../../config/addresses'
 
 export function handleSetDefaultName(event: SetDefaultName): void {
@@ -184,12 +187,15 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
   let base58Hash = hexHash.toBase58()
 
   subgraph.metadataHash = event.params.subgraphMetadata
-  subgraph.ipfsMetadataHash = addQm(subgraph.metadataHash).toBase58()
-  subgraph = fetchSubgraphMetadata(subgraph, base58Hash)
+  subgraph.metadata = base58Hash
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
+  // ToDo create template
+
+  // Might need to remove duplicates and always use the new IDs to make the code cleaner
   let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, oldID, 1)
+  subgraphDuplicate.metadata = base58Hash;
   subgraphDuplicate.save()
 }
 
@@ -823,13 +829,15 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
   let base58Hash = hexHash.toBase58()
 
   subgraph.metadataHash = event.params.subgraphMetadata
-  subgraph.ipfsMetadataHash = addQm(subgraph.metadataHash).toBase58()
-  subgraph = fetchSubgraphMetadata(subgraph, base58Hash)
+  subgraph.metadata = base58Hash;
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
+  // ToDo create template
+
   if (subgraph.linkedEntity != null) {
     let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, subgraph.linkedEntity!, 1)
+    subgraphDuplicate.metadata = base58Hash;
     subgraphDuplicate.save()
   }
 }
