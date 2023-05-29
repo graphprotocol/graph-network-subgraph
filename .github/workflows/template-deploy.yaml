@@ -26,51 +26,61 @@ jobs:
         if: ${{ inputs.ENVIRONMENT == 'staging-arbitrum' }}
         run: |
           echo "ENV_SUFFIX=graph-network-arbitrum-staging" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=" >> $GITHUB_ENV
 
       - name: Set mainnet staging environment variables
         if: ${{ inputs.ENVIRONMENT == 'staging-mainnet' }}
         run: |
           echo "ENV_SUFFIX=graph-network-mainnet-staging" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=" >> $GITHUB_ENV
 
       - name: Set mainnet environment variables
         if: ${{ inputs.ENVIRONMENT == 'production' }}
         run: |
           echo "ENV_SUFFIX=graph-network-mainnet" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=" >> $GITHUB_ENV
 
       - name: Set arbitrum environment variables
         if: ${{ inputs.ENVIRONMENT == 'production-arbitrum' }}
         run: |
           echo "ENV_SUFFIX=graph-network-arbitrum" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=" >> $GITHUB_ENV
 
       - name: Set goerli production environment variables
         if: ${{ inputs.ENVIRONMENT == 'production-goerli' }}
         run: |
           echo "ENV_SUFFIX=graph-network-goerli" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=" >> $GITHUB_ENV
 
       - name: Set arbitrum goerli production environment variables
         if: ${{ inputs.ENVIRONMENT == 'production-arbitrum-goerli' }}
         run: |
           echo "ENV_SUFFIX=graph-network-arbitrum-goerli" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=" >> $GITHUB_ENV
 
       - name: Set mainnet environment variables no ipfs
         if: ${{ inputs.ENVIRONMENT == 'production-no-ipfs' }}
         run: |
           echo "ENV_SUFFIX=no-ipfs-network-ethereum" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=no-" >> $GITHUB_ENV
 
       - name: Set arbitrum environment variables no ipfs
         if: ${{ inputs.ENVIRONMENT == 'production-arbitrum-no-ipfs' }}
         run: |
           echo "ENV_SUFFIX=no-ipfs-network-arbitrum" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=no-" >> $GITHUB_ENV
 
       - name: Set goerli production environment variables no ipfs
         if: ${{ inputs.ENVIRONMENT == 'production-goerli-no-ipfs' }}
         run: |
           echo "ENV_SUFFIX=no-ipfs-network-goerli" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=no-" >> $GITHUB_ENV
 
       - name: Set arbitrum goerli production environment variables no ipfs
         if: ${{ inputs.ENVIRONMENT == 'production-arbitrum-goerli-no-ipfs' }}
         run: |
           echo "ENV_SUFFIX=no-ipfs-network-arb-goerli" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=no-" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -89,8 +99,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       # Run scripts
-      - name: Prepare IPFS enabled files
-        run: ./node_modules/.bin/mustache ./config/ipfs.json ./src/mappings/helpers/metadata.template.ts > ./src/mappings/helpers/metadata.ts
+      - name: Prepare IPFS enabled/disabled files
+        run: ./node_modules/.bin/mustache ./config/${{ env.IPFS_SUFFIX }}ipfs.json ./src/mappings/helpers/metadata.template.ts > ./src/mappings/helpers/metadata.ts
 
       - name: Prepare addresses ${{ inputs.ENVIRONMENT }}
         run: ./node_modules/.bin/ts-node config/${{ inputs.CONFIG }} && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts

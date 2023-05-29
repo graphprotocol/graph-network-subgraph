@@ -11,3 +11,4 @@ subgraph.yaml
 config/addresses.ts
 config/generatedAddresses.json
 tests/.bin
+.vscode
