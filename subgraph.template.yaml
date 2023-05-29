@@ -695,3 +695,63 @@ templates:
           handler: handleApproveTokenDestinations
         - event: RevokeTokenDestinations()
           handler: handleRevokeTokenDestinations
+  - name: SubgraphDeploymentManifest
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/ipfs.ts
+      handler: handleSubgraphDeploymentManifest
+      entities:
+        - SubgraphDeploymentManifest
+      abis:
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+  - name: SubgraphDeploymentSchema
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/ipfs.ts
+      handler: handleSubgraphDeploymentSchema
+      entities:
+        - SubgraphDeploymentSchema
+      abis:
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+  - name: SubgraphMetadata
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/ipfs.ts
+      handler: handleSubgraphMetadata
+      entities:
+        - SubgraphMetadata
+      abis:
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+  - name: SubgraphVersionMetadata
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/ipfs.ts
+      handler: handleSubgraphVersionMetadata
+      entities:
+        - SubgraphVersionMetadata
+      abis:
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+  - name: GraphAccountMetadata
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mapping/ipfs.ts
+      handler: handleGraphAccountMetadata
+      entities:
+        - GraphAccountMetadata
+      abis:
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
