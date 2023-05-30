@@ -125,7 +125,8 @@ export function createOrLoadSubgraphDeployment(
   return deployment as SubgraphDeployment
 }
 
-export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
+export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): Indexer {
+  let id = indexerAddress.toHexString()
   let indexer = Indexer.load(id)
   if (indexer == null) {
     indexer = new Indexer(id)
@@ -171,7 +172,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.annualizedReturn = BigDecimal.fromString('0')
     indexer.stakingEfficiency = BigDecimal.fromString('0')
 
-    let graphAccount = GraphAccount.load(id)!
+    let graphAccount = createOrLoadGraphAccount(indexerAddress, timestamp)
     graphAccount.indexer = id
     graphAccount.save()
 
