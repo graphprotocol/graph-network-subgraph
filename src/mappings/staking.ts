@@ -192,7 +192,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
 
   // update delegator
   let delegatorID = event.params.delegator.toHexString()
-  let delegator = createOrLoadDelegator(delegatorID, event.block.timestamp)
+  let delegator = createOrLoadDelegator(event.params.delegator, event.block.timestamp)
   delegator.totalStakedTokens = delegator.totalStakedTokens.plus(event.params.tokens)
   delegator.save()
 

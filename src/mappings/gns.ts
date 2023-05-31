@@ -342,7 +342,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   subgraphDuplicate.save()
 
   // Update the curator
-  let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
   // nSignal
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
@@ -375,7 +375,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   }
   curator.save()
 
-  let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
+  let nameSignal = createOrLoadNameSignal(event.params.nameCurator, subgraphID, event.block.timestamp)
 
   let isNameSignalBecomingActive =
     nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
@@ -467,7 +467,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
 
   // update name signal
   let nameSignal = createOrLoadNameSignal(
-    event.params.nameCurator.toHexString(),
+    event.params.nameCurator,
     subgraphID,
     event.block.timestamp,
   )
@@ -495,7 +495,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   }
 
   // update curator
-  let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
   curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
     event.params.tokensReceived,
   )
@@ -680,7 +680,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   subgraphDuplicate.save()
 
   let nameSignal = createOrLoadNameSignal(
-    event.params.nameCurator.toHexString(),
+    event.params.nameCurator,
     subgraphID,
     event.block.timestamp,
   )
@@ -855,7 +855,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   }
 
   // Update the curator
-  let curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
   // nSignal
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
@@ -888,7 +888,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   }
   curator.save()
 
-  let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
+  let nameSignal = createOrLoadNameSignal(event.params.curator, subgraphID, event.block.timestamp)
 
   let isNameSignalBecomingActive =
     nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
@@ -984,7 +984,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
 
   // update name signal
   let nameSignal = createOrLoadNameSignal(
-    event.params.curator.toHexString(),
+    event.params.curator,
     subgraphID,
     event.block.timestamp,
   )
@@ -1012,7 +1012,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   }
 
   // update curator
-  let curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
   curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
     event.params.tokensReceived,
   )
@@ -1108,7 +1108,7 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
   }
 
   let nameSignal = createOrLoadNameSignal(
-    event.params.curator.toHexString(),
+    event.params.curator,
     subgraphID,
     event.block.timestamp,
   )
