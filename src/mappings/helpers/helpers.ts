@@ -187,7 +187,8 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): I
   return indexer as Indexer
 }
 
-export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator {
+export function createOrLoadDelegator(delegatorAddress: Bytes, timestamp: BigInt): Delegator {
+  let id = delegatorAddress.toHexString()
   let delegator = Delegator.load(id)
   if (delegator == null) {
     delegator = new Delegator(id)
@@ -200,7 +201,7 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
     delegator.activeStakesCount = 0
     delegator.save()
 
-    let graphAccount = GraphAccount.load(id)!
+    let graphAccount = createOrLoadGraphAccount(delegatorAddress, timestamp)
     graphAccount.delegator = id
     graphAccount.save()
 
@@ -245,7 +246,8 @@ export function createOrLoadDelegatedStake(
   }
   return delegatedStake as DelegatedStake
 }
-export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
+export function createOrLoadCurator(curatorAddress: Bytes, timestamp: BigInt): Curator {
+  let id = curatorAddress.toHexString()
   let curator = Curator.load(id)
   if (curator == null) {
     curator = new Curator(id)
@@ -277,7 +279,7 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.activeCombinedSignalCount = 0
     curator.save()
 
-    let graphAccount = GraphAccount.load(id)!
+    let graphAccount = createOrLoadGraphAccount(curatorAddress, timestamp)
     graphAccount.curator = id
     graphAccount.save()
 
@@ -322,15 +324,15 @@ export function createOrLoadSignal(
 }
 
 export function createOrLoadNameSignal(
-  curator: string,
+  curatorAddress: Bytes,
   subgraphID: string,
   timestamp: BigInt,
 ): NameSignal {
-  let nameSignalID = joinID([curator, subgraphID])
+  let nameSignalID = joinID([curatorAddress.toHexString(), subgraphID])
   let nameSignal = NameSignal.load(nameSignalID)
   if (nameSignal == null) {
     nameSignal = new NameSignal(nameSignalID)
-    let underlyingCurator = createOrLoadCurator(curator, timestamp)
+    let underlyingCurator = createOrLoadCurator(curatorAddress, timestamp)
     nameSignal.entityVersion = 2
     nameSignal.curator = underlyingCurator.id
     nameSignal.subgraph = subgraphID
@@ -352,7 +354,7 @@ export function createOrLoadNameSignal(
     nameSignal.signalAverageCostBasisPerSignal = BigDecimal.fromString('0')
     nameSignal.save()
 
-    let curatorEntity = Curator.load(curator)!
+    let curatorEntity = Curator.load(curatorAddress.toHexString())!
     curatorEntity.nameSignalCount = curatorEntity.nameSignalCount + 1
     curatorEntity.combinedSignalCount = curatorEntity.combinedSignalCount + 1
     curatorEntity.save()
