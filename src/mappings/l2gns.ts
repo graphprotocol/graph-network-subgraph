@@ -76,7 +76,7 @@ export function handleCuratorBalanceReceived(event: CuratorBalanceReceived): voi
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
 
   let nameSignal = createOrLoadNameSignal(
-    event.params._l2Curator.toHexString(),
+    event.params._l2Curator,
     subgraphID,
     event.block.timestamp,
   )
