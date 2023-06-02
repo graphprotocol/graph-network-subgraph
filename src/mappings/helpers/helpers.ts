@@ -102,6 +102,10 @@ export function createOrLoadSubgraphDeployment(
     deployment.queryFeesAmount = BigInt.fromI32(0)
     deployment.queryFeeRebates = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
+    deployment.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
+    deployment.signalledTokensSentToL2 = BigInt.fromI32(0)
+
+    deployment.transferredToL2 = false
 
     deployment.signalledTokens = BigInt.fromI32(0)
     deployment.unsignalledTokens = BigInt.fromI32(0)
