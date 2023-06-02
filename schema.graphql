@@ -672,12 +672,9 @@ type Indexer @entity {
   "Amount of GRT transferred to L2. Only visible from L1, as there's no events for it on L2"
   stakedTokensTransferredToL2: BigInt!
   "ID of the indexer on L2. Null if it's not transferred"
-  firstIdOnL2: String
-  "ID of the indexer on L2. Null if it's not transferred"
-  lastIdOnL2: String
+  idOnL2: String
   "ID of the indexer on L1. Null if it's not transferred"
   idOnL1: String
-
 
   # Capacity Data
   "Amount of delegated tokens that can be eligible for rewards"
