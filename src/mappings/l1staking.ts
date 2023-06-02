@@ -26,13 +26,12 @@ export function handleIndexerStakeTransferredToL2(event: IndexerStakeTransferred
     indexer.firstTransferredToL2At = event.block.timestamp
     indexer.firstTransferredToL2AtBlockNumber = event.block.number
     indexer.firstTransferredToL2AtTx = event.transaction.hash.toHexString()
-    indexer.firstIdOnL2 = event.params.l2Indexer.toHexString()
+    indexer.idOnL2 = event.params.l2Indexer.toHexString()
     indexer.idOnL1 = event.params.indexer.toHexString()
   }
   indexer.lastTransferredToL2At = event.block.timestamp
   indexer.lastTransferredToL2AtBlockNumber = event.block.number
   indexer.lastTransferredToL2AtTx = event.transaction.hash.toHexString()
-  indexer.lastIdOnL2 = event.params.l2Indexer.toHexString()
   indexer.save()
 }
 /*
