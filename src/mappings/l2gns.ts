@@ -5,13 +5,12 @@ import {
   CuratorBalanceReceived,
 } from '../types/L2GNS/L2GNS'
 
-import { Subgraph, NameSignal } from '../types/schema'
+import { Subgraph, SubgraphDeployment, SubgraphVersion } from '../types/schema'
 
 import {
   createOrLoadSubgraph,
   createOrLoadNameSignal,
   createOrLoadGraphAccount,
-  joinID,
   convertBigIntSubgraphIDToBase58,
 } from './helpers/helpers'
 
@@ -43,6 +42,8 @@ export function handleSubgraphReceivedFromL1(event: SubgraphReceivedFromL1): voi
   subgraph.idOnL1 = convertBigIntSubgraphIDToBase58(event.params._l1SubgraphID)
   subgraph.idOnL2 = convertBigIntSubgraphIDToBase58(event.params._l2SubgraphID)
   subgraph.save()
+
+  // we can't create version deployment and update them yet!
 }
 
 // event SubgraphL2TransferFinalized(uint256 indexed _l2SubgraphID);
@@ -56,6 +57,15 @@ export function handleSubgraphL2TransferFinalized(event: SubgraphL2TransferFinal
   subgraph.transferredToL2AtBlockNumber = event.block.number
   subgraph.transferredToL2AtTx = event.transaction.hash.toHexString()
   subgraph.save()
+
+  let version = SubgraphVersion.load(subgraph.currentVersion!)!
+  let deployment = SubgraphDeployment.load(version.subgraphDeployment)!
+  deployment.transferredToL2 = true
+  deployment.transferredToL2At = event.block.timestamp
+  deployment.transferredToL2AtBlockNumber = event.block.number
+  deployment.transferredToL2AtTx = event.transaction.hash.toHexString()
+  deployment.signalledTokensReceivedOnL2 = subgraph.signalledTokensReceivedOnL2
+  deployment.save()
 }
 
 /// @dev Emitted when the L1 balance for a curator has been claimed
@@ -81,6 +91,13 @@ export function handleCuratorBalanceReceived(event: CuratorBalanceReceived): voi
     event.params._tokens,
   )
   subgraph.save()
+
+  let version = SubgraphVersion.load(subgraph.currentVersion!)!
+  let deployment = SubgraphDeployment.load(version.subgraphDeployment)!
+  deployment.signalledTokensReceivedOnL2 = deployment.signalledTokensReceivedOnL2.plus(
+    event.params._tokens,
+  )
+  deployment.save()
 }
 
 /// @dev Emitted when the L1 balance for a curator has been returned to the beneficiary.

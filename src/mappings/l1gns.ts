@@ -1,6 +1,6 @@
 import { SubgraphSentToL2, CuratorBalanceSentToL2 } from '../types/L1GNS/L1GNS'
 
-import { Subgraph, NameSignal } from '../types/schema'
+import { Subgraph, NameSignal, SubgraphVersion, SubgraphDeployment } from '../types/schema'
 
 import {
   joinID,
@@ -30,6 +30,15 @@ export function handleSubgraphSentToL2(event: SubgraphSentToL2): void {
   subgraph.idOnL1 = subgraphID
   subgraph.idOnL2 = l2id
   subgraph.save()
+
+  let version = SubgraphVersion.load(subgraph.currentVersion!)!
+  let deployment = SubgraphDeployment.load(version.subgraphDeployment)!
+  deployment.transferredToL2 = true
+  deployment.transferredToL2At = event.block.timestamp
+  deployment.transferredToL2AtBlockNumber = event.block.number
+  deployment.transferredToL2AtTx = event.transaction.hash.toHexString()
+  deployment.signalledTokensSentToL2 = deployment.signalledTokensSentToL2.plus(event.params._tokens)
+  deployment.save()
 }
 
 /*
@@ -56,4 +65,9 @@ export function handleCuratorBalanceSentToL2(event: CuratorBalanceSentToL2): voi
   let subgraph = Subgraph.load(subgraphID)!
   subgraph.signalledTokensSentToL2 = subgraph.signalledTokensSentToL2.plus(event.params._tokens)
   subgraph.save()
+
+  let version = SubgraphVersion.load(subgraph.currentVersion!)!
+  let deployment = SubgraphDeployment.load(version.subgraphDeployment)!
+  deployment.signalledTokensSentToL2 = deployment.signalledTokensSentToL2.plus(event.params._tokens)
+  deployment.save()
 }

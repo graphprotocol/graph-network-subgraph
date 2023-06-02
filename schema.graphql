@@ -570,6 +570,19 @@ type SubgraphDeployment @entity {
   activeSubgraphCount: Int!
   "Amount of Subgraph entities that were currently using this deployment when they got deprecated"
   deprecatedSubgraphCount: Int!
+
+  "Whether the deployment has been transferred from L1 to L2. Subgraphs published on L2 will have this as false unless they were published through a transfer"
+  transferredToL2: Boolean!
+  "Timestamp for the L1 -> L2 Transfer. Null if it's not fully transferred or if it's an L1 deployment"
+  transferredToL2At: BigInt
+  "Block number for the L1 -> L2 Transfer. Null if it's not fully transferred or if it's an L1 deployment"
+  transferredToL2AtBlockNumber: BigInt
+  "Transaction hash for the L1 -> L2 Transfer. Null if it's not fully transferred or if it's an L1 deployment"
+  transferredToL2AtTx: String
+  "Amount of GRT transferred to L2"
+  signalledTokensSentToL2: BigInt!
+  "Amount of GRT received on L2"
+  signalledTokensReceivedOnL2: BigInt!
 }
 
 # TODO - add when we have the ability to parse data sources
