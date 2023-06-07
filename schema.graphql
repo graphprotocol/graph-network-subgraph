@@ -244,7 +244,7 @@ type GraphAccount @entity {
   defaultDisplayName: String
 
   # IPFS Metadata. Duplicated for backwards compatibility
-  metadata: GraphAccountMetadata!
+  metadata: GraphAccountMetadata
   "True if it is an organization. False if it is an individual"
   isOrganization: Boolean
   "Main repository of code for the graph account"
@@ -443,7 +443,7 @@ type Subgraph @entity {
   "Subgraph metadata"
   metadataHash: Bytes!
   "Subgraph metadata ipfs hash and entity"
-  metadata: SubgraphMetadata!
+  metadata: SubgraphMetadata
   "Short description of the subgraph"
   description: String
   "Image in string format"
@@ -537,7 +537,7 @@ type SubgraphVersion @entity {
 
   metadataHash: Bytes!
   # Metadata from IPFS linked in GNS
-  metadata: SubgraphVersionMetadata!
+  metadata: SubgraphVersionMetadata
   "Short description of the version"
   description: String
   "Semantic versioning label"
