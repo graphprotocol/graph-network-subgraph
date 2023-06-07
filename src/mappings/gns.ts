@@ -40,6 +40,7 @@ import {
   GraphAccount,
   NameSignalSubgraphRelation,
   NameSignal,
+  SubgraphMetadata,
 } from '../types/schema'
 
 import { zeroBD } from './utils'
@@ -184,7 +185,10 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
-  // ToDo create template
+  let metadata = new SubgraphMetadata(base58Hash)
+  metadata.subgraph = subgraph.id;
+  metadata.save()
+  SubgraphMetadataTemplate.create(base58Hash)
 }
 
 /**
@@ -716,7 +720,10 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
-  // ToDo create template
+  let metadata = new SubgraphMetadata(base58Hash)
+  metadata.subgraph = subgraph.id;
+  metadata.save()
+  SubgraphMetadataTemplate.create(base58Hash)
 }
 
 // - event: SignalMinted(indexed uint256,indexed address,uint256,uint256,uint256)
