@@ -332,6 +332,7 @@ export function createOrLoadNameSignal(
     nameSignal.signalledTokens = BigInt.fromI32(0)
     nameSignal.signalledTokensSentToL2 = BigInt.fromI32(0)
     nameSignal.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
+    nameSignal.transferredToL2 = false
     nameSignal.unsignalledTokens = BigInt.fromI32(0)
     nameSignal.withdrawnTokens = BigInt.fromI32(0)
     nameSignal.nameSignal = BigInt.fromI32(0)
