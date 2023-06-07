@@ -12,8 +12,8 @@ import { jsonToString } from './utils'
 import { createOrLoadSubgraphCategory, createOrLoadSubgraphCategoryRelation } from './helpers/helpers'
 
 export function handleSubgraphMetadata(content: Bytes): void {
-  let subgraphMetadata = SubgraphMetadata.load(dataSource.stringParam())
-  let subgraph = Subgraph.load(subgraphMetadata.subgraph)
+  let subgraphMetadata = SubgraphMetadata.load(dataSource.stringParam())!
+  let subgraph = Subgraph.load(subgraphMetadata.subgraph)!
   let tryData = json.try_fromBytes(content)
   if (tryData.isOk) {
     let data = tryData.value.toObject()
@@ -58,15 +58,15 @@ export function handleSubgraphMetadata(content: Bytes): void {
 }
 
 export function handleSubgraphVersionMetadata(content: Bytes): void {
-  let subgraphVersionMetadata = SubgraphVersionMetadata.load(dataSource.stringParam())
-  const value = json.fromBytes(content).toObject()
-  if (value) {
-    subgraphMetadata.save()
-  }
+  // let subgraphVersionMetadata = SubgraphVersionMetadata.load(dataSource.stringParam())
+  // const value = json.fromBytes(content).toObject()
+  // if (value) {
+  //   subgraphVersionMetadata.save()
+  // }
 }
 
 export function handleGraphAccountMetadata(content: Bytes): void {
-  let graphAccountMetadata = GraphAccountMetadata.load(dataSource.stringParam())
+  let graphAccountMetadata = GraphAccountMetadata.load(dataSource.stringParam())!
   let graphAccount = GraphAccount.load(graphAccountMetadata.graphAccount)!
   let tryData = json.try_fromBytes(content)
   if (tryData.isOk) {
@@ -93,17 +93,17 @@ export function handleGraphAccountMetadata(content: Bytes): void {
 }
 
 export function handleSubgraphDeploymentSchema(content: Bytes): void {
-  let subgraphDeploymentSchema = new SubgraphDeploymentSchema(dataSource.stringParam())
-  const value = json.fromBytes(content).toObject()
-  if (value) {
-    subgraphMetadata.save()
-  }
+  // let subgraphDeploymentSchema = new SubgraphDeploymentSchema(dataSource.stringParam())
+  // const value = json.fromBytes(content).toObject()
+  // if (value) {
+  //   subgraphDeploymentSchema.save()
+  // }
 }
 
 export function handleSubgraphDeploymentManifest(content: Bytes): void {
-  let subgraphDeploymentManifest = new SubgraphDeploymentManifest(dataSource.stringParam())
-  const value = json.fromBytes(content).toObject()
-  if (value) {
-    subgraphMetadata.save()
-  }
+  // let subgraphDeploymentManifest = new SubgraphDeploymentManifest(dataSource.stringParam())
+  // const value = json.fromBytes(content).toObject()
+  // if (value) {
+  //   subgraphDeploymentManifest.save()
+  // }
 }

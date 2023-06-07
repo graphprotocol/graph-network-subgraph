@@ -542,7 +542,7 @@ templates:
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: ./src/mapping/ipfs.ts
+      file: ./src/mappings/ipfs.ts
       handler: handleSubgraphDeploymentManifest
       entities:
         - SubgraphDeploymentManifest
@@ -555,7 +555,7 @@ templates:
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: ./src/mapping/ipfs.ts
+      file: ./src/mappings/ipfs.ts
       handler: handleSubgraphDeploymentSchema
       entities:
         - SubgraphDeploymentSchema
@@ -568,7 +568,7 @@ templates:
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: ./src/mapping/ipfs.ts
+      file: ./src/mappings/ipfs.ts
       handler: handleSubgraphMetadata
       entities:
         - SubgraphMetadata
@@ -581,7 +581,7 @@ templates:
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: ./src/mapping/ipfs.ts
+      file: ./src/mappings/ipfs.ts
       handler: handleSubgraphVersionMetadata
       entities:
         - SubgraphVersionMetadata
@@ -594,7 +594,7 @@ templates:
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: ./src/mapping/ipfs.ts
+      file: ./src/mappings/ipfs.ts
       handler: handleGraphAccountMetadata
       entities:
         - GraphAccountMetadata
