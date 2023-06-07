@@ -535,6 +535,7 @@ type SubgraphVersion @entity {
   "Creation timestamp"
   createdAt: Int!
 
+  metadataHash: Bytes!
   # Metadata from IPFS linked in GNS
   metadata: SubgraphVersionMetadata!
   "Short description of the version"
@@ -619,6 +620,8 @@ type SubgraphDeployment @entity {
   manifestEntity: SubgraphDeploymentManifest
   "Entity that represents the schema of the deployment. Filled by File Data Sources"
   schemaEntity: SubgraphDeploymentSchema
+  "Entity that represents the schema of the deployment. Filled by File Data Sources"
+  schemaIpfsHash: String
   "Contents of the Schema file"
   schema: String
   "Contents of the Manifest file"
