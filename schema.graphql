@@ -401,7 +401,7 @@ type Subgraph @entity {
 
   # Metadata from IPFS linked in GNS. For backwards compatibility we duplicate it
   "Subgraph metadata"
-  metadataHash: Bytes!
+  metadataHash: Bytes
   "Subgraph metadata ipfs hash and entity"
   metadata: SubgraphMetadata
   "Short description of the subgraph"
@@ -495,7 +495,7 @@ type SubgraphVersion @entity {
   "Creation timestamp"
   createdAt: Int!
 
-  metadataHash: Bytes!
+  metadataHash: Bytes
   # Metadata from IPFS linked in GNS
   metadata: SubgraphVersionMetadata
   "Short description of the version"
