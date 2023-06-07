@@ -57,6 +57,10 @@ export function handleCuratorBalanceSentToL2(event: CuratorBalanceSentToL2): voi
   let nameSignalL2id = joinID([event.params._l2Beneficiary.toHexString(), subgraphL2id])
 
   let nameSignal = NameSignal.load(nameSignalID)!
+  nameSignal.transferredToL2 = true
+  nameSignal.transferredToL2At = event.block.timestamp
+  nameSignal.transferredToL2AtBlockNumber = event.block.number
+  nameSignal.transferredToL2AtTx = event.transaction.hash.toHexString()
   nameSignal.idOnL1 = nameSignalID
   nameSignal.idOnL2 = nameSignalL2id
   nameSignal.signalledTokensSentToL2 = nameSignal.signalledTokensSentToL2.plus(event.params._tokens)

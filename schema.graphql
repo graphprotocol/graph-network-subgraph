@@ -994,6 +994,14 @@ type NameSignal @entity {
   signalledTokensSentToL2: BigInt!
   "Amount of GRT received on L2"
   signalledTokensReceivedOnL2: BigInt!
+  "Whether the name signal has been transferred from L1 to L2. Only applies to NameSignals that have been transferred, native L2 NameSignal entities will return false"
+  transferredToL2: Boolean!
+  "Timestamp for the L1 -> L2 Transfer."
+  transferredToL2At: BigInt
+  "Block number for the L1 -> L2 Transfer."
+  transferredToL2AtBlockNumber: BigInt
+  "Transaction hash for the L1 -> L2 Transfer."
+  transferredToL2AtTx: String
   "ID of the NameSignal entity on L2. Null if it's not transferred"
   idOnL2: String
   "ID of the NameSignal entity on L1. Null if it's not transferred"
