@@ -231,8 +231,20 @@ type GraphAccount @entity {
   "Default display name is the current default name. Used for filtered queries in the explorer"
   defaultDisplayName: String
 
-  # IPFS Metadata
+  # IPFS Metadata. Duplicated for backwards compatibility
   metadata: GraphAccountMetadata!
+  "True if it is an organization. False if it is an individual"
+  isOrganization: Boolean
+  "Main repository of code for the graph account"
+  codeRepository: String
+  "Description of the graph account"
+  description: String
+  "Image URL"
+  image: String
+  "Website URL"
+  website: String
+  "Display name. Not unique"
+  displayName: String
 
   # Operator info
   "Operator of other Graph Accounts"
@@ -387,11 +399,23 @@ type Subgraph @entity {
   "Total amount of NameSignal entities"
   nameSignalCount: Int!
 
-  # Metadata from IPFS linked in GNS
+  # Metadata from IPFS linked in GNS. For backwards compatibility we duplicate it
   "Subgraph metadata"
   metadataHash: Bytes!
-  "Subgraph metadata ipfs hash"
+  "Subgraph metadata ipfs hash and entity"
   metadata: SubgraphMetadata!
+  "Short description of the subgraph"
+  description: String
+  "Image in string format"
+  image: String
+  "NFT Image representation"
+  nftImage: String
+  "Location of the code for this project"
+  codeRepository: String
+  "Projects website"
+  website: String
+  "Display name"
+  displayName: String
   "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
   categories: [SubgraphCategoryRelation!]! @derivedFrom(field: "subgraph")
 
@@ -472,14 +496,18 @@ type SubgraphVersion @entity {
   createdAt: Int!
 
   # Metadata from IPFS linked in GNS
-  metadata: SubgraphVersionMedatada!
+  metadata: SubgraphVersionMetadata!
+  "Short description of the version"
+  description: String
+  "Semantic versioning label"
+  label: String
 
   entityVersion: Int!
   "[DEPRECATED] Used for duplicate entities to enable old IDs from before the subgraph NFT update"
   linkedEntity: SubgraphVersion
 }
 
-type SubgraphVersionMedatada @entity {
+type SubgraphVersionMetadata @entity {
   "Subgraph version metadata ipfs hash"
   id: ID!
   "Subgraph version entity"
@@ -548,10 +576,17 @@ type SubgraphDeployment @entity {
   # From Subgraph Manifest
   # dataSources: [DataSource!]
   "Entity that represents the manifest of the deployment. Filled by File Data Sources"
-  manifest: SubgraphDeploymentManifest
-
+  manifestEntity: SubgraphDeploymentManifest
   "Entity that represents the schema of the deployment. Filled by File Data Sources"
-  schema: SubgraphDeploymentSchema
+  schemaEntity: SubgraphDeploymentSchema
+  "Contents of the Schema file"
+  schema: String
+  "Contents of the Manifest file"
+  manifest: String
+  "Network where the contracts that the subgraph indexes are located"
+  network: Network
+  "Whether the subgraph is a SpS/SbS. Null if we can't parse it"
+  poweredBySubstreams: Boolean
 
   # Counters for currentSignalledTokens tracking on Subgraph
   "Total amount of Subgraph entities that used this deployment at some point. subgraphCount >= activeSubgraphCount + deprecatedSubgraphCount"
