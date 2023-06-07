@@ -400,7 +400,7 @@ type Subgraph @entity {
   initializing: Boolean!
   "Version of the entity. Subgraph entities are changing the way their ID is generated when the new GNS v2 rolls out so we need to differnetiate them"
   entityVersion: Int!
-  "Subgraph entities might have 'duplicate' entities so that old IDs can be persisted and still queried properly. If that happens we have to link both duplicate entities to be able to update them properly."
+  "[DEPRECATED] Used for duplicate entities to enable old IDs from before the subgraph NFT update"
   linkedEntity: Subgraph
 
   # Name curation data for bonding curve
@@ -515,6 +515,7 @@ type SubgraphVersion @entity {
   metadata: SubgraphVersionMedatada!
 
   entityVersion: Int!
+  "[DEPRECATED] Used for duplicate entities to enable old IDs from before the subgraph NFT update"
   linkedEntity: SubgraphVersion
 }
 
@@ -1114,6 +1115,7 @@ type NameSignal @entity {
   signalAverageCostBasisPerSignal: BigDecimal!
 
   entityVersion: Int!
+  "[DEPRECATED] Used for duplicate entities to enable old IDs from before the subgraph NFT update"
   linkedEntity: NameSignal
 }
 
