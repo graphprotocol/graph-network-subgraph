@@ -1,7 +1,7 @@
 import { Bytes } from '@graphprotocol/graph-ts'
 import { DIDAttributeChanged } from '../types/EthereumDIDRegistry/EthereumDIDRegistry'
 import { GraphAccountMetadata as GraphAccountMetadataTemplate } from '../types/templates'
-import { GraphAccount, GraphAccountMetadata } from '../types/schema'
+import { GraphAccount } from '../types/schema'
 
 import { addQm, createOrLoadGraphAccount } from './helpers/helpers'
 
@@ -28,9 +28,6 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
       tlw.save()
     }
 
-    let metadata = new GraphAccountMetadata(base58Hash)
-    metadata.graphAccount = graphAccount.id;
-    metadata.save()
     GraphAccountMetadataTemplate.create(base58Hash)
   }
 }

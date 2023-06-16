@@ -704,7 +704,6 @@ templates:
       handler: handleSubgraphDeploymentManifest
       entities:
         - SubgraphDeploymentManifest
-        - SubgraphDeployment
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
@@ -717,7 +716,6 @@ templates:
       handler: handleSubgraphDeploymentSchema
       entities:
         - SubgraphDeploymentSchema
-        - SubgraphDeployment
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
@@ -730,7 +728,6 @@ templates:
       handler: handleSubgraphMetadata
       entities:
         - SubgraphMetadata
-        - Subgraph
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
@@ -743,7 +740,6 @@ templates:
       handler: handleSubgraphVersionMetadata
       entities:
         - SubgraphVersionMetadata
-        - SubgraphVersion
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
@@ -756,7 +752,6 @@ templates:
       handler: handleGraphAccountMetadata
       entities:
         - GraphAccountMetadata
-        - GraphAccount
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
