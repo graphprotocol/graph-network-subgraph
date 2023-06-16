@@ -231,20 +231,8 @@ type GraphAccount @entity {
   "Default display name is the current default name. Used for filtered queries in the explorer"
   defaultDisplayName: String
 
-  # IPFS Metadata. Duplicated for backwards compatibility
+  # IPFS Metadata.
   metadata: GraphAccountMetadata
-  "True if it is an organization. False if it is an individual"
-  isOrganization: Boolean
-  "Main repository of code for the graph account"
-  codeRepository: String
-  "Description of the graph account"
-  description: String
-  "Image URL"
-  image: String
-  "Website URL"
-  website: String
-  "Display name. Not unique"
-  displayName: String
 
   # Operator info
   "Operator of other Graph Accounts"
@@ -293,11 +281,11 @@ type GraphAccount @entity {
   tokenLockWallets: [TokenLockWallet!]!
 }
 
-type GraphAccountMetadata @entity {
+type GraphAccountMetadata @entity(immutable:true) {
   "IPFS hash with account metadata details"
   id: ID!
   "Original graph account that created it"
-  graphAccount: GraphAccount!
+  graphAccount: [GraphAccount!] @derivedFrom(field:"metadata")
   "True if it is an organization. False if it is an individual"
   isOrganization: Boolean
   "Main repository of code for the graph account"
@@ -399,35 +387,21 @@ type Subgraph @entity {
   "Total amount of NameSignal entities"
   nameSignalCount: Int!
 
-  # Metadata from IPFS linked in GNS. For backwards compatibility we duplicate it
+  # Metadata from IPFS linked in GNS
   "Subgraph metadata"
   metadataHash: Bytes
   "Subgraph metadata ipfs hash and entity"
   metadata: SubgraphMetadata
-  "Short description of the subgraph"
-  description: String
-  "Image in string format"
-  image: String
-  "NFT Image representation"
-  nftImage: String
-  "Location of the code for this project"
-  codeRepository: String
-  "Projects website"
-  website: String
-  "Display name"
-  displayName: String
-  "Categories that the subgraph belongs to. Modelled with a relation to allow for many-to-many relationship querying"
-  categories: [SubgraphCategoryRelation!]! @derivedFrom(field: "subgraph")
 
   # Auxiliary fields
   currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
 }
 
-type SubgraphMetadata @entity {
+type SubgraphMetadata @entity(immutable:true) {
   "Subgraph metadata ipfs hash"
   id: ID!
   "Subgraph entity"
-  subgraph: Subgraph!
+  subgraph: Subgraph @derivedFrom(field:"metadata")
   "Short description of the subgraph"
   description: String
   "Image in string format"
@@ -440,7 +414,8 @@ type SubgraphMetadata @entity {
   website: String
   "Display name"
   displayName: String
-  #maybe add categories here too?
+  "Categories that the subgraph belongs to."
+  categories: [String!]
 }
 
 type CurrentSubgraphDeploymentRelation @entity {
@@ -455,25 +430,6 @@ type CurrentSubgraphDeploymentRelation @entity {
   active: Boolean!
 }
 
-type Network @entity {
-  id: ID!
-
-  deployments: [SubgraphDeploymentManifest!]! @derivedFrom(field: "network")
-}
-
-type SubgraphCategoryRelation @entity {
-  id: ID!
-
-  subgraph: Subgraph!
-
-  category: SubgraphCategory!
-}
-
-type SubgraphCategory @entity {
-  id: ID!
-
-  subgraphs: [SubgraphCategoryRelation!]! @derivedFrom(field: "category")
-}
 
 """
 The SubgraphVersion entity represents a version of the Subgraph. A new SubgraphVersion is created
@@ -498,21 +454,17 @@ type SubgraphVersion @entity {
   metadataHash: Bytes
   # Metadata from IPFS linked in GNS
   metadata: SubgraphVersionMetadata
-  "Short description of the version"
-  description: String
-  "Semantic versioning label"
-  label: String
 
   entityVersion: Int!
   "[DEPRECATED] Used for duplicate entities to enable old IDs from before the subgraph NFT update"
   linkedEntity: SubgraphVersion
 }
 
-type SubgraphVersionMetadata @entity {
+type SubgraphVersionMetadata @entity(immutable:true) {
   "Subgraph version metadata ipfs hash"
   id: ID!
   "Subgraph version entity"
-  subgraphVersion: SubgraphVersion!
+  subgraphVersion: SubgraphVersion @derivedFrom(field:"metadata")
   "Short description of the version"
   description: String
   "Semantic versioning label"
@@ -577,19 +529,11 @@ type SubgraphDeployment @entity {
   # From Subgraph Manifest
   # dataSources: [DataSource!]
   "Entity that represents the manifest of the deployment. Filled by File Data Sources"
-  manifestEntity: SubgraphDeploymentManifest
+  manifest: SubgraphDeploymentManifest
   "Entity that represents the schema of the deployment. Filled by File Data Sources"
-  schemaEntity: SubgraphDeploymentSchema
-  "Entity that represents the schema of the deployment. Filled by File Data Sources"
+  schema: SubgraphDeploymentSchema
+  "shcema ipfs hash string"
   schemaIpfsHash: String
-  "Contents of the Schema file"
-  schema: String
-  "Contents of the Manifest file"
-  manifest: String
-  "Network where the contracts that the subgraph indexes are located"
-  network: Network
-  "Whether the subgraph is a SpS/SbS. Null if we can't parse it"
-  poweredBySubstreams: Boolean
 
   # Counters for currentSignalledTokens tracking on Subgraph
   "Total amount of Subgraph entities that used this deployment at some point. subgraphCount >= activeSubgraphCount + deprecatedSubgraphCount"
@@ -600,20 +544,24 @@ type SubgraphDeployment @entity {
   deprecatedSubgraphCount: Int!
 }
 
-type SubgraphDeploymentSchema @entity {
+type SubgraphDeploymentSchema @entity(immutable:true) {
   "IPFS Hash"
   id: ID!
+  "Link to SubgraphDeployment entity"
+  deployment: SubgraphDeployment @derivedFrom(field:"schema")
   "Contents of the Schema file"
   schema: String
 }
 
-type SubgraphDeploymentManifest @entity {
+type SubgraphDeploymentManifest @entity(immutable:true) {
   "IPFS Hash"
   id: ID!
+  "Link to SubgraphDeployment entity"
+  deployment: SubgraphDeployment @derivedFrom(field:"manifest")
   "Contents of the Manifest file"
   manifest: String
   "Network where the contracts that the subgraph indexes are located"
-  network: Network
+  network: String
   "Whether the subgraph is a SpS/SbS. Null if we can't parse it"
   poweredBySubstreams: Boolean
 }
@@ -1384,10 +1332,10 @@ Full test search for displayName and description on the Subgraph Entity
 """
 type _Schema_
   @fulltext(
-    name: "subgraphSearch"
+    name: "subgraphMetadataSearch"
     language: en
     algorithm: rank
-    include: [{ entity: "Subgraph", fields: [{ name: "displayName" }, { name: "description" }] }]
+    include: [{ entity: "SubgraphMetadata", fields: [{ name: "displayName" }, { name: "description" }] }]
   )
   @fulltext(
     name: "curatorSearch"
