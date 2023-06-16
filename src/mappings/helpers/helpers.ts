@@ -23,9 +23,6 @@ import {
   NameSignal,
   Delegator,
   DelegatedStake,
-  Network,
-  SubgraphCategory,
-  SubgraphCategoryRelation,
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
 } from '../../types/schema'
@@ -854,41 +851,41 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
   return pricePerShare
 }
 
-export function createOrLoadNetwork(id: string): Network {
-  let network = Network.load(id)
-  if (network == null) {
-    network = new Network(id)
+// export function createOrLoadNetwork(id: string): Network {
+//   let network = Network.load(id)
+//   if (network == null) {
+//     network = new Network(id)
 
-    network.save()
-  }
-  return network as Network
-}
+//     network.save()
+//   }
+//   return network as Network
+// }
 
-export function createOrLoadSubgraphCategory(id: string): SubgraphCategory {
-  let category = SubgraphCategory.load(id)
-  if (category == null) {
-    category = new SubgraphCategory(id)
+// export function createOrLoadSubgraphCategory(id: string): SubgraphCategory {
+//   let category = SubgraphCategory.load(id)
+//   if (category == null) {
+//     category = new SubgraphCategory(id)
 
-    category.save()
-  }
-  return category as SubgraphCategory
-}
+//     category.save()
+//   }
+//   return category as SubgraphCategory
+// }
 
-export function createOrLoadSubgraphCategoryRelation(
-  categoryId: string,
-  subgraphId: string,
-): SubgraphCategoryRelation {
-  let id = joinID([categoryId, subgraphId])
-  let relation = SubgraphCategoryRelation.load(id)
-  if (relation == null) {
-    relation = new SubgraphCategoryRelation(id)
-    relation.subgraph = subgraphId
-    relation.category = categoryId
+// export function createOrLoadSubgraphCategoryRelation(
+//   categoryId: string,
+//   subgraphMetadataId: string,
+// ): SubgraphCategoryRelation {
+//   let id = joinID([categoryId, subgraphMetadataId])
+//   let relation = SubgraphCategoryRelation.load(id)
+//   if (relation == null) {
+//     relation = new SubgraphCategoryRelation(id)
+//     relation.metadata = subgraphMetadataId
+//     relation.category = categoryId
 
-    relation.save()
-  }
-  return relation as SubgraphCategoryRelation
-}
+//     relation.save()
+//   }
+//   return relation as SubgraphCategoryRelation
+// }
 
 export function updateCurrentDeploymentLinks(
   oldDeployment: SubgraphDeployment | null,
@@ -949,7 +946,7 @@ export function convertBigIntSubgraphIDToBase58(bigIntRepresentation: BigInt): S
   // Although for the events where the uint256 is provided, we probably don't need to unpad.
   let hexString = bigIntRepresentation.toHexString()
   if (hexString.length % 2 != 0) {
-    log.error('Hex string not even, hex: {}, original: {}. Padding it to even length', [
+    log.warning('Hex string not even, hex: {}, original: {}. Padding it to even length', [
       hexString,
       bigIntRepresentation.toString(),
     ])
