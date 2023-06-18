@@ -739,7 +739,7 @@ function max(a: BigDecimal, b: BigDecimal): BigDecimal {
 }
 
 export function calculateOwnStakeRatio(indexer: Indexer): BigDecimal {
-  let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
+  let stakedTokensBD = indexer.stakedTokens.minus(indexer.lockedTokens).toBigDecimal()
   let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
   let graphNetwork = GraphNetwork.load('1')!
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
