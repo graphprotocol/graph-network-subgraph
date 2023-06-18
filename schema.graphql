@@ -113,8 +113,10 @@ type GraphNetwork @entity {
   totalIndexingIndexerRewards: BigInt!
 
   # Rewards manager global parameters
-  "The issuance rate of GRT per block. To get annual rate do (networkGRTIssuance * 10^-18)^(blocksPerYear)"
+  "(Deprecated) The issuance rate of GRT per block before GIP-0037. To get annual rate do (networkGRTIssuance * 10^-18)^(blocksPerYear)"
   networkGRTIssuance: BigInt!
+  "The issuance rate of GRT per block after GIP-0037. To get annual rate do (networkGRTIssuancePerBlock * blocksPerYear)"
+  networkGRTIssuancePerBlock: BigInt!
   "Address of the availability oracle"
   subgraphAvailabilityOracle: Bytes!
 
@@ -201,6 +203,8 @@ type GraphNetwork @entity {
   totalGRTDeposited: BigInt!
   "Total amount of GRT withdrawn from the L2 gateway and claimed in L1."
   totalGRTWithdrawnConfirmed: BigInt!
+  "Total amount of GRT minted by L1 bridge"
+  totalGRTMintedFromL2: BigInt!
 
   # Bridge totals (Only available on L2 networks)
   "Total amount of GRT deposited to the L1 gateway and redeemed in L2."
