@@ -570,10 +570,6 @@ type SubgraphDeployment @entity {
   # dataSources: [DataSource!]
   "Entity that represents the manifest of the deployment. Filled by File Data Sources"
   manifest: SubgraphDeploymentManifest
-  "Entity that represents the schema of the deployment. Filled by File Data Sources"
-  schema: SubgraphDeploymentSchema
-  "shcema ipfs hash string"
-  schemaIpfsHash: String
 
   # Counters for currentSignalledTokens tracking on Subgraph
   "Total amount of Subgraph entities that used this deployment at some point. subgraphCount >= activeSubgraphCount + deprecatedSubgraphCount"
@@ -601,7 +597,7 @@ type SubgraphDeploymentSchema @entity(immutable:true) {
   "IPFS Hash"
   id: ID!
   "Link to SubgraphDeployment entity"
-  deployment: SubgraphDeployment @derivedFrom(field:"schema")
+  manifest: SubgraphDeploymentManifest @derivedFrom(field:"schema")
   "Contents of the Schema file"
   schema: String
 }
@@ -611,6 +607,10 @@ type SubgraphDeploymentManifest @entity(immutable:true) {
   id: ID!
   "Link to SubgraphDeployment entity"
   deployment: SubgraphDeployment @derivedFrom(field:"manifest")
+  "Schema entity. Not yet working due to limitations with File Data Sources"
+  schema: SubgraphDeploymentSchema
+  "Schema ipfs hash"
+  schemaIpfsHash: String
   "Contents of the Manifest file"
   manifest: String
   "Network where the contracts that the subgraph indexes are located"

@@ -25,7 +25,8 @@ import {
 } from '../types/GNS/GNSStitched'
 
 import {
-  SubgraphMetadata as SubgraphMetadataTemplate
+  SubgraphMetadata as SubgraphMetadataTemplate,
+  SubgraphVersionMetadata as SubgraphVersionMetadataTemplate
 } from '../types/templates'
 
 import {
@@ -235,9 +236,9 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
   let base58Hash = hexHash.toBase58()
   subgraphVersion.metadataHash = event.params.versionMetadata
-  //subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
-
   subgraphVersion.save()
+
+  SubgraphVersionMetadataTemplate.create(base58Hash)
 
   let oldDeployment: SubgraphDeployment | null = null
   if (oldVersionID != null) {
@@ -1075,8 +1076,9 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
     subgraphVersion.metadataHash = event.params.versionMetadata
-    //subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
     subgraphVersion.save()
+
+    SubgraphVersionMetadataTemplate.create(base58Hash)
   } else {
     let oldVersionID = subgraph.currentVersion
 
@@ -1101,7 +1103,6 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
     subgraphVersion.metadataHash = event.params.versionMetadata
-    //subgraphVersion = fetchSubgraphVersionMetadata(subgraphVersion, base58Hash)
 
     let oldDeployment: SubgraphDeployment | null = null
     if (oldVersionID != null) {
@@ -1111,6 +1112,8 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     // create deployment - named subgraph relationship, and update the old one
     updateCurrentDeploymentLinks(oldDeployment, deployment, subgraph as Subgraph)
     subgraphVersion.save()
+    
+    SubgraphVersionMetadataTemplate.create(base58Hash)
   }
 }
 

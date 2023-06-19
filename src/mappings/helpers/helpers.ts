@@ -26,11 +26,14 @@ import {
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
 } from '../../types/schema'
+import {
+  SubgraphDeploymentManifest as SubgraphDeploymentManifestTemplate
+} from '../../types/templates'
 import { ENS } from '../../types/GNS/ENS'
 import { Controller } from '../../types/Controller/Controller'
 import { EpochManager } from '../../types/EpochManager/EpochManager'
-import { fetchSubgraphDeploymentManifest } from './metadata'
 import { addresses } from '../../../config/addresses'
+
 
 export function createOrLoadSubgraph(
   bigIntID: BigInt,
@@ -87,11 +90,7 @@ export function createOrLoadSubgraphDeployment(
     let prefix = '1220'
     deployment = new SubgraphDeployment(subgraphID)
     deployment.ipfsHash = Bytes.fromHexString(prefix.concat(subgraphID.slice(2))).toBase58()
-    /*
-    deployment = fetchSubgraphDeploymentManifest(
-      deployment as SubgraphDeployment,
-      deployment.ipfsHash,
-    )*/
+    deployment.manifest = deployment.ipfsHash
     deployment.createdAt = timestamp.toI32()
     deployment.stakedTokens = BigInt.fromI32(0)
     deployment.indexingRewardAmount = BigInt.fromI32(0)
@@ -116,6 +115,8 @@ export function createOrLoadSubgraphDeployment(
     deployment.activeSubgraphCount = 0
     deployment.deprecatedSubgraphCount = 0
     deployment.save()
+
+    SubgraphDeploymentManifestTemplate.create(deployment.ipfsHash)
 
     graphNetwork.subgraphDeploymentCount = graphNetwork.subgraphDeploymentCount + 1
     graphNetwork.save()
