@@ -1,3 +1,4 @@
+import { BigInt } from '@graphprotocol/graph-ts'
 import {
   IndexerStakeTransferredToL2,
   DelegationTransferredToL2,
@@ -29,6 +30,7 @@ export function handleIndexerStakeTransferredToL2(event: IndexerStakeTransferred
     indexer.idOnL2 = event.params.l2Indexer.toHexString()
     indexer.idOnL1 = event.params.indexer.toHexString()
   }
+  indexer.stakedTokens = indexer.stakedTokens.minus(event.params.transferredStakeTokens)
   indexer.lastTransferredToL2At = event.block.timestamp
   indexer.lastTransferredToL2AtBlockNumber = event.block.number
   indexer.lastTransferredToL2AtTx = event.transaction.hash.toHexString()
@@ -57,6 +59,8 @@ export function handleDelegationTransferredToL2(event: DelegationTransferredToL2
   delegation.stakedTokensTransferredToL2 = delegation.stakedTokensTransferredToL2.plus(
     event.params.transferredDelegationTokens,
   )
+  delegation.shareAmount = BigInt.fromI32(0);
+  delegation.unstakedTokens = delegation.unstakedTokens.plus(event.params.transferredDelegationTokens);
   delegation.transferredToL2 = true
   delegation.transferredToL2At = event.block.timestamp
   delegation.transferredToL2AtBlockNumber = event.block.number
