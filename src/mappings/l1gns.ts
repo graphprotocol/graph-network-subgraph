@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
+import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { SubgraphSentToL2, CuratorBalanceSentToL2 } from '../types/L1GNS/L1GNS'
 
 import { Subgraph, NameSignal, SubgraphVersion, SubgraphDeployment } from '../types/schema'
@@ -50,7 +50,8 @@ export function handleSubgraphSentToL2(event: SubgraphSentToL2): void {
   let curationTokens = event.params._tokens.times(subgraph.nameSignalAmount).div(nameSignal.nameSignal)
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(nameSignal.nameSignal)
-  subgraph.withdrawableTokens = curationTokens.minus(event.params._tokens)
+  let withdrawable = curationTokens.minus(event.params._tokens)
+  subgraph.withdrawableTokens = withdrawable == BigInt.fromI32(-1) ? BigInt.fromI32(0) : withdrawable; // to fix rounding error in AS
 
   nameSignal.nameSignal = BigInt.fromI32(0);
   nameSignal.signal = BigDecimal.fromString('0');
@@ -97,7 +98,8 @@ export function handleCuratorBalanceSentToL2(event: CuratorBalanceSentToL2): voi
   subgraph.signalledTokensSentToL2 = subgraph.signalledTokensSentToL2.plus(event.params._tokens)
 
   subgraph.nameSignalAmount = subgraph.nameSignalAmount.minus(nameSignal.nameSignal)
-  subgraph.withdrawableTokens = subgraph.withdrawableTokens.minus(event.params._tokens)
+  let withdrawable = subgraph.withdrawableTokens.minus(event.params._tokens)
+  subgraph.withdrawableTokens = withdrawable == BigInt.fromI32(-1) ? BigInt.fromI32(0) : withdrawable; // to fix rounding error in AS
 
   nameSignal.nameSignal = BigInt.fromI32(0);
   nameSignal.signal = BigDecimal.fromString('0');
