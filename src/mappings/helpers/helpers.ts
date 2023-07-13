@@ -1265,7 +1265,9 @@ function createRewardsCutHistoryEntity(indexer: Indexer, event: ethereum.Event):
 }
 
 export function updateRewardProportionOnDeployment(deployment: SubgraphDeployment): void {
-  if (deployment.stakedTokens.isZero()) {
+  if (deployment.signalledTokens.isZero()) {
+    deployment.rewardsProportion = BigDecimal.fromString('0')
+  } else if (deployment.stakedTokens.isZero()) {
     let maxBD = BigDecimal.fromString('1')
     maxBD.exp = BigInt.fromI32(6144)
     deployment.rewardsProportion = maxBD
