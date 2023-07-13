@@ -7,7 +7,7 @@ import {
   log,
   BigDecimal,
   dataSource,
-  ethereum
+  ethereum,
 } from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
@@ -33,7 +33,7 @@ import {
   RewardCutHistoryEntity,
   DelegationPoolHistoryEntity,
   IndexerDelegatortRelation,
-  DelegatorRewardHistoryEntity
+  DelegatorRewardHistoryEntity,
 } from '../../types/schema'
 import { ENS } from '../../types/GNS/ENS'
 import { Controller } from '../../types/Controller/Controller'
@@ -123,6 +123,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.currentSignalCount = 0
     deployment.indexersCount = 0
     deployment.allocationsCount = 0
+    deployment.rewardsProportion = BigDecimal.fromString('0')
     // END GRAPHSCAN PATCH
 
     deployment.save()
@@ -461,7 +462,10 @@ export function createOrLoadPool(id: BigInt): Pool {
 }
 
 export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
-  let graphNetwork = createOrLoadGraphNetwork(blockNumber, Bytes.fromHexString(addresses.controller) as Bytes) // Random address since at this point it's already initialized
+  let graphNetwork = createOrLoadGraphNetwork(
+    blockNumber,
+    Bytes.fromHexString(addresses.controller) as Bytes,
+  ) // Random address since at this point it's already initialized
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
@@ -1134,11 +1138,12 @@ export function updateL1BlockNumber(graphNetwork: GraphNetwork): GraphNetwork {
     graphNetwork.currentL1BlockNumber = response.value
     graphNetwork.save()
   } else {
-    log.warning("Failed to update L1BlockNumber. Transaction reverted. Address used: {}", [epochManagerAddress.toHexString()])
+    log.warning('Failed to update L1BlockNumber. Transaction reverted. Address used: {}', [
+      epochManagerAddress.toHexString(),
+    ])
   }
   return graphNetwork
 }
-
 
 // GRAPHSCAN PATCH
 export function createOrLoadIndexerDeployment(
@@ -1259,6 +1264,17 @@ function createRewardsCutHistoryEntity(indexer: Indexer, event: ethereum.Event):
   }
 }
 
+export function updateRewardProportionOnDeployment(deployment: SubgraphDeployment): void {
+  if (deployment.stakedTokens.isZero()) {
+    let maxBD = BigDecimal.fromString('1')
+    maxBD.exp = BigInt.fromI32(6144)
+    deployment.rewardsProportion = maxBD
+  } else {
+    deployment.rewardsProportion = deployment.signalledTokens
+      .toBigDecimal()
+      .div(deployment.stakedTokens.toBigDecimal())
+  }
+}
 // export function updateAdvancedNSignalMetrics(subgraph: Subgraph): void {
 //   // iterate over all subgraph curators
 //   let gnsAddr = GraphNetwork.load('1')!.gns as Address

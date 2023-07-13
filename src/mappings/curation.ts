@@ -16,6 +16,7 @@ import {
   joinID,
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
+  updateRewardProportionOnDeployment,
 } from './helpers/helpers'
 import { zeroBD } from './utils'
 import { addresses } from '../../config/addresses'
@@ -106,8 +107,9 @@ export function handleSignalled(event: Signalled): void {
   )
   deployment.signalAmount = deployment.signalAmount.plus(event.params.signal)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
-  deployment.save()
+  updateRewardProportionOnDeployment(deployment)
   // GRAPHSCAN PATCH
+  deployment.save()
   if (signal.signal.equals(event.params.signal)) {
     curator = Curator.load(id)!
     deployment = SubgraphDeployment.load(subgraphDeploymentID)!
@@ -245,6 +247,7 @@ export function handleBurned(event: Burned): void {
   deployment.signalledTokens = deployment.signalledTokens.minus(event.params.tokens)
   deployment.signalAmount = deployment.signalAmount.minus(event.params.signal)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
+  updateRewardProportionOnDeployment(deployment)
   deployment.save()
 
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
