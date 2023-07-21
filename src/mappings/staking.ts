@@ -46,6 +46,7 @@ import {
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
   createOrLoadGraphNetwork,
+  calculateCapacities,
 } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
@@ -715,20 +716,3 @@ export function handleAssetHolderUpdate(event: AssetHolderUpdate): void {
 //   graphNetwork.stakingImplementations = implementations
 //   graphNetwork.save()
 // }
-
-// TODO - this is broken if we change the delegatio ratio
-// Need to remove, or find a fix
-function calculateCapacities(indexer: Indexer): Indexer {
-  let graphNetwork = GraphNetwork.load('1')!
-  let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
-
-  // Eligible to add to the capacity
-  indexer.delegatedCapacity =
-    indexer.delegatedTokens < tokensDelegatedMax ? indexer.delegatedTokens : tokensDelegatedMax
-
-  indexer.tokenCapacity = indexer.stakedTokens.plus(indexer.delegatedCapacity)
-  indexer.availableStake = indexer.tokenCapacity
-    .minus(indexer.allocatedTokens)
-    .minus(indexer.lockedTokens)
-  return indexer
-}

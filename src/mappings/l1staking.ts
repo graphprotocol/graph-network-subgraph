@@ -6,7 +6,7 @@ import {
 } from '../types/L1Staking/L1Staking'
 
 import { Indexer, DelegatedStake, GraphNetwork } from '../types/schema'
-import { joinID } from './helpers/helpers'
+import { calculateCapacities, joinID, updateAdvancedIndexerMetrics, updateDelegationExchangeRate } from './helpers/helpers'
 
 /*
     /// @dev Emitted when an indexer transfers their stake to L2.
@@ -34,6 +34,8 @@ export function handleIndexerStakeTransferredToL2(event: IndexerStakeTransferred
   indexer.lastTransferredToL2At = event.block.timestamp
   indexer.lastTransferredToL2AtBlockNumber = event.block.number
   indexer.lastTransferredToL2AtTx = event.transaction.hash.toHexString()
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 }
 /*
@@ -56,6 +58,7 @@ export function handleDelegationTransferredToL2(event: DelegationTransferredToL2
     event.params.l2Indexer.toHexString(),
   ])
   let delegation = DelegatedStake.load(delegationID)!
+  let delegatorSharesBefore = delegation.shareAmount;
   delegation.stakedTokensTransferredToL2 = delegation.stakedTokensTransferredToL2.plus(
     event.params.transferredDelegationTokens,
   )
@@ -68,6 +71,16 @@ export function handleDelegationTransferredToL2(event: DelegationTransferredToL2
   delegation.idOnL1 = delegationID
   delegation.idOnL2 = delegationIDL2
   delegation.save()
+
+  let indexer = Indexer.load(event.params.indexer.toHexString())!
+  indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.transferredDelegationTokens)
+  indexer.delegatorShares = indexer.delegatorShares.minus(delegatorSharesBefore)
+  if (indexer.delegatorShares != BigInt.fromI32(0)) {
+    indexer = updateDelegationExchangeRate(indexer as Indexer)
+  }
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = calculateCapacities(indexer as Indexer)
+  indexer.save()
 }
 
 /*
