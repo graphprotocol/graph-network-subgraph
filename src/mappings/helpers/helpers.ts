@@ -1001,6 +1001,11 @@ export function duplicateOrUpdateSubgraphWithNewID(
   subgraph.codeRepository = entity.codeRepository
   subgraph.website = entity.website
   subgraph.displayName = entity.displayName
+
+  subgraph.startedTransferToL2 = entity.startedTransferToL2
+  subgraph.transferredToL2 = entity.transferredToL2
+  subgraph.signalledTokensSentToL2 = entity.signalledTokensSentToL2
+  subgraph.signalledTokensReceivedOnL2 = entity.signalledTokensReceivedOnL2
   // subgraph.pastVersions = entity.pastVersions This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
   // subgraph.versions = entity.versions This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
   // subgraph.nameSignals = entity.nameSignals This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
@@ -1061,6 +1066,10 @@ export function duplicateOrUpdateNameSignalWithNewID(
   signal.nameSignalAverageCostBasisPerSignal = entity.nameSignalAverageCostBasisPerSignal
   signal.signalAverageCostBasis = entity.signalAverageCostBasis
   signal.signalAverageCostBasisPerSignal = entity.signalAverageCostBasisPerSignal
+
+  signal.signalledTokensSentToL2 = entity.signalledTokensSentToL2
+  signal.signalledTokensReceivedOnL2 = entity.signalledTokensReceivedOnL2
+  signal.transferredToL2 = entity.transferredToL2
 
   signal.entityVersion = newEntityVersion
   signal.linkedEntity = entity.id
