@@ -44,7 +44,8 @@ import {
   batchUpdateSubgraphSignalledTokens,
   createOrLoadGraphNetwork,
   createOrLoadIndexerDeployment,
-  createDelegatorRewardHistoryEntityFromIndexer
+  createDelegatorRewardHistoryEntityFromIndexer,
+  updateRewardProportionOnDeployment
 } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
@@ -349,6 +350,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
   // GRAPHSCAN PATCH
+  updateRewardProportionOnDeployment(deployment)
   let indexerDeployment = createOrLoadIndexerDeployment(indexerID, subgraphDeploymentID)
   indexerDeployment.allocations = indexerDeployment.allocations + 1
   indexerDeployment.save()
@@ -450,6 +452,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   deployment.signalledTokens = deployment.signalledTokens.plus(event.params.curationFees)
   deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
+  updateRewardProportionOnDeployment(deployment)
   deployment.save()
 
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
@@ -541,6 +544,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
   deployment.stakedTokens = deployment.stakedTokens.minus(event.params.tokens)
   // GRAPHSCAN PATCH
+  updateRewardProportionOnDeployment(deployment)
   let indexerDeployment = createOrLoadIndexerDeployment(indexerID, allocation.subgraphDeployment)
   indexerDeployment.allocations = indexerDeployment.allocations - 1
   indexerDeployment.save()

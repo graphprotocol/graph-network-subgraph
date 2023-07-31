@@ -556,6 +556,8 @@ type SubgraphDeployment @entity {
   indexersCount: Int!
   "Allocations to this deployments count"
   allocationsCount: Int!
+
+  rewardsProportion: BigDecimal!
 }
 type SubgraphDeploymentMetadata @entity {
   id: ID!
