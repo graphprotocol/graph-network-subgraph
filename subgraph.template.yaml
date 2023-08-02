@@ -312,7 +312,7 @@ dataSources:
         - Epoch
       abis:
         - name: Staking
-          file: ./node_modules/@graphprotocol/contracts/dist/abis/IStaking.json
+          file: ./abis/IStakingStitched.json
         - name: GraphToken
           file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
         - name: EpochManager
@@ -339,11 +339,13 @@ dataSources:
         - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,indexed address,address,uint256,uint256)
           handler: handleAllocationCollected
         - event: AllocationClosed(indexed address,indexed bytes32,uint256,uint256,indexed address,uint256,address,bytes32,bool)
+          handler: handleAllocationClosedCobbDouglas
+        - event: AllocationClosed(indexed address,indexed bytes32,uint256,uint256,indexed address,address,bytes32,bool)
           handler: handleAllocationClosed
-        # - event: AllocationClosed(indexed address,indexed bytes32,uint256,uint256,indexed address,uint256,address,bytes32,bool)
-        #   handler: handleAllocationClosed
         - event: RebateClaimed(indexed address,indexed bytes32,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
+        - event: RebateCollected(address,indexed address,indexed bytes32,indexed address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleRebateCollected
         - event: SetOperator(indexed address,indexed address,bool)
           handler: handleSetOperator
         - event: SlasherUpdate(indexed address,indexed address,bool)
@@ -368,7 +370,7 @@ dataSources:
         - GraphNetwork
       abis:
         - name: StakingExtension
-          file: ./node_modules/@graphprotocol/contracts/dist/abis/StakingExtension.json
+          file: ./abis/StakingExtensionStitched.json
         - name: GraphToken
           file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
         - name: EpochManager
