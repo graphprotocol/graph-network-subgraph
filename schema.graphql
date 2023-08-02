@@ -113,7 +113,7 @@ type GraphNetwork @entity {
   "Total protocol taxes applied to the query fees"
   totalTaxedQueryFees: BigInt!
   # It is hard to separate the unclaimed and rebates lost
-  "Total unclaimed rebates. Includes unclaimed rebates, and rebates lost in cobbs douglas "
+  "Total unclaimed rebates. Includes unclaimed rebates, and rebates lost in rebates mechanism "
   totalUnclaimedQueryFeeRebates: BigInt!
 
   # Indexing rewards globals
@@ -543,7 +543,7 @@ type SubgraphDeployment @entity {
   indexingDelegatorRewardAmount: BigInt!
   "Total query fees earned by this Subgraph Deployment, without curator query fees"
   queryFeesAmount: BigInt!
-  "Total query fee rebates earned from the protocol, through the cobbs douglas formula. Does not include delegation fees"
+  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include delegation fees"
   queryFeeRebates: BigInt!
   "Total curator rewards from fees"
   curatorFeeRewards: BigInt!
@@ -771,7 +771,7 @@ type Allocation @entity {
   closedAtBlockNumber: Int
   "Fees this allocation collected from query fees upon closing. Excludes curator reward and protocol tax"
   queryFeesCollected: BigInt!
-  "Query fee rebate amount claimed from the protocol through cobbs douglas. Does not include portion given to delegators"
+  "Query fee rebate amount claimed from the protocol through rebates mechanism. Does not include portion given to delegators"
   queryFeeRebates: BigInt!
   "Query fee rebates collected from the protocol. Can differ from queryFeeRebates if multiple vouchers per allocation are allowed."
   distributedRebates: BigInt!
@@ -833,7 +833,7 @@ type Pool @entity {
   allocation: BigInt!
   "Total query fees collected in this epoch"
   totalQueryFees: BigInt!
-  "Total query fees claimed in this epoch. Can be smaller than totalFees because of cobbs douglas function "
+  "Total query fees claimed in this epoch. Can be smaller than totalFees because of rebates function "
   claimedFees: BigInt!
   "Total rewards from query fees deposited to all curator bonding curves during the epoch"
   curatorRewards: BigInt!
