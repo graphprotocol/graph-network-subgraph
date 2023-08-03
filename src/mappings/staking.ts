@@ -358,6 +358,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   ).toI32()
   allocation.queryFeesCollected = BigInt.fromI32(0)
   allocation.queryFeeRebates = BigInt.fromI32(0)
+  allocation.distributedRebates = BigInt.fromI32(0)
   allocation.curatorRewards = BigInt.fromI32(0)
   allocation.indexingRewards = BigInt.fromI32(0)
   allocation.indexingIndexerRewards = BigInt.fromI32(0)
