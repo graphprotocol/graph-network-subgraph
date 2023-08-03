@@ -1053,6 +1053,67 @@
         "type": "address"
       }
     ],
+    "name": "getAllocation",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "indexer",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "subgraphDeploymentID",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAtEpoch",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "closedAtEpoch",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "collectedFees",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "effectiveAllocation",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "accRewardsPerAllocatedToken",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IStakingData.Allocation",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_allocationID",
+        "type": "address"
+      }
+    ],
     "name": "getAllocationState",
     "outputs": [
       {
