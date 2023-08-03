@@ -586,7 +586,7 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   // We must call the contract directly to see how many fees are getting closed in this
   // allocation. The event does not emit this information
   let staking = Staking.bind(event.address)
-  let contractAlloc = staking.getAllocation(event.params.allocationID)
+  let contractAlloc = staking.getAllocation1(event.params.allocationID)
   pool.totalQueryFees = pool.totalQueryFees.plus(contractAlloc.collectedFees)
   pool.save()
 
