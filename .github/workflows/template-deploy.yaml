@@ -106,7 +106,7 @@ jobs:
         run: ./node_modules/.bin/ts-node config/${{ inputs.CONFIG }} && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
 
       - name: Prepare ${{ inputs.ENVIRONMENT }}
-        run: ./node_modules/.bin/mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && ./node_modules/@graphprotocol/graph-cli/dist/bin codegen --output-dir src/types/
+        run: ./node_modules/.bin/mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && ./node_modules/@graphprotocol/graph-cli/bin/run codegen --output-dir src/types/
 
       - name: Deploy to ${{ inputs.ENVIRONMENT }}
-        run: ./node_modules/@graphprotocol/graph-cli/dist/bin.js deploy graphprotocol/${{ env.ENV_SUFFIX }} --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{ secrets.ACCESS_TOKEN }}
+        run: ./node_modules/@graphprotocol/graph-cli/bin/run deploy graphprotocol/${{ env.ENV_SUFFIX }} --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ${{ secrets.ACCESS_TOKEN }}
