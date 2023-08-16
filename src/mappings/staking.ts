@@ -164,7 +164,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   // We need to call into stakes mapping, because locked tokens might have been
   // decremented, and this is not released in the event
   // To fix this we would need to indicate in the event how many locked tokens were released
-  let staking = StakingExtension.bind(event.address)
+  let staking = Staking.bind(event.address)
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.lockedTokens = indexerStored.tokensLocked
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
