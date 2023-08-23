@@ -51,20 +51,16 @@ import {
 import { addresses } from '../../config/addresses'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
-  // Quick fix to avoid creating new Indexer entities if they don't exist yet.
-  let account = GraphAccount.load(event.params.indexer.toHexString())
-  if (account != null) {
-    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-    let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
-    indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
-    indexer.queryFeeCut = event.params.queryFeeCut.toI32()
-    indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
-    indexer.lastDelegationParameterUpdate = (
-      addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
-    ).toI32()
-    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
-    indexer.save()
-  }
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+  indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
+  indexer.queryFeeCut = event.params.queryFeeCut.toI32()
+  indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
+  indexer.lastDelegationParameterUpdate = (
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
+  ).toI32()
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer.save()
 }
 
 /**
