@@ -246,7 +246,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
 
   graphNetwork.save()
   delegator.save()
-  createDelegatorRewardHistoryEntityFromIndexer(indexerID, event)
+  createDelegatorRewardHistoryEntityFromIndexer(indexer.id, event)
 }
 
 export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {

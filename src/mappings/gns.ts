@@ -379,7 +379,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   let nameSignal = createOrLoadNameSignal(event.params.nameCurator, subgraphID, event.block.timestamp)
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
-    curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+    curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
     subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount + 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount + 1
@@ -581,7 +581,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nSignalTransaction.save()
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
-    curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+    curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
     subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount - 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
@@ -926,7 +926,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   let nameSignal = createOrLoadNameSignal(event.params.curator, subgraphID, event.block.timestamp)
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
-    curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+    curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
     subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount + 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount + 1
@@ -1139,7 +1139,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
     subgraph = Subgraph.load(subgraphID)!
-    curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+    curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
     curator.currentNameSignalCount = curator.currentNameSignalCount - 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
     subgraph.save()
