@@ -34,7 +34,7 @@ export function handleIndexerStakeTransferredToL2(event: IndexerStakeTransferred
   indexer.lastTransferredToL2At = event.block.timestamp
   indexer.lastTransferredToL2AtBlockNumber = event.block.number
   indexer.lastTransferredToL2AtTx = event.transaction.hash.toHexString()
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 }
@@ -78,7 +78,7 @@ export function handleDelegationTransferredToL2(event: DelegationTransferredToL2
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 }
