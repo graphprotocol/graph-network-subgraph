@@ -32,7 +32,7 @@ export function handleSignalled(event: Signalled): void {
   // Create curator and update most of the parameters
   let id = event.params.curator.toHexString()
   let gnsID = graphNetwork.gns.toHexString()
-  let curator = createOrLoadCurator(id, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
   curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
   )

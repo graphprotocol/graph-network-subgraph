@@ -39,19 +39,19 @@
     "lint-fix": "eslint . --fix",
     "prettier": "prettier '**/*.ts'",
     "prettier-write": "prettier --write '**/*.ts'",
-    "test": "graph test -v 0.2.0",
+    "test": "graph test -v 0.5.2",
     "test:bancor": "graph test bancor",
     "test:convert": "graph test convert"
   },
   "devDependencies": {
-    "@graphprotocol/contracts": "^3.0.0",
-    "@graphprotocol/graph-cli": "^0.42.2",
+    "@graphprotocol/contracts": "5.0.0",
+    "@graphprotocol/graph-cli": "^0.49.0",
     "@graphprotocol/graph-ts": "^0.29.1",
     "@types/node": "^14.0.13",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
     "eslint": "^7.2.0",
-    "matchstick-as": "^0.5.0",
+    "matchstick-as": "^0.5.2",
     "mustache": "^4.0.1",
     "prettier": "^2.0.5",
     "typescript": "^3.9.3"

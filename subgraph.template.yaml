@@ -110,8 +110,66 @@ dataSources:
           handler: handleSubgraphVersionUpdated
         - event: LegacySubgraphClaimed(indexed address,uint256)
           handler: handleLegacySubgraphClaimed
-      # blockHandlers:
-      #   - handler: handleBlock
+{{#isL1}}
+  - kind: ethereum/contract
+    name: L1GNS
+    network: {{network}}
+    source:
+      address: "{{gns}}"
+      abi: L1GNS
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/l1gns.ts
+      entities:
+        - Subgraph
+        - SubgraphVersion
+        - SubgraphDeployment
+        - GraphAccount
+        - NameSignal
+      abis:
+        - name: L1GNS
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L1GNS.json
+      eventHandlers:
+        - event: SubgraphSentToL2(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleSubgraphSentToL2
+        - event: CuratorBalanceSentToL2(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleCuratorBalanceSentToL2
+{{/isL1}}
+{{^isL1}}
+  - kind: ethereum/contract
+    name: L2GNS
+    network: {{network}}
+    source:
+      address: "{{gns}}"
+      abi: L2GNS
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/l2gns.ts
+      entities:
+        - Subgraph
+        - SubgraphVersion
+        - SubgraphDeployment
+        - GraphAccount
+        - NameSignal
+      abis:
+        - name: L2GNS
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L2GNS.json
+      eventHandlers:
+        - event: SubgraphReceivedFromL1(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handleSubgraphReceivedFromL1
+        - event: SubgraphL2TransferFinalized(indexed uint256)
+          handler: handleSubgraphL2TransferFinalized
+        - event: CuratorBalanceReceived(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handleCuratorBalanceReceived
+        - event: CuratorBalanceReturnedToBeneficiary(indexed uint256,indexed address,uint256)
+          handler: handleCuratorBalanceReturnedToBeneficiary
+{{/isL1}}
   - kind: ethereum/contract
     name: SubgraphNFT
     network: {{network}}
@@ -162,6 +220,78 @@ dataSources:
           handler: handleServiceRegistered
         - event: ServiceUnregistered(indexed address)
           handler: handleServiceUnregistered
+
+
+{{#isL1}}
+  - kind: ethereum/contract
+    name: L1Staking
+    network: {{network}}
+    source:
+      address: "{{staking}}"
+      abi: L1Staking
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/l1staking.ts
+      entities:
+        - Indexer
+        - Allocation
+        - GraphNetwork
+        - SubgraphDeployment
+        - GraphAccount
+        - Delegator
+        - DelegatedStake
+        - Epoch
+      abis:
+        - name: L1Staking
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L1Staking.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: DelegationTransferredToL2(indexed address,indexed address,indexed address,address,uint256)
+          handler: handleDelegationTransferredToL2
+        - event: IndexerStakeTransferredToL2(indexed address,indexed address,uint256)
+          handler: handleIndexerStakeTransferredToL2
+        - event: StakeDelegatedUnlockedDueToL2Transfer(indexed address,indexed address)
+          handler: handleStakeDelegatedUnlockedDueToL2Transfer
+{{/isL1}}
+{{^isL1}}
+  - kind: ethereum/contract
+    name: L2Staking
+    network: {{network}}
+    source:
+      address: "{{staking}}"
+      abi: L2Staking
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/l2staking.ts
+      entities:
+        - Indexer
+        - Allocation
+        - GraphNetwork
+        - SubgraphDeployment
+        - GraphAccount
+        - Delegator
+        - DelegatedStake
+        - Epoch
+      abis:
+        - name: L2Staking
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/L2Staking.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: TransferredDelegationReturnedToDelegator(indexed address,indexed address,uint256)
+          handler: handleTransferredDelegationReturnedToDelegator
+{{/isL1}}
   - kind: ethereum/contract
     name: Staking
     network: {{network}}
@@ -185,7 +315,7 @@ dataSources:
         - Epoch
       abis:
         - name: Staking
-          file: ./node_modules/@graphprotocol/contracts/dist/abis/Staking.json
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/IStaking.json
         - name: GraphToken
           file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
         - name: EpochManager
@@ -217,8 +347,6 @@ dataSources:
         #   handler: handleAllocationClosed
         - event: RebateClaimed(indexed address,indexed bytes32,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
-        - event: ParameterUpdated(string)
-          handler: handleParameterUpdated
         - event: SetOperator(indexed address,indexed address,bool)
           handler: handleSetOperator
         - event: SlasherUpdate(indexed address,indexed address,bool)
@@ -227,6 +355,30 @@ dataSources:
           handler: handleAssetHolderUpdate
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
+  - kind: ethereum/contract
+    name: StakingExtension
+    network: {{network}}
+    source:
+      address: "{{staking}}"
+      abi: StakingExtension
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/staking.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: StakingExtension
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/StakingExtension.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: ParameterUpdated(string)
+          handler: handleParameterUpdated
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
@@ -419,6 +571,8 @@ dataSources:
           file: ./abis/GraphTokenLockManager.json
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+        - name: Controller
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/Controller.json
       eventHandlers:
         - event: MasterCopyUpdated(indexed address)
           handler: handleMasterCopyUpdated
