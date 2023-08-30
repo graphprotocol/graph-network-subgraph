@@ -67,6 +67,14 @@ type GraphNetwork @entity {
   "Asset holder for the protocol"
   assetHolders: [Bytes!]
 
+  # Transfers to L2 totals
+  "Total amount of indexer stake transferred to L2"
+  totalTokensStakedTransferredToL2: BigInt!
+  "Total amount of delegated tokens transferred to L2"
+  totalDelegatedTokensTransferredToL2: BigInt!
+  "Total amount of delegated tokens transferred to L2"
+  totalSignalledTokensTransferredToL2: BigInt!
+
   # Staking global aggregate values
   "The total amount of GRT staked in the staking contract"
   totalTokensStaked: BigInt!
