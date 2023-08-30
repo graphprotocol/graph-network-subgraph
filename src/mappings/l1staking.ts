@@ -6,7 +6,7 @@ import {
 } from '../types/L1Staking/L1Staking'
 
 import { Indexer, DelegatedStake, GraphNetwork } from '../types/schema'
-import { calculateCapacities, joinID, updateAdvancedIndexerMetrics, updateDelegationExchangeRate } from './helpers/helpers'
+import { calculateCapacities, createOrLoadGraphNetwork, joinID, updateAdvancedIndexerMetrics, updateDelegationExchangeRate } from './helpers/helpers'
 
 /*
     /// @dev Emitted when an indexer transfers their stake to L2.
@@ -37,6 +37,12 @@ export function handleIndexerStakeTransferredToL2(event: IndexerStakeTransferred
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
+
+  // upgrade graph network
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.transferredStakeTokens)
+  graphNetwork.totalTokensStakedTransferredToL2 = graphNetwork.totalTokensStakedTransferredToL2.plus(event.params.transferredStakeTokens)
+  graphNetwork.save()
 }
 /*
     /// @dev Emitted when a delegator transfers their delegation to L2
@@ -81,6 +87,12 @@ export function handleDelegationTransferredToL2(event: DelegationTransferredToL2
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
+
+  // upgrade graph network
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.transferredDelegationTokens)
+  graphNetwork.totalDelegatedTokensTransferredToL2 = graphNetwork.totalDelegatedTokensTransferredToL2.plus(event.params.transferredDelegationTokens)
+  graphNetwork.save()
 }
 
 /*
