@@ -667,7 +667,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   allocation.delegationFees = event.params.delegationFees
   allocation.status = 'Closed' // 'Claimed' is the correct status for pre exponential rebates
   // GRAPHSCAN PATCH
-  allocation.statusInt = 2
+  allocation.statusInt = 1
   // END GRAPHSCAN PATCH
   allocation.save()
 
