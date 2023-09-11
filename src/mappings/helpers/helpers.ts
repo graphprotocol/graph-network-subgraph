@@ -56,6 +56,8 @@ export function createOrLoadSubgraph(
     subgraph.updatedAt = timestamp.toI32()
     subgraph.active = true
     subgraph.migrated = false
+    subgraph.transferredToL2 = false
+    subgraph.startedTransferToL2 = false
     subgraph.entityVersion = 2
     subgraph.nftID = bigIntID.toString()
     subgraph.initializing = false
@@ -69,6 +71,8 @@ export function createOrLoadSubgraph(
     subgraph.withdrawableTokens = BigInt.fromI32(0)
     subgraph.withdrawnTokens = BigInt.fromI32(0)
     subgraph.nameSignalCount = 0
+    subgraph.signalledTokensSentToL2 = BigInt.fromI32(0)
+    subgraph.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
     // GRAPHSCAN PATCH
     subgraph.currentNameSignalCount = 0
     // END GRAPHSCAN PATCH
@@ -107,6 +111,10 @@ export function createOrLoadSubgraphDeployment(
     deployment.queryFeesAmount = BigInt.fromI32(0)
     deployment.queryFeeRebates = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
+    deployment.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
+    deployment.signalledTokensSentToL2 = BigInt.fromI32(0)
+
+    deployment.transferredToL2 = false
 
     deployment.signalledTokens = BigInt.fromI32(0)
     deployment.unsignalledTokens = BigInt.fromI32(0)
@@ -134,7 +142,8 @@ export function createOrLoadSubgraphDeployment(
   return deployment as SubgraphDeployment
 }
 
-export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
+export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): Indexer {
+  let id = indexerAddress.toHexString()
   let indexer = Indexer.load(id)
   if (indexer == null) {
     indexer = new Indexer(id)
@@ -142,6 +151,8 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.account = id
 
     indexer.stakedTokens = BigInt.fromI32(0)
+    indexer.transferredToL2 = false
+    indexer.stakedTokensTransferredToL2 = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
     indexer.unstakedTokens = BigInt.fromI32(0)
@@ -183,7 +194,7 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
     indexer.indexerQueryFees = BigInt.fromI32(0)
     indexer.delegatorsCount = 0
     // END GRAPHSCAN PATCH
-    let graphAccount = GraphAccount.load(id)!
+    let graphAccount = createOrLoadGraphAccount(indexerAddress, timestamp)
     graphAccount.indexer = id
     graphAccount.save()
 
@@ -198,7 +209,8 @@ export function createOrLoadIndexer(id: string, timestamp: BigInt): Indexer {
   return indexer as Indexer
 }
 
-export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator {
+export function createOrLoadDelegator(delegatorAddress: Bytes, timestamp: BigInt): Delegator {
+  let id = delegatorAddress.toHexString()
   let delegator = Delegator.load(id)
   if (delegator == null) {
     delegator = new Delegator(id)
@@ -217,7 +229,7 @@ export function createOrLoadDelegator(id: string, timestamp: BigInt): Delegator 
     // END GRAPHSCAN PATCH
     delegator.save()
 
-    let graphAccount = GraphAccount.load(id)!
+    let graphAccount = createOrLoadGraphAccount(delegatorAddress, timestamp)
     graphAccount.delegator = id
     graphAccount.save()
 
@@ -240,6 +252,8 @@ export function createOrLoadDelegatedStake(
     delegatedStake.indexer = indexer
     delegatedStake.delegator = delegator
     delegatedStake.stakedTokens = BigInt.fromI32(0)
+    delegatedStake.transferredToL2 = false
+    delegatedStake.stakedTokensTransferredToL2 = BigInt.fromI32(0)
     delegatedStake.unstakedTokens = BigInt.fromI32(0)
     delegatedStake.lockedTokens = BigInt.fromI32(0)
     delegatedStake.lockedUntil = 0
@@ -278,7 +292,8 @@ export function createOrLoadDelegatedStake(
   }
   return delegatedStake as DelegatedStake
 }
-export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
+export function createOrLoadCurator(curatorAddress: Bytes, timestamp: BigInt): Curator {
+  let id = curatorAddress.toHexString()
   let curator = Curator.load(id)
   if (curator == null) {
     curator = new Curator(id)
@@ -320,7 +335,7 @@ export function createOrLoadCurator(id: string, timestamp: BigInt): Curator {
     curator.activeCombinedSignalCount = 0
     curator.save()
 
-    let graphAccount = GraphAccount.load(id)!
+    let graphAccount = createOrLoadGraphAccount(curatorAddress, timestamp)
     graphAccount.curator = id
     graphAccount.save()
 
@@ -377,19 +392,22 @@ export function createOrLoadSignal(
 }
 
 export function createOrLoadNameSignal(
-  curator: string,
+  curatorAddress: Bytes,
   subgraphID: string,
   timestamp: BigInt,
 ): NameSignal {
-  let nameSignalID = joinID([curator, subgraphID])
+  let nameSignalID = joinID([curatorAddress.toHexString(), subgraphID])
   let nameSignal = NameSignal.load(nameSignalID)
   if (nameSignal == null) {
     nameSignal = new NameSignal(nameSignalID)
-    let underlyingCurator = createOrLoadCurator(curator, timestamp)
+    let underlyingCurator = createOrLoadCurator(curatorAddress, timestamp)
     nameSignal.entityVersion = 2
     nameSignal.curator = underlyingCurator.id
     nameSignal.subgraph = subgraphID
     nameSignal.signalledTokens = BigInt.fromI32(0)
+    nameSignal.signalledTokensSentToL2 = BigInt.fromI32(0)
+    nameSignal.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
+    nameSignal.transferredToL2 = false
     nameSignal.unsignalledTokens = BigInt.fromI32(0)
     nameSignal.withdrawnTokens = BigInt.fromI32(0)
     nameSignal.nameSignal = BigInt.fromI32(0)
@@ -411,7 +429,7 @@ export function createOrLoadNameSignal(
     // END GRAPHSCAN PATCH
     nameSignal.save()
 
-    let curatorEntity = Curator.load(curator)!
+    let curatorEntity = Curator.load(curatorAddress.toHexString())!
     curatorEntity.nameSignalCount = curatorEntity.nameSignalCount + 1
     curatorEntity.combinedSignalCount = curatorEntity.combinedSignalCount + 1
     curatorEntity.save()
@@ -438,6 +456,8 @@ export function createOrLoadGraphAccount(owner: Bytes, timeStamp: BigInt): Graph
     graphAccount.createdAt = timeStamp.toI32()
     graphAccount.operators = []
     graphAccount.balance = BigInt.fromI32(0)
+    graphAccount.balanceReceivedFromL1Signalling = BigInt.fromI32(0)
+    graphAccount.balanceReceivedFromL1Delegation = BigInt.fromI32(0)
     graphAccount.curationApproval = BigInt.fromI32(0)
     graphAccount.stakingApproval = BigInt.fromI32(0)
     graphAccount.gnsApproval = BigInt.fromI32(0)
@@ -522,7 +542,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork = new GraphNetwork('1')
 
     let contract = Controller.bind(changetype<Address>(controllerAddress))
-    let governor = contract.getGovernor()
+    let governorCall = contract.try_getGovernor()
 
     // All of the 0x0000 addresses will be replaced in controller deployment calls
     // Service registry is not stored in the Controller so we get it manually
@@ -541,7 +561,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.rewardsManagerImplementations = []
     graphNetwork.isPaused = false
     graphNetwork.isPartialPaused = false
-    graphNetwork.governor = governor
+    graphNetwork.governor = !governorCall.reverted ? governorCall.value : Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.pauseGuardian = Address.fromString('0x0000000000000000000000000000000000000000')
 
     // let contract = GraphNetwork.bind(event.params.a)
@@ -879,6 +899,23 @@ export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
   return indexer as Indexer
 }
 
+// TODO - this is broken if we change the delegatio ratio
+// Need to remove, or find a fix
+export function calculateCapacities(indexer: Indexer): Indexer {
+  let graphNetwork = GraphNetwork.load('1')!
+  let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
+
+  // Eligible to add to the capacity
+  indexer.delegatedCapacity =
+    indexer.delegatedTokens < tokensDelegatedMax ? indexer.delegatedTokens : tokensDelegatedMax
+
+  indexer.tokenCapacity = indexer.stakedTokens.plus(indexer.delegatedCapacity)
+  indexer.availableStake = indexer.tokenCapacity
+    .minus(indexer.allocatedTokens)
+    .minus(indexer.lockedTokens)
+  return indexer
+}
+
 export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecimal {
   // TODO check why there's a deviation from the values of the bancor formula
   // Ideally this would be a 1 to 1 recreation of the share sell formula, but due to
@@ -1059,6 +1096,11 @@ export function duplicateOrUpdateSubgraphWithNewID(
   // GRAPHSCAN PATCH
   subgraph.currentNameSignalCount = entity.currentNameSignalCount
   // END GRAPHSCAN PATCH
+
+  subgraph.startedTransferToL2 = entity.startedTransferToL2
+  subgraph.transferredToL2 = entity.transferredToL2
+  subgraph.signalledTokensSentToL2 = entity.signalledTokensSentToL2
+  subgraph.signalledTokensReceivedOnL2 = entity.signalledTokensReceivedOnL2
   // subgraph.pastVersions = entity.pastVersions This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
   // subgraph.versions = entity.versions This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
   // subgraph.nameSignals = entity.nameSignals This is a derived field, we won't copy, but need to make sure NameSignals are duplicated too.
@@ -1118,6 +1160,11 @@ export function duplicateOrUpdateNameSignalWithNewID(
   signal.nameSignalAverageCostBasisPerSignal = entity.nameSignalAverageCostBasisPerSignal
   signal.signalAverageCostBasis = entity.signalAverageCostBasis
   signal.signalAverageCostBasisPerSignal = entity.signalAverageCostBasisPerSignal
+
+  signal.signalledTokensSentToL2 = entity.signalledTokensSentToL2
+  signal.signalledTokensReceivedOnL2 = entity.signalledTokensReceivedOnL2
+  signal.transferredToL2 = entity.transferredToL2
+
   signal.entityVersion = newEntityVersion
   signal.linkedEntity = entity.id
   // GRAPHSCAN PATCH
@@ -1143,6 +1190,15 @@ export function updateL1BlockNumber(graphNetwork: GraphNetwork): GraphNetwork {
     ])
   }
   return graphNetwork
+}
+
+export function getAliasedL2SubgraphID(id: BigInt): BigInt {
+  // offset === 0x1111000000000000000000000000000000000000000000000000000000001111 or "7719354826016761135949426780745810995650277145449579228033297493447455805713"
+  // base === 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff + 1 or "115792089237316195423570985008687907853269984665640564039457584007913129639936"
+  // const expectedL2SubgraphId = l1SubgraphId.add(offset).mod(base)
+  let offset = BigInt.fromString("7719354826016761135949426780745810995650277145449579228033297493447455805713")
+  let base = BigInt.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639936")
+  return (id.plus(offset)).mod(base)
 }
 
 // GRAPHSCAN PATCH

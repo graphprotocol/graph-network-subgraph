@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Bytes, ethereum, store } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Bytes, log, ethereum, store } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphPublished1,
@@ -192,17 +192,6 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
 
   let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, oldID, 1)
   subgraphDuplicate.save()
-
-  // // Add the original subgraph name to the subgraph deployment
-  // // This is a temporary solution until we can filter on nested queries
-  // let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
-  // let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
-  // // Not super robust, someone could deploy blank, then point a subgraph to here
-  // // It is more appropriate to say this is the first name 'claimed' for the deployment
-  // if (subgraphDeployment.originalName == null) {
-  //   subgraphDeployment.originalName = subgraph.displayName
-  //   subgraphDeployment.save()
-  // }
 }
 
 /**
@@ -354,7 +343,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   subgraphDuplicate.save()
 
   // Update the curator
-  let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
   // nSignal
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
@@ -387,10 +376,10 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   }
   curator.save()
 
-  let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
+  let nameSignal = createOrLoadNameSignal(event.params.nameCurator, subgraphID, event.block.timestamp)
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
-    curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+    curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
     subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount + 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount + 1
@@ -490,7 +479,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
 
   // update name signal
   let nameSignal = createOrLoadNameSignal(
-    event.params.nameCurator.toHexString(),
+    event.params.nameCurator,
     subgraphID,
     event.block.timestamp,
   )
@@ -518,7 +507,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   }
 
   // update curator
-  let curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
   curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
     event.params.tokensReceived,
   )
@@ -592,7 +581,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   nSignalTransaction.save()
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
-    curator = createOrLoadCurator(event.params.nameCurator.toHexString(), event.block.timestamp)
+    curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
     subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount - 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
@@ -714,7 +703,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   subgraphDuplicate.save()
 
   let nameSignal = createOrLoadNameSignal(
-    event.params.nameCurator.toHexString(),
+    event.params.nameCurator,
     subgraphID,
     event.block.timestamp,
   )
@@ -878,17 +867,6 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
     let subgraphDuplicate = duplicateOrUpdateSubgraphWithNewID(subgraph, subgraph.linkedEntity!, 1)
     subgraphDuplicate.save()
   }
-
-  // Add the original subgraph name to the subgraph deployment
-  // This is a temporary solution until we can filter on nested queries
-  // let subgraphVersion = SubgraphVersion.load(subgraph.currentVersion!)!
-  // let subgraphDeployment = SubgraphDeployment.load(subgraphVersion.subgraphDeployment)!
-  // // Not super robust, someone could deploy blank, then point a subgraph to here
-  // // It is more appropriate to say this is the first name 'claimed' for the deployment
-  // if (subgraphDeployment.originalName == null) {
-  //   subgraphDeployment.originalName = subgraph.displayName
-  //   subgraphDeployment.save()
-  // }
 }
 
 // - event: SignalMinted(indexed uint256,indexed address,uint256,uint256,uint256)
@@ -912,7 +890,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   }
 
   // Update the curator
-  let curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
   // nSignal
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
@@ -945,10 +923,10 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   }
   curator.save()
 
-  let nameSignal = createOrLoadNameSignal(curatorID, subgraphID, event.block.timestamp)
+  let nameSignal = createOrLoadNameSignal(event.params.curator, subgraphID, event.block.timestamp)
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
-    curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+    curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
     subgraph = Subgraph.load(subgraphID)!
     curator.currentNameSignalCount = curator.currentNameSignalCount + 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount + 1
@@ -1054,7 +1032,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
 
   // update name signal
   let nameSignal = createOrLoadNameSignal(
-    event.params.curator.toHexString(),
+    event.params.curator,
     subgraphID,
     event.block.timestamp,
   )
@@ -1082,7 +1060,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   }
 
   // update curator
-  let curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
   curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
     event.params.tokensReceived,
   )
@@ -1161,7 +1139,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   // GRAPHSCAN PATCH
   if (nameSignal.nameSignal.isZero()) {
     subgraph = Subgraph.load(subgraphID)!
-    curator = createOrLoadCurator(event.params.curator.toHexString(), event.block.timestamp)
+    curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
     curator.currentNameSignalCount = curator.currentNameSignalCount - 1
     subgraph.currentNameSignalCount = subgraph.currentNameSignalCount - 1
     subgraph.save()
@@ -1192,7 +1170,7 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
   }
 
   let nameSignal = createOrLoadNameSignal(
-    event.params.curator.toHexString(),
+    event.params.curator,
     subgraphID,
     event.block.timestamp,
   )
@@ -1263,56 +1241,59 @@ export function handleSubgraphUpgraded(event: SubgraphUpgraded): void {
     subgraphDuplicate.save()
   }
 
-  let signalRatio = subgraph.signalAmount.toBigDecimal() / subgraph.nameSignalAmount.toBigDecimal()
+  if (!subgraph.nameSignalAmount.isZero()) {
 
-  for (let i = 0; i < subgraph.nameSignalCount; i++) {
-    let relation = NameSignalSubgraphRelation.load(
-      joinID([subgraphID, BigInt.fromI32(i).toString()]),
-    )!
-    let nameSignal = NameSignal.load(relation.nameSignal)!
-    if (!nameSignal.nameSignal.isZero()) {
-      let curator = Curator.load(nameSignal.curator)!
+    let signalRatio = subgraph.signalAmount.toBigDecimal() / subgraph.nameSignalAmount.toBigDecimal()
 
-      let oldSignal = nameSignal.signal
-      nameSignal.signal = nameSignal.nameSignal.toBigDecimal() * signalRatio
-      nameSignal.signal = nameSignal.signal.truncate(18)
+    for (let i = 0; i < subgraph.nameSignalCount; i++) {
+      let relation = NameSignalSubgraphRelation.load(
+        joinID([subgraphID, BigInt.fromI32(i).toString()]),
+      )!
+      let nameSignal = NameSignal.load(relation.nameSignal)!
+      if (!nameSignal.nameSignal.isZero()) {
+        let curator = Curator.load(nameSignal.curator)!
 
-      // zero division protection
-      if (nameSignal.signal != zeroBD) {
-        nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis
-          .div(nameSignal.signal)
+        let oldSignal = nameSignal.signal
+        nameSignal.signal = nameSignal.nameSignal.toBigDecimal() * signalRatio
+        nameSignal.signal = nameSignal.signal.truncate(18)
+
+        // zero division protection
+        if (nameSignal.signal != zeroBD) {
+          nameSignal.signalAverageCostBasisPerSignal = nameSignal.signalAverageCostBasis
+            .div(nameSignal.signal)
+            .truncate(18)
+        }
+
+        let previousACBSignal = nameSignal.signalAverageCostBasis
+        nameSignal.signalAverageCostBasis = nameSignal.signal
+          .times(nameSignal.signalAverageCostBasisPerSignal)
           .truncate(18)
-      }
 
-      let previousACBSignal = nameSignal.signalAverageCostBasis
-      nameSignal.signalAverageCostBasis = nameSignal.signal
-        .times(nameSignal.signalAverageCostBasisPerSignal)
-        .truncate(18)
+        let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
+        if (nameSignal.signalAverageCostBasis == zeroBD) {
+          nameSignal.signalAverageCostBasisPerSignal = zeroBD
+        }
 
-      let diffACBSignal = previousACBSignal.minus(nameSignal.signalAverageCostBasis)
-      if (nameSignal.signalAverageCostBasis == zeroBD) {
-        nameSignal.signalAverageCostBasisPerSignal = zeroBD
-      }
+        curator.totalSignal = curator.totalSignal.minus(oldSignal).plus(nameSignal.signal)
+        curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACBSignal)
+        if (curator.totalSignal == zeroBD) {
+          curator.totalAverageCostBasisPerSignal = zeroBD
+        } else {
+          curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis
+            .div(curator.totalSignal)
+            .truncate(18)
+        }
+        nameSignal.save()
+        curator.save()
 
-      curator.totalSignal = curator.totalSignal.minus(oldSignal).plus(nameSignal.signal)
-      curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACBSignal)
-      if (curator.totalSignal == zeroBD) {
-        curator.totalAverageCostBasisPerSignal = zeroBD
-      } else {
-        curator.totalAverageCostBasisPerSignal = curator.totalSignalAverageCostBasis
-          .div(curator.totalSignal)
-          .truncate(18)
-      }
-      nameSignal.save()
-      curator.save()
-
-      if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
-        let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
-          nameSignal,
-          nameSignal.linkedEntity!,
-          1,
-        )
-        nameSignalDuplicate.save()
+        if (subgraph.linkedEntity != null && nameSignal.linkedEntity) {
+          let nameSignalDuplicate = duplicateOrUpdateNameSignalWithNewID(
+            nameSignal,
+            nameSignal.linkedEntity!,
+            1,
+          )
+          nameSignalDuplicate.save()
+        }
       }
     }
   }

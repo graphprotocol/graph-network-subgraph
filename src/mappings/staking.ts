@@ -7,7 +7,6 @@ import {
   AllocationCreated,
   AllocationClosed,
   RebateClaimed,
-  ParameterUpdated,
   Staking,
   SetOperator,
   StakeDelegated,
@@ -18,6 +17,10 @@ import {
   SlasherUpdate,
   AssetHolderUpdate,
 } from '../types/Staking/Staking'
+import {
+  StakingExtension,
+  ParameterUpdated,
+} from '../types/StakingExtension/StakingExtension'
 import {
   Indexer,
   Allocation,
@@ -45,17 +48,17 @@ import {
   createOrLoadGraphNetwork,
   createOrLoadIndexerDeployment,
   createDelegatorRewardHistoryEntityFromIndexer,
-  updateRewardProportionOnDeployment
+  updateRewardProportionOnDeployment,
+  calculateCapacities,
 } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
-  let id = event.params.indexer.toHexString()
   // Quick fix to avoid creating new Indexer entities if they don't exist yet.
-  let account = GraphAccount.load(id)
+  let account = GraphAccount.load(event.params.indexer.toHexString())
   if (account != null) {
     let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-    let indexer = createOrLoadIndexer(id, event.block.timestamp)
+    let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
     indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
     indexer.queryFeeCut = event.params.queryFeeCut.toI32()
     indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
@@ -76,8 +79,7 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
 export function handleStakeDeposited(event: StakeDeposited): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   // update indexer
-  let id = event.params.indexer.toHexString()
-  let indexer = createOrLoadIndexer(id, event.block.timestamp)
+  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
   let previousStake = indexer.stakedTokens
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
@@ -167,7 +169,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   // To fix this we would need to indicate in the event how many locked tokens were released
   let staking = Staking.bind(event.address)
   let indexerStored = staking.stakes(event.params.indexer)
-  indexer.lockedTokens = indexerStored.value2
+  indexer.lockedTokens = indexerStored.tokensLocked
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
@@ -181,8 +183,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
 
   // update indexer
-  let indexerID = event.params.indexer.toHexString()
-  let indexer = createOrLoadIndexer(indexerID, event.block.timestamp)
+  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
 
@@ -195,7 +196,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
 
   // update delegator
   let delegatorID = event.params.delegator.toHexString()
-  let delegator = createOrLoadDelegator(delegatorID, event.block.timestamp)
+  let delegator = createOrLoadDelegator(event.params.delegator, event.block.timestamp)
   delegator.totalStakedTokens = delegator.totalStakedTokens.plus(event.params.tokens)
   delegator.lastDelegatedAt = event.block.timestamp.toI32()
   delegator.save()
@@ -203,7 +204,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   // update delegated stake
   let delegatedStake = createOrLoadDelegatedStake(
     delegatorID,
-    indexerID,
+    event.params.indexer.toHexString(),
     event.block.timestamp.toI32(),
   )
   if (!zeroShares) {
@@ -245,7 +246,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
 
   graphNetwork.save()
   delegator.save()
-  createDelegatorRewardHistoryEntityFromIndexer(indexerID, event)
+  createDelegatorRewardHistoryEntityFromIndexer(indexer.id, event)
 }
 
 export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
@@ -637,7 +638,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-  let staking = Staking.bind(event.address)
+  let staking = StakingExtension.bind(event.address)
 
   if (parameter == 'minimumIndexerStake') {
     graphNetwork.minimumIndexerStake = staking.minimumIndexerStake()
@@ -750,20 +751,3 @@ export function handleAssetHolderUpdate(event: AssetHolderUpdate): void {
 //   graphNetwork.stakingImplementations = implementations
 //   graphNetwork.save()
 // }
-
-// TODO - this is broken if we change the delegatio ratio
-// Need to remove, or find a fix
-function calculateCapacities(indexer: Indexer): Indexer {
-  let graphNetwork = GraphNetwork.load('1')!
-  let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
-
-  // Eligible to add to the capacity
-  indexer.delegatedCapacity =
-    indexer.delegatedTokens < tokensDelegatedMax ? indexer.delegatedTokens : tokensDelegatedMax
-
-  indexer.tokenCapacity = indexer.stakedTokens.plus(indexer.delegatedCapacity)
-  indexer.availableStake = indexer.tokenCapacity
-    .minus(indexer.allocatedTokens)
-    .minus(indexer.lockedTokens)
-  return indexer
-}
