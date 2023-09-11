@@ -7,6 +7,7 @@ import {
   joinID,
   convertBigIntSubgraphIDToBase58,
   getAliasedL2SubgraphID,
+  createOrLoadGraphNetwork,
 } from './helpers/helpers'
 
 /*
@@ -68,6 +69,13 @@ export function handleSubgraphSentToL2(event: SubgraphSentToL2): void {
   deployment.transferredToL2AtTx = event.transaction.hash.toHexString()
   deployment.signalledTokensSentToL2 = deployment.signalledTokensSentToL2.plus(event.params._tokens)
   deployment.save()
+
+  // upgrade graph network
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.minus(event.params._tokens)
+  graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate.minus(event.params._tokens.toBigDecimal())
+  graphNetwork.totalSignalledTokensTransferredToL2 = graphNetwork.totalSignalledTokensTransferredToL2.plus(event.params._tokens)
+  graphNetwork.save()
 }
 
 /*
@@ -112,4 +120,11 @@ export function handleCuratorBalanceSentToL2(event: CuratorBalanceSentToL2): voi
   let deployment = SubgraphDeployment.load(version.subgraphDeployment)!
   deployment.signalledTokensSentToL2 = deployment.signalledTokensSentToL2.plus(event.params._tokens)
   deployment.save()
+
+  // upgrade graph network
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.minus(event.params._tokens)
+  graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate.minus(event.params._tokens.toBigDecimal())
+  graphNetwork.totalSignalledTokensTransferredToL2 = graphNetwork.totalSignalledTokensTransferredToL2.plus(event.params._tokens)
+  graphNetwork.save()
 }

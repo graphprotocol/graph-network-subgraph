@@ -578,7 +578,12 @@ export function createOrLoadGraphNetwork(
     graphNetwork.delegationUnbondingPeriod = 0
     graphNetwork.delegationTaxPercentage = 0
     graphNetwork.rebateRatio = BigDecimal.fromString('0')
+    graphNetwork.rebateAlpha = BigDecimal.fromString('0')
+    graphNetwork.rebateLambda = BigDecimal.fromString('0')
 
+    graphNetwork.totalTokensStakedTransferredToL2 = BigInt.fromI32(0)
+    graphNetwork.totalDelegatedTokensTransferredToL2 = BigInt.fromI32(0)
+    graphNetwork.totalSignalledTokensTransferredToL2 = BigInt.fromI32(0)
     graphNetwork.totalTokensStaked = BigInt.fromI32(0)
     graphNetwork.totalTokensClaimable = BigInt.fromI32(0)
     graphNetwork.totalUnstakedTokensLocked = BigInt.fromI32(0)

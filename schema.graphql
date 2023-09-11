@@ -46,7 +46,7 @@ type GraphNetwork @entity {
   protocolFeePercentage: Int!
   "Ratio of max staked delegation tokens to indexers stake that earns rewards"
   delegationRatio: Int!
-  "Epochs to wait before fees can be claimed in rebate pool"
+  "[DEPRECATED] Epochs to wait before fees can be claimed in rebate pool"
   channelDisputeEpochs: Int!
   "Epochs to wait before delegators can settle"
   maxAllocationEpochs: Int!
@@ -60,12 +60,24 @@ type GraphNetwork @entity {
   slashers: [Bytes!]
   "Time in epochs a delegator needs to wait to withdraw delegated stake"
   delegationUnbondingPeriod: Int!
-  "Alpha in the cobbs douglas formula"
+  "[DEPRECATED] Alpha in the cobbs douglas formula"
   rebateRatio: BigDecimal!
+  "Alpha in the exponential formula"
+  rebateAlpha: BigDecimal!
+  "Lambda in the exponential formula"
+  rebateLambda: BigDecimal!
   "Tax that delegators pay to deposit. In Parts per million"
   delegationTaxPercentage: Int!
   "Asset holder for the protocol"
   assetHolders: [Bytes!]
+
+  # Transfers to L2 totals
+  "Total amount of indexer stake transferred to L2"
+  totalTokensStakedTransferredToL2: BigInt!
+  "Total amount of delegated tokens transferred to L2"
+  totalDelegatedTokensTransferredToL2: BigInt!
+  "Total amount of delegated tokens transferred to L2"
+  totalSignalledTokensTransferredToL2: BigInt!
 
   # Staking global aggregate values
   "The total amount of GRT staked in the staking contract"
@@ -101,7 +113,7 @@ type GraphNetwork @entity {
   "Total protocol taxes applied to the query fees"
   totalTaxedQueryFees: BigInt!
   # It is hard to separate the unclaimed and rebates lost
-  "Total unclaimed rebates. Includes unclaimed rebates, and rebates lost in cobbs douglas "
+  "Total unclaimed rebates. Includes unclaimed rebates, and rebates lost in rebates mechanism "
   totalUnclaimedQueryFeeRebates: BigInt!
 
   # Indexing rewards globals
@@ -546,7 +558,7 @@ type SubgraphDeployment @entity {
   indexingDelegatorRewardAmount: BigInt!
   "Total query fees earned by this Subgraph Deployment, without curator query fees"
   queryFeesAmount: BigInt!
-  "Total query fee rebates earned from the protocol, through the cobbs douglas formula. Does not include delegation fees"
+  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include delegation fees"
   queryFeeRebates: BigInt!
   "Total curator rewards from fees"
   curatorFeeRewards: BigInt!
@@ -671,7 +683,7 @@ type Indexer @entity {
   totalAllocationCount: BigInt!
   "Total query fees collected. Includes the portion given to delegators"
   queryFeesCollected: BigInt!
-  "Query fee rebate amount claimed from the protocol through cobbs douglas. Does not include portion given to delegators"
+  "Query fee rebate amount claimed from the protocol through rebates mechanism. Does not include portion given to delegators"
   queryFeeRebates: BigInt!
   "Total indexing rewards earned by this indexer from inflation. Including delegation rewards"
   rewardsEarned: BigInt!
@@ -780,7 +792,7 @@ type Allocation @entity {
   subgraphDeployment: SubgraphDeployment!
   "Tokens allocation in this allocation"
   allocatedTokens: BigInt!
-  "Effective allocation that is realized upon closing"
+  "[DEPRECATED] Effective allocation that is realized upon closing"
   effectiveAllocation: BigInt!
   "Epoch this allocation was created"
   createdAtEpoch: Int!
@@ -796,8 +808,10 @@ type Allocation @entity {
   closedAtBlockNumber: Int
   "Fees this allocation collected from query fees upon closing. Excludes curator reward and protocol tax"
   queryFeesCollected: BigInt!
-  "Query fee rebate amount claimed from the protocol through cobbs douglas. Does not include portion given to delegators"
+  "Query fee rebate amount claimed from the protocol through rebates mechanism. Does not include portion given to delegators"
   queryFeeRebates: BigInt!
+  "Query fee rebates collected from the protocol. Can differ from queryFeeRebates if multiple vouchers per allocation are allowed."
+  distributedRebates: BigInt!
   "Curator rewards deposited to the curating bonding curve"
   curatorRewards: BigInt!
   "Indexing rewards earned by this allocation. Includes delegator and indexer rewards"
@@ -806,7 +820,7 @@ type Allocation @entity {
   indexingIndexerRewards: BigInt!
   "Indexing rewards earned by this allocation by delegators"
   indexingDelegatorRewards: BigInt!
-  "Pool in which this allocation was closed"
+  "[DEPRECATED] Pool in which this allocation was closed"
   poolClosedIn: Pool
   "Fees paid out to delegators"
   delegationFees: BigInt!
@@ -847,12 +861,12 @@ enum AllocationStatus {
   Null # == indexer == address(0)
   Active # == not Null && tokens > 0 #
   Closed # == Active && closedAtEpoch != 0. Still can collect, while you are waiting to be finalized. a.k.a settling
-  Finalized # == Closing && closedAtEpoch + channelDisputeEpochs > now(). Note, the subgraph has no way to return this value. it is implied
-  Claimed # == not Null && tokens == 0 - i.e. finalized, and all tokens withdrawn
+  Finalized # == [DEPRECATED] Closing && closedAtEpoch + channelDisputeEpochs > now(). Note, the subgraph has no way to return this value. it is implied
+  Claimed # == [DEPRECATED] not Null && tokens == 0 - i.e. finalized, and all tokens withdrawn
 }
 
 """
-Global pool of query fees for closed state channels. Each Epoch has a single pool,
+[DEPRECATED] Global pool of query fees for closed state channels. Each Epoch has a single pool,
 hence why they share the same IDs.
 """
 type Pool @entity {
@@ -862,7 +876,7 @@ type Pool @entity {
   allocation: BigInt!
   "Total query fees collected in this epoch"
   totalQueryFees: BigInt!
-  "Total query fees claimed in this epoch. Can be smaller than totalFees because of cobbs douglas function "
+  "Total query fees claimed in this epoch. Can be smaller than totalFees because of rebates function "
   claimedFees: BigInt!
   "Total rewards from query fees deposited to all curator bonding curves during the epoch"
   curatorRewards: BigInt!
@@ -1270,11 +1284,11 @@ type Epoch @entity {
   totalQueryFees: BigInt!
   "Amount of query fees generated that were burnt by the 1% protocol tax during this epoch"
   taxedQueryFees: BigInt!
-  "Amount of query fees generated that are going to the rebate pool for indexers during this epoch"
+  "Amount of query fees generated for indexers during this epoch"
   queryFeesCollected: BigInt!
   "Amount of query fees generated that are going to curators during this epoch"
   curatorQueryFees: BigInt!
-  "Rebate amount claimed from the protocol through cobbs douglas during this epoch (Doesn't correlate to the queryFeesCollected for this epoch since there's a 7 day period before claiming)"
+  "Rebate amount claimed from the protocol through rebates mechanism during this epoch"
   queryFeeRebates: BigInt!
   "Total indexing rewards earned in this epoch. Includes both delegator and indexer rewards"
   totalRewards: BigInt!
