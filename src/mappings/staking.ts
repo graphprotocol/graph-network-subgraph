@@ -593,6 +593,7 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   allocation.closedAtBlockNumber = (
     addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
   ).toI32()
+  allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
   allocation.closedAt = event.block.timestamp.toI32()
   allocation.poi = event.params.poi
@@ -609,6 +610,17 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
     addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
   )
   epoch.save()
+  // update pool
+  let pool = createOrLoadPool(event.params.epoch)
+  // effective allocation is the value stored in contracts, so we use it here
+  pool.allocation = pool.allocation.plus(event.params.effectiveAllocation)
+
+  // We must call the contract directly to see how many fees are getting closed in this
+  // allocation. The event does not emit this information
+  let staking = Staking.bind(event.address)
+  let contractAlloc = staking.getAllocation1(event.params.allocationID)
+  pool.totalQueryFees = pool.totalQueryFees.plus(contractAlloc.collectedFees)
+  pool.save()
 
   // update subgraph deployment. Pretty sure this should be done here, if not
   // it would be done in handleRebateClaimed
