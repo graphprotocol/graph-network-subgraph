@@ -43,6 +43,20 @@ export function handleSubgraphReceivedFromL1(event: SubgraphReceivedFromL1): voi
   subgraph.idOnL2 = convertBigIntSubgraphIDToBase58(event.params._l2SubgraphID)
   subgraph.save()
 
+  let nameSignal = createOrLoadNameSignal(
+    event.params._owner,
+    subgraphID,
+    event.block.timestamp,
+  )
+  nameSignal.transferredToL2 = true
+  nameSignal.transferredToL2At = event.block.timestamp
+  nameSignal.transferredToL2AtBlockNumber = event.block.number
+  nameSignal.transferredToL2AtTx = event.transaction.hash.toHexString()
+  nameSignal.idOnL2 = nameSignal.id
+  nameSignal.signalledTokensReceivedOnL2 = nameSignal.signalledTokensReceivedOnL2.plus(
+    event.params._tokens,
+  )
+  nameSignal.save()
   // we can't create version deployment and update them yet!
 }
 
