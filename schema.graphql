@@ -770,11 +770,6 @@ type Indexer @entity {
   delegatorsCount: Int!
 }
 
-type IndexerDelegatortRelation @entity(immutable: true) {
-  "Indexer-index"
-  id: ID!
-  delegator: Delegator!
-}
 
 """
 A state channel Allocation representing a single Indexer-SubgraphDeployment stake

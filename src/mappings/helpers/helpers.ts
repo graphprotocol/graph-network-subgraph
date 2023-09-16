@@ -7,7 +7,7 @@ import {
   log,
   BigDecimal,
   dataSource,
-  ethereum,
+  ethereum
 } from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
@@ -32,7 +32,6 @@ import {
   IndexerDeployment,
   RewardCutHistoryEntity,
   DelegationPoolHistoryEntity,
-  IndexerDelegatortRelation,
   DelegatorRewardHistoryEntity,
 } from '../../types/schema'
 import { ENS } from '../../types/GNS/ENS'
@@ -276,11 +275,6 @@ export function createOrLoadDelegatedStake(
 
     // GRAPHSCAN PATCH
     let indexerEntity = Indexer.load(indexer)!
-    let indexerDelegatorRelation = new IndexerDelegatortRelation(
-      joinID([indexer, BigInt.fromI32(indexerEntity.delegatorsCount).toString()]),
-    )
-    indexerDelegatorRelation.delegator = delegator
-    indexerDelegatorRelation.save()
     indexerEntity.delegatorsCount = indexerEntity.delegatorsCount + 1
 
     indexerEntity.save()
@@ -1226,14 +1220,10 @@ export function createDelegatorRewardHistoryEntityFromIndexer(
 ): void {
   let graphNetwork = GraphNetwork.load('1')!
   let indexer = Indexer.load(indexerId)!
-  for (let i = 0; i < indexer.delegatorsCount; i++) {
-    let indexerDelegatorRelation = IndexerDelegatortRelation.load(
-      joinID([indexerId, BigInt.fromI32(i).toString()]),
-    )!
-    let delegatedStake = DelegatedStake.load(
-      joinID([indexerDelegatorRelation.delegator, indexer.id]),
-    )!
-    let delegator = Delegator.load(indexerDelegatorRelation.delegator)!
+  let delegationStakes = indexer.delegators.load()
+  for (let i = 0; i < delegationStakes.length; i++) {
+    let delegatedStake = delegationStakes[i];
+    let delegator = Delegator.load(delegatedStake.delegator)!
     let id = indexer.id + delegatedStake.delegator + event.block.number.toString()
     // вычитам старое значение текущего стейка
     delegator.currentStaked = delegator.currentStaked.minus(delegatedStake.currentDelegationAmount)
@@ -1241,12 +1231,13 @@ export function createDelegatorRewardHistoryEntityFromIndexer(
     delegator.unreleasedReward = delegator.unreleasedReward.minus(delegatedStake.unreleasedReward)
     delegator.totalRewards = delegator.totalRewards.minus(delegatedStake.unreleasedReward)
 
-    let rewardHistoryEntity = DelegatorRewardHistoryEntity.load(id)
+    let rewardHistoryEntity = DelegatorRewardHistoryEntity.loadInBlock(id)
     if (rewardHistoryEntity == null) {
       rewardHistoryEntity = new DelegatorRewardHistoryEntity(
-        indexer.id + delegatedStake.delegator + event.block.number.toString(),
+        id,
       )
     }
+
     rewardHistoryEntity.indexer = indexer.id
     rewardHistoryEntity.delegator = delegatedStake.delegator
 
