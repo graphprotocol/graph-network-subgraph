@@ -6,6 +6,7 @@ import {
   StakeSlashed,
   AllocationCreated,
   AllocationClosed,
+  AllocationClosed1, // This is the event pre exponential rebates
   RebateClaimed,
   Staking,
   SetOperator,
@@ -13,6 +14,7 @@ import {
   StakeDelegatedLocked,
   StakeDelegatedWithdrawn,
   AllocationCollected,
+  RebateCollected,
   DelegationParametersUpdated,
   SlasherUpdate,
   AssetHolderUpdate,
@@ -24,7 +26,6 @@ import {
 import {
   Indexer,
   Allocation,
-  GraphNetwork,
   Pool,
   SubgraphDeployment,
   GraphAccount,
@@ -54,20 +55,16 @@ import {
 import { addresses } from '../../config/addresses'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
-  // Quick fix to avoid creating new Indexer entities if they don't exist yet.
-  let account = GraphAccount.load(event.params.indexer.toHexString())
-  if (account != null) {
-    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-    let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
-    indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
-    indexer.queryFeeCut = event.params.queryFeeCut.toI32()
-    indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
-    indexer.lastDelegationParameterUpdate = (
-      addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
-    ).toI32()
-    indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
-    indexer.save()
-  }
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+  indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
+  indexer.queryFeeCut = event.params.queryFeeCut.toI32()
+  indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
+  indexer.lastDelegationParameterUpdate = (
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
+  ).toI32()
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
+  indexer.save()
 }
 
 /**
@@ -377,6 +374,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   ).toI32()
   allocation.queryFeesCollected = BigInt.fromI32(0)
   allocation.queryFeeRebates = BigInt.fromI32(0)
+  allocation.distributedRebates = BigInt.fromI32(0)
   allocation.curatorRewards = BigInt.fromI32(0)
   allocation.indexingRewards = BigInt.fromI32(0)
   allocation.indexingIndexerRewards = BigInt.fromI32(0)
@@ -394,14 +392,18 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.save()
 }
 
-// Transfers tokens from a state channel to the staking contract
-// Burns fees if protocolPercentage > 0
-// Collects curationFees to go to curator rewards
-// calls collect() on curation, which is handled in curation.ts
-// adds to the allocations collected fees
-// if closed, it will add fees to the rebate pool
-// Note - the name event.param.rebateFees is confusing. Rebate fees are better described
-// as query Fees. rebate is from cobbs douglas, which we get from claim()
+/** 
+ * @dev handleAllocationCollected
+ * Note: this handler is for the AllocationCollected event prior to exponential rebates upgrade
+ * - Transfers tokens from a state channel to the staking contract
+ * - Burns fees if protocolPercentage > 0
+ * - Collects curationFees to go to curator rewards
+ * - calls collect() on curation, which is handled in curation.ts
+ * - adds to the allocations collected fees
+ * - if closed, it will add fees to the rebate pool
+ * - Note - the name event.param.rebateFees is confusing. Rebate fees are better described
+ * as query Fees. rebate is from cobbs douglas, which we get from claim()
+*/
 export function handleAllocationCollected(event: AllocationCollected): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
@@ -510,6 +512,87 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.closedAtBlockNumber = (
     addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
   ).toI32()
+  allocation.status = 'Closed'
+  allocation.closedAt = event.block.timestamp.toI32()
+  allocation.poi = event.params.poi
+  allocation.indexingRewardCutAtClose = indexer.indexingRewardCut
+  allocation.indexingRewardEffectiveCutAtClose = indexer.indexingRewardEffectiveCut
+  allocation.queryFeeCutAtClose = indexer.queryFeeCut
+  allocation.queryFeeEffectiveCutAtClose = indexer.queryFeeEffectiveCut
+  allocation.save()
+
+  // update epoch - We do it here to have more epochs created, instead of seeing none created
+  // Likely this problem would go away with a live network with long epochs
+  // But we keep it here anyway. We might think of adding data in the future, like epoch.tokensClosed
+  let epoch = createOrLoadEpoch(
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+  )
+  epoch.save()
+
+  // update subgraph deployment. Pretty sure this should be done here, if not
+  // it would be done in handleRebateClaimed
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  deployment.stakedTokens = deployment.stakedTokens.minus(event.params.tokens)
+  // GRAPHSCAN PATCH
+  updateRewardProportionOnDeployment(deployment)
+  let indexerDeployment = createOrLoadIndexerDeployment(indexerID, allocation.subgraphDeployment)
+  indexerDeployment.allocations = indexerDeployment.allocations - 1
+  indexerDeployment.save()
+  if (indexerDeployment.allocations == 0) {
+    deployment.indexersCount = deployment.indexersCount - 1
+  }
+
+  allocation.statusInt = 1
+  allocation.totalDelegatedTokensAtClose = indexer.delegatedTokens
+  allocation.save()
+  //END GRAPHSCAN PATCH
+  deployment.save()
+
+  // update graph network
+  graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
+  graphNetwork.save()
+}
+
+
+/**
+ * @dev handleAllocationClosed
+ * Note: this handler is for the AllocationClosed event prior to exponential rebates upgrade
+ * - update the indexers stake
+ * - update the subgraph total stake
+ * - update the named subgraph aggregate stake
+ * - update the specific allocation
+ * - update and close the channel
+ */
+export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  let indexerID = event.params.indexer.toHexString()
+  let allocationID = event.params.allocationID.toHexString()
+
+  // update indexer
+  let indexer = Indexer.load(indexerID)!
+  const indexerAccount = GraphAccount.load(indexer.account)!
+  const closedByIndexer = event.params.sender == event.params.indexer
+  const closedByOperator = indexerAccount.operators.includes(event.params.sender.toHexString())
+
+  if (!closedByIndexer && !closedByOperator) {
+    indexer.forcedClosures = indexer.forcedClosures + 1
+  }
+  indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
+  indexer.allocationCount = indexer.allocationCount - 1
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
+  indexer = calculateCapacities(indexer as Indexer)
+  indexer.save()
+
+  // update allocation
+  let allocation = Allocation.load(allocationID)!
+  allocation.poolClosedIn = event.params.epoch.toString()
+  allocation.activeForIndexer = null
+  allocation.closedAtEpoch = event.params.epoch.toI32()
+  allocation.closedAtBlockHash = event.block.hash
+  allocation.closedAtBlockNumber = (
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
+  ).toI32()
   allocation.effectiveAllocation = event.params.effectiveAllocation
   allocation.status = 'Closed'
   allocation.closedAt = event.block.timestamp.toI32()
@@ -535,7 +618,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   // We must call the contract directly to see how many fees are getting closed in this
   // allocation. The event does not emit this information
   let staking = Staking.bind(event.address)
-  let contractAlloc = staking.getAllocation(event.params.allocationID)
+  let contractAlloc = staking.getAllocation1(event.params.allocationID)
   pool.totalQueryFees = pool.totalQueryFees.plus(contractAlloc.collectedFees)
   pool.save()
 
@@ -566,6 +649,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 
 /**
  * @dev handleRebateClaimed
+ * Note: this handler is for the RebateClaimed event prior to exponential rebates upgrade
  * - update pool
  * - update closure of channel in pool
  * - update pool
@@ -593,9 +677,9 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   let allocation = Allocation.load(allocationID)!
   allocation.queryFeeRebates = event.params.tokens
   allocation.delegationFees = event.params.delegationFees
-  allocation.status = 'Claimed'
+  allocation.status = 'Closed' // 'Claimed' is the correct status for pre exponential rebates
   // GRAPHSCAN PATCH
-  allocation.statusInt = 2
+  allocation.statusInt = 1
   // END GRAPHSCAN PATCH
   allocation.save()
 
@@ -630,6 +714,90 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   createDelegatorRewardHistoryEntityFromIndexer(indexerID, event)
 }
 
+/** 
+ * @dev handleRebateCollected
+ * - update indexer
+ * - update allocation
+ * - update epoch
+ * - update subgraph deployment
+ * - update graph network
+*/
+export function handleRebateCollected(event: RebateCollected): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
+  let indexerID = event.params.indexer.toHexString()
+  let allocationID = event.params.allocationID.toHexString()
+
+  // update indexer
+  let indexer = Indexer.load(indexerID)!
+  indexer.queryFeesCollected = indexer.queryFeesCollected.plus(event.params.queryFees)
+  indexer.queryFeeRebates = indexer.queryFeeRebates.plus(event.params.queryRebates)
+  indexer.delegatorQueryFees = indexer.delegatorQueryFees.plus(event.params.delegationRewards)
+  indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.delegationRewards)
+  if (indexer.delegatorShares != BigInt.fromI32(0)) {
+    indexer = updateDelegationExchangeRate(indexer as Indexer)
+  }
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
+  indexer.save()
+
+  // update allocation
+  // queryFees is the total token value minus the curation and protocol fees, as can be seen in the contracts
+  let allocation = Allocation.load(allocationID)!
+  allocation.queryFeesCollected = allocation.queryFeesCollected.plus(event.params.queryFees)
+  allocation.curatorRewards = allocation.curatorRewards.plus(event.params.curationFees)
+  allocation.queryFeeRebates = event.params.queryRebates
+  allocation.distributedRebates = allocation.distributedRebates.plus(event.params.queryRebates)
+  allocation.delegationFees = event.params.delegationRewards
+  allocation.status = 'Closed'
+  allocation.save()
+
+  // Update epoch
+  let epoch = createOrLoadEpoch(
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+  )
+  epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokens)
+  epoch.taxedQueryFees = epoch.taxedQueryFees.plus(event.params.protocolTax)
+  epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.queryFees)
+  epoch.curatorQueryFees = epoch.curatorQueryFees.plus(event.params.curationFees)
+  epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.queryRebates)
+  epoch.save()
+
+  // update subgraph deployment
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)!
+  deployment.queryFeesAmount = deployment.queryFeesAmount.plus(event.params.queryFees)
+  deployment.signalledTokens = deployment.signalledTokens.plus(event.params.curationFees)
+  deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
+  deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
+  deployment.queryFeeRebates = deployment.queryFeeRebates.plus(event.params.queryRebates)
+  deployment.save()
+
+  batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
+
+  // update graph network
+  graphNetwork.totalQueryFees = graphNetwork.totalQueryFees.plus(event.params.tokens)
+  graphNetwork.totalIndexerQueryFeesCollected = graphNetwork.totalIndexerQueryFeesCollected.plus(
+    event.params.queryFees,
+  )
+  graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(
+    event.params.curationFees,
+  )
+  graphNetwork.totalTaxedQueryFees = graphNetwork.totalTaxedQueryFees.plus(event.params.protocolTax)
+  graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.plus(
+    event.params.queryFees,
+  )
+  graphNetwork.totalIndexerQueryFeeRebates = graphNetwork.totalIndexerQueryFeeRebates.plus(
+    event.params.queryRebates,
+  )
+  graphNetwork.totalDelegatorQueryFeeRebates = graphNetwork.totalDelegatorQueryFeeRebates.plus(
+    event.params.delegationRewards,
+  )
+  graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.minus(
+    event.params.delegationRewards.plus(event.params.queryRebates),
+  )
+  graphNetwork.save()
+}
+
+
 /**
  * @dev handleParameterUpdated
  * - updates all parameters of staking, depending on string passed. We then can
@@ -653,10 +821,21 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   } else if (parameter == 'maxAllocationEpochs') {
     graphNetwork.maxAllocationEpochs = staking.maxAllocationEpochs().toI32()
   } else if (parameter == 'rebateRatio') {
+    // Cobbs-Douglas rebates
     graphNetwork.rebateRatio = staking
       .alphaNumerator()
       .toBigDecimal()
-      .div(staking.alphaDenominator().toBigDecimal()) // alphaDemoninator != 0, no div() protection needed
+      .div(staking.alphaDenominator().toBigDecimal()) // alphaDenominator != 0, no div() protection needed
+  } else if (parameter == 'rebateParameters') {
+    // Exponential rebates
+    graphNetwork.rebateAlpha = staking
+      .alphaNumerator()
+      .toBigDecimal()
+      .div(staking.alphaDenominator().toBigDecimal()) // alphaDenominator != 0, no div() protection needed
+    graphNetwork.rebateLambda = staking
+      .lambdaNumerator()
+      .toBigDecimal()
+      .div(staking.lambdaDenominator().toBigDecimal()) // lambdaDenominator!= 0, no div() protection needed
   } else if (parameter == 'delegationRatio') {
     graphNetwork.delegationRatio = staking.delegationRatio().toI32()
   } else if (parameter == 'delegationParametersCooldown') {
