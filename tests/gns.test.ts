@@ -1,19 +1,14 @@
-import { Address, BigInt, Bytes, ethereum, Value} from '@graphprotocol/graph-ts'
+import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
 
 import {
-  assert,
   clearStore,
-  test,
   beforeAll,
   describe,
   afterAll,
-  logStore,
-  log,
   createMockedFunction,
 } from 'matchstick-as/assembly/index'
 
-import { GraphNetwork, GraphAccount } from '../src/types/schema'
-import { createOrLoadGraphNetwork } from '../src/mappings/helpers'
+import { createOrLoadGraphNetwork } from '../src/mappings/helpers/helpers'
 
 const controllerID = '0x0000000000000000000000000000000000000001'
 const controllerAddress = Address.fromString(controllerID)
@@ -24,11 +19,10 @@ createMockedFunction(controllerAddress, 'getGovernor', 'getGovernor():(address)'
   .withArgs([])
   .returns([ethereum.Value.fromAddress(controllerAddress)])
 
-// CONSTANTS 
+// CONSTANTS
 const blockNumber = BigInt.fromI32(1)
 
 describe('SetDefaultName', () => {
-  
   beforeAll(() => {
     createOrLoadGraphNetwork(blockNumber, controllerAddress)
   })
@@ -37,6 +31,4 @@ describe('SetDefaultName', () => {
     // Clear the store in order to start the next test off on a clean slate
     clearStore()
   })
-
-
-  })
+})

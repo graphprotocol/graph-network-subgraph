@@ -12,14 +12,14 @@ import {
   AllocationCollected,
   AllocationClosed,
   RebateClaimed,
-  ParameterUpdated,
   SetOperator,
   SlasherUpdate,
   AssetHolderUpdate,
 } from '../../src/types/Staking/Staking'
 import { Address, BigInt, ethereum, Bytes } from '@graphprotocol/graph-ts'
+import { ParameterUpdated } from '../../src/types/StakingExtension/StakingExtension'
 
-// CONSTANTS 
+// CONSTANTS
 // Note that these values have to match the values in staking.test.ts
 const minimumIndexerStake = 11
 const thawingPeriod = 12
@@ -70,10 +70,7 @@ export function mockDelegationParametersUpdated(
   return event
 }
 
-export function mockStakeDeposited(
-  indexer: Address,
-  tokens: BigInt, 
-): StakeDeposited {
+export function mockStakeDeposited(indexer: Address, tokens: BigInt): StakeDeposited {
   let mockEvent = newMockEvent()
   // block.number is picked in a way to make epoch calculations work for the tests
   mockEvent.block.number = BigInt.fromI32(5)
@@ -140,7 +137,7 @@ export function mockStakeWithdrawn(indexer: Address, tokens: BigInt): StakeWithd
 export function mockStakeSlashed(
   indexer: Address,
   tokens: BigInt,
-  reward: BigInt, 
+  reward: BigInt,
   beneficiary: Address,
 ): StakeSlashed {
   let mockEvent = newMockEvent()
@@ -296,7 +293,7 @@ export function mockAllocationCollected(
   indexer: Address,
   subgraphDeploymentID: Bytes,
   epoch: BigInt,
-  tokens: BigInt, 
+  tokens: BigInt,
   allocationID: Address,
   from: Address,
   curationFees: BigInt,
@@ -381,7 +378,7 @@ export function mockAllocationClosed(
   let staking = mockEvent.address
 
   let tupleArray = [
-    ethereum.Value.fromString("0x111111"),
+    ethereum.Value.fromString('0x111111'),
     ethereum.Value.fromBytes(Bytes.fromI32(1)),
     ethereum.Value.fromI32(11),
     ethereum.Value.fromI32(11),
@@ -392,7 +389,6 @@ export function mockAllocationClosed(
   ]
   let tuple = changetype<ethereum.Tuple>(tupleArray)
   let tupleValue = ethereum.Value.fromTuple(tuple)
-
 
   createMockedFunction(
     staking,
@@ -469,7 +465,7 @@ export function mockParameterUpdated(param: string): ParameterUpdated {
   event.parameters = []
   event.parameters.push(new ethereum.EventParam('param', ethereum.Value.fromString(param)))
 
-  let staking = mockEvent.address 
+  let staking = mockEvent.address
   createMockedFunction(staking, 'minimumIndexerStake', 'minimumIndexerStake():(uint256)')
     .withArgs([])
     .returns([ethereum.Value.fromI32(minimumIndexerStake)])

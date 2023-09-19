@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -53,7 +53,7 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
   // Quick fix to avoid creating new Indexer entities if they don't exist yet.
   let account = GraphAccount.load(id)
   if (account != null) {
-    let indexer = createOrLoadIndexer(id, event.block.timestamp)
+    let indexer = createOrLoadIndexer(Bytes.fromHexString(id), event.block.timestamp)
     indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
     indexer.queryFeeCut = event.params.queryFeeCut.toI32()
     indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()

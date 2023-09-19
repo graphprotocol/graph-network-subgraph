@@ -1,22 +1,18 @@
-import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, ethereum } from '@graphprotocol/graph-ts'
 
 import {
   assert,
   clearStore,
   test,
-  beforeAll,
-  describe,
   afterAll,
-  logStore,
   createMockedFunction,
 } from 'matchstick-as/assembly/index'
 
-import { Indexer, GraphAccount } from '../src/types/schema'
 import {
   createOrLoadIndexer,
   createOrLoadGraphAccount,
   createOrLoadGraphNetwork,
-} from '../src/mappings/helpers'
+} from '../src/mappings/helpers/helpers'
 
 let indexerID = '0xdbafb0d805df2a8017d87e1fb7c474de7a301ceb'
 let indexerAddress = Address.fromString(indexerID)
@@ -42,7 +38,7 @@ test('createOrLoadGraphAccount creates a new graph account', () => {
 })
 
 test('createOrLoadIndexer creates a new indexer', () => {
-  createOrLoadIndexer(indexerID, BigInt.fromI32(1))
+  createOrLoadIndexer(Bytes.fromHexString(indexerID), BigInt.fromI32(1))
   assert.fieldEquals('Indexer', indexerID, 'stakedTokens', '0')
   assert.fieldEquals('Indexer', indexerID, 'indexingRewardCut', '0')
 })

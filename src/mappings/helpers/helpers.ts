@@ -407,7 +407,10 @@ export function createOrLoadPool(id: BigInt): Pool {
 }
 
 export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
-  let graphNetwork = createOrLoadGraphNetwork(blockNumber, Bytes.fromHexString(addresses.controller) as Bytes) // Random address since at this point it's already initialized
+  let graphNetwork = createOrLoadGraphNetwork(
+    blockNumber,
+    Bytes.fromHexString(addresses.controller) as Bytes,
+  ) // Random address since at this point it's already initialized
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
@@ -483,7 +486,9 @@ export function createOrLoadGraphNetwork(
     graphNetwork.rewardsManagerImplementations = []
     graphNetwork.isPaused = false
     graphNetwork.isPartialPaused = false
-    graphNetwork.governor = !governorCall.reverted ? governorCall.value : Address.fromString('0x0000000000000000000000000000000000000000')
+    graphNetwork.governor = !governorCall.reverted
+      ? governorCall.value
+      : Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.pauseGuardian = Address.fromString('0x0000000000000000000000000000000000000000')
 
     // let contract = GraphNetwork.bind(event.params.a)
@@ -1090,7 +1095,9 @@ export function updateL1BlockNumber(graphNetwork: GraphNetwork): GraphNetwork {
     graphNetwork.currentL1BlockNumber = response.value
     graphNetwork.save()
   } else {
-    log.warning("Failed to update L1BlockNumber. Transaction reverted. Address used: {}", [epochManagerAddress.toHexString()])
+    log.warning('Failed to update L1BlockNumber. Transaction reverted. Address used: {}', [
+      epochManagerAddress.toHexString(),
+    ])
   }
   return graphNetwork
 }
@@ -1099,7 +1106,11 @@ export function getAliasedL2SubgraphID(id: BigInt): BigInt {
   // offset === 0x1111000000000000000000000000000000000000000000000000000000001111 or "7719354826016761135949426780745810995650277145449579228033297493447455805713"
   // base === 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff + 1 or "115792089237316195423570985008687907853269984665640564039457584007913129639936"
   // const expectedL2SubgraphId = l1SubgraphId.add(offset).mod(base)
-  let offset = BigInt.fromString("7719354826016761135949426780745810995650277145449579228033297493447455805713")
-  let base = BigInt.fromString("115792089237316195423570985008687907853269984665640564039457584007913129639936")
-  return (id.plus(offset)).mod(base)
+  let offset = BigInt.fromString(
+    '7719354826016761135949426780745810995650277145449579228033297493447455805713',
+  )
+  let base = BigInt.fromString(
+    '115792089237316195423570985008687907853269984665640564039457584007913129639936',
+  )
+  return id.plus(offset).mod(base)
 }
