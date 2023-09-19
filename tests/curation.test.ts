@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, ethereum, Value } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, ethereum } from '@graphprotocol/graph-ts'
 
 import {
   assert,
@@ -7,8 +7,6 @@ import {
   beforeAll,
   describe,
   afterAll,
-  logStore,
-  log,
   createMockedFunction,
 } from 'matchstick-as/assembly/index'
 
@@ -25,7 +23,7 @@ import { mockStakeDeposited, mockAllocationCreated, mockStakeDelegated } from '.
 
 import { mockSignalled, mockBurned, mockParameterUpdated } from './factories/curation'
 
-import { createOrLoadGraphNetwork } from '../src/mappings/helpers'
+import { createOrLoadGraphNetwork } from '../src/mappings/helpers/helpers'
 
 import { mockTransfer } from './factories/graphToken'
 

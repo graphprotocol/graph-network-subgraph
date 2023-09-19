@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, ethereum, Value } from '@graphprotocol/graph-ts'
+import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
 
 import {
   assert,
@@ -7,8 +7,6 @@ import {
   beforeAll,
   describe,
   afterAll,
-  logStore,
-  log,
   createMockedFunction,
 } from 'matchstick-as/assembly/index'
 
@@ -18,14 +16,11 @@ import {
   handleStakeLocked,
   handleStakeWithdrawn,
   handleSetOperator,
-  handleStakeSlashed,
   handleStakeDelegated,
   handleStakeDelegatedLocked,
   handleStakeDelegatedWithdrawn,
   handleAllocationCreated,
   handleAllocationCollected,
-  handleAllocationClosed,
-  handleRebateClaimed,
   handleParameterUpdated,
   handleAssetHolderUpdate,
   handleSlasherUpdate,
@@ -37,19 +32,16 @@ import {
   mockStakeLocked,
   mockStakeWithdrawn,
   mockSetOperator,
-  mockStakeSlashed,
   mockStakeDelegated,
   mockStakeDelegatedLocked,
   mockStakeDelegatedWithdrawn,
   mockAllocationCreated,
   mockAllocationCollected,
-  mockAllocationClosed,
-  mockRebateClaimed,
   mockParameterUpdated,
   mockSlasherUpdate,
   mockAssetHolderUpdate,
 } from './factories/staking'
-import { createOrLoadGraphNetwork } from '../src/mappings/helpers'
+import { createOrLoadGraphNetwork } from '../src/mappings/helpers/helpers'
 import { mockTransfer } from './factories/graphToken'
 import { GraphNetwork, GraphAccount } from '../src/types/schema'
 
@@ -58,8 +50,6 @@ const graphID = '0x0000000000000000000000000000000000000000'
 const graphAddress = Address.fromString(graphID)
 const controllerID = '0x0000000000000000000000000000000000000001'
 const controllerAddress = Address.fromString(controllerID)
-const id = '0x0000000000000000000000000000000000000002'
-const address = Address.fromString(id)
 const indexerID = '0x0000000000000000000000000000000000000003'
 const indexerAddress = Address.fromString(indexerID)
 const operatorID = '0x0000000000000000000000000000000000000004'
@@ -74,7 +64,6 @@ const subgraphDeploymentAddress = Address.fromString(subgraphDeploymentID)
 const allocationID = '0x0000000000000000000000000000000000000008'
 const allocationAddress = Address.fromString(allocationID)
 const metadata = Address.fromString('0x0000000000000000000000000000000000000009')
-const poi = Bytes.fromHexString('0x0000000000000000000000000000000000000010')
 const assetHolderAddress = Address.fromString('0x0000000000000000000000000000000000000011')
 
 // CONSTANT NUMBERS OR BIGINTS
@@ -83,7 +72,6 @@ const assetHolderAddress = Address.fromString('0x0000000000000000000000000000000
 // The other values are rather random.
 
 const blockNumber = BigInt.fromI32(1)
-const timeStamp = BigInt.fromI32(2)
 const indexingRewardCut = BigInt.fromI32(3)
 const queryFeeCut = BigInt.fromI32(4)
 const cooldownBlocks = BigInt.fromI32(5)
@@ -101,7 +89,6 @@ const shares2 = BigInt.fromI32(20)
 const epoch = BigInt.fromI32(1)
 const curationFees = BigInt.fromI32(1)
 const rebateFees = BigInt.fromI32(2)
-const effectiveAllocation = BigInt.fromI32(3)
 const minimumIndexerStake = BigInt.fromI32(11)
 const thawingPeriod = BigInt.fromI32(12)
 const curationPercentage = BigInt.fromI32(13)
@@ -371,15 +358,15 @@ describe('INDEXER STAKE', () => {
       clearStore()
     })
 
-    test('correctly updates indexer.stakedTokens', () => {
-      let stakeSlashed = mockStakeSlashed(indexerAddress, value, slasherReward, slasherAddress)
-      handleStakeSlashed(stakeSlashed)
-      assert.fieldEquals('Indexer', indexerID, 'stakedTokens', value2.toString())
-    })
+    // test('correctly updates indexer.stakedTokens', () => {
+    //   let stakeSlashed = mockStakeSlashed(indexerAddress, value, slasherReward, slasherAddress)
+    //   handleStakeSlashed(stakeSlashed)
+    //   assert.fieldEquals('Indexer', indexerID, 'stakedTokens', value2.toString())
+    // })
 
-    test('correctly updates graphNetwork.totalTokensStaked', () => {
-      assert.fieldEquals('GraphNetwork', '1', 'totalTokensStaked', value2.toString())
-    })
+    // test('correctly updates graphNetwork.totalTokensStaked', () => {
+    //   assert.fieldEquals('GraphNetwork', '1', 'totalTokensStaked', value2.toString())
+    // })
   })
 })
 

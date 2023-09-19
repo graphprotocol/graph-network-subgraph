@@ -38,7 +38,7 @@
     "lint-fix": "eslint . --fix",
     "prettier": "prettier '**/*.ts'",
     "prettier-write": "prettier --write '**/*.ts'",
-    "test": "graph test -v 0.5.2"
+    "test": "graph test -v 0.6.0-rc.2"
   },
   "devDependencies": {
     "@graphprotocol/contracts": "^5.2.1",
@@ -48,7 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
     "eslint": "^7.2.0",
-    "matchstick-as": "^0.5.2",
+    "matchstick-as": "0.6.0-beta.2",
     "mustache": "^4.0.1",
     "prettier": "^2.0.5",
     "typescript": "^3.9.3"
