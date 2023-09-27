@@ -18,9 +18,15 @@ let indexerID = '0xdbafb0d805df2a8017d87e1fb7c474de7a301ceb'
 let indexerAddress = Address.fromString(indexerID)
 let controllerID = '0xdbafb0d805df2a8017d87e1fb7c474de7a302ceb'
 let controllerAddress = Address.fromString(controllerID)
+const graphID = '0x0000000000000000000000000000000000000000'
+const graphAddress = Address.fromString(graphID)
 createMockedFunction(controllerAddress, 'getGovernor', 'getGovernor():(address)')
   .withArgs([])
   .returns([ethereum.Value.fromAddress(controllerAddress)])
+// L2 graph network init EpochManager call
+createMockedFunction(graphAddress, 'blockNum', 'blockNum():(uint256)')
+.withArgs([])
+.returns([ethereum.Value.fromI32(0)])
 
 afterAll(() => {
   // Clear the store in order to start the next test off on a clean slate
