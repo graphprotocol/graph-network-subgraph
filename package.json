@@ -38,7 +38,13 @@
     "lint-fix": "eslint . --fix",
     "prettier": "prettier '**/*.ts'",
     "prettier-write": "prettier --write '**/*.ts'",
-    "test": "graph test -v 0.6.0-rc.2"
+    "test": "graph test -v 0.6.0-rc.2",
+    "test-l1": "yarn prepare:test-l1 && yarn test",
+    "test-l2": "yarn prepare:test-l2 && yarn test",
+    "prep:addresses:test:l1": "ts-node config/testAddressesL1.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
+    "prep:addresses:test:l2": "ts-node config/testAddressesL2.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
+    "prepare:test-l1": "yarn prep:no-ipfs && yarn prep:addresses:test:l1 && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
+    "prepare:test-l2": "yarn prep:no-ipfs && yarn prep:addresses:test:l2 && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/"
   },
   "devDependencies": {
     "@graphprotocol/contracts": "^5.2.1",

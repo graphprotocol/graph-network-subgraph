@@ -6,7 +6,6 @@ import {
   crypto,
   log,
   BigDecimal,
-  dataSource,
 } from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
@@ -558,8 +557,7 @@ export function createOrLoadGraphNetwork(
     if (addresses.isL1) {
       graphNetwork.lastLengthUpdateBlock = blockNumber.toI32() // Use chain native block
     } else {
-      let epochManagerAddress = dataSource.address()
-      let contract = EpochManager.bind(epochManagerAddress)
+      let contract = EpochManager.bind(changetype<Address>(graphNetwork.epochManager))
       let response = contract.try_blockNum()
       if (!response.reverted) {
         graphNetwork.lastLengthUpdateBlock = response.value.toI32() // Use L1 block
