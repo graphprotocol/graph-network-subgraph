@@ -24,8 +24,6 @@ jobs:
         run: yarn install
 
       # Run scripts
-      - name: Prep NO IPFS
-        run: ./node_modules/.bin/mustache ./config/no-ipfs.json ./src/mappings/helpers/metadata.template.ts > ./src/mappings/helpers/metadata.ts
       - name: Prep addressess
         run: ./node_modules/.bin/ts-node config/testAddressesL1.ts && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
       - name: Prep test L1
