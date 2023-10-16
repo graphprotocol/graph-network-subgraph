@@ -73,6 +73,7 @@ export function handleSubgraphDeploymentSchema(content: Bytes): void {
   if (content !== null) {
     subgraphDeploymentSchema.schema = content.toString()
   }
+  subgraphDeploymentSchema.save()
 }
 
 export function handleSubgraphDeploymentManifest(content: Bytes): void {
@@ -97,7 +98,7 @@ export function handleSubgraphDeploymentManifest(content: Bytes): void {
           subgraphDeploymentManifest.schemaIpfsHash = schemaIpfsHash
 
           // Can't create this template here yet (due to current implementation limitations on File Data Sources, but once that's sorted out, this should work.)
-          //SubgraphDeploymentSchemaTemplate.create(schemaIpfsHash)
+          SubgraphDeploymentSchemaTemplate.create(schemaIpfsHash)
         } else {
           log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, schema file hash can't be retrieved. Error: schemaIpfsHashTry.length isn't 2, actual length: {}", [dataSource.stringParam(), schemaIpfsHashTry.length.toString()])
         }
@@ -123,5 +124,8 @@ export function handleSubgraphDeploymentManifest(content: Bytes): void {
     } else {
       log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, network can't be parsed. Error: networkSplitTry.length isn't 2, actual length: {}", [dataSource.stringParam(), networkSplitTry.length.toString()])
     }
+    let substreamsSplitTry = manifest.split('- kind: substreams', 2)
+    subgraphDeploymentManifest.poweredBySubstreams = substreamsSplitTry.length > 1
   }
+  subgraphDeploymentManifest.save()
 }
