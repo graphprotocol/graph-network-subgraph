@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -19,10 +19,7 @@ import {
   SlasherUpdate,
   AssetHolderUpdate,
 } from '../types/Staking/Staking'
-import {
-  StakingExtension,
-  ParameterUpdated,
-} from '../types/StakingExtension/StakingExtension'
+import { StakingExtension, ParameterUpdated } from '../types/StakingExtension/StakingExtension'
 import {
   Indexer,
   Allocation,
@@ -55,16 +52,18 @@ import {
 import { addresses } from '../../config/addresses'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
-  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
-  indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
-  indexer.queryFeeCut = event.params.queryFeeCut.toI32()
-  indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
-  indexer.lastDelegationParameterUpdate = (
-    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
-  ).toI32()
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
-  indexer.save()
+  let id = event.params.indexer.toHexString()
+  // Quick fix to avoid creating new Indexer entities if they don't exist yet.
+  let account = GraphAccount.load(id)
+  if (account != null) {
+    let indexer = createOrLoadIndexer(Bytes.fromHexString(id), event.block.timestamp)
+    indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
+    indexer.queryFeeCut = event.params.queryFeeCut.toI32()
+    indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
+    indexer.lastDelegationParameterUpdate = event.block.number.toI32()
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer, event)
+    indexer.save()
+  }
 }
 
 /**
@@ -392,7 +391,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.save()
 }
 
-/** 
+/**
  * @dev handleAllocationCollected
  * Note: this handler is for the AllocationCollected event prior to exponential rebates upgrade
  * - Transfers tokens from a state channel to the staking contract
@@ -403,7 +402,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
  * - if closed, it will add fees to the rebate pool
  * - Note - the name event.param.rebateFees is confusing. Rebate fees are better described
  * as query Fees. rebate is from cobbs douglas, which we get from claim()
-*/
+ */
 export function handleAllocationCollected(event: AllocationCollected): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
@@ -714,14 +713,14 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   createDelegatorRewardHistoryEntityFromIndexer(indexerID, event)
 }
 
-/** 
+/**
  * @dev handleRebateCollected
  * - update indexer
  * - update allocation
  * - update epoch
  * - update subgraph deployment
  * - update graph network
-*/
+ */
 export function handleRebateCollected(event: RebateCollected): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()

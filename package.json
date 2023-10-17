@@ -39,9 +39,14 @@
     "lint-fix": "eslint . --fix",
     "prettier": "prettier '**/*.ts'",
     "prettier-write": "prettier --write '**/*.ts'",
-    "test": "graph test -v 0.5.2",
-    "test:bancor": "graph test bancor",
-    "test:convert": "graph test convert"
+    "test": "graph test -v 0.6.0-rc.2",
+    "test:bancor": "graph test -v 0.6.0-rc.2 bancor",
+    "test-l1": "yarn prepare:test-l1 && yarn test",
+    "test-l2": "yarn prepare:test-l2 && yarn test",
+    "prep:addresses:test:l1": "ts-node config/testAddressesL1.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
+    "prep:addresses:test:l2": "ts-node config/testAddressesL2.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
+    "prepare:test-l1": "yarn prep:no-ipfs && yarn prep:addresses:test:l1 && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
+    "prepare:test-l2": "yarn prep:no-ipfs && yarn prep:addresses:test:l2 && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/"
   },
   "devDependencies": {
     "@graphprotocol/contracts": "^5.2.1",
@@ -51,7 +56,7 @@
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
     "eslint": "^7.2.0",
-    "matchstick-as": "^0.5.2",
+    "matchstick-as": "0.6.0-beta.2",
     "mustache": "^4.0.1",
     "prettier": "^2.0.5",
     "typescript": "^3.9.3"
