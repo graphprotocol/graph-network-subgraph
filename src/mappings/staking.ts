@@ -45,7 +45,7 @@ import {
   batchUpdateSubgraphSignalledTokens,
   createOrLoadGraphNetwork,
   createOrLoadIndexerDeployment,
-  createDelegatorRewardHistoryEntityFromIndexer,
+  updateDelegatorsRewardsFields,
   updateRewardProportionOnDeployment,
   calculateCapacities,
 } from './helpers/helpers'
@@ -242,7 +242,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
 
   graphNetwork.save()
   delegator.save()
-  createDelegatorRewardHistoryEntityFromIndexer(indexer.id, event)
+  updateDelegatorsRewardsFields(indexer.id, event)
 }
 
 export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
@@ -302,7 +302,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
 
   graphNetwork.save()
   delegator.save()
-  createDelegatorRewardHistoryEntityFromIndexer(indexerID, event)
+  updateDelegatorsRewardsFields(indexerID, event)
 }
 
 export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): void {
@@ -710,7 +710,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
     event.params.delegationFees.plus(event.params.tokens),
   )
   graphNetwork.save()
-  createDelegatorRewardHistoryEntityFromIndexer(indexerID, event)
+  updateDelegatorsRewardsFields(indexerID, event)
 }
 
 /**

@@ -6,7 +6,7 @@ import {
   crypto,
   log,
   BigDecimal,
-  ethereum
+  ethereum,
 } from '@graphprotocol/graph-ts'
 import {
   SubgraphDeployment,
@@ -31,7 +31,6 @@ import {
   IndexerDeployment,
   RewardCutHistoryEntity,
   DelegationPoolHistoryEntity,
-  DelegatorRewardHistoryEntity,
 } from '../../types/schema'
 import { ENS } from '../../types/GNS/ENS'
 import { Controller } from '../../types/Controller/Controller'
@@ -1218,37 +1217,23 @@ export function createOrLoadIndexerDeployment(
   return indexerDeployment as IndexerDeployment
 }
 
-export function createDelegatorRewardHistoryEntityFromIndexer(
-  indexerId: string,
-  event: ethereum.Event,
-): void {
+export function updateDelegatorsRewardsFields(indexerId: string, event: ethereum.Event): void {
   let graphNetwork = GraphNetwork.load('1')!
   let indexer = Indexer.load(indexerId)!
   let delegationStakes = indexer.delegators.load()
   for (let i = 0; i < delegationStakes.length; i++) {
-    let delegatedStake = delegationStakes[i];
+    let delegatedStake = delegationStakes[i]
     let delegator = Delegator.load(delegatedStake.delegator)!
     let id = indexer.id + delegatedStake.delegator + event.block.number.toString()
-    // вычитам старое значение текущего стейка
+    // deducts the old value of the current stake
     delegator.currentStaked = delegator.currentStaked.minus(delegatedStake.currentDelegationAmount)
-    // вычитаем старое значение неанрелиженных ревардов
+    // deducts the old value of the unreleased rewards
     delegator.unreleasedReward = delegator.unreleasedReward.minus(delegatedStake.unreleasedReward)
     delegator.totalRewards = delegator.totalRewards.minus(delegatedStake.unreleasedReward)
 
-    let rewardHistoryEntity = DelegatorRewardHistoryEntity.loadInBlock(id)
-    if (rewardHistoryEntity == null) {
-      rewardHistoryEntity = new DelegatorRewardHistoryEntity(
-        id,
-      )
-    }
-
-    rewardHistoryEntity.indexer = indexer.id
-    rewardHistoryEntity.delegator = delegatedStake.delegator
-
-    rewardHistoryEntity.reward = indexer.delegationExchangeRate
+    delegatedStake.unreleasedReward = indexer.delegationExchangeRate
       .minus(delegatedStake.personalExchangeRate)
       .times(delegatedStake.shareAmount.toBigDecimal())
-    delegatedStake.unreleasedReward = rewardHistoryEntity.reward
 
     delegatedStake.currentDelegationAmount = delegatedStake.shareAmount
       .toBigDecimal()
@@ -1262,9 +1247,9 @@ export function createDelegatorRewardHistoryEntityFromIndexer(
       delegatedStake.unreleasedReward,
     )
     delegatedStake.save()
-    // добавляем новое значение текущего стейка
+    // adds the new value of the current stake
     delegator.currentStaked = delegator.currentStaked.plus(delegatedStake.currentDelegationAmount)
-    // добавляем новое значение неанрелиженных ревардов
+    // adds the new value of the unreleased rewards
     delegator.unreleasedReward = delegator.unreleasedReward.plus(delegatedStake.unreleasedReward)
     delegator.totalRewards = delegator.totalRealizedRewards.plus(delegator.unreleasedReward)
     if (!delegator.totalStakedTokens.isZero()) {
@@ -1275,13 +1260,6 @@ export function createDelegatorRewardHistoryEntityFromIndexer(
       delegator.unreleasedPercent = BigDecimal.fromString('0')
     }
     delegator.save()
-    if (rewardHistoryEntity.reward.gt(BigDecimal.fromString('0'))) {
-      // save only non zero rewards
-      rewardHistoryEntity.blockNumber = event.block.number.toI32()
-      rewardHistoryEntity.timestamp = event.block.timestamp.toI32()
-      rewardHistoryEntity.epoch = graphNetwork.currentEpoch
-      rewardHistoryEntity.save()
-    }
   }
 }
 

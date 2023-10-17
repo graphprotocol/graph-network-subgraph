@@ -1541,30 +1541,6 @@ type DelegationPoolHistoryEntity @entity(immutable: true) {
   timestamp: Int!
   epoch: Int!
 }
-"""
-Rewards history entity
-"""
-type DelegatorRewardHistoryEntity @entity(immutable: true) {
-  "Concatenation of indexer address delegator address and blocknumber"
-  id: ID!
-  indexer: GraphAccount!
-  delegator: GraphAccount!
-
-  reward: BigDecimal!
-
-  blockNumber: Int!
-  timestamp: Int!
-  epoch: Int!
-}
-
-# """
-# ZONE OF DARK MAGIC DONT USE IT OR U DIE
-# """
-# type DeploymentSignalsQueue @entity {
-#   "ID is 0 - infinity"
-#   id: ID!
-#   subgraphDeployment: ID!
-# }
 
 """
 Full test search for displayName and description on the Subgraph Entity
