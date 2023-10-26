@@ -1,10 +1,9 @@
 specVersion: 0.0.5
-description: The Graph Network Smart Contracts on Ethereum
+description: Core Graph Network subgraph
 repository: https://github.com/graphprotocol/graph-network-subgraph
 schema:
   file: ./schema.graphql
 features:
-  - ipfsOnEthereumContracts
   - fullTextSearch
 dataSources:
   - kind: ethereum/contract
