@@ -58,6 +58,18 @@ jobs:
           echo "ENV_SUFFIX=graph-network-arbitrum-goerli" >> $GITHUB_ENV
           echo "IPFS_SUFFIX=" >> $GITHUB_ENV
 
+      - name: Set goerli production environment variables
+        if: ${{ inputs.ENVIRONMENT == 'production-sepolia' }}
+        run: |
+          echo "ENV_SUFFIX=graph-network-sepolia" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=" >> $GITHUB_ENV
+
+      - name: Set arbitrum goerli production environment variables
+        if: ${{ inputs.ENVIRONMENT == 'production-arbitrum-sepolia' }}
+        run: |
+          echo "ENV_SUFFIX=graph-network-arbitrum-sepolia" >> $GITHUB_ENV
+          echo "IPFS_SUFFIX=" >> $GITHUB_ENV
+
       - name: Set mainnet environment variables no ipfs
         if: ${{ inputs.ENVIRONMENT == 'production-no-ipfs' }}
         run: |
