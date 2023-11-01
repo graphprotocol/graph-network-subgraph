@@ -41,6 +41,8 @@ const main = (): void => {
     output.useTokenLockManager = false
     if(output.ens == '') {
       output.ens = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.ethereumDIDRegistry == '') {
       output.ethereumDIDRegistry = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
