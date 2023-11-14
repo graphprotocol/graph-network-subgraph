@@ -28,7 +28,7 @@ export let addresses: Addresses = {
   subgraphNFT: '{{sepolia.SubgraphNFT.address}}',
   l1GraphTokenGateway: '{{sepolia.L1GraphTokenGateway.address}}',
   l2GraphTokenGateway: '',
-  ethereumDIDRegistry: '{{sepolia.IEthereumDIDRegistry.address}}',
+  ethereumDIDRegistry: '{{sepolia.EthereumDIDRegistry.address}}',
   isL1: true,
 }
 

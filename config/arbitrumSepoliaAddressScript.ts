@@ -28,7 +28,7 @@ export let addresses: Addresses = {
   subgraphNFT: '{{arbsep.SubgraphNFT.address}}',
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbsep.L2GraphTokenGateway.address}}',
-  ethereumDIDRegistry: '{{arbsep.IEthereumDIDRegistry.address}}',
+  ethereumDIDRegistry: '{{arbsep.EthereumDIDRegistry.address}}',
   isL1: false,
 }
 
