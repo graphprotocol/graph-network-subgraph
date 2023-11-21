@@ -236,6 +236,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
   let base58Hash = hexHash.toBase58()
   subgraphVersion.metadataHash = event.params.versionMetadata
+  subgraphVersion.metadata = base58Hash
   subgraphVersion.save()
 
   SubgraphVersionMetadataTemplate.create(base58Hash)
@@ -1076,6 +1077,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
     subgraphVersion.metadataHash = event.params.versionMetadata
+    subgraphVersion.metadata = base58Hash
     subgraphVersion.save()
 
     SubgraphVersionMetadataTemplate.create(base58Hash)
@@ -1103,6 +1105,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
     subgraphVersion.metadataHash = event.params.versionMetadata
+    subgraphVersion.metadata = base58Hash
 
     let oldDeployment: SubgraphDeployment | null = null
     if (oldVersionID != null) {
