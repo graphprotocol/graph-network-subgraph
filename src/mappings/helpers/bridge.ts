@@ -4,6 +4,7 @@ import {
   ethereum,
   crypto,
   ByteArray,
+  log,
 } from "@graphprotocol/graph-ts";
 import { DepositInitiated } from "../../types/L1GraphTokenGateway/L1GraphTokenGateway";
 import { bigIntToBytes, padZeros } from "./byte";
@@ -50,9 +51,18 @@ export function getRetryableTicketId(
   let fields: ByteArray[] = [];
 
   // Get the L2 chain id based on the L1 network
-  // 0x066EED = 421613 (Arbitrum Goerli)
-  // 0xA4B1 = 42161 (Arbitrum One)
-  let l2ChainIdHex = addresses.network === "mainnet" ? "0xA4B1" : "0x066EED";
+  let l2ChainIdHex = "";
+  if (addresses.network === "mainnet") {
+    l2ChainIdHex = "0xA4B1"; // 0xA4B1 = 42161 (Arbitrum One)
+  } else if (addresses.network === "goerli") {
+    l2ChainIdHex = "0x066EED"; // 0x066EED = 421613 (Arbitrum Goerli)
+  } else if (addresses.network === "sepolia") {
+    l2ChainIdHex = "0x066EEE"; // 0x066EEE = 421614 (Arbitrum Sepolia)
+  } else {
+    log.critical('Unsupported network: {}', [addresses.network]);
+    return null;
+  }
+
   let l2ChainId = Bytes.fromHexString(l2ChainIdHex);
   fields.push(l2ChainId);
 
