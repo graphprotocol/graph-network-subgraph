@@ -59,7 +59,7 @@ export function getRetryableTicketId(
   } else if (addresses.network === "sepolia") {
     l2ChainIdHex = "0x066EEE"; // 0x066EEE = 421614 (Arbitrum Sepolia)
   } else {
-    log.critical('Unsupported network: {}', [addresses.network]);
+    log.warning('Unsupported network: {}', [addresses.network]);
     return null;
   }
 
