@@ -1,5 +1,5 @@
 specVersion: 0.0.5
-description: Core Graph Network subgraph
+description: Core Graph Network subgraph (FDS version)
 repository: https://github.com/graphprotocol/graph-network-subgraph
 schema:
   file: ./schema.graphql
