@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Bytes, log } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal, Bytes, log, DataSourceContext } from '@graphprotocol/graph-ts'
 import {
   SubgraphPublished,
   SubgraphPublished1,
@@ -179,13 +179,15 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
 
   let hexHash = changetype<Bytes>(addQm(event.params.subgraphMetadata))
   let base58Hash = hexHash.toBase58()
-
+  let metadataId = subgraph.id.concat('-').concat(base58Hash)
   subgraph.metadataHash = event.params.subgraphMetadata
-  subgraph.metadata = base58Hash
+  subgraph.metadata = metadataId
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
-  SubgraphMetadataTemplate.create(base58Hash)
+  let context = new DataSourceContext()
+  context.setString('id', metadataId)
+  SubgraphMetadataTemplate.createWithContext(base58Hash, context)
 }
 
 /**
@@ -235,11 +237,14 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   subgraphVersion.createdAt = event.block.timestamp.toI32()
   let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
   let base58Hash = hexHash.toBase58()
+  let metadataId = subgraphVersion.id.concat('-').concat(base58Hash)
   subgraphVersion.metadataHash = event.params.versionMetadata
-  subgraphVersion.metadata = base58Hash
+  subgraphVersion.metadata = metadataId
   subgraphVersion.save()
 
-  SubgraphVersionMetadataTemplate.create(base58Hash)
+  let context = new DataSourceContext()
+  context.setString('id', metadataId)
+  SubgraphVersionMetadataTemplate.createWithContext(base58Hash, context)
 
   let oldDeployment: SubgraphDeployment | null = null
   if (oldVersionID != null) {
@@ -712,13 +717,15 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
 
   let hexHash = changetype<Bytes>(addQm(event.params.subgraphMetadata))
   let base58Hash = hexHash.toBase58()
-
+  let metadataId = subgraph.id.concat('-').concat(base58Hash)
   subgraph.metadataHash = event.params.subgraphMetadata
-  subgraph.metadata = base58Hash;
+  subgraph.metadata = metadataId;
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.save()
 
-  SubgraphMetadataTemplate.create(base58Hash)
+  let context = new DataSourceContext()
+  context.setString('id', metadataId)
+  SubgraphMetadataTemplate.createWithContext(base58Hash, context)
 }
 
 // - event: SignalMinted(indexed uint256,indexed address,uint256,uint256,uint256)
@@ -1076,11 +1083,14 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     let subgraphVersion = SubgraphVersion.load(versionID)!
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
+    let metadataId = subgraphVersion.id.concat('-').concat(base58Hash)
     subgraphVersion.metadataHash = event.params.versionMetadata
-    subgraphVersion.metadata = base58Hash
+    subgraphVersion.metadata = metadataId
     subgraphVersion.save()
 
-    SubgraphVersionMetadataTemplate.create(base58Hash)
+    let context = new DataSourceContext()
+    context.setString('id', metadataId)
+    SubgraphVersionMetadataTemplate.createWithContext(base58Hash, context)
   } else {
     let oldVersionID = subgraph.currentVersion
 
@@ -1104,8 +1114,9 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     subgraphVersion.createdAt = event.block.timestamp.toI32()
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
+    let metadataId = subgraphVersion.id.concat('-').concat(base58Hash)
     subgraphVersion.metadataHash = event.params.versionMetadata
-    subgraphVersion.metadata = base58Hash
+    subgraphVersion.metadata = metadataId
 
     let oldDeployment: SubgraphDeployment | null = null
     if (oldVersionID != null) {
@@ -1116,7 +1127,9 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     updateCurrentDeploymentLinks(oldDeployment, deployment, subgraph as Subgraph)
     subgraphVersion.save()
     
-    SubgraphVersionMetadataTemplate.create(base58Hash)
+    let context = new DataSourceContext()
+    context.setString('id', metadataId)
+    SubgraphVersionMetadataTemplate.createWithContext(base58Hash, context)
   }
 }
 

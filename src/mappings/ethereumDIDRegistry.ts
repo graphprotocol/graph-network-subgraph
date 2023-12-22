@@ -1,4 +1,4 @@
-import { Bytes } from '@graphprotocol/graph-ts'
+import { Bytes, DataSourceContext } from '@graphprotocol/graph-ts'
 import { DIDAttributeChanged } from '../types/EthereumDIDRegistry/EthereumDIDRegistry'
 import { GraphAccountMetadata as GraphAccountMetadataTemplate } from '../types/templates'
 import { GraphAccount } from '../types/schema'
@@ -17,17 +17,20 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
     // called it directly, it could crash the subgraph
     let hexHash = changetype<Bytes>(addQm(event.params.value))
     let base58Hash = hexHash.toBase58()
-    graphAccount.metadata = base58Hash
+    let metadataId = graphAccount.id.concat('-').concat(base58Hash)
+    graphAccount.metadata = metadataId
     graphAccount.save()
 
     // Update all associated vesting contract addresses
     let tlws = graphAccount.tokenLockWallets
     for (let i = 0; i < tlws.length; i++) {
       let tlw = GraphAccount.load(tlws[i])!
-      tlw.metadata = base58Hash
+      tlw.metadata = metadataId
       tlw.save()
     }
 
-    GraphAccountMetadataTemplate.create(base58Hash)
+    let context = new DataSourceContext()
+    context.setString('id', metadataId)
+    GraphAccountMetadataTemplate.createWithContext(base58Hash, context)
   }
 }
