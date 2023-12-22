@@ -300,8 +300,10 @@ type GraphAccount @entity {
 type GraphAccountMetadata @entity(immutable:true) {
   "IPFS hash with account metadata details"
   id: ID!
-  "Original graph account that created it"
-  graphAccount: [GraphAccount!] @derivedFrom(field:"metadata")
+  "Account that reference this metadata file. For compatibility purposes. For the full list use graphAccounts"
+  graphAccount: GraphAccount @derivedFrom(field:"metadata")
+  "Accounts that reference this metadata file"
+  graphAccounts: [GraphAccount!]! @derivedFrom(field:"metadata")
   "True if it is an organization. False if it is an individual"
   isOrganization: Boolean
   "Main repository of code for the graph account"
@@ -440,8 +442,10 @@ type Subgraph @entity {
 type SubgraphMetadata @entity(immutable:true) {
   "Subgraph metadata ipfs hash"
   id: ID!
-  "Subgraph entity"
+  "Subgraph that reference this metadata. For compatibility purposes. For the full list use subgraphs"
   subgraph: Subgraph @derivedFrom(field:"metadata")
+  "Subgraphs that reference this metadata"
+  subgraphs: [Subgraph!]! @derivedFrom(field:"metadata")
   "Short description of the subgraph"
   description: String
   "Image in string format"
@@ -503,8 +507,10 @@ type SubgraphVersion @entity {
 type SubgraphVersionMetadata @entity(immutable:true) {
   "Subgraph version metadata ipfs hash"
   id: ID!
-  "Subgraph version entity"
+  "SubgraphVersion entity that references this metadata. For compatibility purposes. For the full list use subgraphVersions"
   subgraphVersion: SubgraphVersion @derivedFrom(field:"metadata")
+  "SubgraphVersion entities that reference this metadata"
+  subgraphVersions: [SubgraphVersion!]! @derivedFrom(field:"metadata")
   "Short description of the version"
   description: String
   "Semantic versioning label"
@@ -596,8 +602,10 @@ type SubgraphDeployment @entity {
 type SubgraphDeploymentSchema @entity(immutable:true) {
   "IPFS Hash"
   id: ID!
-  "Link to SubgraphDeployment entity"
+  "Link to a SubgraphDeploymentManifest entity that references this schema. For backwards compatibility purposes only, for the full list of manifests use manifests"
   manifest: SubgraphDeploymentManifest @derivedFrom(field:"schema")
+  "Links to SubgraphDeploymentManifest entities that reference this schema"
+  manifests: [SubgraphDeploymentManifest!]! @derivedFrom(field:"schema")
   "Contents of the Schema file"
   schema: String
 }
@@ -607,7 +615,7 @@ type SubgraphDeploymentManifest @entity(immutable:true) {
   id: ID!
   "Link to SubgraphDeployment entity"
   deployment: SubgraphDeployment @derivedFrom(field:"manifest")
-  "Schema entity. Not yet working due to limitations with File Data Sources"
+  "Schema entity"
   schema: SubgraphDeploymentSchema
   "Schema ipfs hash"
   schemaIpfsHash: String

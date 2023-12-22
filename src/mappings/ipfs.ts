@@ -1,4 +1,4 @@
-import { json, Bytes, dataSource, JSONValueKind, log } from '@graphprotocol/graph-ts'
+import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext } from '@graphprotocol/graph-ts'
 import {
   SubgraphMetadata,
   SubgraphVersionMetadata,
@@ -12,7 +12,8 @@ import {
 import { jsonToString } from './utils'
 
 export function handleSubgraphMetadata(content: Bytes): void {
-  let subgraphMetadata = new SubgraphMetadata(dataSource.stringParam())
+  let id = dataSource.context().getString("id")
+  let subgraphMetadata = new SubgraphMetadata(id)
   let tryData = json.try_fromBytes(content)
   if (tryData.isOk) {
     let data = tryData.value.toObject()
@@ -39,7 +40,8 @@ export function handleSubgraphMetadata(content: Bytes): void {
 }
 
 export function handleSubgraphVersionMetadata(content: Bytes): void {
-  let subgraphVersionMetadata = new SubgraphVersionMetadata(dataSource.stringParam())
+  let id = dataSource.context().getString("id")
+  let subgraphVersionMetadata = new SubgraphVersionMetadata(id)
   let tryData = json.try_fromBytes(content)
   if (tryData.isOk) {
     let data = tryData.value.toObject()
@@ -50,7 +52,8 @@ export function handleSubgraphVersionMetadata(content: Bytes): void {
 }
 
 export function handleGraphAccountMetadata(content: Bytes): void {
-  let graphAccountMetadata = new GraphAccountMetadata(dataSource.stringParam())
+  let id = dataSource.context().getString("id")
+  let graphAccountMetadata = new GraphAccountMetadata(id)
   let tryData = json.try_fromBytes(content)
   if (tryData.isOk) {
     let data = tryData.value.toObject()
@@ -69,7 +72,8 @@ export function handleGraphAccountMetadata(content: Bytes): void {
 
 
 export function handleSubgraphDeploymentSchema(content: Bytes): void {
-  let subgraphDeploymentSchema = new SubgraphDeploymentSchema(dataSource.stringParam())
+  let id = dataSource.context().getString("id")
+  let subgraphDeploymentSchema = new SubgraphDeploymentSchema(id)
   if (content !== null) {
     subgraphDeploymentSchema.schema = content.toString()
   }
@@ -97,8 +101,9 @@ export function handleSubgraphDeploymentManifest(content: Bytes): void {
           subgraphDeploymentManifest.schema = schemaIpfsHash
           subgraphDeploymentManifest.schemaIpfsHash = schemaIpfsHash
 
-          // Can't create this template here yet (due to current implementation limitations on File Data Sources, but once that's sorted out, this should work.)
-          SubgraphDeploymentSchemaTemplate.create(schemaIpfsHash)
+          let context = new DataSourceContext()
+          context.setString('id', subgraphDeploymentManifest.id.concat('-').concat(schemaIpfsHash))
+          SubgraphDeploymentSchemaTemplate.createWithContext(schemaIpfsHash, context)
         } else {
           log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, schema file hash can't be retrieved. Error: schemaIpfsHashTry.length isn't 2, actual length: {}", [dataSource.stringParam(), schemaIpfsHashTry.length.toString()])
         }
