@@ -179,7 +179,8 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
 
   let hexHash = changetype<Bytes>(addQm(event.params.subgraphMetadata))
   let base58Hash = hexHash.toBase58()
-  let metadataId = subgraph.id.concat('-').concat(base58Hash)
+  let uniqueTxID = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())
+  let metadataId = uniqueTxID.concat('-').concat(subgraph.id.concat('-').concat(base58Hash))
   subgraph.metadataHash = event.params.subgraphMetadata
   subgraph.metadata = metadataId
   subgraph.updatedAt = event.block.timestamp.toI32()
@@ -237,7 +238,8 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
   subgraphVersion.createdAt = event.block.timestamp.toI32()
   let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
   let base58Hash = hexHash.toBase58()
-  let metadataId = subgraphVersion.id.concat('-').concat(base58Hash)
+  let uniqueTxID = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())
+  let metadataId = uniqueTxID.concat('-').concat(subgraphVersion.id.concat('-').concat(base58Hash))
   subgraphVersion.metadataHash = event.params.versionMetadata
   subgraphVersion.metadata = metadataId
   subgraphVersion.save()
@@ -717,7 +719,8 @@ export function handleSubgraphMetadataUpdatedV2(event: SubgraphMetadataUpdated1)
 
   let hexHash = changetype<Bytes>(addQm(event.params.subgraphMetadata))
   let base58Hash = hexHash.toBase58()
-  let metadataId = subgraph.id.concat('-').concat(base58Hash)
+  let uniqueTxID = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())
+  let metadataId = uniqueTxID.concat('-').concat(subgraph.id.concat('-').concat(base58Hash))
   subgraph.metadataHash = event.params.subgraphMetadata
   subgraph.metadata = metadataId;
   subgraph.updatedAt = event.block.timestamp.toI32()
@@ -1083,7 +1086,8 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     let subgraphVersion = SubgraphVersion.load(versionID)!
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
-    let metadataId = subgraphVersion.id.concat('-').concat(base58Hash)
+    let uniqueTxID = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())
+    let metadataId = uniqueTxID.concat('-').concat(subgraphVersion.id.concat('-').concat(base58Hash))
     subgraphVersion.metadataHash = event.params.versionMetadata
     subgraphVersion.metadata = metadataId
     subgraphVersion.save()
@@ -1114,7 +1118,8 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     subgraphVersion.createdAt = event.block.timestamp.toI32()
     let hexHash = changetype<Bytes>(addQm(event.params.versionMetadata))
     let base58Hash = hexHash.toBase58()
-    let metadataId = subgraphVersion.id.concat('-').concat(base58Hash)
+    let uniqueTxID = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())
+    let metadataId = uniqueTxID.concat('-').concat(subgraphVersion.id.concat('-').concat(base58Hash))
     subgraphVersion.metadataHash = event.params.versionMetadata
     subgraphVersion.metadata = metadataId
 

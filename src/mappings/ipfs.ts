@@ -81,6 +81,7 @@ export function handleSubgraphDeploymentSchema(content: Bytes): void {
 }
 
 export function handleSubgraphDeploymentManifest(content: Bytes): void {
+  // Shouldn't need ID since the handler isn't gonna be called more than once, given that it's only on deployment creation.
   let subgraphDeploymentManifest = new SubgraphDeploymentManifest(dataSource.stringParam())
   if (content !== null) {
     subgraphDeploymentManifest.manifest = content.toString()
@@ -98,11 +99,12 @@ export function handleSubgraphDeploymentManifest(content: Bytes): void {
         let schemaIpfsHashTry = schemaFileSplit.split('\n', 2)
         if (schemaIpfsHashTry.length == 2) {
           let schemaIpfsHash = schemaIpfsHashTry[0]
-          subgraphDeploymentManifest.schema = schemaIpfsHash
+          let schemaId = subgraphDeploymentManifest.id.concat('-').concat(schemaIpfsHash)
+          subgraphDeploymentManifest.schema = schemaId
           subgraphDeploymentManifest.schemaIpfsHash = schemaIpfsHash
 
           let context = new DataSourceContext()
-          context.setString('id', subgraphDeploymentManifest.id.concat('-').concat(schemaIpfsHash))
+          context.setString('id', schemaId)
           SubgraphDeploymentSchemaTemplate.createWithContext(schemaIpfsHash, context)
         } else {
           log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, schema file hash can't be retrieved. Error: schemaIpfsHashTry.length isn't 2, actual length: {}", [dataSource.stringParam(), schemaIpfsHashTry.length.toString()])
