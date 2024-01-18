@@ -17,7 +17,8 @@ export function handleDIDAttributeChanged(event: DIDAttributeChanged): void {
     // called it directly, it could crash the subgraph
     let hexHash = changetype<Bytes>(addQm(event.params.value))
     let base58Hash = hexHash.toBase58()
-    let metadataId = graphAccount.id.concat('-').concat(base58Hash)
+    let uniqueTxID = event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())
+    let metadataId = uniqueTxID.concat('-').concat(graphAccount.id.concat('-').concat(base58Hash))
     graphAccount.metadata = metadataId
     graphAccount.save()
 
