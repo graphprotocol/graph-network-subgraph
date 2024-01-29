@@ -659,6 +659,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.minus(
     event.params.delegationFees.plus(event.params.tokens),
   )
+  graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.delegationFees)
   graphNetwork.save()
 }
 
@@ -742,6 +743,7 @@ export function handleRebateCollected(event: RebateCollected): void {
   graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.minus(
     event.params.delegationRewards.plus(event.params.queryRebates),
   )
+  graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.delegationRewards)
   graphNetwork.save()
 }
 
