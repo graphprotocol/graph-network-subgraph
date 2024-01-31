@@ -336,6 +336,8 @@ export function handleAllocationCreated(event: AllocationCreated): void {
 
   // update graph network
   graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.plus(event.params.tokens)
+  graphNetwork.allocationCount = graphNetwork.allocationCount + 1
+  graphNetwork.activeAllocationCount = graphNetwork.activeAllocationCount + 1
   graphNetwork.save()
 
   // update subgraph deployment
@@ -519,6 +521,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   deployment.save()
 
   // update graph network
+  graphNetwork.activeAllocationCount = graphNetwork.activeAllocationCount - 1
   graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
   graphNetwork.save()
 }

@@ -195,6 +195,10 @@ type GraphNetwork @entity {
   subgraphDeploymentCount: Int!
   "Total epochs"
   epochCount: Int!
+  "Total amount of allocations opened"
+  allocationCount: Int!
+  "Total amount of allocations currently active"
+  activeAllocationCount: Int!
 
   # Dispute Manager global variables
   "Dispute arbitrator"
