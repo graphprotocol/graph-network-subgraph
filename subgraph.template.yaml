@@ -726,7 +726,7 @@ templates:
       file: ./src/mappings/ipfs.ts
       handler: handleSubgraphMetadata
       entities:
-        - SubgraphMetadata
+        - SubgraphMeta
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
@@ -738,7 +738,7 @@ templates:
       file: ./src/mappings/ipfs.ts
       handler: handleSubgraphVersionMetadata
       entities:
-        - SubgraphVersionMetadata
+        - SubgraphVersionMeta
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
@@ -750,7 +750,7 @@ templates:
       file: ./src/mappings/ipfs.ts
       handler: handleGraphAccountMetadata
       entities:
-        - GraphAccountMetadata
+        - GraphAccountMeta
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json

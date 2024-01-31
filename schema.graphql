@@ -243,8 +243,8 @@ type GraphAccount @entity {
   "Default display name is the current default name. Used for filtered queries in the explorer"
   defaultDisplayName: String
 
-  # IPFS Metadata.
-  metadata: GraphAccountMetadata
+  # IPFS Meta.
+  metadata: GraphAccountMeta
 
   # Operator info
   "Operator of other Graph Accounts"
@@ -297,7 +297,7 @@ type GraphAccount @entity {
   tokenLockWallets: [TokenLockWallet!]!
 }
 
-type GraphAccountMetadata @entity(immutable:true) {
+type GraphAccountMeta @entity(immutable:true) {
   "IPFS hash with account metadata details"
   id: ID!
   "Account that reference this metadata file. For compatibility purposes. For the full list use graphAccounts"
@@ -429,17 +429,17 @@ type Subgraph @entity {
   "Total amount of NameSignal entities"
   nameSignalCount: Int!
 
-  # Metadata from IPFS linked in GNS
+  # Meta from IPFS linked in GNS
   "Subgraph metadata"
   metadataHash: Bytes
   "Subgraph metadata ipfs hash and entity"
-  metadata: SubgraphMetadata
+  metadata: SubgraphMeta
 
   # Auxiliary fields
   currentVersionRelationEntity: CurrentSubgraphDeploymentRelation
 }
 
-type SubgraphMetadata @entity(immutable:true) {
+type SubgraphMeta @entity(immutable:true) {
   "Subgraph metadata ipfs hash"
   id: ID!
   "Subgraph that reference this metadata. For compatibility purposes. For the full list use subgraphs"
@@ -496,15 +496,15 @@ type SubgraphVersion @entity {
   createdAt: Int!
 
   metadataHash: Bytes
-  # Metadata from IPFS linked in GNS
-  metadata: SubgraphVersionMetadata
+  # Meta from IPFS linked in GNS
+  metadata: SubgraphVersionMeta
 
   entityVersion: Int!
   "[DEPRECATED] Used for duplicate entities to enable old IDs from before the subgraph NFT update"
   linkedEntity: SubgraphVersion
 }
 
-type SubgraphVersionMetadata @entity(immutable:true) {
+type SubgraphVersionMeta @entity(immutable:true) {
   "Subgraph version metadata ipfs hash"
   id: ID!
   "SubgraphVersion entity that references this metadata. For compatibility purposes. For the full list use subgraphVersions"
@@ -650,7 +650,7 @@ type SubgraphDeploymentManifest @entity(immutable:true) {
 # }
 
 """
-Metadata for the Indexer along with parameters and staking data
+Meta for the Indexer along with parameters and staking data
 """
 type Indexer @entity {
   "Eth address of Indexer"
@@ -1448,7 +1448,7 @@ type _Schema_
     name: "subgraphMetadataSearch"
     language: en
     algorithm: rank
-    include: [{ entity: "SubgraphMetadata", fields: [{ name: "displayName" }, { name: "description" }] }]
+    include: [{ entity: "SubgraphMeta", fields: [{ name: "displayName" }, { name: "description" }] }]
   )
   @fulltext(
     name: "curatorSearch"
