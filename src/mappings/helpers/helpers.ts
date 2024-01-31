@@ -576,6 +576,8 @@ export function createOrLoadGraphNetwork(
     graphNetwork.subgraphCount = 0
     graphNetwork.subgraphDeploymentCount = 0
     graphNetwork.activeSubgraphCount = 0
+    graphNetwork.allocationCount = 0
+    graphNetwork.activeAllocationCount = 0
 
     graphNetwork.arbitrator = Address.fromString('0x0000000000000000000000000000000000000000')
     graphNetwork.querySlashingPercentage = 0
