@@ -1,8 +1,8 @@
 import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext } from '@graphprotocol/graph-ts'
 import {
-  SubgraphMetadata,
-  SubgraphVersionMetadata,
-  GraphAccountMetadata,
+  SubgraphMeta,
+  SubgraphVersionMeta,
+  GraphAccountMeta,
   SubgraphDeploymentSchema,
   SubgraphDeploymentManifest,
 } from '../types/schema'
@@ -13,7 +13,7 @@ import { jsonToString } from './utils'
 
 export function handleSubgraphMetadata(content: Bytes): void {
   let id = dataSource.context().getString("id")
-  let subgraphMetadata = new SubgraphMetadata(id)
+  let subgraphMetadata = new SubgraphMeta(id)
   let tryData = json.try_fromBytes(content)
   if (tryData.isOk) {
     let data = tryData.value.toObject()
@@ -41,7 +41,7 @@ export function handleSubgraphMetadata(content: Bytes): void {
 
 export function handleSubgraphVersionMetadata(content: Bytes): void {
   let id = dataSource.context().getString("id")
-  let subgraphVersionMetadata = new SubgraphVersionMetadata(id)
+  let subgraphVersionMetadata = new SubgraphVersionMeta(id)
   let tryData = json.try_fromBytes(content)
   if (tryData.isOk) {
     let data = tryData.value.toObject()
@@ -53,7 +53,7 @@ export function handleSubgraphVersionMetadata(content: Bytes): void {
 
 export function handleGraphAccountMetadata(content: Bytes): void {
   let id = dataSource.context().getString("id")
-  let graphAccountMetadata = new GraphAccountMetadata(id)
+  let graphAccountMetadata = new GraphAccountMeta(id)
   let tryData = json.try_fromBytes(content)
   if (tryData.isOk) {
     let data = tryData.value.toObject()
