@@ -601,6 +601,7 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   deployment.save()
 
   // update graph network
+  graphNetwork.activeAllocationCount = graphNetwork.activeAllocationCount - 1
   graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
   graphNetwork.save()
 }
