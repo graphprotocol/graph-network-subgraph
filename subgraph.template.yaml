@@ -1,10 +1,17 @@
-specVersion: 0.0.5
+specVersion: 1.0.0
 description: Core Graph Network subgraph (FDS version)
 repository: https://github.com/graphprotocol/graph-network-subgraph
 schema:
   file: ./schema.graphql
 features:
   - fullTextSearch
+indexerHints:
+{{#isL1}}
+  prune: 400
+{{/isL1}}
+{{^isL1}}
+  prune: 15000
+{{/isL1}}
 dataSources:
   - kind: ethereum/contract
     name: Controller
