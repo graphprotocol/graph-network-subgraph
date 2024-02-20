@@ -46,9 +46,9 @@
     "prepare:test-l2": "yarn && yarn prep:addresses:test:l2 && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/"
   },
   "devDependencies": {
-    "@graphprotocol/contracts": "5.3.3",
-    "@graphprotocol/graph-cli": "^0.49.0",
-    "@graphprotocol/graph-ts": "^0.29.1",
+    "@graphprotocol/contracts": "6.2.0",
+    "@graphprotocol/graph-cli": "0.68.0",
+    "@graphprotocol/graph-ts": "0.32.0",
     "@types/node": "^14.0.13",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
