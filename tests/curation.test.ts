@@ -70,7 +70,7 @@ createMockedFunction(controllerAddress, 'getGovernor', 'getGovernor():(address)'
   // L2 graph network init EpochManager call
   createMockedFunction(graphAddress, 'blockNum', 'blockNum():(uint256)')
   .withArgs([])
-  .returns([ethereum.Value.fromI32(0)])
+  .returns([ethereum.Value.fromI32(1)])
 
 describe('Signalled', () => {
   beforeAll(() => {

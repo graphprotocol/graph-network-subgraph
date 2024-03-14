@@ -26,7 +26,7 @@ createMockedFunction(controllerAddress, 'getGovernor', 'getGovernor():(address)'
 // L2 graph network init EpochManager call
 createMockedFunction(graphAddress, 'blockNum', 'blockNum():(uint256)')
 .withArgs([])
-.returns([ethereum.Value.fromI32(0)])
+.returns([ethereum.Value.fromI32(1)])
 
 afterAll(() => {
   // Clear the store in order to start the next test off on a clean slate
