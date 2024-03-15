@@ -109,7 +109,7 @@ createMockedFunction(controllerAddress, 'getGovernor', 'getGovernor():(address)'
 // L2 graph network init EpochManager call
 createMockedFunction(graphAddress, 'blockNum', 'blockNum():(uint256)')
   .withArgs([])
-  .returns([ethereum.Value.fromI32(1)])
+  .returns([ethereum.Value.fromI32(5)])
 
 // INDEXER STAKE RELATED TESTS
 describe('INDEXER STAKE', () => {
@@ -180,6 +180,7 @@ describe('INDEXER STAKE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted
@@ -233,6 +234,7 @@ describe('INDEXER STAKE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted
@@ -282,6 +284,7 @@ describe('INDEXER STAKE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted
@@ -342,6 +345,7 @@ describe('INDEXER STAKE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted
@@ -382,6 +386,7 @@ describe('DELEGATOR STAKE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted
@@ -453,6 +458,7 @@ describe('DELEGATOR STAKE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted
@@ -543,6 +549,7 @@ describe('DELEGATOR STAKE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted
@@ -600,6 +607,7 @@ describe('ALLOCATION LIFE CYCLE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted
@@ -670,6 +678,7 @@ describe('ALLOCATION LIFE CYCLE', () => {
       let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
       graphNetwork.delegationRatio = delegationRatio
       graphNetwork.epochLength = epochLength
+      graphNetwork.lastLengthUpdateBlock = 1
       graphNetwork.save()
 
       // When _stake is successfully run, before any event we are considering here can be emitted

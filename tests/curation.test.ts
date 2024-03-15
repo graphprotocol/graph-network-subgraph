@@ -70,7 +70,7 @@ createMockedFunction(controllerAddress, 'getGovernor', 'getGovernor():(address)'
   // L2 graph network init EpochManager call
   createMockedFunction(graphAddress, 'blockNum', 'blockNum():(uint256)')
   .withArgs([])
-  .returns([ethereum.Value.fromI32(1)])
+  .returns([ethereum.Value.fromI32(5)])
 
 describe('Signalled', () => {
   beforeAll(() => {
@@ -78,6 +78,7 @@ describe('Signalled', () => {
     let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
     graphNetwork.delegationRatio = delegationRatio
     graphNetwork.epochLength = epochLength
+    graphNetwork.lastLengthUpdateBlock = 1
     graphNetwork.save()
 
     // When _stake is successfully run, before any event we are considering here can be emitted
@@ -202,6 +203,7 @@ describe('Burned', () => {
     let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
     graphNetwork.delegationRatio = delegationRatio
     graphNetwork.epochLength = epochLength
+    graphNetwork.lastLengthUpdateBlock = 1
     graphNetwork.save()
 
     // When _stake is successfully run, before any event we are considering here can be emitted
@@ -313,6 +315,7 @@ describe('ParameterUpdated', () => {
     let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
     graphNetwork.delegationRatio = delegationRatio
     graphNetwork.epochLength = epochLength
+    graphNetwork.lastLengthUpdateBlock = 1
     graphNetwork.save()
 
     // When _stake is successfully run, before any event we are considering here can be emitted
