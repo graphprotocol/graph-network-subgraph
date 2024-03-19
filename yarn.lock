@@ -572,10 +572,10 @@
     "@graphprotocol/sdk" "^0.5.0"
     console-table-printer "^2.11.1"
 
-"@graphprotocol/graph-cli@0.68.0":
-  version "0.68.0"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-cli/-/graph-cli-0.68.0.tgz#30464a75b7341d6c468f7ff3dba01259efff6b78"
-  integrity sha512-F3l1t+0qfGAGbD3i/3/qDnwZp8z37OE2PmdQdQkbImq1h34Cy8mjRKvc3ZJ4E2G16JkIevqK2rWwTRHcIGMTNA==
+"@graphprotocol/graph-cli@0.68.5":
+  version "0.68.5"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-cli/-/graph-cli-0.68.5.tgz#58cf65d15f41f1a30defe1cd50474d7c1205dd6a"
+  integrity sha512-3GY2pYr5LksO6JY6s5nvePnSKVdtzDEn1CUGezyjCMR1uq9YIXMPXKqcnrzCX/DLugioEabiEi2+yOg9+rnFDQ==
   dependencies:
     "@float-capital/float-subgraph-uncrashable" "^0.0.0-alpha.4"
     "@oclif/core" "2.8.6"
