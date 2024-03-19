@@ -629,6 +629,8 @@ type SubgraphDeploymentManifest @entity(immutable:true) {
   network: String
   "Whether the subgraph is a SpS/SbS. Null if we can't parse it"
   poweredBySubstreams: Boolean
+  "Start block for the deployment. It's the lowest startBlock found (0 if some data source doesn't contain a start block)"
+  startBlock: BigInt
 }
 
 # TODO - add when we have the ability to parse data sources

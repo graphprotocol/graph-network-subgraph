@@ -1,4 +1,4 @@
-import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext } from '@graphprotocol/graph-ts'
+import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext, BigInt } from '@graphprotocol/graph-ts'
 import {
   SubgraphMeta,
   SubgraphVersionMeta,
@@ -133,6 +133,25 @@ export function handleSubgraphDeploymentManifest(content: Bytes): void {
     }
     let substreamsSplitTry = manifest.split('- kind: substreams', 2)
     subgraphDeploymentManifest.poweredBySubstreams = substreamsSplitTry.length > 1
+
+    // startBlock calculation
+    let templatesSplit = manifest.split("templates:")
+    let nonTemplateManifestSplit = templatesSplit[0] // we take the left as we want to remove the templates for the source checks.
+    let sourcesSplit = nonTemplateManifestSplit.split("source:") // We want to know how many source definitions we have
+    let startBlockSplit = nonTemplateManifestSplit.split("startBlock: ") // And how many startBlock definitions we have to know if we should set startBlock to 0
+    
+    if (sourcesSplit.length > startBlockSplit.length) {
+      subgraphDeploymentManifest.startBlock = BigInt.fromI32(0)
+    } else {
+      // need to figure the minimum startBlock defined, we skip i = 0 as we know it's not gonna contain a start block num, since it's before the first appearance of "startBlock:"
+      let min = BigInt.fromI32(0)
+      for(let i = 1; i < startBlockSplit.length; i++) {
+        let numString = startBlockSplit[i].split("\n", 1)[0].toString()
+        let num = BigInt.fromString(numString)
+        min = min == BigInt.fromI32(0) ? num : min <= num ? min : num
+      }
+      subgraphDeploymentManifest.startBlock = min
+    }
   }
   subgraphDeploymentManifest.save()
 }
