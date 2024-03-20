@@ -631,29 +631,49 @@ type SubgraphDeploymentManifest @entity(immutable:true) {
   poweredBySubstreams: Boolean
   "Start block for the deployment. It's the lowest startBlock found (0 if some data source doesn't contain a start block)"
   startBlock: BigInt
+  "List of data sources and data source templates"
+  dataSources: [SubgraphDeploymentManifestDataSource!]! @derivedFrom(field:"manifest")
 }
 
-# TODO - add when we have the ability to parse data sources
-# """Data source obtained from the subgraph manifest"""
-# type DataSource @entity {
-#   "Unique identifier of the data source. Such as contract address"
-#   id: ID!
-#   "Data source name in the manifest"
-#   name: String!
-#   "Networks that the subgraph deployment is indexing"
-#   networks: [String!]!
-#   "Contract"
-#   contract: Contract!
-#   "ABI of the contract"
-#   abi: String!
-# }
+type SubgraphDeploymentManifestDataSource @entity(immutable:true) {
+  "IPFS Hash + data source index. Only for 'kind: ethereum' data sources"
+  id: ID!
+  "Name of the data source"
+  name: String
+  "Contract address that the data source listenes to"
+  address: Bytes
+  "Start block for this data source"
+  startBlock: BigInt
+  "Network that this data source is indexing"
+  network: String
+  "API Version"
+  apiVersion: String
+  "Handlers"
+  handlers: [SubgraphDeploymentManifestHandler!]! @derivedFrom(field:"dataSource")
+  "Manifest that this data source is linked to"
+  manifest: SubgraphDeploymentManifest!
+  "Whether it's a template or not"
+  isTemplate: Boolean
+}
 
-# type Contract @entity {
-#   "Address of the contract"
-#   id: ID!
-#   "Contract name"
-#   name: String
-# }
+type SubgraphDeploymentManifestHandler @entity(immutable:true) {
+  "Data source id + handler index"
+  id: ID!
+  "Type of the handler. Can be Event, Call or Block"
+  type: EventHandlerType
+  "Handler function"
+  handler: String
+  "Event/Call signature. Null if block handler"
+  signature: String
+  "Link to data source or data source template"
+  dataSource: SubgraphDeploymentManifestDataSource!
+}
+
+enum EventHandlerType {
+  EventHandler,
+  CallHandler,
+  BlockHandler
+}
 
 """
 Meta for the Indexer along with parameters and staking data

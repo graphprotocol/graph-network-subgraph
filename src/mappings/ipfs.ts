@@ -5,6 +5,7 @@ import {
   GraphAccountMeta,
   SubgraphDeploymentSchema,
   SubgraphDeploymentManifest,
+  SubgraphDeploymentManifestDataSource,
 } from '../types/schema'
 import {
   SubgraphDeploymentSchema as SubgraphDeploymentSchemaTemplate
@@ -134,8 +135,8 @@ export function handleSubgraphDeploymentManifest(content: Bytes): void {
     let substreamsSplitTry = manifest.split('- kind: substreams', 2)
     subgraphDeploymentManifest.poweredBySubstreams = substreamsSplitTry.length > 1
 
-    // startBlock calculation
     let templatesSplit = manifest.split("templates:")
+    // startBlock calculation
     let nonTemplateManifestSplit = templatesSplit[0] // we take the left as we want to remove the templates for the source checks.
     let sourcesSplit = nonTemplateManifestSplit.split("source:") // We want to know how many source definitions we have
     let startBlockSplit = nonTemplateManifestSplit.split("startBlock: ") // And how many startBlock definitions we have to know if we should set startBlock to 0
@@ -152,6 +153,62 @@ export function handleSubgraphDeploymentManifest(content: Bytes): void {
       }
       subgraphDeploymentManifest.startBlock = min
     }
+
+    // DataSource and DataSourceTemplate creations, we reuse the templatesSplit
+    let dataSourceSplit = templatesSplit[0].split("kind: ethereum").slice(1) // Remove first value since it's gonna be the 'dataSources:' definition
+    createDataSources(dataSourceSplit, subgraphDeploymentManifest.id)
+    // Templates
+    if (templatesSplit.length > 1) {
+      let dataSourceTemplatesSplit = templatesSplit[1].split("kind: ethereum").slice(1) // Remove first value since it's gonna be the 'dataSources:' definition
+      createDataSourceTemplates(dataSourceTemplatesSplit, subgraphDeploymentManifest.id, dataSourceSplit.length) // we need to pass an offset to make sure the IDs stay consistent
+    }
+
   }
   subgraphDeploymentManifest.save()
+}
+
+function createDataSources(dataSourceStrings: String[], manifestId: string): void {
+  for(let i = 0; i < dataSourceStrings.length; i++) {
+    let dataSourceString = dataSourceStrings[i]
+    let dataSource = new SubgraphDeploymentManifestDataSource(manifestId.concat('-').concat(i.toString()))
+    dataSource.manifest = manifestId
+    dataSource.name = getManifestFieldFromExtract(dataSourceString, "name")
+    dataSource.address = Bytes.fromHexString(getManifestFieldFromExtract(dataSourceString, "address"))
+    dataSource.startBlock = BigInt.fromString(getManifestFieldFromExtract(dataSourceString, "startBlock"))
+    dataSource.network = getManifestFieldFromExtract(dataSourceString, "network")
+    dataSource.apiVersion = getManifestFieldFromExtract(dataSourceString, "apiVersion")
+    dataSource.isTemplate = false
+    dataSource.save()
+  }
+}
+
+
+function createDataSourceTemplates(dataSourceTemplateStrings: String[], manifestId: string, indexOffset: number): void {
+  for(let i = 0; i < dataSourceTemplateStrings.length; i++) {
+    let idIndex = i + indexOffset
+    let dataSourceTemplateString = dataSourceTemplateStrings[i]
+    let dataSourceTemplate = new SubgraphDeploymentManifestDataSource(manifestId.concat('-').concat(idIndex.toString()))
+    dataSourceTemplate.manifest = manifestId
+    dataSourceTemplate.name = getManifestFieldFromExtract(dataSourceTemplateString, "name")
+    dataSourceTemplate.apiVersion = getManifestFieldFromExtract(dataSourceTemplateString, "apiVersion")
+    dataSourceTemplate.isTemplate = true
+    dataSourceTemplate.save()
+  }
+}
+
+// To Do
+function createEventHandlers(): void {
+
+}
+
+function createCallHandlers(): void {
+  
+}
+
+function createBlockHandlers(): void {
+  
+}
+
+function getManifestFieldFromExtract(manifestExtract: String, fieldName: String): string {
+  return manifestExtract.split(fieldName+": ", 2)[1].split("\n", 1)[0].toString()
 }
