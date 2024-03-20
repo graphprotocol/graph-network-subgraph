@@ -174,7 +174,8 @@ function createDataSources(dataSourceStrings: String[], manifestId: string): voi
     dataSource.manifest = manifestId
     dataSource.name = getManifestFieldFromExtract(dataSourceString, "name")
     dataSource.address = Bytes.fromHexString(getManifestFieldFromExtract(dataSourceString, "address"))
-    dataSource.startBlock = BigInt.fromString(getManifestFieldFromExtract(dataSourceString, "startBlock"))
+    let startBlock = getManifestFieldFromExtract(dataSourceString, "startBlock")
+    dataSource.startBlock = BigInt.fromString(startBlock == "" ? "0" : startBlock)
     dataSource.network = getManifestFieldFromExtract(dataSourceString, "network")
     dataSource.apiVersion = getManifestFieldFromExtract(dataSourceString, "apiVersion")
     dataSource.isTemplate = false
@@ -209,6 +210,22 @@ function createBlockHandlers(): void {
   
 }
 
-function getManifestFieldFromExtract(manifestExtract: String, fieldName: String): string {
-  return manifestExtract.split(fieldName+": ", 2)[1].split("\n", 1)[0].toString()
+export function getManifestFieldFromExtract(manifestExtract: String, fieldName: String): string {
+  let res = ""
+  let fieldNameSplit = manifestExtract.split(fieldName+":")
+  if (fieldNameSplit.length > 1) {
+    res = cleanStr(fieldNameSplit[1].split("\n")[0])
+  }
+  return res
+}
+
+function cleanStr(str: String): string {
+  let res = str.trim()
+  if (res.startsWith("'") || res.startsWith("\"")) {
+    res = res.slice(1)
+  }
+  if (res.endsWith("'") || res.endsWith("\"")) {
+    res = res.slice(0, res.length - 1)
+  }
+  return res
 }
