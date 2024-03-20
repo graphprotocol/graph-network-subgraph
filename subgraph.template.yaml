@@ -710,6 +710,8 @@ templates:
       handler: handleSubgraphDeploymentManifest
       entities:
         - SubgraphDeploymentManifest
+        - SubgraphDeploymentManifestDataSource
+        - SubgraphDeploymentManifestHandler
       abis:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
