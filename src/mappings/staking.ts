@@ -704,7 +704,6 @@ export function handleRebateCollected(event: RebateCollected): void {
   allocation.queryFeeRebates = event.params.queryRebates
   allocation.distributedRebates = allocation.distributedRebates.plus(event.params.queryRebates)
   allocation.delegationFees = event.params.delegationRewards
-  allocation.status = 'Closed'
   allocation.save()
 
   // Update epoch
