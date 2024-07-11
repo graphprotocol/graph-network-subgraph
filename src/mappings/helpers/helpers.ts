@@ -58,6 +58,7 @@ export function createOrLoadSubgraph(
     subgraph.signalledTokens = BigInt.fromI32(0)
     subgraph.unsignalledTokens = BigInt.fromI32(0)
     subgraph.currentSignalledTokens = BigInt.fromI32(0)
+    subgraph.currentDeploymentHash = ""
     subgraph.nameSignalAmount = BigInt.fromI32(0)
     subgraph.signalAmount = BigInt.fromI32(0)
     subgraph.reserveRatio = 0
@@ -931,6 +932,7 @@ export function updateCurrentDeploymentLinks(
 
     subgraph.currentVersionRelationEntity = newRelationEntity.id
     subgraph.currentSignalledTokens = newDeployment.signalledTokens
+    subgraph.currentDeploymentHash = newDeployment.ipfsHash
     subgraph.save()
   }
 }

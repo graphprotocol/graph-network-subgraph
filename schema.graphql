@@ -418,6 +418,8 @@ type Subgraph @entity {
   unsignalledTokens: BigInt!
   "CURRENT amount of tokens signalled on this subgraph latest version. Mirrors the total amount signalled towards the current deployment."
   currentSignalledTokens: BigInt!
+  "CURRENT deployment hash on this subgraph latest version. Mirrors the deployment hash of the current deployment."
+  currentDeploymentHash: String!
   "The CURRENT name signal amount for this subgraph"
   nameSignalAmount: BigInt!
   "Current amount of version signal managed by the name pool"
