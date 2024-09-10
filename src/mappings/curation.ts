@@ -170,9 +170,16 @@ export function handleBurned(event: Burned): void {
   let gnsID = graphNetwork.gns.toHexString()
   // Update signal
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let signalID = joinID([id, subgraphDeploymentID])
 
-  let signal = Signal.load(signalID)!
+  // Assuming signal is created since it's a burn can't be done, as signals can be transferred and
+  // we currently can't track transfers. On those edge cases values will be weird here, but
+  // overall network wide should still make sense
+  let signal = createOrLoadSignal(
+    id,
+    subgraphDeploymentID,
+    (addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!).toI32(),
+    event.block.timestamp.toI32(),
+  )
   let gnsSignalOldAmount = signal.signal.toBigDecimal()
 
   let isSignalBecomingInactive = !signal.signal.isZero() && event.params.signal == signal.signal
@@ -205,8 +212,10 @@ export function handleBurned(event: Burned): void {
     gnsSignalNewAmount = gnsSignal != null ? gnsSignal.signal.toBigDecimal() : zeroBD
   }
 
-  // Update curator
-  let curator = Curator.load(id)!
+  // Assuming curator is created since it's a burn can't be done, as signals can be transferred and
+  // we currently can't track transfers, thus this might be the first curation interaction of this
+  // account
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
   curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokens)
   curator.totalSignal = curator.totalSignal.minus(event.params.signal.toBigDecimal())
   curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACB)
@@ -229,7 +238,7 @@ export function handleBurned(event: Burned): void {
 
   curator.save()
 
-  // Update subgraph
+  // Deployment can be safely assumed as existing, since someone had to have signaled in order to burn
   let deployment = SubgraphDeployment.load(subgraphDeploymentID)!
   let oldSignalAmount = deployment.signalAmount
   let oldSignalledTokens = deployment.signalledTokens

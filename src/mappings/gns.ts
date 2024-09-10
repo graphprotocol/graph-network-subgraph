@@ -274,11 +274,13 @@ export function handleSubgraphDeprecated(event: SubgraphDeprecated): void {
   graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount - 1
   graphNetwork.save()
 
-  let version = SubgraphVersion.load(subgraph.currentVersion!)
-  if (version != null) {
-    let deployment = SubgraphDeployment.load(version.subgraphDeployment)
+  if (subgraph.currentVersion != null) {
+    let version = SubgraphVersion.load(subgraph.currentVersion!)
+    if (version != null) {
+      let deployment = SubgraphDeployment.load(version.subgraphDeployment)
 
-    updateCurrentDeploymentLinks(deployment, null, subgraph as Subgraph, true)
+      updateCurrentDeploymentLinks(deployment, null, subgraph as Subgraph, true)
+    }
   }
 }
 
@@ -612,7 +614,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   nameSignal.signalAverageCostBasisPerSignal = BigDecimal.fromString('0')
   nameSignal.save()
 
-  let curator = Curator.load(event.params.nameCurator.toHexString())!
+  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
   curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
   curator.save()
 }
@@ -701,11 +703,13 @@ export function handleSubgraphDeprecatedV2(event: SubgraphDeprecated1): void {
   graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount - 1
   graphNetwork.save()
 
-  let version = SubgraphVersion.load(subgraph.currentVersion!)
-  if (version != null) {
-    let deployment = SubgraphDeployment.load(version.subgraphDeployment)
+  if (subgraph.currentVersion != null) {
+    let version = SubgraphVersion.load(subgraph.currentVersion!)
+    if (version != null) {
+      let deployment = SubgraphDeployment.load(version.subgraphDeployment)
 
-    updateCurrentDeploymentLinks(deployment, null, subgraph as Subgraph, true)
+      updateCurrentDeploymentLinks(deployment, null, subgraph as Subgraph, true)
+    }
   }
 }
 
@@ -990,7 +994,7 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
 
   nameSignal.save()
 
-  let curator = Curator.load(event.params.curator.toHexString())!
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
   curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
   curator.save()
 }
@@ -1131,7 +1135,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
     // create deployment - named subgraph relationship, and update the old one
     updateCurrentDeploymentLinks(oldDeployment, deployment, subgraph as Subgraph)
     subgraphVersion.save()
-    
+
     let context = new DataSourceContext()
     context.setString('id', metadataId)
     SubgraphVersionMetadataTemplate.createWithContext(base58Hash, context)
