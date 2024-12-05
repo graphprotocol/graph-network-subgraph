@@ -191,7 +191,7 @@ export function createOrLoadPaymentSource(paymentAddress: Bytes): PaymentSource 
   let id = paymentAddress.toHexString()
   let paymentSource = PaymentSource.load(id)
   if (paymentSource == null) {
-    let paymentSource = new PaymentSource(id)
+    paymentSource = new PaymentSource(id)
     paymentSource.graphNetwork = "1"
     paymentSource.totalQueryFees = BigInt.fromI32(0)
     paymentSource.totalIndexerQueryFeesCollected = BigInt.fromI32(0)
@@ -211,7 +211,7 @@ export function createOrLoadIndexerQueryFeePaymentAggregation(paymentAddress: By
   let id = paymentAddress.toHexString().concat("-").concat(indexerAddress.toHexString())
   let aggregation = IndexerQueryFeePaymentAggregation.load(id)
   if (aggregation == null) {
-    let aggregation = new IndexerQueryFeePaymentAggregation(id)
+    aggregation = new IndexerQueryFeePaymentAggregation(id)
     aggregation.indexer = indexerAddress.toHexString()
     aggregation.paymentSource = paymentAddress.toHexString()
     aggregation.queryFeesCollected = BigInt.fromI32(0)
