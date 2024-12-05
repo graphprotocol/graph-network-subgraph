@@ -28,6 +28,7 @@ import {
   GraphAccount,
   Delegator,
   DelegatedStake,
+  IndexerQueryFeePaymentAggregation,
 } from '../types/schema'
 
 import {
@@ -45,6 +46,8 @@ import {
   batchUpdateSubgraphSignalledTokens,
   createOrLoadGraphNetwork,
   calculateCapacities,
+  createOrLoadIndexerQueryFeePaymentAggregation,
+  createOrLoadPaymentSource,
 } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
@@ -394,11 +397,16 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
+  let paymentAddress = event.transaction.from
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
   indexer.queryFeesCollected = indexer.queryFeesCollected.plus(event.params.rebateFees)
   indexer.save()
+
+  let paymentAggregation = createOrLoadIndexerQueryFeePaymentAggregation(paymentAddress, event.params.indexer)
+  paymentAggregation.queryFeesCollected = paymentAggregation.queryFeesCollected.plus(event.params.rebateFees)
+  paymentAggregation.save()
 
   // update allocation
   // rebateFees is the total token value minus the curation and protocol fees, as can be seen in the contracts
@@ -457,6 +465,20 @@ export function handleAllocationCollected(event: AllocationCollected): void {
     event.params.rebateFees,
   )
   graphNetwork.save()
+
+  let paymentSource = createOrLoadPaymentSource(paymentAddress)
+  paymentSource.totalQueryFees = paymentSource.totalQueryFees.plus(event.params.tokens)
+  paymentSource.totalIndexerQueryFeesCollected = paymentSource.totalIndexerQueryFeesCollected.plus(
+    event.params.rebateFees,
+  )
+  paymentSource.totalCuratorQueryFees = paymentSource.totalCuratorQueryFees.plus(
+    event.params.curationFees,
+  )
+  paymentSource.totalTaxedQueryFees = paymentSource.totalTaxedQueryFees.plus(taxedFees)
+  paymentSource.totalUnclaimedQueryFeeRebates = paymentSource.totalUnclaimedQueryFeeRebates.plus(
+    event.params.rebateFees,
+  )
+  paymentSource.save()
 }
 
 /**
@@ -683,6 +705,7 @@ export function handleRebateCollected(event: RebateCollected): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
+  let paymentAddress = event.transaction.from
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
@@ -695,6 +718,13 @@ export function handleRebateCollected(event: RebateCollected): void {
   }
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer.save()
+
+  // Replicate for payment source specific aggregation
+  let paymentAggregation = createOrLoadIndexerQueryFeePaymentAggregation(paymentAddress, event.params.indexer)
+  paymentAggregation.queryFeesCollected = paymentAggregation.queryFeesCollected.plus(event.params.queryFees)
+  paymentAggregation.queryFeeRebates = paymentAggregation.queryFeeRebates.plus(event.params.queryRebates)
+  paymentAggregation.delegatorQueryFees = paymentAggregation.delegatorQueryFees.plus(event.params.delegationRewards)
+  paymentAggregation.save()
 
   // update allocation
   // queryFees is the total token value minus the curation and protocol fees, as can be seen in the contracts
@@ -751,6 +781,30 @@ export function handleRebateCollected(event: RebateCollected): void {
   )
   graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.delegationRewards)
   graphNetwork.save()
+
+  // Replicate for payment source specific data
+  let paymentSource = createOrLoadPaymentSource(paymentAddress)
+  paymentSource.totalQueryFees = paymentSource.totalQueryFees.plus(event.params.tokens)
+  paymentSource.totalIndexerQueryFeesCollected = paymentSource.totalIndexerQueryFeesCollected.plus(
+    event.params.queryFees,
+  )
+  paymentSource.totalCuratorQueryFees = paymentSource.totalCuratorQueryFees.plus(
+    event.params.curationFees,
+  )
+  paymentSource.totalTaxedQueryFees = paymentSource.totalTaxedQueryFees.plus(event.params.protocolTax)
+  paymentSource.totalUnclaimedQueryFeeRebates = paymentSource.totalUnclaimedQueryFeeRebates.plus(
+    event.params.queryFees,
+  )
+  paymentSource.totalIndexerQueryFeeRebates = paymentSource.totalIndexerQueryFeeRebates.plus(
+    event.params.queryRebates,
+  )
+  paymentSource.totalDelegatorQueryFeeRebates = paymentSource.totalDelegatorQueryFeeRebates.plus(
+    event.params.delegationRewards,
+  )
+  paymentSource.totalUnclaimedQueryFeeRebates = paymentSource.totalUnclaimedQueryFeeRebates.minus(
+    event.params.delegationRewards.plus(event.params.queryRebates),
+  )
+  paymentSource.save()
 }
 
 /**

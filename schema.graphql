@@ -771,6 +771,48 @@ type Indexer @entity {
   annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage
   "NOT IMPLEMENTED - Staking efficiency of the indexer"
   stakingEfficiency: BigDecimal!
+
+  # Query fees breakdown by payment address
+
+}
+
+type PaymentSource @entity {
+  "Address used on the payment"
+  id: ID!
+
+  "Total query fees generated in the network"
+  totalQueryFees: BigInt!
+  "Total query fees collected by indexers"
+  totalIndexerQueryFeesCollected: BigInt!
+  "Total query fees rebates claimed by indexers"
+  totalIndexerQueryFeeRebates: BigInt!
+  "Total query fees rebates claimed by delegators"
+  totalDelegatorQueryFeeRebates: BigInt!
+  "Total query fees payed to curators"
+  totalCuratorQueryFees: BigInt!
+  "Total protocol taxes applied to the query fees"
+  totalTaxedQueryFees: BigInt!
+  # It is hard to separate the unclaimed and rebates lost
+  "Total unclaimed rebates. Includes unclaimed rebates, and rebates lost in rebates mechanism "
+  totalUnclaimedQueryFeeRebates: BigInt!
+
+  graphNetwork: GraphNetwork! # to make a derived list on GraphNetwork
+}
+
+type IndexerQueryFeePaymentAggregation @entity {
+  "Join ID of indexer address and PaymentSource address"
+  id: ID!
+
+  "Total query fees collected. Includes the portion given to delegators"
+  queryFeesCollected: BigInt!
+  "Query fee rebate amount claimed from the protocol through rebates mechanism. Does not include portion given to delegators"
+  queryFeeRebates: BigInt!
+  "The total amount of query fees given to delegators"
+  delegatorQueryFees: BigInt!
+
+  indexer: Indexer!
+
+  paymentSource: PaymentSource!
 }
 
 """

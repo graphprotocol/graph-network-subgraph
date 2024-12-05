@@ -24,6 +24,8 @@ import {
   DelegatedStake,
   NameSignalSubgraphRelation,
   CurrentSubgraphDeploymentRelation,
+  PaymentSource,
+  IndexerQueryFeePaymentAggregation,
 } from '../../types/schema'
 import {
   SubgraphDeploymentManifest as SubgraphDeploymentManifestTemplate
@@ -184,6 +186,44 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): I
   }
   return indexer as Indexer
 }
+
+export function createOrLoadPaymentSource(paymentAddress: Bytes): PaymentSource {
+  let id = paymentAddress.toHexString()
+  let paymentSource = PaymentSource.load(id)
+  if (paymentSource == null) {
+    let paymentSource = new PaymentSource(id)
+    paymentSource.graphNetwork = "1"
+    paymentSource.totalQueryFees = BigInt.fromI32(0)
+    paymentSource.totalIndexerQueryFeesCollected = BigInt.fromI32(0)
+    paymentSource.totalIndexerQueryFeeRebates = BigInt.fromI32(0)
+    paymentSource.totalDelegatorQueryFeeRebates = BigInt.fromI32(0)
+    paymentSource.totalCuratorQueryFees = BigInt.fromI32(0)
+    paymentSource.totalTaxedQueryFees = BigInt.fromI32(0)
+    paymentSource.totalUnclaimedQueryFeeRebates = BigInt.fromI32(0)
+
+    paymentSource.save()
+  }
+
+  return paymentSource as PaymentSource
+}
+
+export function createOrLoadIndexerQueryFeePaymentAggregation(paymentAddress: Bytes, indexerAddress: Bytes): IndexerQueryFeePaymentAggregation {
+  let id = paymentAddress.toHexString().concat("-").concat(indexerAddress.toHexString())
+  let aggregation = IndexerQueryFeePaymentAggregation.load(id)
+  if (aggregation == null) {
+    let aggregation = new IndexerQueryFeePaymentAggregation(id)
+    aggregation.indexer = indexerAddress.toHexString()
+    aggregation.paymentSource = paymentAddress.toHexString()
+    aggregation.queryFeesCollected = BigInt.fromI32(0)
+    aggregation.queryFeeRebates = BigInt.fromI32(0)
+    aggregation.delegatorQueryFees = BigInt.fromI32(0)
+
+    aggregation.save()
+  }
+
+  return aggregation as IndexerQueryFeePaymentAggregation
+}
+
 
 export function createOrLoadDelegator(delegatorAddress: Bytes, timestamp: BigInt): Delegator {
   let id = delegatorAddress.toHexString()
