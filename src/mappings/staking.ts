@@ -397,7 +397,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
-  let paymentAddress = event.transaction.from
+  let paymentAddress = event.params.from
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
@@ -705,7 +705,7 @@ export function handleRebateCollected(event: RebateCollected): void {
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
   let indexerID = event.params.indexer.toHexString()
   let allocationID = event.params.allocationID.toHexString()
-  let paymentAddress = event.transaction.from
+  let paymentAddress = event.params.assetHolder
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
