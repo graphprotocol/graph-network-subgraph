@@ -18,7 +18,7 @@ described below:
   `subgraphDeployment.stakedTokens` stores how many tokens are currently staked on a subgraph
   deployment. 
 
-The reason for having these two so deliberatly pointed out, is to make it clear. There are
+The reason for having these two so deliberately pointed out, is to make it clear. There are
 situations where you want to use a CUMULATIVE value for statistics, and so we label it to make
 it clearer.
 
