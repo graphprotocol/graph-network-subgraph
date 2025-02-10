@@ -86,6 +86,8 @@ type GraphNetwork @entity {
   totalTokensClaimable: BigInt! # TODO - see https://github.com/graphprotocol/graph-network-subgraph/issues/89
   "Total tokens that are currently locked or withdrawable in the network from unstaking"
   totalUnstakedTokensLocked: BigInt!
+  "Total GRT currently in provisions"
+  totalTokensProvisioned: BigInt!
   "Total GRT currently in allocation"
   totalTokensAllocated: BigInt!
   "Total delegated tokens in the protocol"
@@ -229,6 +231,16 @@ type GraphNetwork @entity {
   totalGRTWithdrawn: BigInt!
   "Block number for L1. Only implemented for L2 deployments to properly reflect the L1 block used for timings"
   currentL1BlockNumber: BigInt
+}
+
+type DataService @entity {
+  "Verifier address"
+  id: ID!
+
+  "Total GRT currently in provisions for this DataService"
+  totalTokensProvisioned: BigInt!
+  "Total GRT currently in allocations for this DataService"
+  totalTokensAllocated: BigInt!
 }
 
 """
@@ -675,6 +687,8 @@ type Indexer @entity {
   # Staking data
   "CURRENT tokens staked in the protocol. Decreases on withdraw, not on lock"
   stakedTokens: BigInt!
+  "CURRENT tokens provisioned to data services in the protocol. In the V1 protocol, all staked tokens were always provisioned since there was only one data service"
+  provisionedTokens: BigInt!
   "CURRENT  tokens allocated on all subgraphs"
   allocatedTokens: BigInt!
   "NOT IMPLEMENTED - Tokens that have been unstaked and withdrawn"
@@ -764,6 +778,9 @@ type Indexer @entity {
   "Count of how many times this indexer has been forced to close an allocation"
   forcedClosures: Int!
 
+  # Provisioning
+  provisions: [Provision!]! @derivedFrom(field: "indexer")
+
   # Metrics
   "NOT IMPLEMENTED - Total return this indexer has earned"
   totalReturn: BigDecimal!
@@ -771,9 +788,6 @@ type Indexer @entity {
   annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage
   "NOT IMPLEMENTED - Staking efficiency of the indexer"
   stakingEfficiency: BigDecimal!
-
-  # Query fees breakdown by payment address
-
 }
 
 type PaymentSource @entity {
@@ -813,6 +827,17 @@ type IndexerQueryFeePaymentAggregation @entity {
   indexer: Indexer!
 
   paymentSource: PaymentSource!
+}
+
+type Provision @entity {
+  "Join ID of indexer address (service provider) and DataService address (verifier)"
+  id: ID!
+
+  indexer: Indexer!
+
+  service: DataService!
+
+  tokensProvisioned: BigInt!
 }
 
 """

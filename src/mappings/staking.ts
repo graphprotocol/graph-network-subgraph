@@ -76,12 +76,14 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
   let previousStake = indexer.stakedTokens
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
+  indexer.provisionedTokens = indexer.provisionedTokens.plus(event.params.tokens)
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // Update graph network
   graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.plus(event.params.tokens)
+  graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.plus(event.params.tokens)
   if (previousStake == BigInt.fromI32(0)) {
     graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount + 1
   }
@@ -136,6 +138,7 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)!
   indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
+  indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
   indexer.lockedTokens = indexer.lockedTokens.minus(event.params.tokens)
   indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
@@ -144,6 +147,7 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
 
   // Update graph network
   graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.tokens)
+  graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.minus(event.params.tokens)
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.minus(
     event.params.tokens,
   )
