@@ -88,6 +88,8 @@ type GraphNetwork @entity {
   totalUnstakedTokensLocked: BigInt!
   "Total GRT currently in provisions"
   totalTokensProvisioned: BigInt!
+  "Total GRT currently thawing from provisions"
+  totalTokensThawing: BigInt!
   "Total GRT currently in allocation"
   totalTokensAllocated: BigInt!
   "Total delegated tokens in the protocol"
@@ -239,8 +241,12 @@ type DataService @entity {
 
   "Total GRT currently in provisions for this DataService"
   totalTokensProvisioned: BigInt!
+  "Total GRT currently thawing from provisions for this DataService"
+  totalTokensThawing: BigInt!
   "Total GRT currently in allocations for this DataService"
   totalTokensAllocated: BigInt!
+
+  provisions: [Provision!]! @derivedFrom(field: "service")
 }
 
 """
@@ -689,6 +695,8 @@ type Indexer @entity {
   stakedTokens: BigInt!
   "CURRENT tokens provisioned to data services in the protocol. In the V1 protocol, all staked tokens were always provisioned to an implicit 'subgraph data service'"
   provisionedTokens: BigInt!
+  "CURRENT tokens thawing from provisions to data services in the protocol. Only for Horizon"
+  thawingTokens: BigInt!
   "CURRENT  tokens allocated on all subgraphs"
   allocatedTokens: BigInt!
   "NOT IMPLEMENTED - Tokens that have been unstaked and withdrawn"
@@ -838,6 +846,27 @@ type Provision @entity {
   dataService: DataService!
 
   tokensProvisioned: BigInt!
+
+  "Service provider tokens that are being thawed (and will stop being slashable soon)"
+  tokensThawing: BigInt!
+
+  "Shares representing the thawing tokens"
+  sharesThawing: BigInt!
+
+  "Max amount that can be taken by the verifier when slashing, expressed in parts-per-million of the amount slashed"
+  maxVerifierCut: Int!
+
+  "Time, in seconds, tokens must thaw before being withdrawn"
+  thawingPeriod: BigInt!
+
+  "Timestamp when the provision was created"
+  createdAt: BigInt!
+
+  "Pending value for maxVerifierCut. Verifier needs to accept it before it becomes active"
+  maxVerifierCutPending: Int!
+
+  "Pending value for thawingPeriod. Verifier needs to accept it before it becomes active"
+  thawingPeriodPending: BigInt!
 }
 
 """
