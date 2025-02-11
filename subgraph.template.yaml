@@ -405,6 +405,28 @@ dataSources:
           handler: handleHorizonStakeLocked
         - event: HorizonStakeWithdrawn(indexed address,uint256)
           handler: handleHorizonStakeWithdrawn
+        - event: ProvisionCreated(indexed address,indexed address,uint256,uint32,uint64)
+          handler: handleProvisionCreated
+        - event: ProvisionIncreased(indexed address,indexed address,uint256)
+          handler: handleProvisionIncreased
+        - event: TokensDeprovisioned(indexed address,indexed address,uint256)
+          handler: handleTokensDeprovisioned
+        - event: ProvisionParametersSet(indexed address,indexed address,uint32,uint64)
+          handler: handleProvisionParametersSet
+        - event: ProvisionParametersStaged(indexed address,indexed address,uint32,uint64)
+          handler: handleProvisionParametersStaged
+        - event: ProvisionSlashed(indexed address,indexed address,uint256)
+          handler: handleProvisionSlashed
+        - event: ProvisionThawed(indexed address,indexed address,uint256)
+          handler: handleProvisionThawed
+        - event: ThawRequestCreated(indexed address,indexed address,indexed address,uint256,uint64,bytes32)
+          handler: handleThawRequestCreated
+        - event: ThawRequestFulfilled(indexed bytes32,uint256,uint256,uint64,bool)
+          handler: handleThawRequestFulfilled
+        - event: ThawRequestsFulfilled(indexed address,indexed address,indexed address,uint256,uint256,uint8)
+          handler: handleThawRequestsFulfilled
+        - event: ThawingPeriodCleared()
+          handler: handleThawingPeriodCleared
   - kind: ethereum/contract
     name: Curation
     network: {{network}}

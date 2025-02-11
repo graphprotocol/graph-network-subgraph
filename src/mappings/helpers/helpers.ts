@@ -26,6 +26,8 @@ import {
   CurrentSubgraphDeploymentRelation,
   PaymentSource,
   IndexerQueryFeePaymentAggregation,
+  Provision,
+  DataService,
 } from '../../types/schema'
 import {
   SubgraphDeploymentManifest as SubgraphDeploymentManifestTemplate
@@ -137,6 +139,7 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): I
     indexer.transferredToL2 = false
     indexer.stakedTokensTransferredToL2 = BigInt.fromI32(0)
     indexer.provisionedTokens = BigInt.fromI32(0)
+    indexer.thawingTokens = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
     indexer.unstakedTokens = BigInt.fromI32(0)
@@ -186,6 +189,41 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): I
     indexer.save()
   }
   return indexer as Indexer
+}
+
+export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: Bytes, timestamp: BigInt): Provision {
+  let id = joinID([indexerAddress.toHexString(), verifierAddress.toHexString()])
+  let provision = Provision.load(id)
+  if (provision == null) {
+    provision = new Provision(id)
+    provision.indexer = indexerAddress.toHexString()
+    provision.service = verifierAddress.toHexString()
+    provision.tokensProvisioned = BigInt.fromI32(0)
+    provision.tokensThawing = BigInt.fromI32(0)
+    provision.sharesThawing = BigInt.fromI32(0)
+    provision.createdAt = timestamp
+    provision.maxVerifierCut = 0
+    provision.maxVerifierCutPending = 0
+    provision.thawingPeriod = BigInt.fromI32(0)
+    provision.thawingPeriodPending = BigInt.fromI32(0)
+    provision.save()
+  }
+
+  return provision as Provision
+}
+
+export function createOrLoadDataService(verifierAddress: Bytes): DataService {
+  let id = verifierAddress.toHexString()
+  let service = DataService.load(id)
+  if (service == null) {
+    service = new DataService(id)
+    service.totalTokensAllocated = BigInt.fromI32(0)
+    service.totalTokensProvisioned = BigInt.fromI32(0)
+    service.totalTokensThawing = BigInt.fromI32(0)
+    service.save()
+  }
+
+  return service as DataService
 }
 
 export function createOrLoadPaymentSource(paymentAddress: Bytes): PaymentSource {
@@ -554,6 +592,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalTokensClaimable = BigInt.fromI32(0)
     graphNetwork.totalUnstakedTokensLocked = BigInt.fromI32(0)
     graphNetwork.totalTokensProvisioned = BigInt.fromI32(0)
+    graphNetwork.totalTokensThawing = BigInt.fromI32(0)
     graphNetwork.totalTokensAllocated = BigInt.fromI32(0)
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
     graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
