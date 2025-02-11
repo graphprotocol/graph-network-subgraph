@@ -1,9 +1,20 @@
-import { BigInt } from '@graphprotocol/graph-ts'
+import { BigInt, log } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
-import { HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn } from '../types/HorizonStaking/HorizonStaking'
-import { Indexer } from '../types/schema'
-import { calculateCapacities, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexer, updateAdvancedIndexerMetrics } from './helpers/helpers'
-
+import { HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, TokensDeprovisioned } from '../types/HorizonStaking/HorizonStaking'
+import { Indexer, GraphNetwork } from '../types/schema'
+import { calculateCapacities, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadProvision, updateAdvancedIndexerMetrics } from './helpers/helpers'
+import {
+    ProvisionCreated,
+    ProvisionIncreased,
+    ProvisionParametersSet,
+    ProvisionParametersStaged,
+    ProvisionSlashed,
+    ProvisionThawed,
+    ThawRequestCreated,
+    ThawRequestFulfilled,
+    ThawRequestsFulfilled,
+    ThawingPeriodCleared
+} from '../types/HorizonStaking/HorizonStaking'
 
 export function handleHorizonStakeDeposited(event: HorizonStakeDeposited): void {
     let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
@@ -71,4 +82,112 @@ export function handleHorizonStakeWithdrawn(event: HorizonStakeWithdrawn): void 
         graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount - 1
     }
     graphNetwork.save()
+}
+
+export function handleProvisionCreated(event: ProvisionCreated): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    let dataService = createOrLoadDataService(event.params.verifier)
+    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+
+    indexer.provisionedTokens = indexer.provisionedTokens.plus(event.params.tokens)
+    indexer.save()
+
+    dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.plus(event.params.tokens)
+    dataService.save()
+
+    graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.plus(event.params.tokens)
+    graphNetwork.save()
+
+    provision.tokensProvisioned = provision.tokensProvisioned.plus(event.params.tokens)
+    provision.maxVerifierCut = event.params.maxVerifierCut
+    provision.maxVerifierCutPending = event.params.maxVerifierCut
+    provision.thawingPeriod = event.params.thawingPeriod
+    provision.thawingPeriodPending = event.params.thawingPeriod
+    provision.save()
+}
+
+export function handleProvisionIncreased(event: ProvisionIncreased): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    let dataService = createOrLoadDataService(event.params.verifier)
+    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+
+    indexer.provisionedTokens = indexer.provisionedTokens.plus(event.params.tokens)
+    indexer.save()
+
+    dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.plus(event.params.tokens)
+    dataService.save()
+
+    graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.plus(event.params.tokens)
+    graphNetwork.save()
+
+    provision.tokensProvisioned = provision.tokensProvisioned.plus(event.params.tokens)
+    provision.save()
+}
+
+export function handleProvisionThawed(event: ProvisionThawed): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    let dataService = createOrLoadDataService(event.params.verifier)
+    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+
+    indexer.thawingTokens = indexer.thawingTokens.plus(event.params.tokens)
+    indexer.save()
+
+    dataService.totalTokensThawing = dataService.totalTokensThawing.plus(event.params.tokens)
+    dataService.save()
+
+    graphNetwork.totalTokensThawing = graphNetwork.totalTokensThawing.plus(event.params.tokens)
+    graphNetwork.save()
+
+    provision.tokensThawing = provision.tokensThawing.plus(event.params.tokens)
+    provision.save()
+}
+
+export function handleTokensDeprovisioned(event: TokensDeprovisioned): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    let dataService = createOrLoadDataService(event.params.verifier)
+    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+
+    indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
+    indexer.save()
+
+    dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.minus(event.params.tokens)
+    dataService.save()
+
+    graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.minus(event.params.tokens)
+    graphNetwork.save()
+
+    provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
+    provision.save()
+}
+
+export function handleProvisionParametersSet(event: ProvisionParametersSet): void {
+    // To Do
+}
+
+export function handleProvisionParametersStaged(event: ProvisionParametersStaged): void {
+    // To Do
+}
+
+export function handleProvisionSlashed(event: ProvisionSlashed): void {
+    // To Do
+}
+
+export function handleThawRequestCreated(event: ThawRequestCreated): void {
+    // To Do
+}
+
+export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
+    // To Do
+}
+
+export function handleThawRequestsFulfilled(event: ThawRequestsFulfilled): void {
+    // To Do
+}
+
+export function handleThawingPeriodCleared(event: ThawingPeriodCleared): void {
+    // To Do
 }
