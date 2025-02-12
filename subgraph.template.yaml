@@ -423,10 +423,6 @@ dataSources:
           handler: handleThawRequestCreated
         - event: ThawRequestFulfilled(indexed bytes32,uint256,uint256,uint64,bool)
           handler: handleThawRequestFulfilled
-        - event: ThawRequestsFulfilled(indexed address,indexed address,indexed address,uint256,uint256,uint8)
-          handler: handleThawRequestsFulfilled
-        - event: ThawingPeriodCleared()
-          handler: handleThawingPeriodCleared
   - kind: ethereum/contract
     name: Curation
     network: {{network}}

@@ -1,8 +1,8 @@
 import { BigInt, log } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, TokensDeprovisioned } from '../types/HorizonStaking/HorizonStaking'
-import { Indexer, GraphNetwork } from '../types/schema'
-import { calculateCapacities, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadProvision, updateAdvancedIndexerMetrics } from './helpers/helpers'
+import { Indexer, GraphNetwork, ThawRequest } from '../types/schema'
+import { calculateCapacities, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadProvision, updateAdvancedIndexerMetrics } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -177,17 +177,23 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
 }
 
 export function handleThawRequestCreated(event: ThawRequestCreated): void {
-    // To Do
+    let dataService = createOrLoadDataService(event.params.verifier)
+    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
+    let owner = createOrLoadGraphAccount(event.params.owner, event.block.timestamp)
+
+    let request = new ThawRequest(event.params.thawRequestId.toHexString())
+    request.indexer = indexer.id
+    request.service = dataService.id
+    request.owner = owner.id
+    request.shares = event.params.shares
+    request.tokens = BigInt.fromI32(0)
+    request.thawingUntil = event.params.thawingUntil
+    request.save()
 }
 
 export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
-    // To Do
-}
-
-export function handleThawRequestsFulfilled(event: ThawRequestsFulfilled): void {
-    // To Do
-}
-
-export function handleThawingPeriodCleared(event: ThawingPeriodCleared): void {
-    // To Do
+    let request = ThawRequest.load(event.params.thawRequestId.toHexString())
+    request.tokens = event.params.tokens
+    request.valid = event.params.valid
+    request.save()
 }
