@@ -165,11 +165,17 @@ export function handleTokensDeprovisioned(event: TokensDeprovisioned): void {
 }
 
 export function handleProvisionParametersSet(event: ProvisionParametersSet): void {
-    // To Do
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+    provision.thawingPeriod = event.params.thawingPeriod
+    provision.maxVerifierCut = event.params.maxVerifierCut
+    provision.save()
 }
 
 export function handleProvisionParametersStaged(event: ProvisionParametersStaged): void {
-    // To Do
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+    provision.thawingPeriodPending = event.params.thawingPeriod
+    provision.maxVerifierCutPending = event.params.maxVerifierCut
+    provision.save()
 }
 
 export function handleProvisionSlashed(event: ProvisionSlashed): void {
