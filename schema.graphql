@@ -847,26 +847,43 @@ type Provision @entity {
 
   tokensProvisioned: BigInt!
 
+  "Timestamp when the provision was created"
+  createdAt: BigInt!
+
   "Service provider tokens that are being thawed (and will stop being slashable soon)"
   tokensThawing: BigInt!
-
-  "Shares representing the thawing tokens"
-  sharesThawing: BigInt!
 
   "Max amount that can be taken by the verifier when slashing, expressed in parts-per-million of the amount slashed"
   maxVerifierCut: Int!
 
-  "Time, in seconds, tokens must thaw before being withdrawn"
-  thawingPeriod: BigInt!
-
-  "Timestamp when the provision was created"
-  createdAt: BigInt!
-
   "Pending value for maxVerifierCut. Verifier needs to accept it before it becomes active"
   maxVerifierCutPending: Int!
 
+  "Time, in seconds, tokens must thaw before being withdrawn"
+  thawingPeriod: BigInt!
+
   "Pending value for thawingPeriod. Verifier needs to accept it before it becomes active"
   thawingPeriodPending: BigInt!
+}
+
+type ThawRequest @entity {
+  id: ID!
+
+  indexer: Indexer!
+
+  service: DataService!
+
+  owner: GraphAccount!
+
+  "Shares representing the thawing tokens"
+  shares: BigInt!
+
+  "Tokens thawed"
+  tokens: BigInt!
+
+  thawingUntil: BigInt!
+
+  valid: Boolean
 }
 
 """
