@@ -854,10 +854,10 @@ type Provision @entity {
   tokensThawing: BigInt!
 
   "Max amount that can be taken by the verifier when slashing, expressed in parts-per-million of the amount slashed"
-  maxVerifierCut: Int!
+  maxVerifierCut: BigInt!
 
   "Pending value for maxVerifierCut. Verifier needs to accept it before it becomes active"
-  maxVerifierCutPending: Int!
+  maxVerifierCutPending: BigInt!
 
   "Time, in seconds, tokens must thaw before being withdrawn"
   thawingPeriod: BigInt!
@@ -871,7 +871,7 @@ type ThawRequest @entity {
 
   indexer: Indexer!
 
-  service: DataService!
+  dataService: DataService!
 
   owner: GraphAccount!
 
