@@ -183,7 +183,7 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
 
     let request = new ThawRequest(event.params.thawRequestId.toHexString())
     request.indexer = indexer.id
-    request.service = dataService.id
+    request.dataService = dataService.id
     request.owner = owner.id
     request.shares = event.params.shares
     request.tokens = BigInt.fromI32(0)
@@ -192,7 +192,7 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
 }
 
 export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
-    let request = ThawRequest.load(event.params.thawRequestId.toHexString())
+    let request = ThawRequest.load(event.params.thawRequestId.toHexString())!
     request.tokens = event.params.tokens
     request.valid = event.params.valid
     request.save()
