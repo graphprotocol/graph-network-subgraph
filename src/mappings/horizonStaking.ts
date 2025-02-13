@@ -173,7 +173,25 @@ export function handleProvisionParametersStaged(event: ProvisionParametersStaged
 }
 
 export function handleProvisionSlashed(event: ProvisionSlashed): void {
-    // To Do
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    let dataService = createOrLoadDataService(event.params.verifier)
+    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+
+    // Due to thawing tokens potentially getting cancelled, we will need to figure the thawing situation
+    indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
+    indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
+    indexer.save()
+
+    dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.minus(event.params.tokens)
+    dataService.save()
+
+    graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.minus(event.params.tokens)
+    graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.tokens)
+    graphNetwork.save()
+
+    provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
+    provision.save()
 }
 
 export function handleThawRequestCreated(event: ThawRequestCreated): void {
