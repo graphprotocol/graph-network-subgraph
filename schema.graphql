@@ -246,7 +246,7 @@ type DataService @entity {
   "Total GRT currently in allocations for this DataService"
   totalTokensAllocated: BigInt!
 
-  provisions: [Provision!]! @derivedFrom(field: "service")
+  provisions: [Provision!]! @derivedFrom(field: "dataService")
 }
 
 """
