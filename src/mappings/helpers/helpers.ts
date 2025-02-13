@@ -197,13 +197,12 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
   if (provision == null) {
     provision = new Provision(id)
     provision.indexer = indexerAddress.toHexString()
-    provision.service = verifierAddress.toHexString()
+    provision.dataService = verifierAddress.toHexString()
     provision.tokensProvisioned = BigInt.fromI32(0)
     provision.tokensThawing = BigInt.fromI32(0)
-    provision.sharesThawing = BigInt.fromI32(0)
     provision.createdAt = timestamp
-    provision.maxVerifierCut = 0
-    provision.maxVerifierCutPending = 0
+    provision.maxVerifierCut = BigInt.fromI32(0)
+    provision.maxVerifierCutPending = BigInt.fromI32(0)
     provision.thawingPeriod = BigInt.fromI32(0)
     provision.thawingPeriodPending = BigInt.fromI32(0)
     provision.save()
