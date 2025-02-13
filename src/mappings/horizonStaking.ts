@@ -1,6 +1,6 @@
 import { BigInt, log } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
-import { HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, TokensDeprovisioned } from '../types/HorizonStaking/HorizonStaking'
+import { DelegationFeeCutSet, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, TokensDeprovisioned } from '../types/HorizonStaking/HorizonStaking'
 import { Indexer, GraphNetwork, ThawRequest } from '../types/schema'
 import { calculateCapacities, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadProvision, updateAdvancedIndexerMetrics } from './helpers/helpers'
 import {
@@ -175,6 +175,18 @@ export function handleProvisionParametersStaged(event: ProvisionParametersStaged
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
     provision.thawingPeriodPending = event.params.thawingPeriod
     provision.maxVerifierCutPending = event.params.maxVerifierCut
+    provision.save()
+}
+
+export function handleOperatorSet(event: OperatorSet): void {
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+    // To Do
+    provision.save()
+}
+
+export function handleDelegationFeeCutSet(event: DelegationFeeCutSet): void {
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+    // To Do
     provision.save()
 }
 
