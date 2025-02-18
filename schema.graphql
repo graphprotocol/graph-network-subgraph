@@ -273,6 +273,8 @@ type GraphAccount @entity {
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
   "Operators of this Graph Accounts"
   operators: [GraphAccount!]!
+  "Operators of this Graph Accounts"
+  provisionedOperators: [Operator!]!
 
   # GRT info
   "Graph token balance"
@@ -837,6 +839,21 @@ type IndexerQueryFeePaymentAggregation @entity {
   paymentSource: PaymentSource!
 }
 
+type Operator @entity {
+  "Joint address of all 3 parties involved (Operator, Indexer, DataService)"
+  id: ID!
+
+  operatorOf: [GraphAccount!]! @derivedFrom(field: "provisionedOperators")
+
+  operator: GraphAccount!
+
+  indexer: Indexer!
+
+  dataService: DataService!
+
+  allowed: Boolean!
+}
+
 type Provision @entity {
   "Join ID of indexer address (service provider) and DataService address"
   id: ID!
@@ -864,6 +881,21 @@ type Provision @entity {
 
   "Pending value for thawingPeriod. Verifier needs to accept it before it becomes active"
   thawingPeriodPending: BigInt!
+
+  # Cuts for subgraph service. Percentage of rewards that the delegation pool receives
+  queryFeeCut: BigInt!
+
+  indexingFeeCut: BigInt!
+
+  indexingRewardsCut: BigInt!
+
+  # Might want to add polymorphic handling of different fee cuts through a generic hashmap in the future
+}
+
+enum PaymentTypes {
+    QueryFee,
+    IndexingFee,
+    IndexingRewards
 }
 
 type ThawRequest @entity {
