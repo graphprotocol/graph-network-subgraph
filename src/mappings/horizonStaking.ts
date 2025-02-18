@@ -2,7 +2,7 @@ import { BigInt, log } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { DelegationFeeCutSet, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, TokensDeprovisioned } from '../types/HorizonStaking/HorizonStaking'
 import { Indexer, GraphNetwork, ThawRequest } from '../types/schema'
-import { calculateCapacities, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadProvision, updateAdvancedIndexerMetrics } from './helpers/helpers'
+import { calculateCapacities, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision, updateAdvancedIndexerMetrics } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -179,14 +179,52 @@ export function handleProvisionParametersStaged(event: ProvisionParametersStaged
 }
 
 export function handleOperatorSet(event: OperatorSet): void {
-    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
-    // To Do
-    provision.save()
+    let indexerGraphAccount = createOrLoadGraphAccount(event.params.serviceProvider, event.block.timestamp)
+    let operator = createOrLoadOperator(event.params.operator, event.params.verifier, event.params.serviceProvider)
+    let operators = indexerGraphAccount.operators
+    // Will have to handle legacy operators list, and horizon provisionedOperators list for extra context
+    let operatorsIndex = operators.indexOf(event.params.operator.toHexString())
+    if (operatorsIndex != -1) {
+        // false - it existed, and we set it to false, so remove from operators
+        if (!event.params.allowed) {
+            operators.splice(operatorsIndex, 1)
+        }
+    } else {
+        // true - it did not exist before, and we say add, so add
+        if (event.params.allowed) {
+            operators.push(event.params.operator.toHexString())
+            // Create the operator as a graph account
+            createOrLoadGraphAccount(event.params.operator, event.block.timestamp)
+        }
+    }
+
+    let provisionedOperators = indexerGraphAccount.provisionedOperators
+    let provisionedOperatorsIndex = provisionedOperators.indexOf(event.params.operator.toHexString())
+    if (provisionedOperatorsIndex != -1) {
+        // false - it existed, and we set it to false, so remove from operators and update operator
+        if (!event.params.allowed) {
+            operators.splice(provisionedOperatorsIndex, 1)
+        }
+    } else {
+        // true - it did not exist before, and we say add, so add
+        if (event.params.allowed) {
+            operators.push(event.params.operator.toHexString())
+            // Create the operator as a graph account
+            createOrLoadGraphAccount(event.params.operator, event.block.timestamp)
+        }
+    }
+    operator.allowed = event.params.allowed
+    operator.save()
+    indexerGraphAccount.operators = operators
+    indexerGraphAccount.provisionedOperators = provisionedOperators
+    indexerGraphAccount.save()
 }
 
 export function handleDelegationFeeCutSet(event: DelegationFeeCutSet): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
-    // To Do
+    provision.queryFeeCut = event.params.paymentType == 0 ? event.params.feeCut : provision.queryFeeCut
+    provision.indexingFeeCut = event.params.paymentType == 1 ? event.params.feeCut : provision.indexingFeeCut
+    provision.indexingRewardsCut = event.params.paymentType == 2 ? event.params.feeCut : provision.indexingRewardsCut
     provision.save()
 }
 
