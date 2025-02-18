@@ -28,6 +28,7 @@ import {
   IndexerQueryFeePaymentAggregation,
   Provision,
   DataService,
+  Operator,
 } from '../../types/schema'
 import {
   SubgraphDeploymentManifest as SubgraphDeploymentManifestTemplate
@@ -205,6 +206,9 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.maxVerifierCutPending = BigInt.fromI32(0)
     provision.thawingPeriod = BigInt.fromI32(0)
     provision.thawingPeriodPending = BigInt.fromI32(0)
+    provision.queryFeeCut = BigInt.fromI32(0)
+    provision.indexingFeeCut = BigInt.fromI32(0)
+    provision.indexingRewardsCut = BigInt.fromI32(0)
     provision.save()
   }
 
@@ -223,6 +227,21 @@ export function createOrLoadDataService(verifierAddress: Bytes): DataService {
   }
 
   return service as DataService
+}
+
+export function createOrLoadOperator(address: Bytes, verifierAddress: Bytes, indexerAddress: Bytes): Operator {
+  let id = joinID([address.toHexString(), indexerAddress.toHexString(), verifierAddress.toHexString()])
+  let operator = Operator.load(id)
+  if (operator == null) {
+    operator = new Operator(id)
+    operator.allowed = false
+    operator.operator = address.toHexString()
+    operator.indexer = indexerAddress.toHexString()
+    operator.dataService = verifierAddress.toHexString()
+    operator.save()
+  }
+
+  return operator as Operator
 }
 
 export function createOrLoadPaymentSource(paymentAddress: Bytes): PaymentSource {
