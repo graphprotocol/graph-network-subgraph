@@ -475,6 +475,7 @@ export function createOrLoadGraphAccount(owner: Bytes, timeStamp: BigInt): Graph
     graphAccount = new GraphAccount(id)
     graphAccount.createdAt = timeStamp.toI32()
     graphAccount.operators = []
+    graphAccount.provisionedOperators = []
     graphAccount.balance = BigInt.fromI32(0)
     graphAccount.balanceReceivedFromL1Signalling = BigInt.fromI32(0)
     graphAccount.balanceReceivedFromL1Delegation = BigInt.fromI32(0)
