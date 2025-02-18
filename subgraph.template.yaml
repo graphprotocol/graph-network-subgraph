@@ -427,6 +427,8 @@ dataSources:
           handler: handleOperatorSet
         - event: DelegationFeeCutSet(indexed address,indexed address,indexed uint8,uint256)
           handler: handleDelegationFeeCutSet
+        - event: TokensToDelegationPoolAdded(indexed address,indexed address,uint256)
+          handler: handleTokensToDelegationPoolAdded
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
