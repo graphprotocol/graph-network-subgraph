@@ -273,9 +273,9 @@ export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
 export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolAdded): void {
     let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
-    indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
-    indexer = updateAdvancedIndexerMetricsHorizon(indexer, provision)
-    indexer = updateDelegationExchangeRate(indexer)
-    indexer = calculateCapacities(indexer)
+    provision.delegatedTokens = provision.delegatedTokens.plus(event.params.tokens)
+    provision.save()
+
+    indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens) // this only serves as a general tracker, but the real deal is per provision
     indexer.save()
 }
