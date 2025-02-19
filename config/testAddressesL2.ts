@@ -29,6 +29,7 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '0x0000000000000000000000000000000000000000',
   ethereumDIDRegistry: '0x0000000000000000000000000000000000000000',
+  subgraphService: '0x0000000000000000000000000000000000000000',
   isL1: false,
 }
 
