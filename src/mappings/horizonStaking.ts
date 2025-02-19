@@ -2,7 +2,7 @@ import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { DelegationFeeCutSet, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, TokensDeprovisioned, TokensToDelegationPoolAdded } from '../types/HorizonStaking/HorizonStaking'
 import { Indexer, ThawRequest } from '../types/schema'
-import { calculateCapacities, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision, updateAdvancedIndexerMetrics, updateAdvancedIndexerMetricsHorizon, updateDelegationExchangeRate } from './helpers/helpers'
+import { createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -20,8 +20,6 @@ export function handleHorizonStakeDeposited(event: HorizonStakeDeposited): void 
     let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp)
     let previousStake = indexer.stakedTokens
     indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
-    indexer = updateAdvancedIndexerMetrics(indexer as Indexer) // Can't rely on provision here, will need to figure out a way
-    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // Update graph network
@@ -46,8 +44,6 @@ export function handleHorizonStakeLocked(event: HorizonStakeLocked): void {
     let indexer = Indexer.load(id)!
     indexer.lockedTokens = event.params.tokens
     indexer.tokensLockedUntil = event.params.until.toI32()
-    indexer = updateAdvancedIndexerMetrics(indexer as Indexer) // Can't rely on provision here, will need to figure out a way
-    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // update graph network
@@ -65,8 +61,6 @@ export function handleHorizonStakeWithdrawn(event: HorizonStakeWithdrawn): void 
     indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
     indexer.lockedTokens = BigInt.fromI32(0) // set to 0 to prevent issues when Stage 2 comes
     indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
-    indexer = updateAdvancedIndexerMetrics(indexer as Indexer) // Can't rely on provision here, will need to figure out a way
-    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // Update graph network
