@@ -209,6 +209,9 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.queryFeeCut = BigInt.fromI32(0)
     provision.indexingFeeCut = BigInt.fromI32(0)
     provision.indexingRewardsCut = BigInt.fromI32(0)
+    provision.delegatedTokens = BigInt.fromI32(0)
+    provision.delegatorShares = BigInt.fromI32(0)
+    provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
     provision.save()
   }
 
