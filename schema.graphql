@@ -890,6 +890,14 @@ type Provision @entity {
   indexingRewardsCut: BigInt!
 
   # Might want to add polymorphic handling of different fee cuts through a generic hashmap in the future
+
+  # Delegation
+  "Tokens delegated to the provision"
+  delegatedTokens: BigInt!
+  "Total shares of the delegator pool"
+  delegatorShares: BigInt!
+  "Exchange rate of of tokens received for each share"
+  delegationExchangeRate: BigDecimal!
 }
 
 enum PaymentTypes {
