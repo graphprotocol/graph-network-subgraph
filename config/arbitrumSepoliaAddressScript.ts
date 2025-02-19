@@ -29,6 +29,7 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbsep.L2GraphTokenGateway.address}}',
   ethereumDIDRegistry: '{{arbsep.EthereumDIDRegistry.address}}',
+  subgraphService: '{{arbsep.SubgraphService.address}}',
   isL1: false,
 }
 
