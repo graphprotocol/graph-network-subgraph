@@ -912,18 +912,6 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
   return indexer as Indexer
 }
 
-export function updateAdvancedIndexerMetricsHorizon(indexer: Indexer, provision: Provision): Indexer {
-  indexer.ownStakeRatio = calculateOwnStakeRatio(indexer as Indexer)
-  indexer.delegatedStakeRatio = calculateDelegatedStakeRatio(indexer as Indexer)
-  indexer.indexingRewardEffectiveCut = provision.indexingRewardsCut.toBigDecimal()
-  indexer.queryFeeEffectiveCut = provision.queryFeeCut.toBigDecimal()
-  indexer.indexerRewardsOwnGenerationRatio = calculateIndexerRewardOwnGenerationRatio(
-    indexer as Indexer,
-  )
-  indexer.overDelegationDilution = calculateOverdelegationDilution(indexer as Indexer)
-  return indexer as Indexer
-}
-
 export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
   indexer.delegationExchangeRate = indexer.delegatedTokens
     .toBigDecimal()
