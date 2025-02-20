@@ -455,6 +455,12 @@ dataSources:
           handler: handleServiceProviderRegistered
         - event: RewardsDestinationSet(indexed address,indexed address)
           handler: handleRewardsDestinationSet
+        - event: AllocationClosed(indexed address,indexed address,indexed bytes32,uint256)
+          handler: handleAllocationClosed
+        - event: AllocationCreated(indexed address,indexed address,indexed bytes32,uint256)
+          handler: handleAllocationCreated
+        - event: AllocationResized(indexed address,indexed address,indexed bytes32,uint256,uint256)
+          handler: handleAllocationResized
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
