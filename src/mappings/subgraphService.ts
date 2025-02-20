@@ -1,5 +1,5 @@
 import { ethereum, ValueKind, log } from "@graphprotocol/graph-ts"
-import { RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
+import { AllocationClosed, AllocationCreated, AllocationResized, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
 import { createOrLoadProvision } from "./helpers/helpers"
 
 export function handleServiceProviderRegistered(event: ServiceProviderRegistered): void {
@@ -18,5 +18,25 @@ export function handleServiceProviderRegistered(event: ServiceProviderRegistered
 export function handleRewardsDestinationSet(event: RewardsDestinationSet): void {
     let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
     provision.rewardsDestination = event.params.rewardsDestination
+    provision.save()
+}
+
+export function handleAllocationClosed(event: AllocationClosed): void {
+    let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
+    // To Do
+    provision.save()
+}
+
+
+export function handleAllocationCreated(event: AllocationCreated): void {
+    let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
+    // To Do
+    provision.save()
+}
+
+
+export function handleAllocationResized(event: AllocationResized): void {
+    let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
+    // To Do
     provision.save()
 }
