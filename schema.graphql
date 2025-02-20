@@ -898,6 +898,13 @@ type Provision @entity {
   delegatorShares: BigInt!
   "Exchange rate of of tokens received for each share"
   delegationExchangeRate: BigDecimal!
+
+  "Service registry URL for the indexer"
+  url: String
+  "Geohash of the indexer. Shows where their indexer is located in the world"
+  geoHash: String
+  "Address set as rewards destination for payments to the service provider"
+  rewardsDestination: Bytes
 }
 
 enum PaymentTypes {
