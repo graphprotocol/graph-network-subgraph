@@ -1,5 +1,5 @@
 import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
-import { AllocationClosed, AllocationCreated, AllocationResized, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
+import { AllocationClosed, AllocationCreated, AllocationResized, IndexingRewardsCollected, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
 import { createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadProvision, createOrLoadSubgraphDeployment } from "./helpers/helpers"
 import { Allocation, GraphAccount, Indexer } from "../types/schema"
 import { addresses } from "../../config/addresses"
@@ -166,4 +166,16 @@ export function handleAllocationResized(event: AllocationResized): void {
     let allocation = Allocation.load(allocationID)!
     allocation.allocatedTokens = event.params.newTokens
     allocation.save()
+}
+
+export function handleIndexingRewardsCollected(event: IndexingRewardsCollected): void {
+    let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
+    // To Do
+    provision.save()
+}
+
+export function handleQueryFeesCollected(event: QueryFeesCollected): void {
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.address, event.block.timestamp)
+    // To Do
+    provision.save()
 }
