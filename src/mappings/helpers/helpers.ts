@@ -136,7 +136,6 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): I
     indexer.stakedTokens = BigInt.fromI32(0)
     indexer.transferredToL2 = false
     indexer.stakedTokensTransferredToL2 = BigInt.fromI32(0)
-    indexer.provisionedTokens = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
     indexer.unstakedTokens = BigInt.fromI32(0)
@@ -553,7 +552,6 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalTokensStaked = BigInt.fromI32(0)
     graphNetwork.totalTokensClaimable = BigInt.fromI32(0)
     graphNetwork.totalUnstakedTokensLocked = BigInt.fromI32(0)
-    graphNetwork.totalTokensProvisioned = BigInt.fromI32(0)
     graphNetwork.totalTokensAllocated = BigInt.fromI32(0)
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
     graphNetwork.totalTokensSignalled = BigInt.fromI32(0)

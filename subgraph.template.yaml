@@ -378,34 +378,6 @@ dataSources:
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
   - kind: ethereum/contract
-    name: HorizonStaking
-    network: {{network}}
-    source:
-      address: "{{staking}}"
-      abi: HorizonStaking
-      startBlock: {{blockNumber}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      file: ./src/mappings/staking.ts
-      entities:
-        - GraphNetwork
-      abis:
-        - name: HorizonStaking
-          file: ./abis/HorizonStaking.json
-        - name: GraphToken
-          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
-        - name: EpochManager
-          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
-      eventHandlers:
-        - event: HorizonStakeDeposited(indexed address,uint256)
-          handler: handleHorizonStakeDeposited
-        - event: HorizonStakeLocked(indexed address,uint256,uint256)
-          handler: handleHorizonStakeLocked
-        - event: HorizonStakeWithdrawn(indexed address,uint256)
-          handler: handleHorizonStakeWithdrawn
-  - kind: ethereum/contract
     name: Curation
     network: {{network}}
     source:
