@@ -106,6 +106,7 @@ export function handleStakeLocked(event: StakeLocked): void {
   // update indexer
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)!
+  let oldLockedTokens = indexer.lockedTokens
   indexer.lockedTokens = event.params.tokens
   indexer.tokensLockedUntil = event.params.until.toI32()
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
@@ -113,9 +114,11 @@ export function handleStakeLocked(event: StakeLocked): void {
   indexer.save()
 
   // update graph network
+  // the tokens from the event replace the previously locked tokens
+  // from this indexer
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.plus(
     event.params.tokens,
-  )
+  ).minus(oldLockedTokens)
   if (indexer.stakedTokens == indexer.lockedTokens) {
     graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount - 1
   }
