@@ -81,9 +81,9 @@ export function handleAllocationCreated(event: AllocationCreated): void {
     allocation.totalReturn = BigDecimal.fromString('0')
     allocation.annualizedReturn = BigDecimal.fromString('0')
     allocation.createdAt = event.block.timestamp.toI32()
-    allocation.indexingRewardCutAtStart = provision.indexingRewardsCut
+    allocation.indexingRewardCutAtStart = provision.indexingRewardsCut.toI32()
     allocation.indexingRewardEffectiveCutAtStart = provision.indexingRewardsCut.toBigDecimal()
-    allocation.queryFeeCutAtStart = provision.queryFeeCut
+    allocation.queryFeeCutAtStart = provision.queryFeeCut.toI32()
     allocation.queryFeeEffectiveCutAtStart = provision.queryFeeCut.toBigDecimal()
     allocation.save()
 }
@@ -114,7 +114,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 
     // update allocation
     let allocation = Allocation.load(allocationID)!
-    allocation.poolClosedIn = graphNetwork.currentEpoch
+    allocation.poolClosedIn = graphNetwork.currentEpoch.toString()
     allocation.activeForIndexer = null
     allocation.closedAtEpoch = graphNetwork.currentEpoch
     allocation.closedAtBlockHash = event.block.hash
@@ -123,9 +123,9 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     ).toI32()
     allocation.status = 'Closed'
     allocation.closedAt = event.block.timestamp.toI32()
-    allocation.indexingRewardCutAtStart = provision.indexingRewardsCut
+    allocation.indexingRewardCutAtStart = provision.indexingRewardsCut.toI32()
     allocation.indexingRewardEffectiveCutAtStart = provision.indexingRewardsCut.toBigDecimal()
-    allocation.queryFeeCutAtStart = provision.queryFeeCut
+    allocation.queryFeeCutAtStart = provision.queryFeeCut.toI32()
     allocation.queryFeeEffectiveCutAtStart = provision.queryFeeCut.toBigDecimal()
     allocation.save()
 
