@@ -200,6 +200,9 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.indexer = indexerAddress.toHexString()
     provision.dataService = verifierAddress.toHexString()
     provision.tokensProvisioned = BigInt.fromI32(0)
+    provision.tokensAllocated = BigInt.fromI32(0)
+    provision.totalAllocationCount = BigInt.fromI32(0)
+    provision.allocationCount = 0
     provision.tokensThawing = BigInt.fromI32(0)
     provision.createdAt = timestamp
     provision.maxVerifierCut = BigInt.fromI32(0)
