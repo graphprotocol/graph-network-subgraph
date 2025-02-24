@@ -234,7 +234,7 @@ type GraphNetwork @entity {
 }
 
 type DataService @entity {
-  "Data Service address"
+  "Verifier address"
   id: ID!
 
   "Total GRT currently in provisions for this DataService"
@@ -687,7 +687,7 @@ type Indexer @entity {
   # Staking data
   "CURRENT tokens staked in the protocol. Decreases on withdraw, not on lock"
   stakedTokens: BigInt!
-  "CURRENT tokens provisioned to data services in the protocol. In the V1 protocol, all staked tokens were always provisioned to an implicit 'subgraph data service'"
+  "CURRENT tokens provisioned to data services in the protocol. In the V1 protocol, all staked tokens were always provisioned since there was only one data service"
   provisionedTokens: BigInt!
   "CURRENT  tokens allocated on all subgraphs"
   allocatedTokens: BigInt!
@@ -830,12 +830,12 @@ type IndexerQueryFeePaymentAggregation @entity {
 }
 
 type Provision @entity {
-  "Join ID of indexer address (service provider) and DataService address"
+  "Join ID of indexer address (service provider) and DataService address (verifier)"
   id: ID!
 
   indexer: Indexer!
 
-  dataService: DataService!
+  service: DataService!
 
   tokensProvisioned: BigInt!
 }
