@@ -864,6 +864,15 @@ type Provision @entity {
 
   tokensProvisioned: BigInt!
 
+  tokensAllocated: BigInt!
+
+  totalAllocationCount: BigInt!
+
+  allocationCount: Int!
+
+  "Active allocations of stake for this Provision"
+  allocations: [Allocation!]! @derivedFrom(field: "activeForProvision")
+
   "Timestamp when the provision was created"
   createdAt: BigInt!
 
@@ -934,17 +943,21 @@ type ThawRequest @entity {
 }
 
 """
-A state channel Allocation representing a single Indexer-SubgraphDeployment stake
+A state channel Allocation representing a single Indexer/Provision-SubgraphDeployment stake
 """
 type Allocation @entity {
   "Channel Address"
   id: ID!
   "Indexer of this allocation"
   indexer: Indexer!
+  "Provision of this allocation (for Horizon allocations only)"
+  provision: Provision
   "Creator of the allocation - can be the operator or the indexer"
   creator: Bytes!
   "If the Allocation is active it shows the indexer. If closed, it is null"
   activeForIndexer: Indexer
+  "If the Allocation is active it shows the provision. If closed, it is null"
+  activeForProvision: Provision
   "Subgraph deployment that is being allocated to"
   subgraphDeployment: SubgraphDeployment!
   "Tokens allocation in this allocation"
@@ -987,10 +1000,12 @@ type Allocation @entity {
   createdAt: Int!
   "Timestamp this allocation was closed at"
   closedAt: Int
-  "POI submitted with a closed allocation"
+  "POI submitted when closing allocations in the legacy protocol. Also reflects the latest POI submitted for a Horizon payment collection"
   poi: Bytes
+  "POIs submitted when collecting payments in Horizon"
+  pois: [PoiSubmission!]! @derivedFrom(field: "allocation")
 
-  # Indexer cut settings at start and close
+  # Indexer/Provision cut settings at start and close
   indexingRewardCutAtStart: Int!
   indexingRewardEffectiveCutAtStart: BigDecimal!
   queryFeeCutAtStart: Int!
@@ -1006,6 +1021,16 @@ type Allocation @entity {
   totalReturn: BigDecimal!
   "NOT IMPLEMENTED - Yearly annualzied return"
   annualizedReturn: BigDecimal!
+}
+
+type PoiSubmission @entity {
+  id: ID!
+
+  allocation: Allocation!
+
+  poi: Bytes!
+
+  submittedAtEpoch: Int!
 }
 
 enum AllocationStatus {
