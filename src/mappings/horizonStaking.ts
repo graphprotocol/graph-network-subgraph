@@ -2,7 +2,7 @@ import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { DelegationFeeCutSet, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, TokensDeprovisioned, TokensToDelegationPoolAdded } from '../types/HorizonStaking/HorizonStaking'
 import { Indexer, ThawRequest } from '../types/schema'
-import { createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision } from './helpers/helpers'
+import { createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision, updateDelegationExchangeRate } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -265,11 +265,18 @@ export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
 }
 
 export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolAdded): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
     let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
     provision.delegatedTokens = provision.delegatedTokens.plus(event.params.tokens)
     provision.save()
 
     indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens) // this only serves as a general tracker, but the real deal is per provision
+    if (indexer.delegatorShares != BigInt.fromI32(0)) {
+        indexer = updateDelegationExchangeRate(indexer as Indexer)
+    }
     indexer.save()
+
+    graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
+    graphNetwork.save()
 }
