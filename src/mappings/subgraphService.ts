@@ -1,12 +1,12 @@
 import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
 import { AllocationClosed, AllocationCreated, AllocationResized, IndexingRewardsCollected, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
-import { createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadProvision, createOrLoadSubgraphDeployment } from "./helpers/helpers"
-import { Allocation, GraphAccount, Indexer } from "../types/schema"
+import { createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
+import { Allocation, GraphAccount, Indexer, PoiSubmission } from "../types/schema"
 import { addresses } from "../../config/addresses"
 
 export function handleServiceProviderRegistered(event: ServiceProviderRegistered): void {
     let decodedCalldata = ethereum.decode('(string,string,address)', event.params.data)
-    if( decodedCalldata != null && decodedCalldata.kind == ethereum.ValueKind.TUPLE) {
+    if (decodedCalldata != null && decodedCalldata.kind == ethereum.ValueKind.TUPLE) {
         let tupleData = decodedCalldata.toTuple()
         let provision = createOrLoadProvision(event.params.serviceProvider, event.address, event.block.timestamp)
         provision.url = tupleData[0].toString()
@@ -169,13 +169,77 @@ export function handleAllocationResized(event: AllocationResized): void {
 }
 
 export function handleIndexingRewardsCollected(event: IndexingRewardsCollected): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    let indexerID = event.params.indexer.toHexString()
+    let allocationID = event.params.allocationId.toHexString()
+
+    // update indexer
+    let indexer = Indexer.load(indexerID)!
+    indexer.rewardsEarned = indexer.rewardsEarned.plus(event.params.tokensRewards)
+    indexer.indexerIndexingRewards = indexer.indexerIndexingRewards.plus(event.params.tokensIndexerRewards)
+    indexer.delegatorIndexingRewards = indexer.delegatorIndexingRewards.plus(event.params.tokensDelegationRewards)
+    indexer.save()
+
+    // update provision
     let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
-    // To Do
+    provision.rewardsEarned = provision.rewardsEarned.plus(event.params.tokensRewards)
+    provision.indexerIndexingRewards = provision.indexerIndexingRewards.plus(event.params.tokensIndexerRewards)
+    provision.delegatorIndexingRewards = provision.delegatorIndexingRewards.plus(event.params.tokensDelegationRewards)
+    // No need to update delegated tokens, as that happens in handleTokensToDelegationPoolAdded
     provision.save()
+
+    // update allocation
+    let allocation = Allocation.load(allocationID)!
+    allocation.indexingRewards = allocation.indexingRewards.plus(event.params.tokensRewards)
+    allocation.indexingIndexerRewards = allocation.indexingIndexerRewards.plus(event.params.tokensIndexerRewards)
+    allocation.indexingDelegatorRewards = allocation.indexingDelegatorRewards.plus(
+        event.params.tokensDelegationRewards,
+    )
+    allocation.save()
+
+    // Create PoI submission
+    let poiSubmission = new PoiSubmission(joinID([event.transaction.hash.toHexString(), event.logIndex.toString()]))
+    poiSubmission.allocation = allocation.id
+    poiSubmission.poi = event.params.poi
+    poiSubmission.submittedAtEpoch = event.params.currentEpoch.toI32()
+    poiSubmission.save()
+
+    // Update epoch
+    let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))
+    epoch.totalRewards = epoch.totalRewards.plus(event.params.tokensRewards)
+    epoch.totalIndexerRewards = epoch.totalIndexerRewards.plus(event.params.tokensIndexerRewards)
+    epoch.totalDelegatorRewards = epoch.totalDelegatorRewards.plus(event.params.tokensDelegationRewards)
+    epoch.save()
+
+    // update subgraph deployment
+    let subgraphDeploymentID = allocation.subgraphDeployment
+    let subgraphDeployment = createOrLoadSubgraphDeployment(
+        subgraphDeploymentID,
+        event.block.timestamp,
+    )
+    subgraphDeployment.indexingRewardAmount = subgraphDeployment.indexingRewardAmount.plus(
+        event.params.tokensRewards,
+    )
+    subgraphDeployment.indexingIndexerRewardAmount = subgraphDeployment.indexingIndexerRewardAmount.plus(
+        event.params.tokensIndexerRewards,
+    )
+    subgraphDeployment.indexingDelegatorRewardAmount = subgraphDeployment.indexingDelegatorRewardAmount.plus(
+        event.params.tokensDelegationRewards,
+    )
+    subgraphDeployment.save()
+
+    // update graph network
+    graphNetwork.totalIndexingRewards = graphNetwork.totalIndexingRewards.plus(event.params.tokensRewards)
+    graphNetwork.totalIndexingIndexerRewards = graphNetwork.totalIndexingIndexerRewards.plus(
+        event.params.tokensIndexerRewards,
+    )
+    graphNetwork.totalIndexingDelegatorRewards = graphNetwork.totalIndexingDelegatorRewards.plus(
+        event.params.tokensDelegationRewards,
+    )
+    // No need to update delegated tokens, as that happens in handleTokensToDelegationPoolAdded
+    graphNetwork.save()
 }
 
 export function handleQueryFeesCollected(event: QueryFeesCollected): void {
-    let provision = createOrLoadProvision(event.params.serviceProvider, event.address, event.block.timestamp)
     // To Do
-    provision.save()
 }
