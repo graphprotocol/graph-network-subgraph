@@ -900,6 +900,14 @@ type Provision @entity {
 
   # Might want to add polymorphic handling of different fee cuts through a generic hashmap in the future
 
+  # Indexing rewards. Keeping the same naming from Indexer entity to make it easier to understand
+  "Total indexing rewards earned by this indexer. Including delegation rewards"
+  rewardsEarned: BigInt!
+  "The total amount of indexing rewards the indexer kept"
+  indexerIndexingRewards: BigInt!
+  "The total amount of indexing rewards given to delegators"
+  delegatorIndexingRewards: BigInt!
+
   # Delegation
   "Tokens delegated to the provision"
   delegatedTokens: BigInt!
