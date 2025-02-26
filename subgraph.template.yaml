@@ -463,7 +463,7 @@ dataSources:
           handler: handleAllocationClosed
         - event: IndexingRewardsCollected(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256,bytes32,uint256)
           handler: handleIndexingRewardsCollected
-        - event: QueryFeesCollected(indexed address,uint256,uint256)
+        - event: QueryFeesCollected(indexed address,indexed address,indexed address,bytes32,uint256,uint256)
           handler: handleQueryFeesCollected
   - kind: ethereum/contract
     name: Curation
