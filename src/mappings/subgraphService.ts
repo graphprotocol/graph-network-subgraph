@@ -1,7 +1,7 @@
 import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
 import { AllocationClosed, AllocationCreated, AllocationResized, IndexingRewardsCollected, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
-import { createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
-import { Allocation, GraphAccount, Indexer, PoiSubmission } from "../types/schema"
+import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
+import { Allocation, GraphAccount, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 
 export function handleServiceProviderRegistered(event: ServiceProviderRegistered): void {
@@ -242,4 +242,71 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
 
 export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     // To Do
+
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    let subgraphDeploymentID = event.params.subgraphDeploymentId.toHexString()
+    let indexerID = event.params.serviceProvider.toHexString()
+    let allocationID = event.params.allocationId.toHexString()
+    let paymentAddress = event.params.payer
+
+    // update indexer
+    let indexer = Indexer.load(indexerID)!
+    indexer.queryFeesCollected = indexer.queryFeesCollected.plus(event.params.tokensCollected)
+    indexer.save()
+
+    // update provision
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.address, event.block.timestamp)
+    provision.queryFeesCollected = provision.queryFeesCollected.plus(event.params.tokensCollected)
+    provision.save()
+
+    // Replicate for payment source specific aggregation
+    let paymentAggregation = createOrLoadIndexerQueryFeePaymentAggregation(paymentAddress, event.params.serviceProvider)
+    paymentAggregation.queryFeesCollected = paymentAggregation.queryFeesCollected.plus(event.params.tokensCollected)
+    paymentAggregation.save()
+
+    // update allocation
+    let allocation = Allocation.load(allocationID)!
+    allocation.queryFeesCollected = allocation.queryFeesCollected.plus(event.params.tokensCollected)
+    allocation.curatorRewards = allocation.curatorRewards.plus(event.params.tokensCurators)
+    allocation.save()
+
+    // Update epoch
+    let epoch = createOrLoadEpoch(
+        addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+    )
+    epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokensCollected).plus(event.params.tokensCurators)
+    epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.tokensCollected)
+    epoch.curatorQueryFees = epoch.curatorQueryFees.plus(event.params.tokensCurators)
+    epoch.save()
+
+    // update subgraph deployment
+    let deployment = SubgraphDeployment.load(subgraphDeploymentID)!
+    deployment.queryFeesAmount = deployment.queryFeesAmount.plus(event.params.tokensCollected)
+    deployment.signalledTokens = deployment.signalledTokens.plus(event.params.tokensCurators)
+    deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.tokensCurators)
+    deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
+    deployment.save()
+
+    batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
+
+    // update graph network
+    graphNetwork.totalQueryFees = graphNetwork.totalQueryFees.plus(event.params.tokensCollected).plus(event.params.tokensCurators)
+    graphNetwork.totalIndexerQueryFeesCollected = graphNetwork.totalIndexerQueryFeesCollected.plus(
+        event.params.tokensCollected,
+    )
+    graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(
+        event.params.tokensCurators,
+    )
+    graphNetwork.save()
+
+    // Replicate for payment source specific data
+    let paymentSource = createOrLoadPaymentSource(paymentAddress)
+    paymentSource.totalQueryFees = paymentSource.totalQueryFees.plus(event.params.tokensCollected).plus(event.params.tokensCurators)
+    paymentSource.totalIndexerQueryFeesCollected = paymentSource.totalIndexerQueryFeesCollected.plus(
+        event.params.tokensCollected,
+    )
+    paymentSource.totalCuratorQueryFees = paymentSource.totalCuratorQueryFees.plus(
+        event.params.tokensCurators,
+    )
+    paymentSource.save()
 }
