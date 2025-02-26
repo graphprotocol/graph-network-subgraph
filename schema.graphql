@@ -908,6 +908,10 @@ type Provision @entity {
   "The total amount of indexing rewards given to delegators"
   delegatorIndexingRewards: BigInt!
 
+  # Query fees
+  "Total query fees collected. Includes the portion given to delegators"
+  queryFeesCollected: BigInt!
+
   # Delegation
   "Tokens delegated to the provision"
   delegatedTokens: BigInt!
