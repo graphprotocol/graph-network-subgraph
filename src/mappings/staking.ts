@@ -673,6 +673,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   // update subgraph deployment
   let subgraphDeployment = SubgraphDeployment.load(subgraphDeploymentID)!
   subgraphDeployment.queryFeeRebates = subgraphDeployment.queryFeeRebates.plus(event.params.tokens)
+  subgraphDeployment.delegatorsQueryFeeRebates = subgraphDeployment.delegatorsQueryFeeRebates.plus(event.params.delegationFees)
   subgraphDeployment.save()
 
   // update graph network
@@ -751,6 +752,7 @@ export function handleRebateCollected(event: RebateCollected): void {
   deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
   deployment.queryFeeRebates = deployment.queryFeeRebates.plus(event.params.queryRebates)
+  deployment.delegatorsQueryFeeRebates = deployment.delegatorsQueryFeeRebates.plus(event.params.delegationRewards)
   deployment.save()
 
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)

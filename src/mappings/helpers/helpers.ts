@@ -102,6 +102,7 @@ export function createOrLoadSubgraphDeployment(
     deployment.indexingDelegatorRewardAmount = BigInt.fromI32(0)
     deployment.queryFeesAmount = BigInt.fromI32(0)
     deployment.queryFeeRebates = BigInt.fromI32(0)
+    deployment.delegatorsQueryFeeRebates = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
     deployment.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
     deployment.signalledTokensSentToL2 = BigInt.fromI32(0)
