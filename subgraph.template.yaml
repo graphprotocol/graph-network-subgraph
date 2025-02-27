@@ -429,6 +429,16 @@ dataSources:
           handler: handleDelegationFeeCutSet
         - event: TokensToDelegationPoolAdded(indexed address,indexed address,uint256)
           handler: handleTokensToDelegationPoolAdded
+        - event: TokensDelegated(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTokensDelegated
+        - event: DelegationSlashed(indexed address,indexed address,uint256)
+          handler: handleDelegationSlashed
+        - event: TokensUndelegated(indexed address,indexed address,indexed address,uint256)
+          handler: handleTokensUndelegated
+        - event: DelegatedTokensWithdrawn(indexed address,indexed address,indexed address,uint256)
+          handler: handleDelegatedTokensWithdrawn
+        - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
+          handler: handleStakeDelegatedWithdrawn
   - kind: ethereum/contract
     name: SubgraphService
     network: {{network}}
