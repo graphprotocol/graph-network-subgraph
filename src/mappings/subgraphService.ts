@@ -241,33 +241,49 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
 }
 
 export function handleQueryFeesCollected(event: QueryFeesCollected): void {
-    // To Do
-
     let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
     let subgraphDeploymentID = event.params.subgraphDeploymentId.toHexString()
     let indexerID = event.params.serviceProvider.toHexString()
     let allocationID = event.params.allocationId.toHexString()
     let paymentAddress = event.params.payer
 
+    // update provision
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.address, event.block.timestamp)
+
+    let delegationPoolQueryFees =
+        provision.delegatedTokens == BigInt.fromI32(0)
+            ? event.params.tokensCollected
+            : event.params.tokensCollected
+                .times(provision.queryFeeCut)
+                .div(BigInt.fromI32(1000000))
+    let indexerQueryFees = event.params.tokensCollected.minus(delegationPoolQueryFees)
+
+    provision.queryFeesCollected = provision.queryFeesCollected.plus(event.params.tokensCollected)
+    provision.providerQueryFees = provision.providerQueryFees.plus(indexerQueryFees)
+    provision.delegatorQueryFees = provision.delegatorQueryFees.plus(delegationPoolQueryFees)
+    provision.save()
+
     // update indexer
     let indexer = Indexer.load(indexerID)!
     indexer.queryFeesCollected = indexer.queryFeesCollected.plus(event.params.tokensCollected)
+    indexer.queryFeeRebates = indexer.queryFeeRebates.plus(indexerQueryFees)
+    indexer.delegatorQueryFees = indexer.delegatorQueryFees.plus(delegationPoolQueryFees)
     indexer.save()
-
-    // update provision
-    let provision = createOrLoadProvision(event.params.serviceProvider, event.address, event.block.timestamp)
-    provision.queryFeesCollected = provision.queryFeesCollected.plus(event.params.tokensCollected)
-    provision.save()
 
     // Replicate for payment source specific aggregation
     let paymentAggregation = createOrLoadIndexerQueryFeePaymentAggregation(paymentAddress, event.params.serviceProvider)
     paymentAggregation.queryFeesCollected = paymentAggregation.queryFeesCollected.plus(event.params.tokensCollected)
+    paymentAggregation.queryFeeRebates = paymentAggregation.queryFeeRebates.plus(indexerQueryFees)
+    paymentAggregation.delegatorQueryFees = paymentAggregation.delegatorQueryFees.plus(delegationPoolQueryFees)
     paymentAggregation.save()
 
     // update allocation
     let allocation = Allocation.load(allocationID)!
     allocation.queryFeesCollected = allocation.queryFeesCollected.plus(event.params.tokensCollected)
     allocation.curatorRewards = allocation.curatorRewards.plus(event.params.tokensCurators)
+    allocation.queryFeeRebates = allocation.queryFeeRebates.plus(indexerQueryFees)
+    allocation.distributedRebates = allocation.distributedRebates.plus(event.params.tokensCollected)
+    allocation.delegationFees = allocation.delegationFees.plus(delegationPoolQueryFees)
     allocation.save()
 
     // Update epoch
@@ -277,6 +293,7 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokensCollected).plus(event.params.tokensCurators)
     epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.tokensCollected)
     epoch.curatorQueryFees = epoch.curatorQueryFees.plus(event.params.tokensCurators)
+    epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokensCollected)
     epoch.save()
 
     // update subgraph deployment
@@ -285,6 +302,8 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     deployment.signalledTokens = deployment.signalledTokens.plus(event.params.tokensCurators)
     deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.tokensCurators)
     deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
+    deployment.queryFeeRebates = deployment.queryFeeRebates.plus(indexerQueryFees)
+    deployment.delegatorsQueryFeeRebates = deployment.delegatorsQueryFeeRebates.plus(delegationPoolQueryFees)
     deployment.save()
 
     batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
@@ -297,6 +316,12 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(
         event.params.tokensCurators,
     )
+    graphNetwork.totalIndexerQueryFeeRebates = graphNetwork.totalIndexerQueryFeeRebates.plus(
+        indexerQueryFees,
+    )
+    graphNetwork.totalDelegatorQueryFeeRebates = graphNetwork.totalDelegatorQueryFeeRebates.plus(
+        delegationPoolQueryFees,
+    )
     graphNetwork.save()
 
     // Replicate for payment source specific data
@@ -307,6 +332,12 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     )
     paymentSource.totalCuratorQueryFees = paymentSource.totalCuratorQueryFees.plus(
         event.params.tokensCurators,
+    )
+    paymentSource.totalIndexerQueryFeeRebates = paymentSource.totalIndexerQueryFeeRebates.plus(
+        indexerQueryFees,
+    )
+    paymentSource.totalDelegatorQueryFeeRebates = paymentSource.totalDelegatorQueryFeeRebates.plus(
+        delegationPoolQueryFees,
     )
     paymentSource.save()
 }

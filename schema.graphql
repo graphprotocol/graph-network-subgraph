@@ -575,11 +575,12 @@ type SubgraphDeployment @entity {
   indexingDelegatorRewardAmount: BigInt!
   "Total query fees earned by this Subgraph Deployment, without curator query fees"
   queryFeesAmount: BigInt!
-  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include delegation fees"
+  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include delegation query fees"
   queryFeeRebates: BigInt!
   "Total curator rewards from fees"
   curatorFeeRewards: BigInt!
-  # TODO - We can add a field here for delegation fees earned when calling claim()
+  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include indexer query fees"
+  delegatorsQueryFeeRebates: BigInt!
 
   # Subgraph deployment curation bonding curve
   "CURRENT signalled tokens in the bonding curve"
@@ -911,6 +912,10 @@ type Provision @entity {
   # Query fees
   "Total query fees collected. Includes the portion given to delegators"
   queryFeesCollected: BigInt!
+  "Query fee amount collected from the protocol. Does not include portion given to delegators"
+  providerQueryFees: BigInt!
+  "Query fee amount collected from the protocol for Delegators. Does not include portion taken by the provider"
+  delegatorQueryFees: BigInt!
 
   # Delegation
   "Tokens delegated to the provision"
