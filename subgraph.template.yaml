@@ -466,6 +466,30 @@ dataSources:
         - event: QueryFeesCollected(indexed address,indexed address,indexed address,bytes32,uint256,uint256)
           handler: handleQueryFeesCollected
   - kind: ethereum/contract
+    name: GraphPayments
+    network: {{network}}
+    source:
+      address: "{{graphPayments}}"
+      abi: GraphPayments
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/graphPayments.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: GraphPayments
+          file: ./abis/GraphPayments.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: GraphPaymentCollected(indexed uint8,indexed address,address,indexed address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleGraphPaymentCollected
+  - kind: ethereum/contract
     name: Curation
     network: {{network}}
     source:
