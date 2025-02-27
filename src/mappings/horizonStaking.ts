@@ -1,6 +1,6 @@
 import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
-import { DelegationFeeCutSet, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, TokensDeprovisioned, TokensToDelegationPoolAdded } from '../types/HorizonStaking/HorizonStaking'
+import { DelegatedTokensWithdrawn, DelegationFeeCutSet, DelegationSlashed, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, StakeDelegatedWithdrawn, TokensDelegated, TokensDeprovisioned, TokensToDelegationPoolAdded, TokensUndelegated } from '../types/HorizonStaking/HorizonStaking'
 import { Indexer, ThawRequest } from '../types/schema'
 import { createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision, updateDelegationExchangeRate } from './helpers/helpers'
 import {
@@ -279,4 +279,26 @@ export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolA
 
     graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
     graphNetwork.save()
+}
+
+// Delegation
+
+export function handleTokensDelegated(event: TokensDelegated): void {
+    // To Do
+}
+
+export function handleDelegationSlashed(event: DelegationSlashed): void {
+    // To Do
+}
+
+export function handleTokensUndelegated(event: TokensUndelegated): void {
+    // To Do
+}
+
+export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn): void {
+    // To Do
+}
+
+export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): void {
+    // To Do
 }
