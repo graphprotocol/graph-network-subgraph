@@ -255,6 +255,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "HorizonStakingLegacySlashFailed",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -278,6 +283,11 @@
   {
     "inputs": [],
     "name": "HorizonStakingNothingThawing",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "HorizonStakingNothingToWithdraw",
     "type": "error"
   },
   {
@@ -1159,6 +1169,12 @@
         "internalType": "uint256",
         "name": "tokens",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "shares",
+        "type": "uint256"
       }
     ],
     "name": "TokensUndelegated",
@@ -1517,7 +1533,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "tokens",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -1677,6 +1693,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStakingExtension",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -2423,9 +2452,5 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function"
-  },
-  {
-    "stateMutability": "payable",
-    "type": "receive"
   }
 ]
