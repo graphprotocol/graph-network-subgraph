@@ -348,6 +348,46 @@ export function createOrLoadDelegatedStake(
   }
   return delegatedStake as DelegatedStake
 }
+
+export function createOrLoadDelegatedStakeForProvision(
+  delegator: string,
+  indexer: string,
+  dataService: string,
+  timestamp: i32,
+): DelegatedStake {
+  let provisionId = joinID([indexer, dataService])
+  let id = joinID([delegator, provisionId])
+  let delegatedStake = DelegatedStake.load(id)
+  if (delegatedStake == null) {
+    delegatedStake = new DelegatedStake(id)
+    delegatedStake.indexer = indexer
+    delegatedStake.dataService = dataService
+    delegatedStake.provision = provisionId
+    delegatedStake.delegator = delegator
+    delegatedStake.stakedTokens = BigInt.fromI32(0)
+    delegatedStake.transferredToL2 = false
+    delegatedStake.stakedTokensTransferredToL2 = BigInt.fromI32(0)
+    delegatedStake.unstakedTokens = BigInt.fromI32(0)
+    delegatedStake.lockedTokens = BigInt.fromI32(0)
+    delegatedStake.lockedUntil = 0
+    delegatedStake.shareAmount = BigInt.fromI32(0)
+    delegatedStake.personalExchangeRate = BigDecimal.fromString('1')
+    delegatedStake.realizedRewards = BigDecimal.fromString('0')
+    delegatedStake.createdAt = timestamp
+
+    delegatedStake.save()
+
+    let delegatorEntity = Delegator.load(delegator)!
+    delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1
+    delegatorEntity.save()
+
+    let graphNetwork = GraphNetwork.load('1')!
+    graphNetwork.delegationCount = graphNetwork.delegationCount + 1
+    graphNetwork.save()
+  }
+  return delegatedStake as DelegatedStake
+}
+
 export function createOrLoadCurator(curatorAddress: Bytes, timestamp: BigInt): Curator {
   let id = curatorAddress.toHexString()
   let curator = Curator.load(id)
@@ -916,12 +956,82 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
   return indexer as Indexer
 }
 
+export function calculateOwnStakeRatioForProvision(provision: Provision): BigDecimal {
+  let totalTokens = provision.tokensProvisioned.plus(provision.delegatedTokens)
+  return totalTokens == BigInt.fromI32(0)
+    ? BigDecimal.fromString('0')
+    : provision.tokensProvisioned.toBigDecimal().div(totalTokens.toBigDecimal())
+}
+
+export function calculateDelegatedStakeRatioForProvision(provision: Provision): BigDecimal {
+  let totalTokens = provision.tokensProvisioned.plus(provision.delegatedTokens)
+  return totalTokens == BigInt.fromI32(0)
+    ? BigDecimal.fromString('0')
+    : provision.delegatedTokens.toBigDecimal().div(totalTokens.toBigDecimal())
+}
+
+export function calculateIndexingRewardEffectiveCutForProvision(provision: Provision): BigDecimal {
+  let delegatorCut =
+    provision.indexingRewardsCut.toBigDecimal() /
+    BigDecimal.fromString('1000000')
+  return provision.delegatedStakeRatio == BigDecimal.fromString('0')
+    ? BigDecimal.fromString('0')
+    : BigDecimal.fromString('1') - delegatorCut / provision.delegatedStakeRatio
+}
+
+export function calculateQueryFeeEffectiveCutForProvision(provision: Provision): BigDecimal {
+  let delegatorCut =
+    provision.queryFeeCut.toBigDecimal() / BigDecimal.fromString('1000000')
+  return provision.delegatedStakeRatio == BigDecimal.fromString('0')
+    ? BigDecimal.fromString('0')
+    : BigDecimal.fromString('1') - delegatorCut / provision.delegatedStakeRatio
+}
+
+export function calculateIndexerRewardOwnGenerationRatioForProvision(provision: Provision): BigDecimal {
+  let rewardCut =
+    provision.indexingRewardsCut.toBigDecimal() / BigDecimal.fromString('1000000')
+  return provision.ownStakeRatio == BigDecimal.fromString('0')
+    ? BigDecimal.fromString('0')
+    : rewardCut / provision.ownStakeRatio
+}
+
+export function calculateOverdelegationDilutionForProvision(provision: Provision): BigDecimal {
+  let provisionedTokensBD = provision.tokensProvisioned.toBigDecimal()
+  let delegatedTokensBD = provision.delegatedTokens.toBigDecimal()
+  let graphNetwork = GraphNetwork.load('1')!
+  let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
+  let maxDelegatedStake = provisionedTokensBD * delegationRatioBD
+  return provisionedTokensBD == BigDecimal.fromString('0')
+    ? BigDecimal.fromString('0')
+    : BigDecimal.fromString('1') - maxDelegatedStake / max(maxDelegatedStake, delegatedTokensBD)
+}
+
+export function updateAdvancedProvisionMetrics(provision: Provision): Provision {
+  provision.ownStakeRatio = calculateOwnStakeRatioForProvision(provision as Provision)
+  provision.delegatedStakeRatio = calculateDelegatedStakeRatioForProvision(provision as Provision)
+  provision.indexingRewardEffectiveCut = calculateIndexingRewardEffectiveCutForProvision(provision as Provision)
+  provision.queryFeeEffectiveCut = calculateQueryFeeEffectiveCutForProvision(provision as Provision)
+  provision.indexerRewardsOwnGenerationRatio = calculateIndexerRewardOwnGenerationRatioForProvision(
+    provision as Provision,
+  )
+  provision.overDelegationDilution = calculateOverdelegationDilutionForProvision(provision as Provision)
+  return provision as Provision
+}
+
 export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
   indexer.delegationExchangeRate = indexer.delegatedTokens
     .toBigDecimal()
     .div(indexer.delegatorShares.toBigDecimal())
     .truncate(18)
   return indexer as Indexer
+}
+
+export function updateDelegationExchangeRateForProvision(provision: Provision): Provision {
+  provision.delegationExchangeRate = provision.delegatedTokens
+    .toBigDecimal()
+    .div(provision.delegatorShares.toBigDecimal())
+    .truncate(18)
+  return provision as Provision
 }
 
 // TODO - this is broken if we change the delegatio ratio
@@ -957,10 +1067,10 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
     deployment.signalAmount == BigInt.fromI32(0)
       ? BigDecimal.fromString('0')
       : deployment.signalledTokens
-          .toBigDecimal()
-          .div(deployment.signalAmount.toBigDecimal())
-          .times(BigInt.fromI32(reserveRatioMultiplier).toBigDecimal())
-          .truncate(18)
+        .toBigDecimal()
+        .div(deployment.signalAmount.toBigDecimal())
+        .times(BigInt.fromI32(reserveRatioMultiplier).toBigDecimal())
+        .truncate(18)
   return pricePerShare
 }
 

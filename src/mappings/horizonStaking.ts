@@ -1,8 +1,8 @@
 import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { DelegatedTokensWithdrawn, DelegationFeeCutSet, DelegationSlashed, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, StakeDelegatedWithdrawn, TokensDelegated, TokensDeprovisioned, TokensToDelegationPoolAdded, TokensUndelegated } from '../types/HorizonStaking/HorizonStaking'
-import { Indexer, ThawRequest } from '../types/schema'
-import { createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision, updateDelegationExchangeRate } from './helpers/helpers'
+import { DelegatedStake, Delegator, Indexer, Provision, ThawRequest } from '../types/schema'
+import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStake, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision, joinID, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -284,21 +284,179 @@ export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolA
 // Delegation
 
 export function handleTokensDelegated(event: TokensDelegated): void {
-    // To Do
+    let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
+
+    let dataService = createOrLoadDataService(event.params.verifier)
+    // Might want to track some stuff here in the future
+    dataService.save()
+
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+    provision.delegatedTokens = provision.delegatedTokens.plus(event.params.tokens)
+    provision.delegatorShares = provision.delegatorShares.plus(event.params.shares)
+    if (provision.delegatorShares != BigInt.fromI32(0)) {
+        provision = updateDelegationExchangeRateForProvision(provision as Provision)
+    }
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
+    provision.save()
+
+    // update indexer
+    let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp)
+    indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
+    indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
+    indexer.save()
+
+    // update delegator
+    let delegatorID = event.params.delegator.toHexString()
+    let delegator = createOrLoadDelegator(event.params.delegator, event.block.timestamp)
+    delegator.totalStakedTokens = delegator.totalStakedTokens.plus(event.params.tokens)
+    delegator.save()
+
+    // update delegated stake
+    let delegatedStake = createOrLoadDelegatedStakeForProvision(
+        delegatorID,
+        indexer.id,
+        dataService.id,
+        event.block.timestamp.toI32(),
+    )
+
+    if (!zeroShares) {
+        let previousExchangeRate = delegatedStake.personalExchangeRate
+        let previousShares = delegatedStake.shareAmount
+        let averageCostBasisTokens = previousExchangeRate
+            .times(previousShares.toBigDecimal())
+            .plus(event.params.tokens.toBigDecimal())
+        let averageCostBasisShares = previousShares.plus(event.params.shares)
+        if (averageCostBasisShares.gt(BigInt.fromI32(0))) {
+            delegatedStake.personalExchangeRate = averageCostBasisTokens
+                .div(averageCostBasisShares.toBigDecimal())
+                .truncate(18)
+        }
+    }
+
+    let isStakeBecomingActive = delegatedStake.shareAmount.isZero() && !event.params.shares.isZero()
+
+    delegatedStake.stakedTokens = delegatedStake.stakedTokens.plus(event.params.tokens)
+    delegatedStake.shareAmount = delegatedStake.shareAmount.plus(event.params.shares)
+    delegatedStake.lastDelegatedAt = event.block.timestamp.toI32()
+    delegatedStake.save()
+
+    // reload delegator to avoid edge case where we can overwrite stakesCount if stake is new
+    delegator = Delegator.load(delegatorID) as Delegator
+
+    // upgrade graph network
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
+
+    if (isStakeBecomingActive) {
+        graphNetwork.activeDelegationCount = graphNetwork.activeDelegationCount + 1
+        delegator.activeStakesCount = delegator.activeStakesCount + 1
+        // Is delegator becoming active because of the stake becoming active?
+        if (delegator.activeStakesCount == 1) {
+            graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount + 1
+        }
+    }
+
+    graphNetwork.save()
+    delegator.save()
 }
 
 export function handleDelegationSlashed(event: DelegationSlashed): void {
-    // To Do
+    // This is a delegation pool wide change, no particular delegation or delegator can be updated here.
+
+    // update provision
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+    provision.delegatedTokens = provision.delegatedTokens.minus(event.params.tokens)
+    if (provision.delegatorShares != BigInt.fromI32(0)) {
+        provision = updateDelegationExchangeRateForProvision(provision as Provision)
+    }
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
+    provision.save()
+
+    // update indexer
+    let indexerID = event.params.serviceProvider.toHexString()
+    let indexer = Indexer.load(indexerID)!
+    indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
+    indexer.save()
+
+    // upgrade graph network
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
+    graphNetwork.save()
 }
 
 export function handleTokensUndelegated(event: TokensUndelegated): void {
-    // To Do
+    // update provision
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+
+    let beforeUpdateDelegationExchangeRate = provision.delegationExchangeRate
+
+    provision.delegatedTokens = provision.delegatedTokens.minus(event.params.tokens)
+    provision.delegatorShares = provision.delegatorShares.minus(event.params.shares)
+    if (provision.delegatorShares != BigInt.fromI32(0)) {
+        provision = updateDelegationExchangeRateForProvision(provision as Provision)
+    }
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
+    provision.save()
+
+    // update indexer
+    let indexerID = event.params.serviceProvider.toHexString()
+    let indexer = Indexer.load(indexerID)!
+    indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
+    indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
+    indexer.save()
+
+    // update delegated stake
+    let delegatorID = event.params.delegator.toHexString()
+    let id = joinID([delegatorID, provision.id])
+    let delegatedStake = DelegatedStake.load(id)!
+
+    let isStakeBecomingInactive =
+        !delegatedStake.shareAmount.isZero() && delegatedStake.shareAmount == event.params.shares
+
+    delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
+    delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
+    delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
+    //delegatedStake.lockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
+    delegatedStake.lastUndelegatedAt = event.block.timestamp.toI32()
+
+    let currentBalance = event.params.shares.toBigDecimal().times(beforeUpdateDelegationExchangeRate)
+    let oldBalance = event.params.shares.toBigDecimal().times(delegatedStake.personalExchangeRate)
+    let realizedRewards = currentBalance.minus(oldBalance)
+
+    delegatedStake.realizedRewards = delegatedStake.realizedRewards.plus(realizedRewards)
+    delegatedStake.save()
+
+    // update delegator
+    let delegator = Delegator.load(delegatorID)!
+    delegator.totalUnstakedTokens = delegator.totalUnstakedTokens.plus(event.params.tokens)
+    delegator.totalRealizedRewards = delegator.totalRealizedRewards.plus(realizedRewards)
+
+    // upgrade graph network
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
+
+    if (isStakeBecomingInactive) {
+        graphNetwork.activeDelegationCount = graphNetwork.activeDelegationCount - 1
+        delegator.activeStakesCount = delegator.activeStakesCount - 1
+        // Is delegator becoming inactive because of the stake becoming inactive?
+        if (delegator.activeStakesCount == 0) {
+            graphNetwork.activeDelegatorCount = graphNetwork.activeDelegatorCount - 1
+        }
+    }
+
+    graphNetwork.save()
+    delegator.save()
 }
 
 export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn): void {
-    // To Do
-}
+    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
+    // might want to track locked/thawing tokens in provision too
+    provision.save()
 
-export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): void {
-    // To Do
+    // update delegated stake
+    let delegatorID = event.params.delegator.toHexString()
+    let id = joinID([delegatorID, provision.id])
+    let delegatedStake = DelegatedStake.load(id)!
+    delegatedStake.lockedTokens = delegatedStake.lockedTokens.minus(event.params.tokens)
+    delegatedStake.save()
 }
