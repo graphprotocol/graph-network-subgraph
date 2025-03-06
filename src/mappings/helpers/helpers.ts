@@ -216,6 +216,11 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.delegatedTokens = BigInt.fromI32(0)
     provision.delegatorShares = BigInt.fromI32(0)
     provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
+    provision.indexingRewardEffectiveCut = BigInt.fromI32(0).toBigDecimal()
+    provision.queryFeeEffectiveCut = BigInt.fromI32(0).toBigDecimal()
+    provision.ownStakeRatio = BigInt.fromI32(0).toBigDecimal()
+    provision.delegatedStakeRatio = BigInt.fromI32(0).toBigDecimal()
+    provision.indexerRewardsOwnGenerationRatio = BigInt.fromI32(0).toBigDecimal()
     provision.save()
   }
 
