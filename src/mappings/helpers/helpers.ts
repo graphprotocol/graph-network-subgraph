@@ -202,6 +202,8 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.dataService = verifierAddress.toHexString()
     provision.tokensProvisioned = BigInt.fromI32(0)
     provision.tokensAllocated = BigInt.fromI32(0)
+    provision.tokensSlashedServiceProvider = BigInt.fromI32(0)
+    provision.tokensSlashedDelegationPool = BigInt.fromI32(0)
     provision.totalAllocationCount = BigInt.fromI32(0)
     provision.allocationCount = 0
     provision.tokensThawing = BigInt.fromI32(0)
@@ -993,18 +995,21 @@ export function calculateQueryFeeEffectiveCutForProvision(provision: Provision):
 }
 
 export function calculateIndexerRewardOwnGenerationRatioForProvision(provision: Provision): BigDecimal {
-  let rewardCut =
+  let delegatorCut =
     provision.indexingRewardsCut.toBigDecimal() / BigDecimal.fromString('1000000')
   return provision.ownStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
-    : rewardCut / provision.ownStakeRatio
+    : (BigDecimal.fromString('1') - delegatorCut) / provision.ownStakeRatio
 }
 
 export function calculateOverdelegationDilutionForProvision(provision: Provision): BigDecimal {
   let provisionedTokensBD = provision.tokensProvisioned.toBigDecimal()
   let delegatedTokensBD = provision.delegatedTokens.toBigDecimal()
-  let graphNetwork = GraphNetwork.load('1')!
-  let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
+  let dataService = DataService.load(provision.dataService)!
+  if (dataService.delegationRatio == null) {
+    return BigDecimal.fromString('0')
+  }
+  let delegationRatioBD = BigInt.fromI32(dataService.delegationRatio).toBigDecimal()
   let maxDelegatedStake = provisionedTokensBD * delegationRatioBD
   return provisionedTokensBD == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
