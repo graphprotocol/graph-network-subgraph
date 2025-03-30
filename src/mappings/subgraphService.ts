@@ -1,6 +1,6 @@
 import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
-import { AllocationClosed, AllocationCreated, AllocationResized, IndexingRewardsCollected, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
-import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
+import { AllocationClosed, AllocationCreated, AllocationResized, DelegationRatioSet, IndexingRewardsCollected, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
+import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
 import { Allocation, GraphAccount, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 
@@ -21,6 +21,12 @@ export function handleRewardsDestinationSet(event: RewardsDestinationSet): void 
     let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
     provision.rewardsDestination = event.params.rewardsDestination
     provision.save()
+}
+
+export function handleDelegationRatioSet(event: DelegationRatioSet): void {
+    let dataService = createOrLoadDataService(event.address)
+    dataService.delegationRatio = event.params.ratio
+    dataService.save()
 }
 
 export function handleAllocationCreated(event: AllocationCreated): void {
