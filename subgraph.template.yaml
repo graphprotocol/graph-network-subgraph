@@ -473,6 +473,8 @@ dataSources:
           handler: handleIndexingRewardsCollected
         - event: QueryFeesCollected(indexed address,indexed address,indexed address,bytes32,uint256,uint256)
           handler: handleQueryFeesCollected
+        - event: DelegationRatioSet(uint32)
+          handler: handleDelegationRatioSet
   - kind: ethereum/contract
     name: GraphPayments
     network: {{network}}
