@@ -25,7 +25,7 @@ export function handleRewardsDestinationSet(event: RewardsDestinationSet): void 
 
 export function handleDelegationRatioSet(event: DelegationRatioSet): void {
     let dataService = createOrLoadDataService(event.address)
-    dataService.delegationRatio = event.params.ratio
+    dataService.delegationRatio = event.params.ratio.toI32()
     dataService.save()
 }
 
@@ -265,7 +265,7 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     let indexerQueryFees = event.params.tokensCollected.minus(delegationPoolQueryFees)
 
     provision.queryFeesCollected = provision.queryFeesCollected.plus(event.params.tokensCollected)
-    provision.providerQueryFees = provision.providerQueryFees.plus(indexerQueryFees)
+    provision.indexerQueryFees = provision.indexerQueryFees.plus(indexerQueryFees)
     provision.delegatorQueryFees = provision.delegatorQueryFees.plus(delegationPoolQueryFees)
     provision.save()
 
