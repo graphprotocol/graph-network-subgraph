@@ -88,9 +88,11 @@ export function handleAllocationCreated(event: AllocationCreated): void {
     allocation.annualizedReturn = BigDecimal.fromString('0')
     allocation.createdAt = event.block.timestamp.toI32()
     allocation.indexingRewardCutAtStart = provision.indexingRewardsCut.toI32()
-    allocation.indexingRewardEffectiveCutAtStart = provision.indexingRewardsCut.toBigDecimal()
+    allocation.indexingRewardEffectiveCutAtStart = provision.indexingRewardEffectiveCut
     allocation.queryFeeCutAtStart = provision.queryFeeCut.toI32()
-    allocation.queryFeeEffectiveCutAtStart = provision.queryFeeCut.toBigDecimal()
+    allocation.queryFeeEffectiveCutAtStart = provision.queryFeeEffectiveCut
+    allocation.poiCount = BigInt.fromI32(0)
+    allocation.isLegacy = false
     allocation.save()
 }
 
@@ -101,12 +103,16 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 
     // update indexer
     let indexer = Indexer.load(indexerID)!
+    let allocation = Allocation.load(allocationID)!
     const indexerAccount = GraphAccount.load(indexer.account)!
     const closedByIndexer = event.transaction.from == event.params.indexer
     const closedByOperator = indexerAccount.operators.includes(event.transaction.from.toHexString())
 
     if (!closedByIndexer && !closedByOperator) {
         indexer.forcedClosures = indexer.forcedClosures + 1
+        allocation.forceClosed = true
+    } else {
+        allocation.forceClosed = false
     }
     indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
     indexer.allocationCount = indexer.allocationCount - 1
@@ -119,7 +125,6 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     provision.save()
 
     // update allocation
-    let allocation = Allocation.load(allocationID)!
     allocation.poolClosedIn = graphNetwork.currentEpoch.toString()
     allocation.activeForIndexer = null
     allocation.closedAtEpoch = graphNetwork.currentEpoch
@@ -129,10 +134,10 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     ).toI32()
     allocation.status = 'Closed'
     allocation.closedAt = event.block.timestamp.toI32()
-    allocation.indexingRewardCutAtStart = provision.indexingRewardsCut.toI32()
-    allocation.indexingRewardEffectiveCutAtStart = provision.indexingRewardsCut.toBigDecimal()
-    allocation.queryFeeCutAtStart = provision.queryFeeCut.toI32()
-    allocation.queryFeeEffectiveCutAtStart = provision.queryFeeCut.toBigDecimal()
+    allocation.indexingRewardCutAtClose = provision.indexingRewardsCut.toI32()
+    allocation.indexingRewardEffectiveCutAtClose = provision.indexingRewardEffectiveCut
+    allocation.queryFeeCutAtClose = provision.queryFeeCut.toI32()
+    allocation.queryFeeEffectiveCutAtClose = provision.queryFeeEffectiveCut
     allocation.save()
 
     // update epoch - We do it here to have more epochs created, instead of seeing none created
@@ -201,6 +206,7 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
     allocation.indexingDelegatorRewards = allocation.indexingDelegatorRewards.plus(
         event.params.tokensDelegationRewards,
     )
+    allocation.poiCount = allocation.poiCount!.plus(BigInt.fromI32(1))
     allocation.save()
 
     // Create PoI submission
