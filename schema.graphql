@@ -1044,6 +1044,12 @@ type Allocation @entity {
   poi: Bytes
   "POIs submitted when collecting payments in Horizon"
   pois: [PoiSubmission!]! @derivedFrom(field: "allocation")
+  "Number of POIs submitted for this allocation. Only available for Horizon allocations"
+  poiCount: BigInt
+  "Whether this allocation was created in the legacy protocol. If true, the allocation will not have a provision since it's not a Horizon allocation"
+  isLegacy: Boolean!
+  "Whether this allocation was forced closed. Force closures in Horizon can happen when the latest PoI is stale, compared to the legacy protocol, where force closures can happen when the allocation hasn't been closed within the max amount of epochs"
+  forceClosed: Boolean
 
   # Indexer/Provision cut settings at start and close
   indexingRewardCutAtStart: Int!
