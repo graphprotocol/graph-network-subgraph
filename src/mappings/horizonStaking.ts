@@ -230,15 +230,16 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
     indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
     indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
     indexer.save()
-
+    
     dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.minus(event.params.tokens)
     dataService.save()
-
+    
     graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.minus(event.params.tokens)
     graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.tokens)
     graphNetwork.save()
-
+    
     provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
+    provision.tokensSlashedServiceProvider = provision.tokensSlashedServiceProvider.plus(event.params.tokens)
     provision.save()
 }
 
@@ -366,6 +367,7 @@ export function handleDelegationSlashed(event: DelegationSlashed): void {
     // update provision
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
     provision.delegatedTokens = provision.delegatedTokens.minus(event.params.tokens)
+    provision.tokensSlashedDelegationPool = provision.tokensSlashedDelegationPool.plus(event.params.tokens)
     if (provision.delegatorShares != BigInt.fromI32(0)) {
         provision = updateDelegationExchangeRateForProvision(provision as Provision)
     }
