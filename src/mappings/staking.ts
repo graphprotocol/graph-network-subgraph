@@ -374,6 +374,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.indexingRewardEffectiveCutAtStart = indexer.indexingRewardEffectiveCut
   allocation.queryFeeCutAtStart = indexer.queryFeeCut
   allocation.queryFeeEffectiveCutAtStart = indexer.queryFeeEffectiveCut
+  allocation.isLegacy = true
   allocation.save()
 }
 
@@ -493,12 +494,16 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
+  let allocation = Allocation.load(allocationID)!
   const indexerAccount = GraphAccount.load(indexer.account)!
   const closedByIndexer = event.params.sender == event.params.indexer
   const closedByOperator = indexerAccount.operators.includes(event.params.sender.toHexString())
 
   if (!closedByIndexer && !closedByOperator) {
     indexer.forcedClosures = indexer.forcedClosures + 1
+    allocation.forceClosed = true
+  } else {
+    allocation.forceClosed = false
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
@@ -507,7 +512,6 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   indexer.save()
 
   // update allocation
-  let allocation = Allocation.load(allocationID)!
   allocation.poolClosedIn = event.params.epoch.toString()
   allocation.activeForIndexer = null
   allocation.closedAtEpoch = event.params.epoch.toI32()
@@ -561,12 +565,16 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
+  let allocation = Allocation.load(allocationID)!
   const indexerAccount = GraphAccount.load(indexer.account)!
   const closedByIndexer = event.params.sender == event.params.indexer
   const closedByOperator = indexerAccount.operators.includes(event.params.sender.toHexString())
 
   if (!closedByIndexer && !closedByOperator) {
     indexer.forcedClosures = indexer.forcedClosures + 1
+    allocation.forceClosed = true
+  } else {
+    allocation.forceClosed = false
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
@@ -575,7 +583,6 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   indexer.save()
 
   // update allocation
-  let allocation = Allocation.load(allocationID)!
   allocation.poolClosedIn = event.params.epoch.toString()
   allocation.activeForIndexer = null
   allocation.closedAtEpoch = event.params.epoch.toI32()
