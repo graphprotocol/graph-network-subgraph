@@ -17,6 +17,7 @@ export function handleGraphPaymentCollected(event: GraphPaymentCollected): void 
     graphNetwork.save()
 
     // Replicate for payment source specific data
+    // Payer here is the PaymentsEscrow in most cases, might need to figure out how to know who funded the escrow in the future
     let paymentSource = createOrLoadPaymentSource(event.params.payer)
     paymentSource.totalTaxedQueryFees = paymentSource.totalTaxedQueryFees.plus(event.params.tokensProtocol)
     paymentSource.save()

@@ -930,8 +930,8 @@ type Provision @entity {
   "Total query fees collected. Includes the portion given to delegators"
   queryFeesCollected: BigInt!
   "Query fee amount collected from the protocol. Does not include portion given to delegators"
-  providerQueryFees: BigInt!
-  "Query fee amount collected from the protocol for Delegators. Does not include portion taken by the provider"
+  indexerQueryFees: BigInt!
+  "Query fee amount collected from the protocol for Delegators. Does not include portion taken by the indexer"
   delegatorQueryFees: BigInt!
 
   # Delegation
