@@ -948,7 +948,7 @@ type Provision @entity {
   delegatedTokens: BigInt!
   "Total shares of the delegator pool"
   delegatorShares: BigInt!
-  "Exchange rate of of tokens received for each share"
+  "Exchange rate of tokens received for each share"
   delegationExchangeRate: BigDecimal!
   "Ratio between the amount of the indexers own stake over the total usable stake (capped by the delegationRatio)."
   ownStakeRatio: BigDecimal!
