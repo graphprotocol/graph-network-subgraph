@@ -982,7 +982,9 @@ type ThawRequest @entity {
 
   thawingUntil: BigInt!
 
-  valid: Boolean
+  fulfilledAsValid: Boolean
+
+  fulfilled: Boolean!
 }
 
 """
