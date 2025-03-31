@@ -858,6 +858,15 @@ type Operator @entity {
   allowed: Boolean!
 }
 
+
+"""
+  For the Horizon Stage 1 subgraph, the Provision entity will be mimicking the Indexer entity as closely as possible.
+  That means that the Provision entity will contain some fields that are particular for the Subgraph Service, even if in Horizon
+  a Provision could be for a different Data Service from the Subgraph Service.
+  This is to make the data closer to the legacy protocol, given that the Subgraph Service will be the first Data Service to be supported
+
+  Once the Stage 2 subgraph is implemented, the Provision entity will have to be more generic, and particular data service fields will need to be restructured.
+"""
 type Provision @entity {
   "Join ID of indexer address (service provider) and DataService address"
   id: ID!
