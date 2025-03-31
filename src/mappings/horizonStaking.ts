@@ -2,7 +2,7 @@ import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { DelegatedTokensWithdrawn, DelegationFeeCutSet, DelegationSlashed, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, StakeDelegatedWithdrawn, TokensDelegated, TokensDeprovisioned, TokensToDelegationPoolAdded, TokensUndelegated } from '../types/HorizonStaking/HorizonStaking'
 import { DelegatedStake, Delegator, Indexer, Provision, ThawRequest } from '../types/schema'
-import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStake, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadIndexer, createOrLoadOperator, createOrLoadProvision, joinID, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
+import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStake, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadHorizonOperator, createOrLoadIndexer, createOrLoadProvision, joinID, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -172,9 +172,9 @@ export function handleProvisionParametersStaged(event: ProvisionParametersStaged
 
 export function handleOperatorSet(event: OperatorSet): void {
     let indexerGraphAccount = createOrLoadGraphAccount(event.params.serviceProvider, event.block.timestamp)
-    let operator = createOrLoadOperator(event.params.operator, event.params.verifier, event.params.serviceProvider)
+    let operator = createOrLoadHorizonOperator(event.params.operator, event.params.verifier, event.params.serviceProvider)
     let operators = indexerGraphAccount.operators
-    // Will have to handle legacy operators list, and horizon provisionedOperators list for extra context
+    // Will have to handle legacy operators list, and horizon horizonOperators list for extra context
     let operatorsIndex = operators.indexOf(event.params.operator.toHexString())
     if (operatorsIndex != -1) {
         // false - it existed, and we set it to false, so remove from operators
@@ -190,12 +190,12 @@ export function handleOperatorSet(event: OperatorSet): void {
         }
     }
 
-    let provisionedOperators = indexerGraphAccount.provisionedOperators
-    let provisionedOperatorsIndex = provisionedOperators.indexOf(event.params.operator.toHexString())
-    if (provisionedOperatorsIndex != -1) {
+    let horizonOperators = indexerGraphAccount.horizonOperators
+    let horizonOperatorsIndex = horizonOperators.indexOf(event.params.operator.toHexString())
+    if (horizonOperatorsIndex != -1) {
         // false - it existed, and we set it to false, so remove from operators and update operator
         if (!event.params.allowed) {
-            operators.splice(provisionedOperatorsIndex, 1)
+            operators.splice(horizonOperatorsIndex, 1)
         }
     } else {
         // true - it did not exist before, and we say add, so add
@@ -208,7 +208,7 @@ export function handleOperatorSet(event: OperatorSet): void {
     operator.allowed = event.params.allowed
     operator.save()
     indexerGraphAccount.operators = operators
-    indexerGraphAccount.provisionedOperators = provisionedOperators
+    indexerGraphAccount.horizonOperators = horizonOperators
     indexerGraphAccount.save()
 }
 
@@ -230,14 +230,14 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
     indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
     indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
     indexer.save()
-    
+
     dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.minus(event.params.tokens)
     dataService.save()
-    
+
     graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.minus(event.params.tokens)
     graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.tokens)
     graphNetwork.save()
-    
+
     provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
     provision.tokensSlashedServiceProvider = provision.tokensSlashedServiceProvider.plus(event.params.tokens)
     provision.save()
