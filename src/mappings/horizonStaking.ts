@@ -153,6 +153,7 @@ export function handleTokensDeprovisioned(event: TokensDeprovisioned): void {
     graphNetwork.save()
 
     provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
+    provision.tokensThawing = provision.tokensThawing.plus(event.params.tokens)
     provision.save()
 }
 
@@ -239,6 +240,7 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
     graphNetwork.save()
 
     provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
+    // To DO, update thawing tokens according to the accounting calculation from the contract
     provision.tokensSlashedServiceProvider = provision.tokensSlashedServiceProvider.plus(event.params.tokens)
     provision.save()
 }
@@ -255,13 +257,15 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
     request.shares = event.params.shares
     request.tokens = BigInt.fromI32(0)
     request.thawingUntil = event.params.thawingUntil
+    request.fulfilled = false
     request.save()
 }
 
 export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
     let request = ThawRequest.load(event.params.thawRequestId.toHexString())!
     request.tokens = event.params.tokens
-    request.valid = event.params.valid
+    request.fulfilledAsValid = event.params.valid
+    request.fulfilled = true
     request.save()
 }
 
