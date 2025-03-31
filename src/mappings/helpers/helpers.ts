@@ -28,7 +28,7 @@ import {
   IndexerQueryFeePaymentAggregation,
   Provision,
   DataService,
-  Operator,
+  HorizonOperator,
 } from '../../types/schema'
 import {
   SubgraphDeploymentManifest as SubgraphDeploymentManifestTemplate
@@ -243,11 +243,11 @@ export function createOrLoadDataService(verifierAddress: Bytes): DataService {
   return service as DataService
 }
 
-export function createOrLoadOperator(address: Bytes, verifierAddress: Bytes, indexerAddress: Bytes): Operator {
+export function createOrLoadHorizonOperator(address: Bytes, verifierAddress: Bytes, indexerAddress: Bytes): HorizonOperator {
   let id = joinID([address.toHexString(), indexerAddress.toHexString(), verifierAddress.toHexString()])
-  let operator = Operator.load(id)
+  let operator = HorizonOperator.load(id)
   if (operator == null) {
-    operator = new Operator(id)
+    operator = new HorizonOperator(id)
     operator.allowed = false
     operator.operator = address.toHexString()
     operator.indexer = indexerAddress.toHexString()
@@ -255,7 +255,7 @@ export function createOrLoadOperator(address: Bytes, verifierAddress: Bytes, ind
     operator.save()
   }
 
-  return operator as Operator
+  return operator as HorizonOperator
 }
 
 export function createOrLoadPaymentSource(paymentAddress: Bytes): PaymentSource {
@@ -529,7 +529,7 @@ export function createOrLoadGraphAccount(owner: Bytes, timeStamp: BigInt): Graph
     graphAccount = new GraphAccount(id)
     graphAccount.createdAt = timeStamp.toI32()
     graphAccount.operators = []
-    graphAccount.provisionedOperators = []
+    graphAccount.horizonOperators = []
     graphAccount.balance = BigInt.fromI32(0)
     graphAccount.balanceReceivedFromL1Signalling = BigInt.fromI32(0)
     graphAccount.balanceReceivedFromL1Delegation = BigInt.fromI32(0)
