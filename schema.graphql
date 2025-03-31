@@ -274,10 +274,10 @@ type GraphAccount @entity {
   # Operator info
   "Operator of other Graph Accounts"
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
-  "Operators of this Graph Accounts"
+  "Operators of this Graph Account"
   operators: [GraphAccount!]!
-  "Operators of this Graph Accounts"
-  provisionedOperators: [Operator!]!
+  "Horizon Operators of this Graph Account"
+  horizonOperators: [HorizonOperator!]!
 
   # GRT info
   "Graph token balance"
@@ -843,11 +843,11 @@ type IndexerQueryFeePaymentAggregation @entity {
   paymentSource: PaymentSource!
 }
 
-type Operator @entity {
+type HorizonOperator @entity {
   "Joint address of all 3 parties involved (Operator, Indexer, DataService)"
   id: ID!
 
-  operatorOf: [GraphAccount!]! @derivedFrom(field: "provisionedOperators")
+  operatorOf: [GraphAccount!]! @derivedFrom(field: "horizonOperators")
 
   operator: GraphAccount!
 
@@ -908,7 +908,7 @@ type Provision @entity {
   "Pending value for thawingPeriod. Verifier needs to accept it before it becomes active"
   thawingPeriodPending: BigInt!
 
-  # Cuts for subgraph service. Percentage of rewards that the delegation pool receives
+  # Percentage of rewards/fees that the delegation pool receives
   "Raw query fee cut. In Horizon this is amount of query fees that the delegation pool receives in PPM"
   queryFeeCut: BigInt!
 
@@ -963,12 +963,6 @@ type Provision @entity {
   geoHash: String
   "Address set as rewards destination for payments to the service provider"
   rewardsDestination: Bytes
-}
-
-enum PaymentTypes {
-    QueryFee,
-    IndexingFee,
-    IndexingRewards
 }
 
 type ThawRequest @entity {
