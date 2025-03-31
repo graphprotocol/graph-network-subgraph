@@ -270,6 +270,9 @@ export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolA
     let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
     provision.delegatedTokens = provision.delegatedTokens.plus(event.params.tokens)
+    if (provision.delegatorShares != BigInt.fromI32(0)) {
+        provision = updateDelegationExchangeRateForProvision(provision as Provision)
+    }
     provision.save()
 
     indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens) // this only serves as a general tracker, but the real deal is per provision
