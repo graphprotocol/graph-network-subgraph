@@ -215,14 +215,24 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.queryFeeCut = BigInt.fromI32(0)
     provision.indexingFeeCut = BigInt.fromI32(0)
     provision.indexingRewardsCut = BigInt.fromI32(0)
+    provision.indexingRewardEffectiveCut = BigInt.fromI32(0).toBigDecimal()
+    provision.queryFeeEffectiveCut = BigInt.fromI32(0).toBigDecimal()
+    provision.overDelegationDilution = BigInt.fromI32(0).toBigDecimal()
+    provision.rewardsEarned = BigInt.fromI32(0)
+    provision.indexerIndexingRewards = BigInt.fromI32(0)
+    provision.delegatorIndexingRewards = BigInt.fromI32(0)
+    provision.queryFeesCollected = BigInt.fromI32(0)
+    provision.indexerQueryFees = BigInt.fromI32(0)
+    provision.delegatorQueryFees = BigInt.fromI32(0)
     provision.delegatedTokens = BigInt.fromI32(0)
     provision.delegatorShares = BigInt.fromI32(0)
     provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
-    provision.indexingRewardEffectiveCut = BigInt.fromI32(0).toBigDecimal()
-    provision.queryFeeEffectiveCut = BigInt.fromI32(0).toBigDecimal()
     provision.ownStakeRatio = BigInt.fromI32(0).toBigDecimal()
     provision.delegatedStakeRatio = BigInt.fromI32(0).toBigDecimal()
     provision.indexerRewardsOwnGenerationRatio = BigInt.fromI32(0).toBigDecimal()
+    provision.url = ''
+    provision.geoHash = ''
+    provision.rewardsDestination = Bytes.fromI32(0)
     provision.save()
   }
 
