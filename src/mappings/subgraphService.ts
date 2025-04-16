@@ -33,9 +33,15 @@ export function handleServiceProviderRegistered(event: ServiceProviderRegistered
 }
 
 export function handleRewardsDestinationSet(event: RewardsDestinationSet): void {
+    // Update provision
     let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
     provision.rewardsDestination = event.params.rewardsDestination
     provision.save()
+
+    // Update indexer
+    let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+    indexer.rewardsDestination = event.params.rewardsDestination
+    indexer.save()
 }
 
 export function handleDelegationRatioSet(event: DelegationRatioSet): void {
