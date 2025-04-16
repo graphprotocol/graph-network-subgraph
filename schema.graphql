@@ -693,6 +693,8 @@ type Indexer @entity {
   url: String
   "Geohash of the indexer. Shows where their indexer is located in the world"
   geoHash: String
+  "Address that receives the rewards from the indexer"
+  rewardsDestination: Bytes
   "Default display name is the current default name. Used for filtered queries"
   defaultDisplayName: String
 

@@ -3,15 +3,30 @@ import { AllocationClosed, AllocationCreated, AllocationResized, DelegationRatio
 import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
 import { Allocation, GraphAccount, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
+import { tuplePrefixBytes } from "./helpers/decoder"
+import { createOrLoadIndexer } from "./helpers/helpers"
 
 export function handleServiceProviderRegistered(event: ServiceProviderRegistered): void {
-    let decodedCalldata = ethereum.decode('(string,string,address)', event.params.data)
+    let decodedCalldata = ethereum.decode('(string,string,address)', tuplePrefixBytes(event.params.data))
     if (decodedCalldata != null && decodedCalldata.kind == ethereum.ValueKind.TUPLE) {
         let tupleData = decodedCalldata.toTuple()
+        let url = tupleData[0].toString()
+        let geoHash = tupleData[1].toString()
+        let rewardsDestination = tupleData[2].toAddress()
+        
+        // Update provision
         let provision = createOrLoadProvision(event.params.serviceProvider, event.address, event.block.timestamp)
-        provision.url = tupleData[0].toString()
-        provision.geoHash = tupleData[1].toString()
+        provision.url = url
+        provision.geoHash = geoHash
+        provision.rewardsDestination = rewardsDestination
         provision.save()
+
+        // Update indexer
+        let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp)
+        indexer.url = url
+        indexer.geoHash = geoHash
+        indexer.rewardsDestination = rewardsDestination
+        indexer.save()
     } else {
         log.warning("ServiceProviderRegistered failed to decode: {}", [event.params.data.toHexString()])
     }
