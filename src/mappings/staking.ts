@@ -33,7 +33,7 @@ import {
 
 import {
   createOrLoadSubgraphDeployment,
-  createOrLoadIndexer,
+  createOrLoadLegacyIndexer,
   createOrLoadPool,
   createOrLoadEpoch,
   joinID,
@@ -53,7 +53,7 @@ import { addresses } from '../../config/addresses'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+  let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
   indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
   indexer.queryFeeCut = event.params.queryFeeCut.toI32()
   indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
@@ -73,7 +73,7 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
 export function handleStakeDeposited(event: StakeDeposited): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   // update indexer
-  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+  let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
   let previousStake = indexer.stakedTokens
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
@@ -177,7 +177,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
 
   // update indexer
-  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+  let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
 
