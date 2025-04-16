@@ -129,13 +129,16 @@ export function createOrLoadSubgraphDeployment(
   return deployment as SubgraphDeployment
 }
 
-export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): Indexer {
+export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): Indexer {
   let id = indexerAddress.toHexString()
   let indexer = Indexer.load(id)
   if (indexer == null) {
     indexer = new Indexer(id)
     indexer.createdAt = timestamp.toI32()
     indexer.account = id
+
+    // By default we assume indexers are not legacy. Legacy codepaths should flip this to true
+    indexer.isLegacy = false
 
     indexer.stakedTokens = BigInt.fromI32(0)
     indexer.transferredToL2 = false
@@ -195,6 +198,13 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): I
     indexer.save()
   }
   return indexer as Indexer
+}
+
+export function createOrLoadLegacyIndexer(indexerAddress: Bytes, timestamp: BigInt): Indexer {
+  let indexer = createOrLoadIndexer(indexerAddress, timestamp)
+  indexer.isLegacy = true
+  indexer.save()
+  return indexer
 }
 
 export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: Bytes, timestamp: BigInt): Provision {

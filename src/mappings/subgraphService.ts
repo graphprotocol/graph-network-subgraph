@@ -26,6 +26,9 @@ export function handleServiceProviderRegistered(event: ServiceProviderRegistered
         indexer.url = url
         indexer.geoHash = geoHash
         indexer.rewardsDestination = rewardsDestination
+
+        // Change legacy status in case the indexer was created before the Horizon upgrade
+        indexer.isLegacy = false
         indexer.save()
     } else {
         log.warning("ServiceProviderRegistered failed to decode: {}", [event.params.data.toHexString()])

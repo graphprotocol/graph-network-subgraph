@@ -698,6 +698,9 @@ type Indexer @entity {
   "Default display name is the current default name. Used for filtered queries"
   defaultDisplayName: String
 
+  "Whether the indexer is a legacy indexer. This is true for all indexers registered before the Horizon upgrade"
+  isLegacy: Boolean!
+
   # Staking data
   "CURRENT tokens staked in the protocol. Decreases on withdraw, not on lock"
   stakedTokens: BigInt!
