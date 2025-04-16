@@ -178,6 +178,10 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): I
     indexer.annualizedReturn = BigDecimal.fromString('0')
     indexer.stakingEfficiency = BigDecimal.fromString('0')
 
+    indexer.url = ''
+    indexer.geoHash = ''
+    indexer.rewardsDestination = Address.fromString('0x0000000000000000000000000000000000000000')
+
     let graphAccount = createOrLoadGraphAccount(indexerAddress, timestamp)
     graphAccount.indexer = id
     graphAccount.save()
