@@ -144,16 +144,19 @@ export function handleTokensDeprovisioned(event: TokensDeprovisioned): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
 
     indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
+    indexer.thawingTokens = indexer.thawingTokens.minus(event.params.tokens)
     indexer.save()
 
     dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.minus(event.params.tokens)
+    dataService.totalTokensThawing = dataService.totalTokensThawing.minus(event.params.tokens)
     dataService.save()
 
     graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.minus(event.params.tokens)
+    graphNetwork.totalTokensThawing = graphNetwork.totalTokensThawing.minus(event.params.tokens)
     graphNetwork.save()
 
     provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
-    provision.tokensThawing = provision.tokensThawing.plus(event.params.tokens)
+    provision.tokensThawing = provision.tokensThawing.minus(event.params.tokens)
     provision.save()
 }
 
@@ -258,6 +261,7 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
     request.tokens = BigInt.fromI32(0)
     request.thawingUntil = event.params.thawingUntil
     request.fulfilled = false
+    request.fulfilledAsValid = false
     request.save()
 }
 
