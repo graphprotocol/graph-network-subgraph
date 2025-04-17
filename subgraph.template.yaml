@@ -419,7 +419,7 @@ dataSources:
           handler: handleProvisionSlashed
         - event: ProvisionThawed(indexed address,indexed address,uint256)
           handler: handleProvisionThawed
-        - event: ThawRequestCreated(indexed uint8,indexed address,indexed address,address,uint256,uint64,bytes32)
+        - event: ThawRequestCreated(indexed uint8,indexed address,indexed address,address,uint256,uint64,bytes32,uint256)
           handler: handleThawRequestCreated
         - event: ThawRequestFulfilled(indexed uint8,indexed bytes32,uint256,uint256,uint64,bool)
           handler: handleThawRequestFulfilled
