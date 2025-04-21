@@ -1,6 +1,6 @@
 import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
-import { DelegatedTokensWithdrawn, DelegationFeeCutSet, DelegationSlashed, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, OperatorSet, StakeDelegatedWithdrawn, TokensDelegated, TokensDeprovisioned, TokensToDelegationPoolAdded, TokensUndelegated } from '../types/HorizonStaking/HorizonStaking'
+import { AllowedLockedVerifierSet, DelegatedTokensWithdrawn, DelegationFeeCutSet, DelegationSlashed, DelegationSlashingEnabled, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, MaxThawingPeriodSet, OperatorSet, StakeDelegatedWithdrawn, ThawingPeriodCleared, TokensDelegated, TokensDeprovisioned, TokensToDelegationPoolAdded, TokensUndelegated } from '../types/HorizonStaking/HorizonStaking'
 import { DelegatedStake, Delegator, Indexer, Provision, ThawRequest } from '../types/schema'
 import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStake, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadHorizonOperator, createOrLoadIndexer, createOrLoadProvision, joinID, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
 import {
@@ -472,4 +472,28 @@ export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn):
     let delegatedStake = DelegatedStake.load(id)!
     delegatedStake.lockedTokens = delegatedStake.lockedTokens.minus(event.params.tokens)
     delegatedStake.save()
+}
+
+export function handleMaxThawingPeriodSet(event: MaxThawingPeriodSet): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    graphNetwork.maxThawingPeriod = event.params.maxThawingPeriod
+    graphNetwork.save()
+}
+
+export function handleThawingPeriodCleared(event: ThawingPeriodCleared): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    graphNetwork.thawingPeriod = 0
+    graphNetwork.save()
+}
+
+export function handleDelegationSlashingEnabled(event: DelegationSlashingEnabled): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    graphNetwork.delegationSlashingEnabled = true
+    graphNetwork.save()
+}
+
+export function handleAllowedLockedVerifierSet(event: AllowedLockedVerifierSet): void {
+    let dataService = createOrLoadDataService(event.params.verifier)
+    dataService.allowedWithTokenLockWallets = event.params.allowed
+    dataService.save()
 }

@@ -50,7 +50,7 @@ type GraphNetwork @entity {
   channelDisputeEpochs: Int!
   "Epochs to wait before delegators can settle"
   maxAllocationEpochs: Int!
-  "Time in blocks needed to wait to unstake"
+  "Time in blocks needed to wait to unstake. Set to 0 to signal Graph Horizon's transition period end."
   thawingPeriod: Int!
   "Minimum time an Indexer must use for resetting their Delegation parameters"
   delegationParametersCooldown: Int!
@@ -70,6 +70,10 @@ type GraphNetwork @entity {
   delegationTaxPercentage: Int!
   "Asset holder for the protocol"
   assetHolders: [Bytes!]
+  "Maximum allowed thawing period for provisions, in seconds"
+  maxThawingPeriod: BigInt!
+  "True if delegation slashing is enabled"
+  delegationSlashingEnabled: Boolean!
 
   # Transfers to L2 totals
   "Total amount of indexer stake transferred to L2"
@@ -250,6 +254,9 @@ type DataService @entity {
   delegationRatio: Int
 
   provisions: [Provision!]! @derivedFrom(field: "dataService")
+
+  "True if allowed for usage with token lock wallets"
+  allowedWithTokenLockWallets: Boolean!
 }
 
 """

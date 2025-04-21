@@ -437,6 +437,14 @@ dataSources:
           handler: handleTokensUndelegated
         - event: DelegatedTokensWithdrawn(indexed address,indexed address,indexed address,uint256)
           handler: handleDelegatedTokensWithdrawn
+        - event: MaxThawingPeriodSet(uint64)
+          handler: handleMaxThawingPeriodSet
+        - event: ThawingPeriodCleared()
+          handler: handleThawingPeriodCleared
+        - event: DelegationSlashingEnabled()
+          handler: handleDelegationSlashingEnabled
+        - event: AllowedLockedVerifierSet(indexed address,bool)
+          handler: handleAllowedLockedVerifierSet
   - kind: ethereum/contract
     name: SubgraphService
     network: {{network}}
