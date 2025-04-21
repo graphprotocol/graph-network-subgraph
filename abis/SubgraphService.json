@@ -574,6 +574,12 @@
         "internalType": "uint256",
         "name": "tokens",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "forceClosed",
+        "type": "bool"
       }
     ],
     "name": "AllocationClosed",
