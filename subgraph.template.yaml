@@ -483,6 +483,8 @@ dataSources:
           handler: handleQueryFeesCollected
         - event: DelegationRatioSet(uint32)
           handler: handleDelegationRatioSet
+        - event: CurationCutSet(uint256)
+          handler: handleCurationCutSet
   - kind: ethereum/contract
     name: GraphPayments
     network: {{network}}
