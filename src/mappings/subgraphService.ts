@@ -206,6 +206,22 @@ export function handleAllocationResized(event: AllocationResized): void {
     let allocation = Allocation.load(allocationID)!
     allocation.allocatedTokens = event.params.newTokens
     allocation.save()
+
+    // update data service
+    let dataService = createOrLoadDataService(event.address)
+    dataService.totalTokensAllocated = dataService.totalTokensAllocated.plus(diffTokens)
+    dataService.save()
+
+    // update subgraph deployment
+    let subgraphDeploymentID = allocation.subgraphDeployment
+    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+    deployment.stakedTokens = deployment.stakedTokens.plus(diffTokens)
+    deployment.save()
+
+    // update graph network
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.plus(diffTokens)
+    graphNetwork.save()
 }
 
 export function handleIndexingRewardsCollected(event: IndexingRewardsCollected): void {
