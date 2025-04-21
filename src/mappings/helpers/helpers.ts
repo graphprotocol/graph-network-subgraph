@@ -261,6 +261,7 @@ export function createOrLoadDataService(verifierAddress: Bytes): DataService {
     service.totalTokensAllocated = BigInt.fromI32(0)
     service.totalTokensProvisioned = BigInt.fromI32(0)
     service.totalTokensThawing = BigInt.fromI32(0)
+    service.allowedWithTokenLockWallets = false
     service.save()
   }
 
@@ -768,6 +769,9 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalGRTDepositedConfirmed = BigInt.fromI32(0)
     graphNetwork.totalGRTWithdrawn = BigInt.fromI32(0)
     graphNetwork.totalGRTWithdrawnConfirmed = BigInt.fromI32(0)
+
+    graphNetwork.maxThawingPeriod = BigInt.fromI32(0)
+    graphNetwork.delegationSlashingEnabled = false
 
     graphNetwork.save()
   }
