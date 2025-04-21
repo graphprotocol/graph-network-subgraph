@@ -133,16 +133,11 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     // update indexer
     let indexer = Indexer.load(indexerID)!
     let allocation = Allocation.load(allocationID)!
-    const indexerAccount = GraphAccount.load(indexer.account)!
-    const closedByIndexer = event.transaction.from == event.params.indexer
-    const closedByOperator = indexerAccount.operators.includes(event.transaction.from.toHexString())
 
-    if (!closedByIndexer && !closedByOperator) {
+    if (event.params.forceClosed) {
         indexer.forcedClosures = indexer.forcedClosures + 1
-        allocation.forceClosed = true
-    } else {
-        allocation.forceClosed = false
     }
+
     indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
     indexer.allocationCount = indexer.allocationCount - 1
     indexer.save()
@@ -154,6 +149,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     provision.save()
 
     // update allocation
+    allocation.forceClosed = event.params.forceClosed
     allocation.poolClosedIn = graphNetwork.currentEpoch.toString()
     allocation.activeForIndexer = null
     allocation.closedAtEpoch = graphNetwork.currentEpoch
@@ -185,6 +181,11 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     graphNetwork.activeAllocationCount = graphNetwork.activeAllocationCount - 1
     graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.minus(event.params.tokens)
     graphNetwork.save()
+
+    // update data service
+    let dataService = createOrLoadDataService(event.address)
+    dataService.totalTokensAllocated = dataService.totalTokensAllocated.minus(event.params.tokens)
+    dataService.save()
 }
 
 export function handleAllocationResized(event: AllocationResized): void {
