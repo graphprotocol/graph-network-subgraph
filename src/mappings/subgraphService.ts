@@ -1,5 +1,5 @@
 import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
-import { AllocationClosed, AllocationCreated, AllocationResized, DelegationRatioSet, IndexingRewardsCollected, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
+import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
 import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
 import { Allocation, GraphAccount, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
@@ -398,4 +398,10 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
         delegationPoolQueryFees,
     )
     paymentSource.save()
+}
+
+export function handleCurationCutSet(event: CurationCutSet): void {
+    let dataService = createOrLoadDataService(event.address)
+    dataService.curationCut = event.params.curationCut
+    dataService.save()
 }

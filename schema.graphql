@@ -252,6 +252,8 @@ type DataService @entity {
 
   "Ratio of max staked delegation tokens to indexers stake that earns rewards"
   delegationRatio: Int
+  "Curation cut for this DataService"
+  curationCut: BigInt!
 
   provisions: [Provision!]! @derivedFrom(field: "dataService")
 
