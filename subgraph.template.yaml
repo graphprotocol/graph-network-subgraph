@@ -485,6 +485,16 @@ dataSources:
           handler: handleDelegationRatioSet
         - event: CurationCutSet(uint256)
           handler: handleCurationCutSet
+        - event: MaxPOIStalenessSet(uint256)
+          handler: handleMaxPOIStalenessSet
+        - event: StakeToFeesRatioSet(uint256)
+          handler: handleStakeToFeesRatioSet
+        - event: ProvisionTokensRangeSet(uint256,uint256)
+          handler: handleProvisionTokensRangeSet
+        - event: VerifierCutRangeSet(uint32,uint32)
+          handler: handleVerifierCutRangeSet
+        - event: ThawingPeriodRangeSet(uint64,uint64)
+          handler: handleThawingPeriodRangeSet
   - kind: ethereum/contract
     name: GraphPayments
     network: {{network}}

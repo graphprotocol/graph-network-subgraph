@@ -263,6 +263,14 @@ export function createOrLoadDataService(verifierAddress: Bytes): DataService {
     service.totalTokensThawing = BigInt.fromI32(0)
     service.allowedWithTokenLockWallets = false
     service.curationCut = BigInt.fromI32(0)
+    service.maxPOIStaleness = BigInt.fromI32(0)
+    service.stakeToFeesRatio = BigInt.fromI32(0)
+    service.minimumProvisionTokens = BigInt.fromI32(0)
+    service.maximumProvisionTokens = BigInt.fromI32(0)
+    service.minimumVerifierCut = BigInt.fromI32(0)
+    service.maximumVerifierCut = BigInt.fromI32(0)
+    service.minimumThawingPeriod = BigInt.fromI32(0)
+    service.maximumThawingPeriod = BigInt.fromI32(0)
     service.save()
   }
 

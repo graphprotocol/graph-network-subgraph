@@ -250,15 +250,35 @@ type DataService @entity {
   "Total GRT currently in allocations for this DataService"
   totalTokensAllocated: BigInt!
 
+  "Minimum provision tokens for this DataService"
+  minimumProvisionTokens: BigInt!
+  "Maximum provision tokens for this DataService"
+  maximumProvisionTokens: BigInt!
+
+  "Minimum verifier cut for this DataService"
+  minimumVerifierCut: BigInt!
+  "Maximum verifier cut for this DataService"
+  maximumVerifierCut: BigInt!
+
+  "Minimum thawing period for this DataService"
+  minimumThawingPeriod: BigInt!
+  "Maximum thawing period for this DataService"
+  maximumThawingPeriod: BigInt!
+
   "Ratio of max staked delegation tokens to indexers stake that earns rewards"
   delegationRatio: Int
-  "Curation cut for this DataService"
-  curationCut: BigInt!
 
   provisions: [Provision!]! @derivedFrom(field: "dataService")
 
   "True if allowed for usage with token lock wallets"
   allowedWithTokenLockWallets: Boolean!
+
+  "[SubgraphService] Curation cut for this DataService"
+  curationCut: BigInt!
+  "[SubgraphService] Max POI staleness"
+  maxPOIStaleness: BigInt!
+  "[SubgraphService] Stake to fees ratio"
+  stakeToFeesRatio: BigInt!
 }
 
 """
