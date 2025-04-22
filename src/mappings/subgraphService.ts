@@ -1,7 +1,7 @@
 import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
 import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
 import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
-import { Allocation, GraphAccount, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
+import { Allocation, PublicPoiSubmission, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 import { tuplePrefixBytes } from "./helpers/decoder"
 import { createOrLoadIndexer } from "./helpers/helpers"
@@ -260,7 +260,21 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
     poiSubmission.allocation = allocation.id
     poiSubmission.poi = event.params.poi
     poiSubmission.submittedAtEpoch = event.params.currentEpoch.toI32()
+    poiSubmission.presentedAtTimestamp = event.block.timestamp.toI32()
     poiSubmission.save()
+
+    // Create public PoI submission
+    let publicPoiSubmission = new PublicPoiSubmission(joinID([event.transaction.hash.toHexString(), event.logIndex.toString()]))
+    publicPoiSubmission.allocation = allocation.id
+    publicPoiSubmission.publicPoi = event.params.publicPoi
+    publicPoiSubmission.submittedAtEpoch = event.params.currentEpoch.toI32()
+    publicPoiSubmission.presentedAtTimestamp = event.block.timestamp.toI32()
+    publicPoiSubmission.save()
+
+    // Update latest POI in allocation
+    allocation.poi = event.params.poi
+    allocation.latestPoiPresentedAt = event.block.timestamp.toI32()
+    allocation.save()
 
     // Update epoch
     let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))

@@ -805,6 +805,12 @@
       },
       {
         "indexed": false,
+        "internalType": "bytes32",
+        "name": "publicPoi",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "currentEpoch",
         "type": "uint256"
