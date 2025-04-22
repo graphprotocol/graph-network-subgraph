@@ -271,6 +271,7 @@ export function createOrLoadDataService(verifierAddress: Bytes): DataService {
     service.maximumVerifierCut = BigInt.fromI32(0)
     service.minimumThawingPeriod = BigInt.fromI32(0)
     service.maximumThawingPeriod = BigInt.fromI32(0)
+    service.totalTokensDelegated = BigInt.fromI32(0)
     service.save()
   }
 

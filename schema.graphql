@@ -249,6 +249,8 @@ type DataService @entity {
   totalTokensThawing: BigInt!
   "Total GRT currently in allocations for this DataService"
   totalTokensAllocated: BigInt!
+  "Total GRT currently delegated to this DataService"
+  totalTokensDelegated: BigInt!
 
   "Minimum provision tokens for this DataService"
   minimumProvisionTokens: BigInt!
@@ -999,8 +1001,15 @@ type Provision @entity {
   rewardsDestination: Bytes
 }
 
+enum ThawRequestType {
+  Provision
+  Delegation
+}
+
 type ThawRequest @entity {
   id: ID!
+
+  type: ThawRequestType!
 
   indexer: Indexer!
 
