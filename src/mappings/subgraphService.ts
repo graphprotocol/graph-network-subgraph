@@ -1,5 +1,5 @@
 import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
-import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered } from "../types/SubgraphService/SubgraphService"
+import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
 import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
 import { Allocation, GraphAccount, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
@@ -403,5 +403,38 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
 export function handleCurationCutSet(event: CurationCutSet): void {
     let dataService = createOrLoadDataService(event.address)
     dataService.curationCut = event.params.curationCut
+    dataService.save()
+}
+
+export function handleMaxPOIStalenessSet(event: MaxPOIStalenessSet): void {
+    let dataService = createOrLoadDataService(event.address)
+    dataService.maxPOIStaleness = event.params.maxPOIStaleness
+    dataService.save()
+}
+
+export function handleStakeToFeesRatioSet(event: StakeToFeesRatioSet): void {
+    let dataService = createOrLoadDataService(event.address)
+    dataService.stakeToFeesRatio = event.params.ratio
+    dataService.save()
+}
+
+export function handleProvisionTokensRangeSet(event: ProvisionTokensRangeSet): void {
+    let dataService = createOrLoadDataService(event.address)
+    dataService.minimumProvisionTokens = event.params.min
+    dataService.maximumProvisionTokens = event.params.max
+    dataService.save()
+}
+
+export function handleVerifierCutRangeSet(event: VerifierCutRangeSet): void {
+    let dataService = createOrLoadDataService(event.address)
+    dataService.minimumVerifierCut = event.params.min
+    dataService.maximumVerifierCut = event.params.max
+    dataService.save()
+}
+
+export function handleThawingPeriodRangeSet(event: ThawingPeriodRangeSet): void {
+    let dataService = createOrLoadDataService(event.address)
+    dataService.minimumThawingPeriod = event.params.min
+    dataService.maximumThawingPeriod = event.params.max
     dataService.save()
 }
