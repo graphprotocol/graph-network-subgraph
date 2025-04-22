@@ -262,6 +262,13 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
     request.thawingUntil = event.params.thawingUntil
     request.fulfilled = false
     request.fulfilledAsValid = false
+    if (event.params.requestType == 0) {
+        request.type = "Provision"
+    } else if (event.params.requestType == 1) {
+        request.type = "Delegation"
+    } else {
+        throw new Error("Invalid thaw request type")
+    }
     request.save()
 }
 
@@ -274,23 +281,29 @@ export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
 }
 
 export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolAdded): void {
-    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
     provision.delegatedTokens = provision.delegatedTokens.plus(event.params.tokens)
     if (provision.delegatorShares != BigInt.fromI32(0)) {
         provision = updateDelegationExchangeRateForProvision(provision as Provision)
     }
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 
+    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
     indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens) // this only serves as a general tracker, but the real deal is per provision
     if (indexer.delegatorShares != BigInt.fromI32(0)) {
         indexer = updateDelegationExchangeRate(indexer as Indexer)
     }
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer.save()
 
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
     graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
     graphNetwork.save()
+
+    let dataService = createOrLoadDataService(event.params.verifier)
+    dataService.totalTokensDelegated = dataService.totalTokensDelegated.plus(event.params.tokens)
+    dataService.save()
 }
 
 // Delegation
@@ -299,7 +312,7 @@ export function handleTokensDelegated(event: TokensDelegated): void {
     let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
 
     let dataService = createOrLoadDataService(event.params.verifier)
-    // Might want to track some stuff here in the future
+    dataService.totalTokensDelegated = dataService.totalTokensDelegated.plus(event.params.tokens)
     dataService.save()
 
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
@@ -315,6 +328,10 @@ export function handleTokensDelegated(event: TokensDelegated): void {
     let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp)
     indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
     indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
+    if (indexer.delegatorShares != BigInt.fromI32(0)) {
+        indexer = updateDelegationExchangeRate(indexer as Indexer)
+    }
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer.save()
 
     // update delegator
@@ -416,6 +433,10 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
     let indexer = Indexer.load(indexerID)!
     indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
     indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
+    if (indexer.delegatorShares != BigInt.fromI32(0)) {
+        indexer = updateDelegationExchangeRate(indexer as Indexer)
+    }
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer.save()
 
     // update delegated stake
@@ -459,6 +480,10 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
 
     graphNetwork.save()
     delegator.save()
+
+    let dataService = createOrLoadDataService(event.params.verifier)
+    dataService.totalTokensDelegated = dataService.totalTokensDelegated.minus(event.params.tokens)
+    dataService.save()
 }
 
 export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn): void {
