@@ -281,6 +281,10 @@ export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
 }
 
 export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolAdded): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
+    graphNetwork.save()
+
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
     provision.delegatedTokens = provision.delegatedTokens.plus(event.params.tokens)
     if (provision.delegatorShares != BigInt.fromI32(0)) {
@@ -296,10 +300,6 @@ export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolA
     }
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer.save()
-
-    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-    graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
-    graphNetwork.save()
 
     let dataService = createOrLoadDataService(event.params.verifier)
     dataService.totalTokensDelegated = dataService.totalTokensDelegated.plus(event.params.tokens)
