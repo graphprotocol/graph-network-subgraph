@@ -773,7 +773,8 @@ export function createOrLoadGraphNetwork(
     graphNetwork.indexingSlashingPercentage = 0
     graphNetwork.slashingPercentage = 0 // keeping it for backwards compatibility for now
     graphNetwork.minimumDisputeDeposit = BigInt.fromI32(0)
-    graphNetwork.fishermanRewardPercentage = 0
+    graphNetwork.fishermanRewardCut = 0
+    graphNetwork.maxSlashingCut = 0
 
     graphNetwork.totalGRTDeposited = BigInt.fromI32(0)
     graphNetwork.totalGRTDepositedConfirmed = BigInt.fromI32(0)

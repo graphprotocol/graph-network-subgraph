@@ -219,8 +219,12 @@ type GraphNetwork @entity {
   slashingPercentage: Int!
   "Minimum deposit to create a dispute"
   minimumDisputeDeposit: BigInt!
-  "Reward to Fisherman on successful disputes. In parts per million"
+  "[LEGACY] Reward to Fisherman on successful disputes. In parts per million"
   fishermanRewardPercentage: Int!
+  "[HORIZON]Reward to Fisherman on successful disputes. In parts per million"
+  fishermanRewardCut: Int!
+  "Maximum Penalty to Indexer on successful disputes for indexing disputes. In parts per million"
+  maxSlashingCut: Int!
 
   # Bridge totals (Only available on L1 networks)
   "Total amount of GRT deposited to the L1 gateway. Note that the actual amount claimed in L2 might be lower due to tickets not redeemed."
