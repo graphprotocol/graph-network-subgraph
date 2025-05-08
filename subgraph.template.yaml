@@ -317,8 +317,6 @@ dataSources:
         - name: EpochManager
           file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
-        - event: DelegationParametersUpdated(indexed address,uint32,uint32,uint32)
-          handler: handleDelegationParametersUpdated
         - event: StakeDeposited(indexed address,uint256)
           handler: handleStakeDeposited
         - event: StakeLocked(indexed address,uint256,uint256)

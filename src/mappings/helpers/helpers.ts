@@ -163,13 +163,13 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.delegatedStakeRatio = BigDecimal.fromString('0')
     indexer.delegatorShares = BigInt.fromI32(0)
     indexer.delegationExchangeRate = BigDecimal.fromString('1')
-    indexer.indexingRewardCut = 0
+    indexer.indexingRewardCut = BigInt.fromI32(1000000)
     indexer.indexingRewardEffectiveCut = BigDecimal.fromString('0')
     indexer.overDelegationDilution = BigDecimal.fromString('0')
     indexer.delegatorIndexingRewards = BigInt.fromI32(0)
     indexer.indexerIndexingRewards = BigInt.fromI32(0)
     indexer.delegatorQueryFees = BigInt.fromI32(0)
-    indexer.queryFeeCut = 0
+    indexer.queryFeeCut = BigInt.fromI32(1000000)
     indexer.queryFeeEffectiveCut = BigDecimal.fromString('0')
     indexer.delegatorParameterCooldown = 0
     indexer.lastDelegationParameterUpdate = 0
@@ -226,9 +226,9 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.maxVerifierCutPending = BigInt.fromI32(0)
     provision.thawingPeriod = BigInt.fromI32(0)
     provision.thawingPeriodPending = BigInt.fromI32(0)
-    provision.queryFeeCut = BigInt.fromI32(0)
-    provision.indexingFeeCut = BigInt.fromI32(0)
-    provision.indexingRewardsCut = BigInt.fromI32(0)
+    provision.queryFeeCut = BigInt.fromI32(1000000)
+    provision.indexingFeeCut = BigInt.fromI32(1000000)
+    provision.indexingRewardsCut = BigInt.fromI32(1000000)
     provision.indexingRewardEffectiveCut = BigInt.fromI32(0).toBigDecimal()
     provision.queryFeeEffectiveCut = BigInt.fromI32(0).toBigDecimal()
     provision.overDelegationDilution = BigInt.fromI32(0).toBigDecimal()
@@ -956,17 +956,14 @@ export function calculateDelegatedStakeRatio(indexer: Indexer): BigDecimal {
 }
 
 export function calculateIndexingRewardEffectiveCut(indexer: Indexer): BigDecimal {
-  let delegatorCut =
-    BigInt.fromI32(1000000 - indexer.indexingRewardCut).toBigDecimal() /
-    BigDecimal.fromString('1000000')
+  let delegatorCut = indexer.indexingRewardCut.toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : BigDecimal.fromString('1') - delegatorCut / indexer.delegatedStakeRatio
 }
 
 export function calculateQueryFeeEffectiveCut(indexer: Indexer): BigDecimal {
-  let delegatorCut =
-    BigInt.fromI32(1000000 - indexer.queryFeeCut).toBigDecimal() / BigDecimal.fromString('1000000')
+  let delegatorCut = indexer.queryFeeCut.toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : BigDecimal.fromString('1') - delegatorCut / indexer.delegatedStakeRatio
@@ -974,7 +971,7 @@ export function calculateQueryFeeEffectiveCut(indexer: Indexer): BigDecimal {
 
 export function calculateIndexerRewardOwnGenerationRatio(indexer: Indexer): BigDecimal {
   let rewardCut =
-    BigInt.fromI32(indexer.indexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
+    BigInt.fromI32(1000000 -indexer.indexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.ownStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : rewardCut / indexer.ownStakeRatio
@@ -1020,7 +1017,7 @@ export function calculateDelegatedStakeRatioForProvision(provision: Provision): 
 
 export function calculateIndexingRewardEffectiveCutForProvision(provision: Provision): BigDecimal {
   let delegatorCut =
-    provision.indexingRewardsCut.toBigDecimal() /
+    BigInt.fromI32(1000000 - provision.indexingRewardsCut).toBigDecimal() /
     BigDecimal.fromString('1000000')
   return provision.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
@@ -1029,7 +1026,8 @@ export function calculateIndexingRewardEffectiveCutForProvision(provision: Provi
 
 export function calculateQueryFeeEffectiveCutForProvision(provision: Provision): BigDecimal {
   let delegatorCut =
-    provision.queryFeeCut.toBigDecimal() / BigDecimal.fromString('1000000')
+    BigInt.fromI32(1000000 - provision.queryFeeCut).toBigDecimal() /
+    BigDecimal.fromString('1000000')
   return provision.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : BigDecimal.fromString('1') - delegatorCut / provision.delegatedStakeRatio
@@ -1037,7 +1035,8 @@ export function calculateQueryFeeEffectiveCutForProvision(provision: Provision):
 
 export function calculateIndexerRewardOwnGenerationRatioForProvision(provision: Provision): BigDecimal {
   let delegatorCut =
-    provision.indexingRewardsCut.toBigDecimal() / BigDecimal.fromString('1000000')
+    BigInt.fromI32(1000000 - provision.indexingRewardsCut).toBigDecimal() /
+    BigDecimal.fromString('1000000')
   return provision.ownStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : (BigDecimal.fromString('1') - delegatorCut) / provision.ownStakeRatio
@@ -1215,7 +1214,7 @@ export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeploymen
   }
 }
 
-export function convertBigIntSubgraphIDToBase58(bigIntRepresentation: BigInt): String {
+export function convertBigIntSubgraphIDToBase58(bigIntRepresentation: BigInt): string {
   // Might need to unpad the BigInt since `fromUnsignedBytes` pads one byte with a zero.
   // Although for the events where the uint256 is provided, we probably don't need to unpad.
   let hexString = bigIntRepresentation.toHexString()
