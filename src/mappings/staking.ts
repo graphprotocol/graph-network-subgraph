@@ -51,6 +51,19 @@ import {
 } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
+export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
+  indexer.legacyIndexingRewardCut = event.params.indexingRewardCut.toI32()
+  indexer.legacyQueryFeeCut = event.params.queryFeeCut.toI32()
+  indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
+  indexer.lastDelegationParameterUpdate = (
+    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
+  ).toI32()
+  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer.save()
+}
+
 /**
  * @dev handleStakeDeposited
  * - creates an Indexer if it is the first time they have staked
