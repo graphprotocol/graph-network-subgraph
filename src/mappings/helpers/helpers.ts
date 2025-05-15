@@ -984,9 +984,10 @@ export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
   let graphNetwork = GraphNetwork.load('1')!
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
   let maxDelegatedStake = stakedTokensBD * delegationRatioBD
-  return stakedTokensBD == BigDecimal.fromString('0')
+  let maxDelegatedStakeBD = max(maxDelegatedStake, delegatedTokensBD)
+  return maxDelegatedStakeBD == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
-    : BigDecimal.fromString('1') - maxDelegatedStake / max(maxDelegatedStake, delegatedTokensBD)
+    : BigDecimal.fromString('1') - maxDelegatedStake / maxDelegatedStakeBD
 }
 
 export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
