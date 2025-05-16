@@ -218,10 +218,21 @@ export function handleOperatorSet(event: OperatorSet): void {
 
 export function handleDelegationFeeCutSet(event: DelegationFeeCutSet): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
-    provision.queryFeeCut = event.params.paymentType == 0 ? event.params.feeCut : provision.queryFeeCut
-    provision.indexingFeeCut = event.params.paymentType == 1 ? event.params.feeCut : provision.indexingFeeCut
-    provision.indexingRewardsCut = event.params.paymentType == 2 ? event.params.feeCut : provision.indexingRewardsCut
+    
+    // Before horizon the cuts represented how much the indexer took home. After horizon they now represent how much the delegators get
+    // To avoid confusion and more changes on explorer we invert the meaning here to keep it consistent.
+    let invertedCut = BigInt.fromI32(1_000_000).minus(event.params.feeCut)
+    provision.queryFeeCut = event.params.paymentType == 0 ? invertedCut : provision.queryFeeCut
+    provision.indexingFeeCut = event.params.paymentType == 1 ? invertedCut : provision.indexingFeeCut
+    provision.indexingRewardsCut = event.params.paymentType == 2 ? invertedCut : provision.indexingRewardsCut
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
+
+    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
+    indexer.indexingRewardCut = event.params.paymentType == 2 ? invertedCut.toI32() : indexer.indexingRewardCut
+    indexer.queryFeeCut = event.params.paymentType == 0 ? invertedCut.toI32() : indexer.queryFeeCut
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+    indexer.save()
 }
 
 export function handleProvisionSlashed(event: ProvisionSlashed): void {
