@@ -33,7 +33,7 @@ import {
 
 import {
   createOrLoadSubgraphDeployment,
-  createOrLoadIndexer,
+  createOrLoadLegacyIndexer,
   createOrLoadPool,
   createOrLoadEpoch,
   joinID,
@@ -53,7 +53,7 @@ import { addresses } from '../../config/addresses'
 
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+  let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
   indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
   indexer.queryFeeCut = event.params.queryFeeCut.toI32()
   indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
@@ -73,7 +73,7 @@ export function handleDelegationParametersUpdated(event: DelegationParametersUpd
 export function handleStakeDeposited(event: StakeDeposited): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   // update indexer
-  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+  let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
   let previousStake = indexer.stakedTokens
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
@@ -106,7 +106,6 @@ export function handleStakeLocked(event: StakeLocked): void {
   // update indexer
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)!
-  let oldLockedTokens = indexer.lockedTokens
   indexer.lockedTokens = event.params.tokens
   indexer.tokensLockedUntil = event.params.until.toI32()
   indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
@@ -114,11 +113,9 @@ export function handleStakeLocked(event: StakeLocked): void {
   indexer.save()
 
   // update graph network
-  // the tokens from the event replace the previously locked tokens
-  // from this indexer
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.plus(
     event.params.tokens,
-  ).minus(oldLockedTokens)
+  )
   if (indexer.stakedTokens == indexer.lockedTokens) {
     graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount - 1
   }
@@ -180,7 +177,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
 
   // update indexer
-  let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+  let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
   indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
   indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
 
@@ -377,6 +374,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.indexingRewardEffectiveCutAtStart = indexer.indexingRewardEffectiveCut
   allocation.queryFeeCutAtStart = indexer.queryFeeCut
   allocation.queryFeeEffectiveCutAtStart = indexer.queryFeeEffectiveCut
+  allocation.isLegacy = true
   allocation.save()
 }
 
@@ -496,12 +494,16 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
+  let allocation = Allocation.load(allocationID)!
   const indexerAccount = GraphAccount.load(indexer.account)!
   const closedByIndexer = event.params.sender == event.params.indexer
   const closedByOperator = indexerAccount.operators.includes(event.params.sender.toHexString())
 
   if (!closedByIndexer && !closedByOperator) {
     indexer.forcedClosures = indexer.forcedClosures + 1
+    allocation.forceClosed = true
+  } else {
+    allocation.forceClosed = false
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
@@ -510,7 +512,6 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   indexer.save()
 
   // update allocation
-  let allocation = Allocation.load(allocationID)!
   allocation.poolClosedIn = event.params.epoch.toString()
   allocation.activeForIndexer = null
   allocation.closedAtEpoch = event.params.epoch.toI32()
@@ -564,12 +565,16 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
+  let allocation = Allocation.load(allocationID)!
   const indexerAccount = GraphAccount.load(indexer.account)!
   const closedByIndexer = event.params.sender == event.params.indexer
   const closedByOperator = indexerAccount.operators.includes(event.params.sender.toHexString())
 
   if (!closedByIndexer && !closedByOperator) {
     indexer.forcedClosures = indexer.forcedClosures + 1
+    allocation.forceClosed = true
+  } else {
+    allocation.forceClosed = false
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
@@ -578,7 +583,6 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   indexer.save()
 
   // update allocation
-  let allocation = Allocation.load(allocationID)!
   allocation.poolClosedIn = event.params.epoch.toString()
   allocation.activeForIndexer = null
   allocation.closedAtEpoch = event.params.epoch.toI32()
@@ -676,6 +680,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   // update subgraph deployment
   let subgraphDeployment = SubgraphDeployment.load(subgraphDeploymentID)!
   subgraphDeployment.queryFeeRebates = subgraphDeployment.queryFeeRebates.plus(event.params.tokens)
+  subgraphDeployment.delegatorsQueryFeeRebates = subgraphDeployment.delegatorsQueryFeeRebates.plus(event.params.delegationFees)
   subgraphDeployment.save()
 
   // update graph network
@@ -754,6 +759,7 @@ export function handleRebateCollected(event: RebateCollected): void {
   deployment.curatorFeeRewards = deployment.curatorFeeRewards.plus(event.params.curationFees)
   deployment.pricePerShare = calculatePricePerShare(deployment as SubgraphDeployment)
   deployment.queryFeeRebates = deployment.queryFeeRebates.plus(event.params.queryRebates)
+  deployment.delegatorsQueryFeeRebates = deployment.delegatorsQueryFeeRebates.plus(event.params.delegationRewards)
   deployment.save()
 
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)

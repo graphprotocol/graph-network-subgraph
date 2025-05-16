@@ -29,6 +29,8 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbitrum.L2GraphTokenGateway.address}}',
   ethereumDIDRegistry: '{{arbitrum.IEthereumDIDRegistry.address}}',
+  subgraphService: '{{arbitrum.SubgraphService.address}}',
+  graphPayments: '{{arbitrum.GraphPayments.address}}',
   isL1: false,
 }
 
@@ -45,6 +47,13 @@ const main = (): void => {
     }
     if(output.ens == '') {
       output.ens = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    // remove once we have proper packages
+    if(output.subgraphService == '') {
+      output.subgraphService = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.graphPayments == '') {
+      output.graphPayments = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {

@@ -378,6 +378,148 @@ dataSources:
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
   - kind: ethereum/contract
+    name: HorizonStaking
+    network: {{network}}
+    source:
+      address: "{{staking}}"
+      abi: HorizonStaking
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/horizonStaking.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: HorizonStaking
+          file: ./abis/HorizonStaking.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: HorizonStakeDeposited(indexed address,uint256)
+          handler: handleHorizonStakeDeposited
+        - event: HorizonStakeLocked(indexed address,uint256,uint256)
+          handler: handleHorizonStakeLocked
+        - event: HorizonStakeWithdrawn(indexed address,uint256)
+          handler: handleHorizonStakeWithdrawn
+        - event: ProvisionCreated(indexed address,indexed address,uint256,uint32,uint64)
+          handler: handleProvisionCreated
+        - event: ProvisionIncreased(indexed address,indexed address,uint256)
+          handler: handleProvisionIncreased
+        - event: TokensDeprovisioned(indexed address,indexed address,uint256)
+          handler: handleTokensDeprovisioned
+        - event: ProvisionParametersSet(indexed address,indexed address,uint32,uint64)
+          handler: handleProvisionParametersSet
+        - event: ProvisionParametersStaged(indexed address,indexed address,uint32,uint64)
+          handler: handleProvisionParametersStaged
+        - event: ProvisionSlashed(indexed address,indexed address,uint256)
+          handler: handleProvisionSlashed
+        - event: ProvisionThawed(indexed address,indexed address,uint256)
+          handler: handleProvisionThawed
+        - event: ThawRequestCreated(indexed uint8,indexed address,indexed address,address,uint256,uint64,bytes32,uint256)
+          handler: handleThawRequestCreated
+        - event: ThawRequestFulfilled(indexed uint8,indexed bytes32,uint256,uint256,uint64,bool)
+          handler: handleThawRequestFulfilled
+        - event: OperatorSet(indexed address,indexed address,indexed address,bool)
+          handler: handleOperatorSet
+        - event: DelegationFeeCutSet(indexed address,indexed address,indexed uint8,uint256)
+          handler: handleDelegationFeeCutSet
+        - event: TokensToDelegationPoolAdded(indexed address,indexed address,uint256)
+          handler: handleTokensToDelegationPoolAdded
+        - event: TokensDelegated(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTokensDelegated
+        - event: DelegationSlashed(indexed address,indexed address,uint256)
+          handler: handleDelegationSlashed
+        - event: TokensUndelegated(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTokensUndelegated
+        - event: DelegatedTokensWithdrawn(indexed address,indexed address,indexed address,uint256)
+          handler: handleDelegatedTokensWithdrawn
+        - event: MaxThawingPeriodSet(uint64)
+          handler: handleMaxThawingPeriodSet
+        - event: ThawingPeriodCleared()
+          handler: handleThawingPeriodCleared
+        - event: DelegationSlashingEnabled()
+          handler: handleDelegationSlashingEnabled
+        - event: AllowedLockedVerifierSet(indexed address,bool)
+          handler: handleAllowedLockedVerifierSet
+  - kind: ethereum/contract
+    name: SubgraphService
+    network: {{network}}
+    source:
+      address: "{{subgraphService}}"
+      abi: SubgraphService
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/subgraphService.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: SubgraphService
+          file: ./abis/SubgraphService.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: ServiceProviderRegistered(indexed address,bytes)
+          handler: handleServiceProviderRegistered
+        - event: RewardsDestinationSet(indexed address,indexed address)
+          handler: handleRewardsDestinationSet
+        - event: AllocationCreated(indexed address,indexed address,indexed bytes32,uint256,uint256)
+          handler: handleAllocationCreated
+        - event: AllocationResized(indexed address,indexed address,indexed bytes32,uint256,uint256)
+          handler: handleAllocationResized
+        - event: AllocationClosed(indexed address,indexed address,indexed bytes32,uint256,bool)
+          handler: handleAllocationClosed
+        - event: IndexingRewardsCollected(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256,bytes32,bytes32,uint256)
+          handler: handleIndexingRewardsCollected
+        - event: QueryFeesCollected(indexed address,indexed address,indexed address,bytes32,uint256,uint256)
+          handler: handleQueryFeesCollected
+        - event: DelegationRatioSet(uint32)
+          handler: handleDelegationRatioSet
+        - event: CurationCutSet(uint256)
+          handler: handleCurationCutSet
+        - event: MaxPOIStalenessSet(uint256)
+          handler: handleMaxPOIStalenessSet
+        - event: StakeToFeesRatioSet(uint256)
+          handler: handleStakeToFeesRatioSet
+        - event: ProvisionTokensRangeSet(uint256,uint256)
+          handler: handleProvisionTokensRangeSet
+        - event: VerifierCutRangeSet(uint32,uint32)
+          handler: handleVerifierCutRangeSet
+        - event: ThawingPeriodRangeSet(uint64,uint64)
+          handler: handleThawingPeriodRangeSet
+  - kind: ethereum/contract
+    name: GraphPayments
+    network: {{network}}
+    source:
+      address: "{{graphPayments}}"
+      abi: GraphPayments
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/graphPayments.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: GraphPayments
+          file: ./abis/GraphPayments.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: GraphPaymentCollected(indexed uint8,indexed address,address,indexed address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleGraphPaymentCollected
+  - kind: ethereum/contract
     name: Curation
     network: {{network}}
     source:
