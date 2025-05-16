@@ -50,7 +50,7 @@ type GraphNetwork @entity {
   channelDisputeEpochs: Int!
   "Epochs to wait before delegators can settle"
   maxAllocationEpochs: Int!
-  "Time in blocks needed to wait to unstake"
+  "Time in blocks needed to wait to unstake. Set to 0 to signal Graph Horizon's transition period end."
   thawingPeriod: Int!
   "Minimum time an Indexer must use for resetting their Delegation parameters"
   delegationParametersCooldown: Int!
@@ -70,6 +70,10 @@ type GraphNetwork @entity {
   delegationTaxPercentage: Int!
   "Asset holder for the protocol"
   assetHolders: [Bytes!]
+  "Maximum allowed thawing period for provisions, in seconds"
+  maxThawingPeriod: BigInt!
+  "True if delegation slashing is enabled"
+  delegationSlashingEnabled: Boolean!
 
   # Transfers to L2 totals
   "Total amount of indexer stake transferred to L2"
@@ -86,6 +90,10 @@ type GraphNetwork @entity {
   totalTokensClaimable: BigInt! # TODO - see https://github.com/graphprotocol/graph-network-subgraph/issues/89
   "Total tokens that are currently locked or withdrawable in the network from unstaking"
   totalUnstakedTokensLocked: BigInt!
+  "Total GRT currently in provisions"
+  totalTokensProvisioned: BigInt!
+  "Total GRT currently thawing from provisions"
+  totalTokensThawing: BigInt!
   "Total GRT currently in allocation"
   totalTokensAllocated: BigInt!
   "Total delegated tokens in the protocol"
@@ -231,6 +239,50 @@ type GraphNetwork @entity {
   currentL1BlockNumber: BigInt
 }
 
+type DataService @entity {
+  "Data Service address"
+  id: ID!
+
+  "Total GRT currently in provisions for this DataService"
+  totalTokensProvisioned: BigInt!
+  "Total GRT currently thawing from provisions for this DataService"
+  totalTokensThawing: BigInt!
+  "Total GRT currently in allocations for this DataService"
+  totalTokensAllocated: BigInt!
+  "Total GRT currently delegated to this DataService"
+  totalTokensDelegated: BigInt!
+
+  "Minimum provision tokens for this DataService"
+  minimumProvisionTokens: BigInt!
+  "Maximum provision tokens for this DataService"
+  maximumProvisionTokens: BigInt!
+
+  "Minimum verifier cut for this DataService"
+  minimumVerifierCut: BigInt!
+  "Maximum verifier cut for this DataService"
+  maximumVerifierCut: BigInt!
+
+  "Minimum thawing period for this DataService"
+  minimumThawingPeriod: BigInt!
+  "Maximum thawing period for this DataService"
+  maximumThawingPeriod: BigInt!
+
+  "Ratio of max staked delegation tokens to indexers stake that earns rewards"
+  delegationRatio: Int
+
+  provisions: [Provision!]! @derivedFrom(field: "dataService")
+
+  "True if allowed for usage with token lock wallets"
+  allowedWithTokenLockWallets: Boolean!
+
+  "[SubgraphService] Curation cut for this DataService"
+  curationCut: BigInt!
+  "[SubgraphService] Max POI staleness"
+  maxPOIStaleness: BigInt!
+  "[SubgraphService] Stake to fees ratio"
+  stakeToFeesRatio: BigInt!
+}
+
 """
 An account within the graph network. Contains metadata and all relevant data for this accounts
 delegating, curating, and indexing.
@@ -253,8 +305,10 @@ type GraphAccount @entity {
   # Operator info
   "Operator of other Graph Accounts"
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
-  "Operators of this Graph Accounts"
+  "Operators of this Graph Account"
   operators: [GraphAccount!]!
+  "Horizon Operators of this Graph Account"
+  horizonOperators: [HorizonOperator!]!
 
   # GRT info
   "Graph token balance"
@@ -555,11 +609,12 @@ type SubgraphDeployment @entity {
   indexingDelegatorRewardAmount: BigInt!
   "Total query fees earned by this Subgraph Deployment, without curator query fees"
   queryFeesAmount: BigInt!
-  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include delegation fees"
+  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include delegation query fees"
   queryFeeRebates: BigInt!
   "Total curator rewards from fees"
   curatorFeeRewards: BigInt!
-  # TODO - We can add a field here for delegation fees earned when calling claim()
+  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include indexer query fees"
+  delegatorsQueryFeeRebates: BigInt!
 
   # Subgraph deployment curation bonding curve
   "CURRENT signalled tokens in the bonding curve"
@@ -669,12 +724,21 @@ type Indexer @entity {
   url: String
   "Geohash of the indexer. Shows where their indexer is located in the world"
   geoHash: String
+  "Address that receives the rewards from the indexer"
+  rewardsDestination: Bytes
   "Default display name is the current default name. Used for filtered queries"
   defaultDisplayName: String
+
+  "Whether the indexer is a legacy indexer. This is true for all indexers registered before the Horizon upgrade"
+  isLegacy: Boolean!
 
   # Staking data
   "CURRENT tokens staked in the protocol. Decreases on withdraw, not on lock"
   stakedTokens: BigInt!
+  "CURRENT tokens provisioned to data services in the protocol. In the V1 protocol, all staked tokens were always provisioned to an implicit 'subgraph data service'"
+  provisionedTokens: BigInt!
+  "CURRENT tokens thawing from provisions to data services in the protocol. Only for Horizon"
+  thawingTokens: BigInt!
   "CURRENT  tokens allocated on all subgraphs"
   allocatedTokens: BigInt!
   "NOT IMPLEMENTED - Tokens that have been unstaked and withdrawn"
@@ -764,6 +828,9 @@ type Indexer @entity {
   "Count of how many times this indexer has been forced to close an allocation"
   forcedClosures: Int!
 
+  # Provisioning
+  provisions: [Provision!]! @derivedFrom(field: "indexer")
+
   # Metrics
   "NOT IMPLEMENTED - Total return this indexer has earned"
   totalReturn: BigDecimal!
@@ -771,9 +838,6 @@ type Indexer @entity {
   annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage
   "NOT IMPLEMENTED - Staking efficiency of the indexer"
   stakingEfficiency: BigDecimal!
-
-  # Query fees breakdown by payment address
-
 }
 
 type PaymentSource @entity {
@@ -815,18 +879,173 @@ type IndexerQueryFeePaymentAggregation @entity {
   paymentSource: PaymentSource!
 }
 
+type HorizonOperator @entity {
+  "Joint address of all 3 parties involved (Operator, Indexer, DataService)"
+  id: ID!
+
+  operatorOf: [GraphAccount!]! @derivedFrom(field: "horizonOperators")
+
+  operator: GraphAccount!
+
+  indexer: Indexer!
+
+  dataService: DataService!
+
+  allowed: Boolean!
+}
+
+
 """
-A state channel Allocation representing a single Indexer-SubgraphDeployment stake
+  For the Horizon Stage 1 subgraph, the Provision entity will be mimicking the Indexer entity as closely as possible.
+  That means that the Provision entity will contain some fields that are particular for the Subgraph Service, even if in Horizon
+  a Provision could be for a different Data Service from the Subgraph Service.
+  This is to make the data closer to the legacy protocol, given that the Subgraph Service will be the first Data Service to be supported
+
+  Once the Stage 2 subgraph is implemented, the Provision entity will have to be more generic, and particular data service fields will need to be restructured.
+"""
+type Provision @entity {
+  "Join ID of indexer address (service provider) and DataService address"
+  id: ID!
+
+  indexer: Indexer!
+
+  dataService: DataService!
+
+  tokensProvisioned: BigInt!
+
+  tokensAllocated: BigInt!
+
+  tokensSlashedServiceProvider: BigInt!
+  
+  tokensSlashedDelegationPool: BigInt!
+
+  totalAllocationCount: BigInt!
+
+  allocationCount: Int!
+
+  "Active allocations of stake for this Provision"
+  allocations: [Allocation!]! @derivedFrom(field: "activeForProvision")
+
+  "Timestamp when the provision was created"
+  createdAt: BigInt!
+
+  "Service provider tokens that are being thawed (and will stop being slashable soon)"
+  tokensThawing: BigInt!
+
+  "Max amount that can be taken by the verifier when slashing, expressed in parts-per-million of the amount slashed"
+  maxVerifierCut: BigInt!
+
+  "Pending value for maxVerifierCut. Verifier needs to accept it before it becomes active"
+  maxVerifierCutPending: BigInt!
+
+  "Time, in seconds, tokens must thaw before being withdrawn"
+  thawingPeriod: BigInt!
+
+  "Pending value for thawingPeriod. Verifier needs to accept it before it becomes active"
+  thawingPeriodPending: BigInt!
+
+  # Percentage of rewards/fees that the delegation pool receives
+  "Raw query fee cut. In Horizon this is amount of query fees that the delegation pool receives in PPM"
+  queryFeeCut: BigInt!
+
+  "Raw indexing fee cut. In Horizon this is amount of indexing fees that the delegation pool receives in PPM"
+  indexingFeeCut: BigInt!
+
+  "Raw indexing rewards cut. In Horizon this is amount of indexing rewards that the delegation pool receives in PPM"
+  indexingRewardsCut: BigInt!
+
+  "The percent of indexing rewards generated by the delegated stake that the Indexer keeps for itself"
+  indexingRewardEffectiveCut: BigDecimal!
+  "The percent of query fees generated by the delegated stake that the Indexer keeps for itself"
+  queryFeeEffectiveCut: BigDecimal!
+  "The percent of reward dilution delegators experience because of overdelegation. Overdelegated stake can't be used to generate rewards but still gets accounted while distributing the generated rewards. This causes dilution of the rewards for the rest of the pool."
+  overDelegationDilution: BigDecimal!
+
+  # Might want to add polymorphic handling of different fee cuts through a generic hashmap in the future
+
+  # Indexing rewards. Keeping the same naming from Indexer entity to make it easier to understand
+  "Total indexing rewards earned by this indexer. Including delegation rewards"
+  rewardsEarned: BigInt!
+  "The total amount of indexing rewards the indexer kept"
+  indexerIndexingRewards: BigInt!
+  "The total amount of indexing rewards given to delegators"
+  delegatorIndexingRewards: BigInt!
+
+  # Query fees
+  "Total query fees collected. Includes the portion given to delegators"
+  queryFeesCollected: BigInt!
+  "Query fee amount collected from the protocol. Does not include portion given to delegators"
+  indexerQueryFees: BigInt!
+  "Query fee amount collected from the protocol for Delegators. Does not include portion taken by the indexer"
+  delegatorQueryFees: BigInt!
+
+  # Delegation
+  "Tokens delegated to the provision"
+  delegatedTokens: BigInt!
+  "Total shares of the delegator pool"
+  delegatorShares: BigInt!
+  "Exchange rate of tokens received for each share"
+  delegationExchangeRate: BigDecimal!
+  "Ratio between the amount of the indexers own stake over the total usable stake (capped by the delegationRatio)."
+  ownStakeRatio: BigDecimal!
+  "Ratio between the amount of delegated stake over the total usable stake (capped by the delegationRatio)."
+  delegatedStakeRatio: BigDecimal!
+  "Percentage of indexers' own rewards received in relation to its own stake. 1 (100%) means that the indexer is receiving the exact amount that is generated by his own stake, the value can be over 100% or below depending on the amount of delegation and cuts set"
+  indexerRewardsOwnGenerationRatio: BigDecimal!
+
+  "Service registry URL for the indexer"
+  url: String
+  "Geohash of the indexer. Shows where their indexer is located in the world"
+  geoHash: String
+  "Address set as rewards destination for payments to the service provider"
+  rewardsDestination: Bytes
+}
+
+enum ThawRequestType {
+  Provision
+  Delegation
+}
+
+type ThawRequest @entity {
+  id: ID!
+
+  type: ThawRequestType!
+
+  indexer: Indexer!
+
+  dataService: DataService!
+
+  owner: GraphAccount!
+
+  "Shares representing the thawing tokens"
+  shares: BigInt!
+
+  "Tokens thawed"
+  tokens: BigInt!
+
+  thawingUntil: BigInt!
+
+  fulfilledAsValid: Boolean
+
+  fulfilled: Boolean!
+}
+
+"""
+A state channel Allocation representing a single Indexer/Provision-SubgraphDeployment stake
 """
 type Allocation @entity {
   "Channel Address"
   id: ID!
   "Indexer of this allocation"
   indexer: Indexer!
+  "Provision of this allocation (for Horizon allocations only)"
+  provision: Provision
   "Creator of the allocation - can be the operator or the indexer"
   creator: Bytes!
   "If the Allocation is active it shows the indexer. If closed, it is null"
   activeForIndexer: Indexer
+  "If the Allocation is active it shows the provision. If closed, it is null"
+  activeForProvision: Provision
   "Subgraph deployment that is being allocated to"
   subgraphDeployment: SubgraphDeployment!
   "Tokens allocation in this allocation"
@@ -869,10 +1088,22 @@ type Allocation @entity {
   createdAt: Int!
   "Timestamp this allocation was closed at"
   closedAt: Int
-  "POI submitted with a closed allocation"
+  "POI submitted when closing allocations in the legacy protocol. Also reflects the latest POI submitted for a Horizon payment collection"
   poi: Bytes
+  "POIs submitted when collecting payments in Horizon"
+  pois: [PoiSubmission!]! @derivedFrom(field: "allocation")
+  "Public POIs submitted when collecting payments in Horizon"
+  publicPois: [PublicPoiSubmission!]! @derivedFrom(field: "allocation")
+  "Number of POIs submitted for this allocation. Only available for Horizon allocations"
+  poiCount: BigInt
+  "Timestamp for the latest POI presentation"
+  latestPoiPresentedAt: Int
+  "Whether this allocation was created in the legacy protocol. If true, the allocation will not have a provision since it's not a Horizon allocation"
+  isLegacy: Boolean!
+  "Whether this allocation was forced closed. Force closures in Horizon can happen when the latest PoI is stale, compared to the legacy protocol, where force closures can happen when the allocation hasn't been closed within the max amount of epochs"
+  forceClosed: Boolean
 
-  # Indexer cut settings at start and close
+  # Indexer/Provision cut settings at start and close
   indexingRewardCutAtStart: Int!
   indexingRewardEffectiveCutAtStart: BigDecimal!
   queryFeeCutAtStart: Int!
@@ -888,6 +1119,30 @@ type Allocation @entity {
   totalReturn: BigDecimal!
   "NOT IMPLEMENTED - Yearly annualzied return"
   annualizedReturn: BigDecimal!
+}
+
+type PoiSubmission @entity {
+  id: ID!
+
+  allocation: Allocation!
+
+  poi: Bytes!
+
+  submittedAtEpoch: Int!
+
+  presentedAtTimestamp: Int!
+}
+
+type PublicPoiSubmission @entity {
+  id: ID!
+
+  allocation: Allocation!
+
+  publicPoi: Bytes!
+
+  submittedAtEpoch: Int!
+
+  presentedAtTimestamp: Int!
 }
 
 enum AllocationStatus {
@@ -951,8 +1206,12 @@ Delegator stake for a single Indexer
 type DelegatedStake @entity {
   "Concatenation of Delegator address and Indexer address"
   id: ID!
-  "Index the stake is delegated to"
+  "Indexer the stake is delegated to"
   indexer: Indexer!
+  "DataService the stake is delegated to. Only for Horizon delegations"
+  dataService: DataService
+  "Provision the stake is delegated to. Only for Horizon delegations"
+  provision: Provision
   "Delegator"
   delegator: Delegator!
   "CUMULATIVE tokens delegated"
