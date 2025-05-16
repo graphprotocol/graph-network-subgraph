@@ -39,6 +39,7 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   dispute.subgraphDeployment = event.params.subgraphDeploymentId.toHexString()
   dispute.fisherman = event.params.fisherman.toHexString()
   dispute.deposit = event.params.tokens
+  dispute.isLegacy = false
   dispute.createdAt = event.block.timestamp.toI32()
   dispute.status = STATUS_UNDECIDED
   dispute.tokensSlashed = BIGDECIMAL_ZERO
@@ -76,6 +77,7 @@ export function handleIndexingDisputeCreated(event: IndexingDisputeCreated): voi
   dispute.subgraphDeployment = allocation.subgraphDeployment
   dispute.fisherman = event.params.fisherman.toHexString()
   dispute.deposit = event.params.tokens
+  dispute.isLegacy = false
   dispute.createdAt = event.block.timestamp.toI32()
   dispute.status = STATUS_UNDECIDED
   dispute.tokensSlashed = BigDecimal.fromString('0')

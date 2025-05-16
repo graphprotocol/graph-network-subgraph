@@ -223,7 +223,7 @@ type GraphNetwork @entity(immutable: false) {
   fishermanRewardPercentage: Int!
   "[HORIZON]Reward to Fisherman on successful disputes. In parts per million"
   fishermanRewardCut: Int!
-  "Maximum Penalty to Indexer on successful disputes for indexing disputes. In parts per million"
+  "Maximum Penalty to Indexer on successful disputes for indexing disputes. Percentage of the indexer's stake snapshot (own stake plus delegated). In parts per million"
   maxSlashingCut: Int!
 
   # Bridge totals (Only available on L1 networks)
@@ -1448,6 +1448,8 @@ type Dispute @entity(immutable: false) {
   fisherman: GraphAccount!
   "Fisherman deposit"
   deposit: BigInt!
+  "Whether this dispute was created in the legacy protocol"
+  isLegacy: Boolean!
 
   "Time dispute was created"
   createdAt: Int!
