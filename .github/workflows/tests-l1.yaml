@@ -27,6 +27,6 @@ jobs:
       - name: Prep addressess
         run: ./node_modules/.bin/ts-node config/testAddressesL1.ts && ./node_modules/.bin/mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts
       - name: Prep test L1
-        run: ./node_modules/.bin/mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && ./node_modules/@graphprotocol/graph-cli/bin/run codegen --output-dir src/types/
+        run: ./node_modules/.bin/mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && ./node_modules/@graphprotocol/graph-cli/bin/run.js codegen --output-dir src/types/
       - name: Test
-        run: ./node_modules/@graphprotocol/graph-cli/bin/run test -v 0.6.0-rc.2
+        run: ./node_modules/@graphprotocol/graph-cli/bin/run.js test -v 0.6.0-rc.2
