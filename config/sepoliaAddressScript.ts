@@ -6,38 +6,39 @@ import { Addresses } from './addresses.template'
 // mustache doesn't like numbered object keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let renameAddresses: any = networkAddresses
-renameAddresses['arbsep'] = networkAddresses['421614']
+renameAddresses['sepolia'] = networkAddresses['11155111']
 
 export let addresses: Addresses = {
-  controller: '{{arbsep.Controller.address}}',
-  graphToken: '{{arbsep.L2GraphToken.address}}',
-  epochManager: '{{arbsep.EpochManager.address}}',
-  disputeManager: '{{arbsep.DisputeManager.address}}',
-  staking: '{{arbsep.L2Staking.address}}',
-  stakingExtension: '{{arbsep.StakingExtension.address}}',
-  curation: '{{arbsep.L2Curation.address}}',
-  rewardsManager: '{{arbsep.RewardsManager.address}}',
-  serviceRegistry: '{{arbsep.ServiceRegistry.address}}',
-  gns: '{{arbsep.L2GNS.address}}',
-  ens: '{{arbsep.IENS.address}}',
-  ensPublicResolver: '{{arbsep.IPublicResolver.address}}',
+  controller: '{{sepolia.Controller.address}}',
+  graphToken: '{{sepolia.GraphToken.address}}',
+  epochManager: '{{sepolia.EpochManager.address}}',
+  disputeManager: '{{sepolia.DisputeManager.address}}',
+  staking: '{{sepolia.L1Staking.address}}',
+  stakingExtension: '{{sepolia.StakingExtension.address}}',
+  curation: '{{sepolia.Curation.address}}',
+  rewardsManager: '{{sepolia.RewardsManager.address}}',
+  serviceRegistry: '{{sepolia.ServiceRegistry.address}}',
+  gns: '{{sepolia.L1GNS.address}}',
+  ens: '{{sepolia.IENS.address}}',
+  ensPublicResolver: '{{sepolia.IPublicResolver.address}}',
   blockNumber: '',
   bridgeBlockNumber: '',
   network: '',
   tokenLockManager: '',
-  subgraphNFT: '{{arbsep.SubgraphNFT.address}}',
-  l1GraphTokenGateway: '',
-  l2GraphTokenGateway: '{{arbsep.L2GraphTokenGateway.address}}',
-  ethereumDIDRegistry: '{{arbsep.EthereumDIDRegistry.address}}',
-  isL1: false,
+  subgraphNFT: '{{sepolia.SubgraphNFT.address}}',
+  l1GraphTokenGateway: '{{sepolia.L1GraphTokenGateway.address}}',
+  l2GraphTokenGateway: '',
+  ethereumDIDRegistry: '{{sepolia.EthereumDIDRegistry.address}}',
+  isL1: true,
 }
 
 const main = (): void => {
   try {
     let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
-    output.blockNumber = '570450'
-    output.bridgeBlockNumber = '570450'
-    output.network = 'arbitrum-sepolia'
+    output.blockNumber = '4454000'
+    output.bridgeBlockNumber = '4454000'
+    output.network = 'sepolia'
+    //output.tokenLockManager = '0x9a7a54e86560f4304d8862Ea00F45D1090c59ac8' // we don't have one, this is rinkebys'
     output.useTokenLockManager = false
     if(output.ens == '') {
       output.ens = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config

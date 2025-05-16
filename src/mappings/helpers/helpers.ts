@@ -26,9 +26,6 @@ import {
   CurrentSubgraphDeploymentRelation,
   PaymentSource,
   IndexerQueryFeePaymentAggregation,
-  Provision,
-  DataService,
-  HorizonOperator,
 } from '../../types/schema'
 import {
   SubgraphDeploymentManifest as SubgraphDeploymentManifestTemplate
@@ -102,7 +99,6 @@ export function createOrLoadSubgraphDeployment(
     deployment.indexingDelegatorRewardAmount = BigInt.fromI32(0)
     deployment.queryFeesAmount = BigInt.fromI32(0)
     deployment.queryFeeRebates = BigInt.fromI32(0)
-    deployment.delegatorsQueryFeeRebates = BigInt.fromI32(0)
     deployment.curatorFeeRewards = BigInt.fromI32(0)
     deployment.signalledTokensReceivedOnL2 = BigInt.fromI32(0)
     deployment.signalledTokensSentToL2 = BigInt.fromI32(0)
@@ -129,7 +125,7 @@ export function createOrLoadSubgraphDeployment(
   return deployment as SubgraphDeployment
 }
 
-export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): Indexer {
+export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt): Indexer {
   let id = indexerAddress.toHexString()
   let indexer = Indexer.load(id)
   if (indexer == null) {
@@ -137,14 +133,9 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.createdAt = timestamp.toI32()
     indexer.account = id
 
-    // By default we assume indexers are not legacy. Legacy codepaths should flip this to true
-    indexer.isLegacy = false
-
     indexer.stakedTokens = BigInt.fromI32(0)
     indexer.transferredToL2 = false
     indexer.stakedTokensTransferredToL2 = BigInt.fromI32(0)
-    indexer.provisionedTokens = BigInt.fromI32(0)
-    indexer.thawingTokens = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
     indexer.unstakedTokens = BigInt.fromI32(0)
@@ -181,10 +172,6 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.annualizedReturn = BigDecimal.fromString('0')
     indexer.stakingEfficiency = BigDecimal.fromString('0')
 
-    indexer.url = ''
-    indexer.geoHash = ''
-    indexer.rewardsDestination = Address.fromString('0x0000000000000000000000000000000000000000')
-
     let graphAccount = createOrLoadGraphAccount(indexerAddress, timestamp)
     graphAccount.indexer = id
     graphAccount.save()
@@ -198,99 +185,6 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.save()
   }
   return indexer as Indexer
-}
-
-export function createOrLoadLegacyIndexer(indexerAddress: Bytes, timestamp: BigInt): Indexer {
-  let indexer = createOrLoadIndexer(indexerAddress, timestamp)
-  indexer.isLegacy = true
-  indexer.save()
-  return indexer
-}
-
-export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: Bytes, timestamp: BigInt): Provision {
-  let id = joinID([indexerAddress.toHexString(), verifierAddress.toHexString()])
-  let provision = Provision.load(id)
-  if (provision == null) {
-    provision = new Provision(id)
-    provision.indexer = indexerAddress.toHexString()
-    provision.dataService = verifierAddress.toHexString()
-    provision.tokensProvisioned = BigInt.fromI32(0)
-    provision.tokensAllocated = BigInt.fromI32(0)
-    provision.tokensSlashedServiceProvider = BigInt.fromI32(0)
-    provision.tokensSlashedDelegationPool = BigInt.fromI32(0)
-    provision.totalAllocationCount = BigInt.fromI32(0)
-    provision.allocationCount = 0
-    provision.tokensThawing = BigInt.fromI32(0)
-    provision.createdAt = timestamp
-    provision.maxVerifierCut = BigInt.fromI32(0)
-    provision.maxVerifierCutPending = BigInt.fromI32(0)
-    provision.thawingPeriod = BigInt.fromI32(0)
-    provision.thawingPeriodPending = BigInt.fromI32(0)
-    provision.queryFeeCut = BigInt.fromI32(0)
-    provision.indexingFeeCut = BigInt.fromI32(0)
-    provision.indexingRewardsCut = BigInt.fromI32(0)
-    provision.indexingRewardEffectiveCut = BigInt.fromI32(0).toBigDecimal()
-    provision.queryFeeEffectiveCut = BigInt.fromI32(0).toBigDecimal()
-    provision.overDelegationDilution = BigInt.fromI32(0).toBigDecimal()
-    provision.rewardsEarned = BigInt.fromI32(0)
-    provision.indexerIndexingRewards = BigInt.fromI32(0)
-    provision.delegatorIndexingRewards = BigInt.fromI32(0)
-    provision.queryFeesCollected = BigInt.fromI32(0)
-    provision.indexerQueryFees = BigInt.fromI32(0)
-    provision.delegatorQueryFees = BigInt.fromI32(0)
-    provision.delegatedTokens = BigInt.fromI32(0)
-    provision.delegatorShares = BigInt.fromI32(0)
-    provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
-    provision.ownStakeRatio = BigInt.fromI32(0).toBigDecimal()
-    provision.delegatedStakeRatio = BigInt.fromI32(0).toBigDecimal()
-    provision.indexerRewardsOwnGenerationRatio = BigInt.fromI32(0).toBigDecimal()
-    provision.url = ''
-    provision.geoHash = ''
-    provision.rewardsDestination = Bytes.fromI32(0)
-    provision.save()
-  }
-
-  return provision as Provision
-}
-
-export function createOrLoadDataService(verifierAddress: Bytes): DataService {
-  let id = verifierAddress.toHexString()
-  let service = DataService.load(id)
-  if (service == null) {
-    service = new DataService(id)
-    service.totalTokensAllocated = BigInt.fromI32(0)
-    service.totalTokensProvisioned = BigInt.fromI32(0)
-    service.totalTokensThawing = BigInt.fromI32(0)
-    service.allowedWithTokenLockWallets = false
-    service.curationCut = BigInt.fromI32(0)
-    service.maxPOIStaleness = BigInt.fromI32(0)
-    service.stakeToFeesRatio = BigInt.fromI32(0)
-    service.minimumProvisionTokens = BigInt.fromI32(0)
-    service.maximumProvisionTokens = BigInt.fromI32(0)
-    service.minimumVerifierCut = BigInt.fromI32(0)
-    service.maximumVerifierCut = BigInt.fromI32(0)
-    service.minimumThawingPeriod = BigInt.fromI32(0)
-    service.maximumThawingPeriod = BigInt.fromI32(0)
-    service.totalTokensDelegated = BigInt.fromI32(0)
-    service.save()
-  }
-
-  return service as DataService
-}
-
-export function createOrLoadHorizonOperator(address: Bytes, verifierAddress: Bytes, indexerAddress: Bytes): HorizonOperator {
-  let id = joinID([address.toHexString(), indexerAddress.toHexString(), verifierAddress.toHexString()])
-  let operator = HorizonOperator.load(id)
-  if (operator == null) {
-    operator = new HorizonOperator(id)
-    operator.allowed = false
-    operator.operator = address.toHexString()
-    operator.indexer = indexerAddress.toHexString()
-    operator.dataService = verifierAddress.toHexString()
-    operator.save()
-  }
-
-  return operator as HorizonOperator
 }
 
 export function createOrLoadPaymentSource(paymentAddress: Bytes): PaymentSource {
@@ -390,46 +284,6 @@ export function createOrLoadDelegatedStake(
   }
   return delegatedStake as DelegatedStake
 }
-
-export function createOrLoadDelegatedStakeForProvision(
-  delegator: string,
-  indexer: string,
-  dataService: string,
-  timestamp: i32,
-): DelegatedStake {
-  let provisionId = joinID([indexer, dataService])
-  let id = joinID([delegator, provisionId])
-  let delegatedStake = DelegatedStake.load(id)
-  if (delegatedStake == null) {
-    delegatedStake = new DelegatedStake(id)
-    delegatedStake.indexer = indexer
-    delegatedStake.dataService = dataService
-    delegatedStake.provision = provisionId
-    delegatedStake.delegator = delegator
-    delegatedStake.stakedTokens = BigInt.fromI32(0)
-    delegatedStake.transferredToL2 = false
-    delegatedStake.stakedTokensTransferredToL2 = BigInt.fromI32(0)
-    delegatedStake.unstakedTokens = BigInt.fromI32(0)
-    delegatedStake.lockedTokens = BigInt.fromI32(0)
-    delegatedStake.lockedUntil = 0
-    delegatedStake.shareAmount = BigInt.fromI32(0)
-    delegatedStake.personalExchangeRate = BigDecimal.fromString('1')
-    delegatedStake.realizedRewards = BigDecimal.fromString('0')
-    delegatedStake.createdAt = timestamp
-
-    delegatedStake.save()
-
-    let delegatorEntity = Delegator.load(delegator)!
-    delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1
-    delegatorEntity.save()
-
-    let graphNetwork = GraphNetwork.load('1')!
-    graphNetwork.delegationCount = graphNetwork.delegationCount + 1
-    graphNetwork.save()
-  }
-  return delegatedStake as DelegatedStake
-}
-
 export function createOrLoadCurator(curatorAddress: Bytes, timestamp: BigInt): Curator {
   let id = curatorAddress.toHexString()
   let curator = Curator.load(id)
@@ -564,7 +418,6 @@ export function createOrLoadGraphAccount(owner: Bytes, timeStamp: BigInt): Graph
     graphAccount = new GraphAccount(id)
     graphAccount.createdAt = timeStamp.toI32()
     graphAccount.operators = []
-    graphAccount.horizonOperators = []
     graphAccount.balance = BigInt.fromI32(0)
     graphAccount.balanceReceivedFromL1Signalling = BigInt.fromI32(0)
     graphAccount.balanceReceivedFromL1Delegation = BigInt.fromI32(0)
@@ -699,8 +552,6 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalTokensStaked = BigInt.fromI32(0)
     graphNetwork.totalTokensClaimable = BigInt.fromI32(0)
     graphNetwork.totalUnstakedTokensLocked = BigInt.fromI32(0)
-    graphNetwork.totalTokensProvisioned = BigInt.fromI32(0)
-    graphNetwork.totalTokensThawing = BigInt.fromI32(0)
     graphNetwork.totalTokensAllocated = BigInt.fromI32(0)
     graphNetwork.totalDelegatedTokens = BigInt.fromI32(0)
     graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
@@ -779,9 +630,6 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalGRTDepositedConfirmed = BigInt.fromI32(0)
     graphNetwork.totalGRTWithdrawn = BigInt.fromI32(0)
     graphNetwork.totalGRTWithdrawnConfirmed = BigInt.fromI32(0)
-
-    graphNetwork.maxThawingPeriod = BigInt.fromI32(0)
-    graphNetwork.delegationSlashingEnabled = false
 
     graphNetwork.save()
   }
@@ -984,10 +832,9 @@ export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
   let graphNetwork = GraphNetwork.load('1')!
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
   let maxDelegatedStake = stakedTokensBD * delegationRatioBD
-  let maxDelegatedStakeBD = max(maxDelegatedStake, delegatedTokensBD)
-  return maxDelegatedStakeBD == BigDecimal.fromString('0')
+  return stakedTokensBD == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
-    : BigDecimal.fromString('1') - maxDelegatedStake / maxDelegatedStakeBD
+    : BigDecimal.fromString('1') - maxDelegatedStake / max(maxDelegatedStake, delegatedTokensBD)
 }
 
 export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
@@ -1002,85 +849,12 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
   return indexer as Indexer
 }
 
-export function calculateOwnStakeRatioForProvision(provision: Provision): BigDecimal {
-  let totalTokens = provision.tokensProvisioned.plus(provision.delegatedTokens)
-  return totalTokens == BigInt.fromI32(0)
-    ? BigDecimal.fromString('0')
-    : provision.tokensProvisioned.toBigDecimal().div(totalTokens.toBigDecimal())
-}
-
-export function calculateDelegatedStakeRatioForProvision(provision: Provision): BigDecimal {
-  let totalTokens = provision.tokensProvisioned.plus(provision.delegatedTokens)
-  return totalTokens == BigInt.fromI32(0)
-    ? BigDecimal.fromString('0')
-    : provision.delegatedTokens.toBigDecimal().div(totalTokens.toBigDecimal())
-}
-
-export function calculateIndexingRewardEffectiveCutForProvision(provision: Provision): BigDecimal {
-  let delegatorCut =
-    provision.indexingRewardsCut.toBigDecimal() /
-    BigDecimal.fromString('1000000')
-  return provision.delegatedStakeRatio == BigDecimal.fromString('0')
-    ? BigDecimal.fromString('0')
-    : BigDecimal.fromString('1') - delegatorCut / provision.delegatedStakeRatio
-}
-
-export function calculateQueryFeeEffectiveCutForProvision(provision: Provision): BigDecimal {
-  let delegatorCut =
-    provision.queryFeeCut.toBigDecimal() / BigDecimal.fromString('1000000')
-  return provision.delegatedStakeRatio == BigDecimal.fromString('0')
-    ? BigDecimal.fromString('0')
-    : BigDecimal.fromString('1') - delegatorCut / provision.delegatedStakeRatio
-}
-
-export function calculateIndexerRewardOwnGenerationRatioForProvision(provision: Provision): BigDecimal {
-  let delegatorCut =
-    provision.indexingRewardsCut.toBigDecimal() / BigDecimal.fromString('1000000')
-  return provision.ownStakeRatio == BigDecimal.fromString('0')
-    ? BigDecimal.fromString('0')
-    : (BigDecimal.fromString('1') - delegatorCut) / provision.ownStakeRatio
-}
-
-export function calculateOverdelegationDilutionForProvision(provision: Provision): BigDecimal {
-  let provisionedTokensBD = provision.tokensProvisioned.toBigDecimal()
-  let delegatedTokensBD = provision.delegatedTokens.toBigDecimal()
-  let dataService = DataService.load(provision.dataService)!
-  if (dataService.delegationRatio == null) {
-    return BigDecimal.fromString('0')
-  }
-  let delegationRatioBD = BigInt.fromI32(dataService.delegationRatio).toBigDecimal()
-  let maxDelegatedStake = provisionedTokensBD * delegationRatioBD
-  return provisionedTokensBD == BigDecimal.fromString('0')
-    ? BigDecimal.fromString('0')
-    : BigDecimal.fromString('1') - maxDelegatedStake / max(maxDelegatedStake, delegatedTokensBD)
-}
-
-export function updateAdvancedProvisionMetrics(provision: Provision): Provision {
-  provision.ownStakeRatio = calculateOwnStakeRatioForProvision(provision as Provision)
-  provision.delegatedStakeRatio = calculateDelegatedStakeRatioForProvision(provision as Provision)
-  provision.indexingRewardEffectiveCut = calculateIndexingRewardEffectiveCutForProvision(provision as Provision)
-  provision.queryFeeEffectiveCut = calculateQueryFeeEffectiveCutForProvision(provision as Provision)
-  provision.indexerRewardsOwnGenerationRatio = calculateIndexerRewardOwnGenerationRatioForProvision(
-    provision as Provision,
-  )
-  provision.overDelegationDilution = calculateOverdelegationDilutionForProvision(provision as Provision)
-  return provision as Provision
-}
-
 export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
   indexer.delegationExchangeRate = indexer.delegatedTokens
     .toBigDecimal()
     .div(indexer.delegatorShares.toBigDecimal())
     .truncate(18)
   return indexer as Indexer
-}
-
-export function updateDelegationExchangeRateForProvision(provision: Provision): Provision {
-  provision.delegationExchangeRate = provision.delegatedTokens
-    .toBigDecimal()
-    .div(provision.delegatorShares.toBigDecimal())
-    .truncate(18)
-  return provision as Provision
 }
 
 // TODO - this is broken if we change the delegatio ratio
@@ -1116,10 +890,10 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
     deployment.signalAmount == BigInt.fromI32(0)
       ? BigDecimal.fromString('0')
       : deployment.signalledTokens
-        .toBigDecimal()
-        .div(deployment.signalAmount.toBigDecimal())
-        .times(BigInt.fromI32(reserveRatioMultiplier).toBigDecimal())
-        .truncate(18)
+          .toBigDecimal()
+          .div(deployment.signalAmount.toBigDecimal())
+          .times(BigInt.fromI32(reserveRatioMultiplier).toBigDecimal())
+          .truncate(18)
   return pricePerShare
 }
 
