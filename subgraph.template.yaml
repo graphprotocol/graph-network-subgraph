@@ -520,6 +520,49 @@ dataSources:
         - event: GraphPaymentCollected(indexed uint8,indexed address,address,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleGraphPaymentCollected
   - kind: ethereum/contract
+    name: HorizonDisputeManager
+    network: {{network}}
+    source:
+      address: "{{horizonDisputeManager}}"
+      abi: HorizonDisputeManager
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/horizonDisputeManager.ts
+      entities:
+        - Dispute
+        - GraphNetwork
+        - GraphAccount
+        - SubgraphDeployment
+      abis:
+        - name: HorizonDisputeManager
+          file: ./abis/HorizonDisputeManager.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
+      eventHandlers:
+        - event: QueryDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,bytes32,bytes,uint256)
+          handler: handleQueryDisputeCreated
+        - event: IndexingDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,address,bytes32,uint256)
+          handler: handleIndexingDisputeCreated
+        - event: DisputeAccepted(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleDisputeAccepted
+        - event: DisputeRejected(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleDisputeRejected
+        - event: DisputeCancelled(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleDisputeCancelled
+        - event: DisputeDrawn(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleDisputeDrawn
+        - event: DisputeLinked(indexed bytes32,indexed bytes32)
+          handler: handleDisputeLinked
+        - event: ArbitratorSet(indexed address)
+          handler: handleArbitratorSet
+        - event: FishermanRewardCutSet(uint32)
+          handler: handleFishermanRewardCutSet
+        - event: MaxSlashingCutSet(uint32)
+          handler: handleMaxSlashingCutSet
+  - kind: ethereum/contract
     name: Curation
     network: {{network}}
     source:

@@ -17,6 +17,7 @@ export let addresses: Addresses = {
   graphToken: '{{horizon.L2GraphToken.address}}',
   epochManager: '{{horizon.EpochManager.address}}',
   disputeManager: '{{subgraphService.DisputeManager.address}}',
+  horizonDisputeManager: '{{subgraphService.HorizonDisputeManager.address}}',
   staking: '{{horizon.HorizonStaking.address}}',
   stakingExtension: '{{horizon.HorizonStaking.address}}',
   curation: '{{horizon.L2Curation.address}}',
@@ -57,6 +58,9 @@ const main = (): void => {
     }
     if(output.subgraphNFT == '') {
       output.subgraphNFT = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.horizonDisputeManager == '') {
+      output.horizonDisputeManager = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {

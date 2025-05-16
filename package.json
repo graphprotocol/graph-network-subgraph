@@ -17,6 +17,7 @@
     "deploy-arbitrum": "yarn && yarn prepare:arbitrum && graph deploy --studio graph-network-arbitrum",
     "deploy-sepolia": "yarn && yarn prepare:sepolia && graph deploy --studio graph-network-sepolia",
     "deploy-arbitrum-sepolia": "yarn && yarn prepare:arbitrum-sepolia && graph deploy --studio graph-network-arbitrum-sepolia",
+    "deploy-arbitrum-sepolia-test": "yarn && yarn prepare:arbitrum-sepolia && graph deploy horizon-testing-arb-sepolia -l test-old",
     "deploy-studio": "yarn deploy-mainnet && yarn deploy-arbitrum && yarn deploy-sepolia && yarn deploy-arbitrum-sepolia",
     "prep:addresses:sepolia": "ts-node config/sepoliaAddressScript.ts && mustache ./config/generatedAddresses.json ./config/addresses.template.ts > ./config/addresses.ts",
     "prepare:sepolia": "yarn prep:addresses:sepolia && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/",
@@ -42,8 +43,8 @@
   },
   "devDependencies": {
     "@graphprotocol/contracts": "6.2.0",
-    "@graphprotocol/graph-cli": "0.68.5",
-    "@graphprotocol/graph-ts": "0.38.0",
+    "@graphprotocol/graph-cli": "0.97.0",
+    "@graphprotocol/graph-ts": "0.36.0",
     "@types/node": "^14.0.13",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
@@ -51,6 +52,7 @@
     "matchstick-as": "0.6.0-beta.2",
     "mustache": "^4.0.1",
     "prettier": "^2.0.5",
+    "ts-node": "^10.9.2",
     "typescript": "^3.9.3"
   },
   "author": "",

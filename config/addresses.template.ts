@@ -4,6 +4,7 @@ export class Addresses {
   graphToken: string
   epochManager: string
   disputeManager: string
+  horizonDisputeManager: string
   staking: string
   stakingExtension: string
   curation: string
@@ -31,6 +32,7 @@ export let addresses: Addresses = {
   graphToken: '{{graphToken}}',
   epochManager: '{{epochManager}}',
   disputeManager: '{{disputeManager}}',
+  horizonDisputeManager: '{{horizonDisputeManager}}',
   staking: '{{staking}}',
   stakingExtension: '{{stakingExtension}}',
   curation: '{{curation}}',

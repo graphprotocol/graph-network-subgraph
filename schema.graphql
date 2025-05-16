@@ -1,7 +1,7 @@
 """
 Graph Network global parameters and contract addresses
 """
-type GraphNetwork @entity {
+type GraphNetwork @entity(immutable: false) {
   "ID is set to 1"
   id: ID!
   "Controller address"
@@ -219,8 +219,12 @@ type GraphNetwork @entity {
   slashingPercentage: Int!
   "Minimum deposit to create a dispute"
   minimumDisputeDeposit: BigInt!
-  "Reward to Fisherman on successful disputes. In parts per million"
+  "[LEGACY] Reward to Fisherman on successful disputes. In parts per million"
   fishermanRewardPercentage: Int!
+  "[HORIZON]Reward to Fisherman on successful disputes. In parts per million"
+  fishermanRewardCut: Int!
+  "Maximum Penalty to Indexer on successful disputes for indexing disputes. Percentage of the indexer's stake snapshot (own stake plus delegated). In parts per million"
+  maxSlashingCut: Int!
 
   # Bridge totals (Only available on L1 networks)
   "Total amount of GRT deposited to the L1 gateway. Note that the actual amount claimed in L2 might be lower due to tickets not redeemed."
@@ -239,7 +243,7 @@ type GraphNetwork @entity {
   currentL1BlockNumber: BigInt
 }
 
-type DataService @entity {
+type DataService @entity(immutable: false) {
   "Data Service address"
   id: ID!
 
@@ -287,7 +291,7 @@ type DataService @entity {
 An account within the graph network. Contains metadata and all relevant data for this accounts
 delegating, curating, and indexing.
 """
-type GraphAccount @entity {
+type GraphAccount @entity(immutable: false) {
   "Graph account ID"
   id: ID!
   "All names this graph account has claimed from all name systems"
@@ -380,7 +384,7 @@ type GraphAccountMeta @entity(immutable:true) {
 A name chosen by a Graph Account from a Name System such as ENS. This allows Graph Accounts to be
 recognized by name, rather than just an Ethereum address
 """
-type GraphAccountName @entity {
+type GraphAccountName @entity(immutable: false) {
   "Name system concatenated with the unique ID of the name system"
   id: ID!
   "Name system for this name"
@@ -403,7 +407,7 @@ name chosen a unique combination. When a Curator singals on a Subgraph, they rec
 "Name Signal" resolves into the underlying "Signal" of the SubgraphDeployment. The metadata of the
 subgraph is stored on IPFS.
 """
-type Subgraph @entity {
+type Subgraph @entity(immutable: false) {
   "Subgraph ID - which is derived from the Organization/Individual graph accountID"
   id: ID!
   "Graph account that owns this subgraph"
@@ -520,7 +524,7 @@ type SubgraphMeta @entity(immutable:true) {
   categories: [String!]
 }
 
-type CurrentSubgraphDeploymentRelation @entity {
+type CurrentSubgraphDeploymentRelation @entity(immutable: false) {
   "Auxiliary entity used to batch update Subgraph entities when signalling on the deployment changes. ID replicates the deployment ID and adds a counter, to make it easy to reproduce."
   id: ID!
 
@@ -541,7 +545,7 @@ deployment, while keeping the same endpoint. The metadata and label are stored o
 is for the developer to provide a semantic version. This is different from the version, which is
 just a counter than increases each time a new SubgraphVersion is created for a Subgraph.
 """
-type SubgraphVersion @entity {
+type SubgraphVersion @entity(immutable: false) {
   "Concatenation of subgraph, subgraph deployment, and version ID"
   id: ID!
   "Subgraph of this version"
@@ -582,7 +586,7 @@ what to index. The entity stores relevant data for the SubgraphDeployment on how
 staked on and signaled on in the contracts, as well as how it is performing in query fees. It is
 related to a SubgraphVersion.
 """
-type SubgraphDeployment @entity {
+type SubgraphDeployment @entity(immutable: false) {
   "Subgraph Deployment ID. The IPFS hash with Qm removed to fit into 32 bytes"
   id: ID!
   "IPFS hash of the subgraph manifest"
@@ -713,7 +717,7 @@ type SubgraphDeploymentManifest @entity(immutable:true) {
 """
 Meta for the Indexer along with parameters and staking data
 """
-type Indexer @entity {
+type Indexer @entity(immutable: false) {
   "Eth address of Indexer"
   id: ID!
   "Time this indexer was created"
@@ -840,7 +844,7 @@ type Indexer @entity {
   stakingEfficiency: BigDecimal!
 }
 
-type PaymentSource @entity {
+type PaymentSource @entity(immutable: false) {
   "Address used on the payment"
   id: ID!
 
@@ -863,7 +867,7 @@ type PaymentSource @entity {
   graphNetwork: GraphNetwork! # to make a derived list on GraphNetwork
 }
 
-type IndexerQueryFeePaymentAggregation @entity {
+type IndexerQueryFeePaymentAggregation @entity(immutable: false) {
   "Join ID of indexer address and PaymentSource address"
   id: ID!
 
@@ -879,7 +883,7 @@ type IndexerQueryFeePaymentAggregation @entity {
   paymentSource: PaymentSource!
 }
 
-type HorizonOperator @entity {
+type HorizonOperator @entity(immutable: false) {
   "Joint address of all 3 parties involved (Operator, Indexer, DataService)"
   id: ID!
 
@@ -903,7 +907,7 @@ type HorizonOperator @entity {
 
   Once the Stage 2 subgraph is implemented, the Provision entity will have to be more generic, and particular data service fields will need to be restructured.
 """
-type Provision @entity {
+type Provision @entity(immutable: false) {
   "Join ID of indexer address (service provider) and DataService address"
   id: ID!
 
@@ -1006,7 +1010,7 @@ enum ThawRequestType {
   Delegation
 }
 
-type ThawRequest @entity {
+type ThawRequest @entity(immutable: false) {
   id: ID!
 
   type: ThawRequestType!
@@ -1033,7 +1037,7 @@ type ThawRequest @entity {
 """
 A state channel Allocation representing a single Indexer/Provision-SubgraphDeployment stake
 """
-type Allocation @entity {
+type Allocation @entity(immutable: false) {
   "Channel Address"
   id: ID!
   "Indexer of this allocation"
@@ -1121,7 +1125,7 @@ type Allocation @entity {
   annualizedReturn: BigDecimal!
 }
 
-type PoiSubmission @entity {
+type PoiSubmission @entity(immutable: true) {
   id: ID!
 
   allocation: Allocation!
@@ -1133,7 +1137,7 @@ type PoiSubmission @entity {
   presentedAtTimestamp: Int!
 }
 
-type PublicPoiSubmission @entity {
+type PublicPoiSubmission @entity(immutable: true) {
   id: ID!
 
   allocation: Allocation!
@@ -1157,7 +1161,7 @@ enum AllocationStatus {
 [DEPRECATED] Global pool of query fees for closed state channels. Each Epoch has a single pool,
 hence why they share the same IDs.
 """
-type Pool @entity {
+type Pool @entity(immutable: false) {
   "Epoch number of the pool"
   id: ID!
   "Total effective allocation tokens from all allocations closed in this epoch"
@@ -1175,7 +1179,7 @@ type Pool @entity {
 """
 Delegator with all their delegated stakes towards Indexers
 """
-type Delegator @entity {
+type Delegator @entity(immutable: false) {
   "Delegator address"
   id: ID!
   "Graph account of the delegator"
@@ -1203,7 +1207,7 @@ type Delegator @entity {
 """
 Delegator stake for a single Indexer
 """
-type DelegatedStake @entity {
+type DelegatedStake @entity(immutable: false) {
   "Concatenation of Delegator address and Indexer address"
   id: ID!
   "Indexer the stake is delegated to"
@@ -1253,7 +1257,7 @@ type DelegatedStake @entity {
 """
 Curator with all Signals and metrics
 """
-type Curator @entity {
+type Curator @entity(immutable: false) {
   "Eth address of the Curator"
   id: ID!
   "Time this curator was created"
@@ -1319,7 +1323,7 @@ type Curator @entity {
 """
 Curator Signal for a single SubgraphDeployment
 """
-type Signal @entity {
+type Signal @entity(immutable: false) {
   "Eth address + subgraph deployment ID"
   id: ID!
   "Eth address of the curator"
@@ -1358,7 +1362,7 @@ type Signal @entity {
 """
 Curator Name Signal for a single Subgraph
 """
-type NameSignal @entity {
+type NameSignal @entity(immutable: false) {
   "Eth address + subgraph ID"
   id: ID!
   "Eth address of the curator"
@@ -1423,7 +1427,7 @@ type NameSignal @entity {
 """
 Auxiliary entity to be able to batch update NameSignal entities
 """
-type NameSignalSubgraphRelation @entity {
+type NameSignalSubgraphRelation @entity(immutable: false) {
   "Subgraph ID + index"
   id: ID!
 
@@ -1435,7 +1439,7 @@ type NameSignalSubgraphRelation @entity {
 """
 Dispute of a query. Includes single query, conflicting attestation, and indexing disputes
 """
-type Dispute @entity {
+type Dispute @entity(immutable: false) {
   "Dispute ID"
   id: ID!
   "Subgraph deployment being disputed"
@@ -1444,6 +1448,8 @@ type Dispute @entity {
   fisherman: GraphAccount!
   "Fisherman deposit"
   deposit: BigInt!
+  "Whether this dispute was created in the legacy protocol"
+  isLegacy: Boolean!
 
   "Time dispute was created"
   createdAt: Int!
@@ -1474,7 +1480,7 @@ type Dispute @entity {
 """
 Attestation of a dispute
 """
-type Attestation @entity {
+type Attestation @entity(immutable: false) {
   "Concatenation of the requestCID and responseCID"
   id: ID!
   "Subgraph deployment being disputed"
@@ -1511,7 +1517,7 @@ enum DisputeStatus {
 """
 Epoch aggregate data for network statistics on signaling, rewards, and query fees
 """
-type Epoch @entity {
+type Epoch @entity(immutable: false) {
   "Epoch number"
   id: ID!
   "Start block of the epoch"
@@ -1560,7 +1566,7 @@ interface Transaction {
 """
 All relevant data for a Name Signal Transaction in The Graph Network
 """
-type NameSignalTransaction implements Transaction @entity {
+type NameSignalTransaction implements Transaction @entity(immutable: false) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1579,7 +1585,7 @@ type NameSignalTransaction implements Transaction @entity {
 """
 All relevant data for a Signal Transaction in The Graph Network
 """
-type SignalTransaction implements Transaction @entity {
+type SignalTransaction implements Transaction @entity(immutable: false) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1598,7 +1604,7 @@ type SignalTransaction implements Transaction @entity {
 """
 All relevant data for a bridge withdrawal Transaction in The Graph Network
 """
-type BridgeWithdrawalTransaction implements Transaction @entity {
+type BridgeWithdrawalTransaction implements Transaction @entity(immutable: false) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1617,7 +1623,7 @@ type BridgeWithdrawalTransaction implements Transaction @entity {
 """
 All relevant data for a bridge deposit Transaction in The Graph Network
 """
-type BridgeDepositTransaction implements Transaction @entity {
+type BridgeDepositTransaction implements Transaction @entity(immutable: false) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1638,7 +1644,7 @@ type BridgeDepositTransaction implements Transaction @entity {
 """
 All relevant data for arbitrum retryable tickets
 """
-type RetryableTicket @entity {
+type RetryableTicket @entity(immutable: false) {
   id: ID!
   "hash of the retryable ticket creation transaction"
   txHash: Bytes
@@ -1647,7 +1653,7 @@ type RetryableTicket @entity {
   redeemCount: Int
 }
 
-type RetryableTicketRedeemAttempt @entity {
+type RetryableTicketRedeemAttempt @entity(immutable: false) {
   id: ID!
   ticketId: RetryableTicket!
   txHash: Bytes
@@ -1668,7 +1674,7 @@ enum TransactionType {
 """
 The Token manager data
 """
-type TokenManager @entity {
+type TokenManager @entity(immutable: false) {
   "Token manager address"
   id: ID!
   "Master copy address"
@@ -1686,7 +1692,7 @@ type TokenManager @entity {
 """
 Authorized functions for the Manager
 """
-type AuthorizedFunction @entity {
+type AuthorizedFunction @entity(immutable: false) {
   "Function signature (string)"
   id: ID!
   "The contract address that is authorized to have this function called on itself"
@@ -1699,7 +1705,7 @@ type AuthorizedFunction @entity {
 """
 Token Lock Wallets which hold locked GRT
 """
-type TokenLockWallet @entity {
+type TokenLockWallet @entity(immutable: false) {
   "The address of the token lock wallet"
   id: ID!
   "The Manager address"
