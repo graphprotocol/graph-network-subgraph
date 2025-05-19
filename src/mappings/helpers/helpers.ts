@@ -776,6 +776,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.fishermanRewardPercentage = 0
     graphNetwork.fishermanRewardCut = 0
     graphNetwork.maxSlashingCut = 0
+    graphNetwork.disputePeriod = BigInt.fromI32(0)
 
     graphNetwork.totalGRTDeposited = BigInt.fromI32(0)
     graphNetwork.totalGRTDepositedConfirmed = BigInt.fromI32(0)
