@@ -110,5 +110,6 @@ export function handleStakeDelegatedUnlockedDueToL2Transfer(
   ])
   let delegation = DelegatedStake.load(delegationID)!
   delegation.lockedUntil = graphNetwork.currentEpoch
+  delegation.legacyLockedUntil = graphNetwork.currentEpoch
   delegation.save()
 }

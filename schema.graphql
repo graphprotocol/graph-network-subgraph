@@ -751,6 +751,10 @@ type Indexer @entity(immutable: false) {
   lockedTokens: BigInt!
   "The block when the Indexers tokens unlock"
   tokensLockedUntil: Int!
+  "[Legacy only] CURRENT tokens locked"
+  legacyLockedTokens: BigInt!
+  "[Legacy only] The block when the Indexers tokens unlock"
+  legacyTokensLockedUntil: Int!
   "Active allocations of stake for this Indexer"
   allocations: [Allocation!]! @derivedFrom(field: "activeForIndexer")
   "All allocations of stake for this Indexer (i.e. closed and active)"
@@ -1226,6 +1230,10 @@ type DelegatedStake @entity(immutable: false) {
   lockedTokens: BigInt!
   "Epoch the locked tokens get unlocked"
   lockedUntil: Int!
+  "[Legacy only] CURRENT tokens locked"
+  legacyLockedTokens: BigInt!
+  "[Legacy only] Epoch the locked tokens get unlocked"
+  legacyLockedUntil: Int!
   "Shares owned in the delegator pool. Used to calculate total amount delegated"
   shareAmount: BigInt!
   "The rate this delegator paid for their shares (calculated using average cost basis). Used for rewards calculations"
