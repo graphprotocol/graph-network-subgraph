@@ -225,6 +225,8 @@ type GraphNetwork @entity(immutable: false) {
   fishermanRewardCut: Int!
   "Maximum Penalty to Indexer on successful disputes for indexing disputes. Percentage of the indexer's stake snapshot (own stake plus delegated). In parts per million"
   maxSlashingCut: Int!
+  "Dispute period in seconds"
+  disputePeriod: BigInt!
 
   # Bridge totals (Only available on L1 networks)
   "Total amount of GRT deposited to the L1 gateway. Note that the actual amount claimed in L2 might be lower due to tickets not redeemed."

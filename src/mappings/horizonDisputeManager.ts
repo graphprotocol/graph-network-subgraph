@@ -11,6 +11,7 @@ import {
   FishermanRewardCutSet,
   MaxSlashingCutSet,
   DisputeCancelled,
+  DisputePeriodSet,
 } from '../types/HorizonDisputeManager/HorizonDisputeManager'
 import { createOrLoadGraphNetwork } from './helpers/helpers'
 
@@ -192,6 +193,13 @@ export function handleFishermanRewardCutSet(event: FishermanRewardCutSet): void 
 export function handleMaxSlashingCutSet(event: MaxSlashingCutSet): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   graphNetwork.maxSlashingCut = event.params.maxSlashingCut.toI32()
+  graphNetwork.save()
+}
+
+// Handles DisputePeriodSet events
+export function handleDisputePeriodSet(event: DisputePeriodSet): void {
+  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  graphNetwork.disputePeriod = event.params.disputePeriod
   graphNetwork.save()
 }
 
