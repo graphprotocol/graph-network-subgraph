@@ -46,5 +46,5 @@ test('createOrLoadGraphAccount creates a new graph account', () => {
 test('createOrLoadIndexer creates a new indexer', () => {
   createOrLoadIndexer(Bytes.fromHexString(indexerID), BigInt.fromI32(1))
   assert.fieldEquals('Indexer', indexerID, 'stakedTokens', '0')
-  assert.fieldEquals('Indexer', indexerID, 'indexingRewardCut', '0')
+  assert.fieldEquals('Indexer', indexerID, 'legacyIndexingRewardCut', '0')
 })
