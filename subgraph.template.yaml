@@ -562,6 +562,8 @@ dataSources:
           handler: handleFishermanRewardCutSet
         - event: MaxSlashingCutSet(uint32)
           handler: handleMaxSlashingCutSet
+        - event: DisputePeriodSet(uint64)
+          handler: handleDisputePeriodSet
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
