@@ -183,6 +183,7 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.forcedClosures = 0
     indexer.allocationCount = 0
     indexer.totalAllocationCount = BigInt.fromI32(0)
+    indexer.thawingUntil = BigInt.fromI32(0)
 
     indexer.url = ''
     indexer.geoHash = ''
@@ -244,6 +245,7 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.delegatedTokens = BigInt.fromI32(0)
     provision.delegatorShares = BigInt.fromI32(0)
     provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
+    provision.thawingUntil = BigInt.fromI32(0)
     provision.ownStakeRatio = BigInt.fromI32(0).toBigDecimal()
     provision.delegatedStakeRatio = BigInt.fromI32(0).toBigDecimal()
     provision.indexerRewardsOwnGenerationRatio = BigInt.fromI32(0).toBigDecimal()
