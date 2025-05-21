@@ -147,8 +147,10 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.thawingTokens = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
+    indexer.legacyLockedTokens = BigInt.fromI32(0)
     indexer.unstakedTokens = BigInt.fromI32(0)
     indexer.tokensLockedUntil = 0
+    indexer.legacyTokensLockedUntil = 0
     indexer.queryFeesCollected = BigInt.fromI32(0)
     indexer.queryFeeRebates = BigInt.fromI32(0)
     indexer.rewardsEarned = BigInt.fromI32(0)
@@ -374,6 +376,8 @@ export function createOrLoadDelegatedStake(
     delegatedStake.unstakedTokens = BigInt.fromI32(0)
     delegatedStake.lockedTokens = BigInt.fromI32(0)
     delegatedStake.lockedUntil = 0
+    delegatedStake.legacyLockedTokens = BigInt.fromI32(0)
+    delegatedStake.legacyLockedUntil = 0
     delegatedStake.shareAmount = BigInt.fromI32(0)
     delegatedStake.personalExchangeRate = BigDecimal.fromString('1')
     delegatedStake.realizedRewards = BigDecimal.fromString('0')

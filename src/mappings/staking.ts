@@ -108,6 +108,8 @@ export function handleStakeLocked(event: StakeLocked): void {
   let indexer = Indexer.load(id)!
   indexer.lockedTokens = event.params.tokens
   indexer.tokensLockedUntil = event.params.until.toI32()
+  indexer.legacyLockedTokens = event.params.tokens
+  indexer.legacyTokensLockedUntil = event.params.until.toI32()
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
@@ -135,6 +137,8 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
   indexer.lockedTokens = indexer.lockedTokens.minus(event.params.tokens)
   indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
+  indexer.legacyLockedTokens = indexer.legacyLockedTokens.minus(event.params.tokens)
+  indexer.legacyTokensLockedUntil = 0 // always set to 0 when withdrawn
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
@@ -164,6 +168,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   let staking = Staking.bind(event.address)
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.lockedTokens = indexerStored.tokensLocked
+  indexer.legacyLockedTokens = indexerStored.tokensLocked
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
@@ -268,7 +273,9 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
   delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
+  delegatedStake.legacyLockedTokens = delegatedStake.legacyLockedTokens.plus(event.params.tokens)
   delegatedStake.lockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
+  delegatedStake.legacyLockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
   delegatedStake.lastUndelegatedAt = event.block.timestamp.toI32()
 
   let currentBalance = event.params.shares.toBigDecimal().times(beforeUpdateDelegationExchangeRate)
@@ -306,7 +313,9 @@ export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): v
   let id = joinID([delegatorID, indexerID])
   let delegatedStake = DelegatedStake.load(id)!
   delegatedStake.lockedTokens = BigInt.fromI32(0)
+  delegatedStake.legacyLockedTokens = BigInt.fromI32(0)
   delegatedStake.lockedUntil = 0
+  delegatedStake.legacyLockedUntil = 0
   delegatedStake.save()
 }
 
