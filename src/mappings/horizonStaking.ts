@@ -273,10 +273,10 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
 
     // update latest thawingUntil for provision and indexer
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
-    provision.thawingUntil = event.params.thawingUntil
+    provision.thawingUntil = event.params.thawingUntil > provision.thawingUntil ? event.params.thawingUntil : provision.thawingUntil
     provision.save()
 
-    indexer.thawingUntil = event.params.thawingUntil
+    indexer.thawingUntil = event.params.thawingUntil > indexer.thawingUntil ? event.params.thawingUntil : indexer.thawingUntil
     indexer.save()
 }
 
