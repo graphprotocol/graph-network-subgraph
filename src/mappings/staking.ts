@@ -40,7 +40,7 @@ import {
   createOrLoadDelegator,
   createOrLoadDelegatedStake,
   createOrLoadGraphAccount,
-  updateAdvancedIndexerMetrics,
+  updateLegacyAdvancedIndexerMetrics,
   updateDelegationExchangeRate,
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
@@ -54,13 +54,13 @@ import { addresses } from '../../config/addresses'
 export function handleDelegationParametersUpdated(event: DelegationParametersUpdated): void {
   let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
   let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
-  indexer.indexingRewardCut = event.params.indexingRewardCut.toI32()
-  indexer.queryFeeCut = event.params.queryFeeCut.toI32()
+  indexer.legacyIndexingRewardCut = event.params.indexingRewardCut.toI32()
+  indexer.legacyQueryFeeCut = event.params.queryFeeCut.toI32()
   indexer.delegatorParameterCooldown = event.params.cooldownBlocks.toI32()
   indexer.lastDelegationParameterUpdate = (
     addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!
   ).toI32()
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer.save()
 }
 
@@ -76,7 +76,7 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   let indexer = createOrLoadLegacyIndexer(event.params.indexer, event.block.timestamp)
   let previousStake = indexer.stakedTokens
   indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -110,7 +110,7 @@ export function handleStakeLocked(event: StakeLocked): void {
   indexer.tokensLockedUntil = event.params.until.toI32()
   indexer.legacyLockedTokens = event.params.tokens
   indexer.legacyTokensLockedUntil = event.params.until.toI32()
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -139,7 +139,7 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
   indexer.legacyLockedTokens = indexer.legacyLockedTokens.minus(event.params.tokens)
   indexer.legacyTokensLockedUntil = 0 // always set to 0 when withdrawn
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -169,7 +169,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
   let indexerStored = staking.stakes(event.params.indexer)
   indexer.lockedTokens = indexerStored.tokensLocked
   indexer.legacyLockedTokens = indexerStored.tokensLocked
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -189,7 +189,7 @@ export function handleStakeDelegated(event: StakeDelegated): void {
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -258,7 +258,7 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -339,7 +339,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
   indexer.totalAllocationCount = indexer.totalAllocationCount.plus(BigInt.fromI32(1))
   indexer.allocationCount = indexer.allocationCount + 1
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -379,10 +379,10 @@ export function handleAllocationCreated(event: AllocationCreated): void {
   allocation.totalReturn = BigDecimal.fromString('0')
   allocation.annualizedReturn = BigDecimal.fromString('0')
   allocation.createdAt = event.block.timestamp.toI32()
-  allocation.indexingRewardCutAtStart = indexer.indexingRewardCut
-  allocation.indexingRewardEffectiveCutAtStart = indexer.indexingRewardEffectiveCut
-  allocation.queryFeeCutAtStart = indexer.queryFeeCut
-  allocation.queryFeeEffectiveCutAtStart = indexer.queryFeeEffectiveCut
+  allocation.indexingRewardCutAtStart = indexer.legacyIndexingRewardCut
+  allocation.indexingRewardEffectiveCutAtStart = indexer.legacyIndexingRewardEffectiveCut
+  allocation.queryFeeCutAtStart = indexer.legacyQueryFeeCut
+  allocation.queryFeeEffectiveCutAtStart = indexer.legacyQueryFeeEffectiveCut
   allocation.isLegacy = true
   allocation.save()
 }
@@ -516,7 +516,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -531,10 +531,10 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.status = 'Closed'
   allocation.closedAt = event.block.timestamp.toI32()
   allocation.poi = event.params.poi
-  allocation.indexingRewardCutAtClose = indexer.indexingRewardCut
-  allocation.indexingRewardEffectiveCutAtClose = indexer.indexingRewardEffectiveCut
-  allocation.queryFeeCutAtClose = indexer.queryFeeCut
-  allocation.queryFeeEffectiveCutAtClose = indexer.queryFeeEffectiveCut
+  allocation.indexingRewardCutAtClose = indexer.legacyIndexingRewardCut
+  allocation.indexingRewardEffectiveCutAtClose = indexer.legacyIndexingRewardEffectiveCut
+  allocation.queryFeeCutAtClose = indexer.legacyQueryFeeCut
+  allocation.queryFeeEffectiveCutAtClose = indexer.legacyQueryFeeEffectiveCut
   allocation.save()
 
   // update epoch - We do it here to have more epochs created, instead of seeing none created
@@ -587,7 +587,7 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -603,10 +603,10 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   allocation.status = 'Closed'
   allocation.closedAt = event.block.timestamp.toI32()
   allocation.poi = event.params.poi
-  allocation.indexingRewardCutAtClose = indexer.indexingRewardCut
-  allocation.indexingRewardEffectiveCutAtClose = indexer.indexingRewardEffectiveCut
-  allocation.queryFeeCutAtClose = indexer.queryFeeCut
-  allocation.queryFeeEffectiveCutAtClose = indexer.queryFeeEffectiveCut
+  allocation.indexingRewardCutAtClose = indexer.legacyIndexingRewardCut
+  allocation.indexingRewardEffectiveCutAtClose = indexer.legacyIndexingRewardEffectiveCut
+  allocation.queryFeeCutAtClose = indexer.legacyQueryFeeCut
+  allocation.queryFeeEffectiveCutAtClose = indexer.legacyQueryFeeEffectiveCut
   allocation.save()
 
   // update epoch - We do it here to have more epochs created, instead of seeing none created
@@ -665,7 +665,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer.save()
   // update allocation
   let allocation = Allocation.load(allocationID)!
@@ -730,7 +730,7 @@ export function handleRebateCollected(event: RebateCollected): void {
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer.save()
 
   // Replicate for payment source specific aggregation

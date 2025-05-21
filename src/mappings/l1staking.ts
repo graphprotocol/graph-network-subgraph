@@ -6,7 +6,7 @@ import {
 } from '../types/L1Staking/L1Staking'
 
 import { Indexer, DelegatedStake, GraphNetwork } from '../types/schema'
-import { calculateCapacities, createOrLoadGraphNetwork, joinID, updateAdvancedIndexerMetrics, updateDelegationExchangeRate } from './helpers/helpers'
+import { calculateCapacities, createOrLoadGraphNetwork, joinID, updateLegacyAdvancedIndexerMetrics, updateDelegationExchangeRate } from './helpers/helpers'
 
 /*
     /// @dev Emitted when an indexer transfers their stake to L2.
@@ -34,7 +34,7 @@ export function handleIndexerStakeTransferredToL2(event: IndexerStakeTransferred
   indexer.lastTransferredToL2At = event.block.timestamp
   indexer.lastTransferredToL2AtBlockNumber = event.block.number
   indexer.lastTransferredToL2AtTx = event.transaction.hash.toHexString()
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
@@ -84,7 +84,7 @@ export function handleDelegationTransferredToL2(event: DelegationTransferredToL2
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 

@@ -141,12 +141,12 @@ describe('INDEXER STAKE', () => {
         cooldownBlocks,
       )
       handleDelegationParametersUpdated(event)
-      assert.fieldEquals('Indexer', indexerID, 'queryFeeCut', queryFeeCut.toString())
+      assert.fieldEquals('Indexer', indexerID, 'legacyQueryFeeCut', queryFeeCut.toString())
     })
 
     test('assigns the right values to params', () => {
-      assert.fieldEquals('Indexer', indexerID, 'indexingRewardCut', indexingRewardCut.toString())
-      assert.fieldEquals('Indexer', indexerID, 'queryFeeCut', queryFeeCut.toString())
+      assert.fieldEquals('Indexer', indexerID, 'legacyIndexingRewardCut', indexingRewardCut.toString())
+      assert.fieldEquals('Indexer', indexerID, 'legacyQueryFeeCut', queryFeeCut.toString())
       assert.fieldEquals(
         'Indexer',
         indexerID,
@@ -163,8 +163,8 @@ describe('INDEXER STAKE', () => {
         cooldownBlocks2,
       )
       handleDelegationParametersUpdated(event)
-      assert.fieldEquals('Indexer', indexerID, 'indexingRewardCut', indexingRewardCut2.toString())
-      assert.fieldEquals('Indexer', indexerID, 'queryFeeCut', queryFeeCut2.toString())
+      assert.fieldEquals('Indexer', indexerID, 'legacyIndexingRewardCut', indexingRewardCut2.toString())
+      assert.fieldEquals('Indexer', indexerID, 'legacyQueryFeeCut', queryFeeCut2.toString())
       assert.fieldEquals(
         'Indexer',
         indexerID,
