@@ -419,6 +419,8 @@ export function createOrLoadDelegatedStakeForProvision(
     delegatedStake.unstakedTokens = BigInt.fromI32(0)
     delegatedStake.lockedTokens = BigInt.fromI32(0)
     delegatedStake.lockedUntil = 0
+    delegatedStake.legacyLockedTokens = BigInt.fromI32(0)
+    delegatedStake.legacyLockedUntil = 0
     delegatedStake.shareAmount = BigInt.fromI32(0)
     delegatedStake.personalExchangeRate = BigDecimal.fromString('1')
     delegatedStake.realizedRewards = BigDecimal.fromString('0')
