@@ -4,6 +4,7 @@ export class Addresses {
   graphToken: string
   epochManager: string
   disputeManager: string
+  horizonDisputeManager: string
   staking: string
   stakingExtension: string
   curation: string
@@ -20,6 +21,8 @@ export class Addresses {
   l1GraphTokenGateway: string
   l2GraphTokenGateway: string
   ethereumDIDRegistry: string
+  subgraphService: string
+  graphPayments: string
   isL1: boolean
 }
 
@@ -29,6 +32,7 @@ export let addresses: Addresses = {
   graphToken: '{{graphToken}}',
   epochManager: '{{epochManager}}',
   disputeManager: '{{disputeManager}}',
+  horizonDisputeManager: '{{horizonDisputeManager}}',
   staking: '{{staking}}',
   stakingExtension: '{{stakingExtension}}',
   curation: '{{curation}}',
@@ -45,5 +49,7 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '{{l1GraphTokenGateway}}',
   l2GraphTokenGateway: '{{l2GraphTokenGateway}}',
   ethereumDIDRegistry: '{{ethereumDIDRegistry}}',
+  subgraphService: '{{subgraphService}}',
+  graphPayments: '{{graphPayments}}',
   isL1: {{isL1}},
 }

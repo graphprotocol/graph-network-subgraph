@@ -13,6 +13,7 @@ export let addresses: Addresses = {
   graphToken: '{{arbsep.L2GraphToken.address}}',
   epochManager: '{{arbsep.EpochManager.address}}',
   disputeManager: '{{arbsep.DisputeManager.address}}',
+  horizonDisputeManager: '{{arbsep.HorizonDisputeManager.address}}',
   staking: '{{arbsep.L2Staking.address}}',
   stakingExtension: '{{arbsep.StakingExtension.address}}',
   curation: '{{arbsep.L2Curation.address}}',
@@ -29,6 +30,8 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbsep.L2GraphTokenGateway.address}}',
   ethereumDIDRegistry: '{{arbsep.EthereumDIDRegistry.address}}',
+  subgraphService: '{{arbsep.SubgraphService.address}}',
+  graphPayments: '{{arbsep.GraphPayments.address}}',
   isL1: false,
 }
 
@@ -44,6 +47,16 @@ const main = (): void => {
     }
     if(output.ethereumDIDRegistry == '') {
       output.ethereumDIDRegistry = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    // remove once we have proper packages
+    if(output.subgraphService == '') {
+      output.subgraphService = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.graphPayments == '') {
+      output.graphPayments = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.horizonDisputeManager == '') {
+      output.horizonDisputeManager = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
