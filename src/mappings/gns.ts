@@ -625,14 +625,14 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
  *   call the contract directly to get the updated value
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
-  let parameter = event.params.param
-  let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-  let gns = GNS.bind(event.address)
+  // let parameter = event.params.param
+  // let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+  // let gns = GNS.bind(event.address)
 
-  if (parameter == 'ownerTaxPercentage') {
-    graphNetwork.ownerTaxPercentage = gns.ownerTaxPercentage().toI32()
-  }
-  graphNetwork.save()
+  // if (parameter == 'ownerTaxPercentage') {
+  //   graphNetwork.ownerTaxPercentage = gns.ownerTaxPercentage().toI32()
+  // }
+  // graphNetwork.save()
 }
 
 // - event: SubgraphPublished(indexed uint256,indexed bytes32,uint32)

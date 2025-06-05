@@ -477,7 +477,7 @@ dataSources:
           handler: handleAllocationResized
         - event: AllocationClosed(indexed address,indexed address,indexed bytes32,uint256,bool)
           handler: handleAllocationClosed
-        - event: IndexingRewardsCollected(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256,bytes32,bytes32,uint256)
+        - event: IndexingRewardsCollected(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256,bytes32,bytes,uint256)
           handler: handleIndexingRewardsCollected
         - event: QueryFeesCollected(indexed address,indexed address,indexed address,bytes32,uint256,uint256)
           handler: handleQueryFeesCollected

@@ -805,9 +805,9 @@
       },
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "publicPoi",
-        "type": "bytes32"
+        "internalType": "bytes",
+        "name": "poiMetadata",
+        "type": "bytes"
       },
       {
         "indexed": false,

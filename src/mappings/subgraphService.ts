@@ -1,7 +1,7 @@
-import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
+import { BigDecimal, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts"
 import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
 import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
-import { Allocation, PublicPoiSubmission, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
+import { Allocation, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 import { tuplePrefixBytes } from "./helpers/decoder"
 import { createOrLoadIndexer } from "./helpers/helpers"
@@ -255,21 +255,39 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
     allocation.poiCount = allocation.poiCount!.plus(BigInt.fromI32(1))
     allocation.save()
 
+    // Decode poi metadata
+    let poiBlockNumber = 0
+    let poiIndexingStatus = 0 // 0 is unknown, 1 is healthy, 2 is unhealthy, 3 is failed
+    let publicPoi = Bytes.fromHexString('0x')
+    let poiMetadataDecoded = false
+    
+    let poiMetadata = ethereum.decode('(uint256,bytes32,uint8,uint8,uint256)', event.params.poiMetadata)
+    if (poiMetadata != null && poiMetadata.kind == ethereum.ValueKind.TUPLE) {
+        poiMetadataDecoded = true
+
+        let tupleData = poiMetadata.toTuple()
+        poiBlockNumber = tupleData[0].toI32()
+        publicPoi = tupleData[1].toBytes()
+        poiIndexingStatus = tupleData[2].toI32()
+        
+        // TODO: implement error code handling
+        // let errorCode = tupleData[3].toBigInt()
+        // let errorBlockNumber = tupleData[4].toBigInt()
+    } else {
+        log.error("IndexingRewardsCollected failed to decode poi metadata: {}", [event.params.poiMetadata.toHexString()])
+    }
+
     // Create PoI submission
     let poiSubmission = new PoiSubmission(joinID([event.transaction.hash.toHexString(), event.logIndex.toString()]))
     poiSubmission.allocation = allocation.id
     poiSubmission.poi = event.params.poi
+    poiSubmission.publicPoi = publicPoi
     poiSubmission.submittedAtEpoch = event.params.currentEpoch.toI32()
     poiSubmission.presentedAtTimestamp = event.block.timestamp.toI32()
+    poiSubmission.indexingStatus = poiIndexingStatus
+    poiSubmission.blockNumber = poiBlockNumber
+    poiSubmission.metadataDecoded = poiMetadataDecoded
     poiSubmission.save()
-
-    // Create public PoI submission
-    let publicPoiSubmission = new PublicPoiSubmission(joinID([event.transaction.hash.toHexString(), event.logIndex.toString()]))
-    publicPoiSubmission.allocation = allocation.id
-    publicPoiSubmission.publicPoi = event.params.publicPoi
-    publicPoiSubmission.submittedAtEpoch = event.params.currentEpoch.toI32()
-    publicPoiSubmission.presentedAtTimestamp = event.block.timestamp.toI32()
-    publicPoiSubmission.save()
 
     // Update latest POI in allocation
     allocation.poi = event.params.poi

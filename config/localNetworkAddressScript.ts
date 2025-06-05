@@ -16,8 +16,8 @@ export let addresses: Addresses = {
   controller: '{{horizon.Controller.address}}',
   graphToken: '{{horizon.L2GraphToken.address}}',
   epochManager: '{{horizon.EpochManager.address}}',
-  disputeManager: '{{subgraphService.DisputeManager.address}}',
-  horizonDisputeManager: '{{subgraphService.HorizonDisputeManager.address}}',
+  disputeManager: '{{subgraphService.LegacyDisputeManager.address}}',
+  horizonDisputeManager: '{{subgraphService.DisputeManager.address}}',
   staking: '{{horizon.HorizonStaking.address}}',
   stakingExtension: '{{horizon.HorizonStaking.address}}',
   curation: '{{horizon.L2Curation.address}}',
@@ -52,15 +52,8 @@ const main = (): void => {
     if(output.ethereumDIDRegistry == '') {
       output.ethereumDIDRegistry = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
-    // TODO: Remove this once subgraph service scripts deploy GNS and SubgraphNFT
-    if(output.gns == '') {
-      output.gns = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
-    }
-    if(output.subgraphNFT == '') {
-      output.subgraphNFT = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
-    }
-    if(output.horizonDisputeManager == '') {
-      output.horizonDisputeManager = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    if(output.disputeManager == '') {
+      output.disputeManager = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {

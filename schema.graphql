@@ -1108,8 +1108,6 @@ type Allocation @entity(immutable: false) {
   poi: Bytes
   "POIs submitted when collecting payments in Horizon"
   pois: [PoiSubmission!]! @derivedFrom(field: "allocation")
-  "Public POIs submitted when collecting payments in Horizon"
-  publicPois: [PublicPoiSubmission!]! @derivedFrom(field: "allocation")
   "Number of POIs submitted for this allocation. Only available for Horizon allocations"
   poiCount: BigInt
   "Timestamp for the latest POI presentation"
@@ -1139,26 +1137,14 @@ type Allocation @entity(immutable: false) {
 
 type PoiSubmission @entity(immutable: true) {
   id: ID!
-
   allocation: Allocation!
-
   poi: Bytes!
-
-  submittedAtEpoch: Int!
-
-  presentedAtTimestamp: Int!
-}
-
-type PublicPoiSubmission @entity(immutable: true) {
-  id: ID!
-
-  allocation: Allocation!
-
   publicPoi: Bytes!
-
   submittedAtEpoch: Int!
-
   presentedAtTimestamp: Int!
+  indexingStatus: Int!
+  blockNumber: Int!
+  metadataDecoded: Boolean!
 }
 
 enum AllocationStatus {
