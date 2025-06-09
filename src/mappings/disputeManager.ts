@@ -22,6 +22,7 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   dispute.deposit = event.params.tokens
   dispute.isLegacy = true
   dispute.createdAt = event.block.timestamp.toI32()
+  dispute.cancellableAt = 0 // Legacy disputes are not cancellable
   dispute.status = 'Undecided'
   dispute.tokensSlashed = BigDecimal.fromString('0')
   dispute.tokensBurned = BigDecimal.fromString('0')
@@ -60,6 +61,7 @@ export function handleIndexingDisputeCreated(event: IndexingDisputeCreated): voi
   dispute.deposit = event.params.tokens
   dispute.isLegacy = true
   dispute.createdAt = event.block.timestamp.toI32()
+  dispute.cancellableAt = 0 // Legacy disputes are not cancellable
   dispute.status = 'Undecided'
   dispute.tokensSlashed = BigDecimal.fromString('0')
   dispute.tokensBurned = BigDecimal.fromString('0')

@@ -12,6 +12,7 @@ import {
   MaxSlashingCutSet,
   DisputeCancelled,
   DisputePeriodSet,
+  LegacyDisputeCreated,
 } from '../types/HorizonDisputeManager/HorizonDisputeManager'
 import { createOrLoadGraphNetwork } from './helpers/helpers'
 
@@ -32,6 +33,7 @@ const STATUS_CANCELLED = 'Cancelled'
 const TYPE_SINGLE_QUERY = 'SingleQuery'
 const TYPE_INDEXING = 'Indexing'
 const TYPE_CONFLICTING = 'Conflicting'
+const TYPE_LEGACY = 'Legacy'
 
 // This handles  Single query and Conflicting disputes
 export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
@@ -42,6 +44,7 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   dispute.deposit = event.params.tokens
   dispute.isLegacy = false
   dispute.createdAt = event.block.timestamp.toI32()
+  dispute.cancellableAt = event.params.cancellableAt.toI32()
   dispute.status = STATUS_UNDECIDED
   dispute.tokensSlashed = BIGDECIMAL_ZERO
   dispute.tokensRewarded = BIGINT_ZERO
@@ -80,11 +83,33 @@ export function handleIndexingDisputeCreated(event: IndexingDisputeCreated): voi
   dispute.deposit = event.params.tokens
   dispute.isLegacy = false
   dispute.createdAt = event.block.timestamp.toI32()
+  dispute.cancellableAt = event.params.cancellableAt.toI32()
   dispute.status = STATUS_UNDECIDED
   dispute.tokensSlashed = BigDecimal.fromString('0')
   dispute.tokensBurned = BigDecimal.fromString('0')
   dispute.tokensRewarded = BigInt.fromI32(0)
   dispute.type = TYPE_INDEXING
+  dispute.indexer = event.params.indexer.toHexString()
+  dispute.allocation = allocation.id
+  dispute.closedAt = 0
+  dispute.save()
+}
+
+export function handleLegacyDisputeCreated(event: LegacyDisputeCreated): void {
+  let allocation = Allocation.load(event.params.allocationId.toHexString())!
+  let id = event.params.disputeId.toHexString()
+  let dispute = new Dispute(id)
+  dispute.subgraphDeployment = allocation.subgraphDeployment
+  dispute.fisherman = event.params.fisherman.toHexString()
+  dispute.deposit = BigInt.fromString('0')
+  dispute.isLegacy = true
+  dispute.createdAt = event.block.timestamp.toI32()
+  dispute.cancellableAt = 0 // Legacy disputes are not cancellable
+  dispute.status = STATUS_UNDECIDED
+  dispute.tokensSlashed = BigDecimal.fromString('0')
+  dispute.tokensBurned = BigDecimal.fromString('0')
+  dispute.tokensRewarded = BigInt.fromString('0')
+  dispute.type = TYPE_LEGACY
   dispute.indexer = event.params.indexer.toHexString()
   dispute.allocation = allocation.id
   dispute.closedAt = 0
