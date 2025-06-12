@@ -44,7 +44,7 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   dispute.deposit = event.params.tokens
   dispute.isLegacy = false
   dispute.createdAt = event.block.timestamp.toI32()
-  dispute.cancellableAt = event.params.cancellableAt.toI32()
+  dispute.cancellableAt = event.params.cancellableAt
   dispute.status = STATUS_UNDECIDED
   dispute.tokensSlashed = BIGDECIMAL_ZERO
   dispute.tokensRewarded = BIGINT_ZERO
@@ -58,9 +58,9 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   let request = '0x'.concat(attestationData.slice(2, 66))
   let response = '0x'.concat(attestationData.slice(66, 130))
   let attestation = new Attestation(request.concat('-').concat(response))
-  let r = attestationData.slice(194, 258)
-  let s = attestationData.slice(258, 322)
-  let v = attestationData.slice(322, 324)
+  let v = attestationData.slice(194, 196)
+  let r = attestationData.slice(196, 260)
+  let s = attestationData.slice(260, 324)
   attestation.responseCID = response
   attestation.requestCID = request
   attestation.subgraphDeployment = dispute.subgraphDeployment
@@ -83,7 +83,7 @@ export function handleIndexingDisputeCreated(event: IndexingDisputeCreated): voi
   dispute.deposit = event.params.tokens
   dispute.isLegacy = false
   dispute.createdAt = event.block.timestamp.toI32()
-  dispute.cancellableAt = event.params.cancellableAt.toI32()
+  dispute.cancellableAt = event.params.cancellableAt
   dispute.status = STATUS_UNDECIDED
   dispute.tokensSlashed = BigDecimal.fromString('0')
   dispute.tokensBurned = BigDecimal.fromString('0')
@@ -104,7 +104,7 @@ export function handleLegacyDisputeCreated(event: LegacyDisputeCreated): void {
   dispute.deposit = BigInt.fromString('0')
   dispute.isLegacy = true
   dispute.createdAt = event.block.timestamp.toI32()
-  dispute.cancellableAt = 0 // Legacy disputes are not cancellable
+  dispute.cancellableAt = BIGINT_ZERO // Legacy disputes are not cancellable
   dispute.status = STATUS_UNDECIDED
   dispute.tokensSlashed = BigDecimal.fromString('0')
   dispute.tokensBurned = BigDecimal.fromString('0')
