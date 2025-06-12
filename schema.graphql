@@ -1458,7 +1458,7 @@ type Dispute @entity(immutable: false) {
   "Time dispute was closed at"
   closedAt: Int!
   "Time dispute becomes cancellable by the fisherman"
-  cancellableAt: Int!
+  cancellableAt: BigInt!
   "Status of the dispute. Accepted means the Indexer was slashed"
   status: DisputeStatus!
   "Total amount of tokens slashed on the dispute"
