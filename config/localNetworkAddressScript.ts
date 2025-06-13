@@ -36,6 +36,8 @@ export let addresses: Addresses = {
   ethereumDIDRegistry: '{{horizon.EthereumDIDRegistry.address}}',
   subgraphService: '{{subgraphService.SubgraphService.address}}',
   graphPayments: '{{horizon.GraphPayments.address}}',
+  paymentsEscrow: '{{horizon.PaymentsEscrow.address}}',
+  graphTallyCollector: '{{horizon.GraphTallyCollector.address}}',
   isL1: false,
 }
 
@@ -54,6 +56,12 @@ const main = (): void => {
     }
     if(output.disputeManager == '') {
       output.disputeManager = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.paymentsEscrow == '') {
+      output.paymentsEscrow = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.graphTallyCollector == '') {
+      output.graphTallyCollector = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {

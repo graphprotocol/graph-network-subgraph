@@ -32,6 +32,8 @@ export let addresses: Addresses = {
   ethereumDIDRegistry: '{{arbsep.EthereumDIDRegistry.address}}',
   subgraphService: '{{arbsep.SubgraphService.address}}',
   graphPayments: '{{arbsep.GraphPayments.address}}',
+  paymentsEscrow: '{{arbsep.PaymentsEscrow.address}}',
+  graphTallyCollector: '{{arbsep.GraphTallyCollector.address}}',
   isL1: false,
 }
 
@@ -57,6 +59,12 @@ const main = (): void => {
     }
     if(output.horizonDisputeManager == '') {
       output.horizonDisputeManager = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.paymentsEscrow == '') {
+      output.paymentsEscrow = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+    }
+    if(output.graphTallyCollector == '') {
+      output.graphTallyCollector = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {

@@ -520,6 +520,64 @@ dataSources:
         - event: GraphPaymentCollected(indexed uint8,indexed address,address,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleGraphPaymentCollected
   - kind: ethereum/contract
+    name: PaymentsEscrow
+    network: {{network}}
+    source:
+      address: "{{paymentsEscrow}}"
+      abi: PaymentsEscrow
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/paymentsEscrow.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: PaymentsEscrow
+          file: ./abis/PaymentsEscrow.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,indexed address,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,indexed address,indexed address,uint256)
+          handler: handleWithdraw
+        - event: Thaw(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleThaw
+        - event: CancelThaw(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleCancelThaw
+  - kind: ethereum/contract
+    name: GraphTallyCollector
+    network: {{network}}
+    source:
+      address: "{{graphTallyCollector}}"
+      abi: GraphTallyCollector
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/graphTallyCollector.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: GraphTallyCollector
+          file: ./abis/GraphTallyCollector.json
+        - name: GraphToken
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/GraphToken.json
+      eventHandlers:
+        - event: SignerAuthorized(indexed address,indexed address)
+          handler: handleSignerAuthorized
+        - event: SignerThawing(indexed address,indexed address,uint256)
+          handler: handleSignerThawing
+        - event: SignerThawCanceled(indexed address,indexed address,uint256)
+          handler: handleSignerThawCanceled
+        - event: SignerRevoked(indexed address,indexed address)
+          handler: handleSignerRevoked
+        - event: PaymentCollected(uint8,indexed bytes32,indexed address,address,indexed address,uint256)
+          handler: handlePaymentCollected
+  - kind: ethereum/contract
     name: HorizonDisputeManager
     network: {{network}}
     source:
