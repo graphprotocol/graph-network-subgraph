@@ -282,13 +282,39 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
     }
     request.save()
 
-    // update latest thawingUntil for provision and indexer
-    let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
-    provision.thawingUntil = event.params.thawingUntil > provision.thawingUntil ? event.params.thawingUntil : provision.thawingUntil
-    provision.save()
+    if (request.type == 'Provision') {
+      // update latest thawingUntil for provision and indexer
+      let provision = createOrLoadProvision(
+        event.params.serviceProvider,
+        event.params.verifier,
+        event.block.timestamp,
+      )
+      provision.thawingUntil =
+        event.params.thawingUntil > provision.thawingUntil
+          ? event.params.thawingUntil
+          : provision.thawingUntil
+      provision.save()
 
-    indexer.thawingUntil = event.params.thawingUntil > indexer.thawingUntil ? event.params.thawingUntil : indexer.thawingUntil
-    indexer.save()
+      indexer.thawingUntil =
+        event.params.thawingUntil > indexer.thawingUntil
+          ? event.params.thawingUntil
+          : indexer.thawingUntil
+      indexer.save()
+    } else {
+      // update delegated stake for delegation thaw request
+      let delegatedStake = createOrLoadDelegatedStakeForProvision(
+        owner.id,
+        indexer.id,
+        dataService.id,
+        event.block.timestamp.toI32(),
+      )
+
+      delegatedStake.lockedUntil =
+        event.params.thawingUntil > delegatedStake.lockedUntil
+          ? event.params.thawingUntil
+          : delegatedStake.lockedUntil
+      delegatedStake.save()
+    }
 }
 
 export function handleThawRequestFulfilled(event: ThawRequestFulfilled): void {
@@ -469,7 +495,6 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
     delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
     delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
     delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
-    //delegatedStake.lockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
     delegatedStake.lastUndelegatedAt = event.block.timestamp.toI32()
 
     let currentBalance = event.params.shares.toBigDecimal().times(beforeUpdateDelegationExchangeRate)
