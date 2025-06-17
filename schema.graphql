@@ -1779,3 +1779,91 @@ type _Schema_
     algorithm: rank
     include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
   )
+
+"""
+Revelant data for a PaymentsEscrow accounts
+"""
+type PaymentsEscrowAccount @entity(immutable: false) {
+  "The payer, collector and receiver concatenated"
+  id: Bytes!
+  "The payer address of the account"
+  payer: Payer!
+  "The collector address of the account"
+  collector: Bytes!
+  "The receiver address of the account"
+  receiver: Receiver!
+  "The balance of the account"
+  balance: BigInt!
+  "The amount of tokens thawing on the account"
+  totalAmountThawing: BigInt!
+  "The thaw end timestamp"
+  thawEndTimestamp: BigInt!
+  "The transactions for the escrow account"
+  transactions: [PaymentsEscrowTransaction!]! @derivedFrom(field: "escrowAccount")
+}
+
+"""
+Payer of a PaymentsEscrow account
+"""
+type Payer @entity(immutable: false) {
+  "The address of the payer"
+  id: Bytes!
+  "The account of the payer"
+  escrowAccounts: [PaymentsEscrowAccount!]! @derivedFrom(field: "payer")
+  "The transactions for the payer"
+  transactions: [PaymentsEscrowTransaction!]! @derivedFrom(field: "payer")
+  "The signers for the payer"
+  signers: [Signer!]! @derivedFrom(field: "payer")
+}
+
+"""
+Receiver of a PaymentsEscrow account
+"""
+type Receiver @entity(immutable: false) {
+  "The address of the receiver"
+  id: Bytes!
+  "The account of the receiver"
+  escrowAccounts: [PaymentsEscrowAccount!]! @derivedFrom(field: "receiver")
+  "The transactions for the receiver"
+  transactions: [PaymentsEscrowTransaction!]! @derivedFrom(field: "receiver")
+}
+
+"""
+Transactions for a PaymentsEscrow account
+"""
+type PaymentsEscrowTransaction @entity(immutable: false) {
+  "The transaction hash concatenated with event log index"
+  id: Bytes!
+  "The transaction group id"
+  transactionGroupId: Bytes
+  "The transaction type"
+  type: String!
+  "The payer"
+  payer: Payer!
+  "The collector"
+  collector: Bytes!
+  "The receiver"
+  receiver: Receiver!
+  "The allocation id"
+  allocationId: Bytes
+  "The amount of tokens"
+  amount: BigInt!
+  "The escrow account"
+  escrowAccount: PaymentsEscrowAccount!
+  "The transaction timestamp"
+  timestamp: BigInt!
+}
+
+"""
+The signer of a PaymentsEscrow account
+"""
+type Signer @entity(immutable: false) {
+  "The address of the signer"
+  id: Bytes!
+  "Whether the signer is authorized"
+  isAuthorized: Boolean!
+  "The payer that authorized the signer"
+  payer: Payer!
+  "The thaw end timestamp for revoking the signer"
+  thawEndTimestamp: BigInt!
+}

@@ -23,6 +23,8 @@ export class Addresses {
   ethereumDIDRegistry: string
   subgraphService: string
   graphPayments: string
+  paymentsEscrow: string
+  graphTallyCollector: string
   isL1: boolean
 }
 
@@ -51,5 +53,7 @@ export let addresses: Addresses = {
   ethereumDIDRegistry: '{{ethereumDIDRegistry}}',
   subgraphService: '{{subgraphService}}',
   graphPayments: '{{graphPayments}}',
+  paymentsEscrow: '{{paymentsEscrow}}',
+  graphTallyCollector: '{{graphTallyCollector}}',
   isL1: {{isL1}},
 }
