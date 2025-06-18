@@ -1,4 +1,4 @@
-import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { PaymentsEscrowTransaction, Signer } from '../types/schema'
 import { 
     SignerAuthorized,
@@ -57,7 +57,7 @@ export function handlePaymentCollected(event: PaymentCollected): void {
     transaction.payer = payer.id
     transaction.collector = event.params.dataService
     transaction.receiver = receiver.id
-    transaction.allocationId = Address.fromBytes(event.params.collectionId)
+    transaction.allocationId = Address.fromBytes(Bytes.fromUint8Array(event.params.collectionId.slice(12)))
     transaction.amount = event.params.tokens
     transaction.escrowAccount = escrow.id
     transaction.transactionGroupId = event.transaction.hash
