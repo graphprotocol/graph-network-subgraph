@@ -310,8 +310,8 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
       )
 
       delegatedStake.lockedUntil =
-        event.params.thawingUntil > delegatedStake.lockedUntil
-          ? event.params.thawingUntil
+        event.params.thawingUntil.toI32() > delegatedStake.lockedUntil
+          ? event.params.thawingUntil.toI32()
           : delegatedStake.lockedUntil
       delegatedStake.save()
     }
