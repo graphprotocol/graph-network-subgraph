@@ -51,8 +51,7 @@ export function handlePaymentCollected(event: PaymentCollected): void {
 
     let payer = createOrLoadPayer(event.params.payer)
     let receiver = createOrLoadReceiver(event.params.receiver)
-    let collector = Bytes.fromHexString(addresses.graphTallyCollector) as Bytes
-    let escrow = createOrLoadEscrowAccount(event.params.payer, collector, event.params.receiver)
+    let escrow = createOrLoadEscrowAccount(event.params.payer, Address.fromString(addresses.graphTallyCollector), event.params.receiver)
     let tokensCollected = createOrLoadGraphTallyTokensCollected(event.params.payer, event.params.receiver, event.params.collectionId)
     tokensCollected.tokens = tokensCollected.tokens.plus(event.params.tokens)
 
