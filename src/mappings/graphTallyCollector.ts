@@ -8,6 +8,7 @@ import {
     PaymentCollected
 } from '../types/GraphTallyCollector/GraphTallyCollector'
 import { createOrLoadEscrowAccount, createOrLoadPayer, createOrLoadReceiver } from './paymentsEscrow'
+import { addresses } from '../../config/addresses'
 
 const BIGINT_ZERO = BigInt.fromI32(0)
 const ADDRESS_ZERO = Address.fromString('0x0000000000000000000000000000000000000000')
@@ -50,7 +51,8 @@ export function handlePaymentCollected(event: PaymentCollected): void {
 
     let payer = createOrLoadPayer(event.params.payer)
     let receiver = createOrLoadReceiver(event.params.receiver)
-    let escrow = createOrLoadEscrowAccount(event.params.payer, event.transaction.to, event.params.receiver)
+    let collector = Bytes.fromHexString(addresses.graphTallyCollector) as Bytes
+    let escrow = createOrLoadEscrowAccount(event.params.payer, collector, event.params.receiver)
 
     transaction.type = 'redeem'
     transaction.payer = payer.id
