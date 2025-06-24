@@ -547,6 +547,8 @@ dataSources:
           handler: handleThaw
         - event: CancelThaw(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleCancelThaw
+        - event: EscrowCollected(indexed uint8,indexed address,indexed address,address,uint256,address)
+          handler: handleEscrowCollected
   - kind: ethereum/contract
     name: GraphTallyCollector
     network: {{network}}

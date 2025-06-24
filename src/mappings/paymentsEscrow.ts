@@ -5,6 +5,7 @@ import {
   Withdraw,
   Thaw,
   CancelThaw,
+  EscrowCollected,
 } from '../types/PaymentsEscrow/PaymentsEscrow'
 
 const BIGINT_ZERO = BigInt.fromI32(0)
@@ -69,6 +70,12 @@ export function handleCancelThaw(event: CancelThaw): void {
     let escrow = createOrLoadEscrowAccount(event.params.payer, event.params.collector, event.params.receiver)
     escrow.totalAmountThawing = BIGINT_ZERO
     escrow.thawEndTimestamp = BIGINT_ZERO
+    escrow.save()
+}
+
+export function handleEscrowCollected(event: EscrowCollected): void {
+    let escrow = createOrLoadEscrowAccount(event.params.payer, event.params.collector, event.params.receiver)
+    escrow.balance = escrow.balance.minus(event.params.tokens)
     escrow.save()
 }
 

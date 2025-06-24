@@ -50,8 +50,7 @@ export function handlePaymentCollected(event: PaymentCollected): void {
 
     let payer = createOrLoadPayer(event.params.payer)
     let receiver = createOrLoadReceiver(event.params.receiver)
-    let escrow = createOrLoadEscrowAccount(event.params.payer, event.params.dataService, event.params.receiver)
-    escrow.balance = escrow.balance.minus(event.params.tokens)
+    let escrow = createOrLoadEscrowAccount(event.params.payer, event.transaction.to, event.params.receiver)
 
     transaction.type = 'redeem'
     transaction.payer = payer.id
