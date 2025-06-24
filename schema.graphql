@@ -1855,6 +1855,22 @@ type PaymentsEscrowTransaction @entity(immutable: false) {
 }
 
 """
+The tokens collected by the GraphTallyCollector
+"""
+type GraphTallyTokensCollected @entity(immutable: false) {
+  "The payer, receiver and collection id concatenated"
+  id: Bytes!
+  "The payer address of the account"
+  payer: Payer!
+  "The receiver address of the account"
+  receiver: Receiver!
+  "The collection id"
+  collectionId: Bytes!
+  "The tokens already collected"
+  tokens: BigInt!
+}
+
+"""
 The signer of a PaymentsEscrow account
 """
 type Signer @entity(immutable: false) {

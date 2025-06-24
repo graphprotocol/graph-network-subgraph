@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
-import { PaymentsEscrowTransaction, Signer } from '../types/schema'
+import { PaymentsEscrowTransaction, Signer, GraphTallyTokensCollected } from '../types/schema'
 import { 
     SignerAuthorized,
     SignerThawing,
@@ -53,6 +53,8 @@ export function handlePaymentCollected(event: PaymentCollected): void {
     let receiver = createOrLoadReceiver(event.params.receiver)
     let collector = Bytes.fromHexString(addresses.graphTallyCollector) as Bytes
     let escrow = createOrLoadEscrowAccount(event.params.payer, collector, event.params.receiver)
+    let tokensCollected = createOrLoadGraphTallyTokensCollected(event.params.payer, event.params.receiver, event.params.collectionId)
+    tokensCollected.tokens = tokensCollected.tokens.plus(event.params.tokens)
 
     transaction.type = 'redeem'
     transaction.payer = payer.id
@@ -66,6 +68,7 @@ export function handlePaymentCollected(event: PaymentCollected): void {
 
     transaction.save()
     escrow.save()
+    tokensCollected.save()
 }
 
 export function createOrLoadSigner(address: Address): Signer {
@@ -78,4 +81,18 @@ export function createOrLoadSigner(address: Address): Signer {
         signer.save()
     }
     return signer
+}
+
+export function createOrLoadGraphTallyTokensCollected(payer: Address, receiver: Address, collectionId: Bytes): GraphTallyTokensCollected {
+    let id = payer.concat(receiver).concat(collectionId)
+    let tokensCollected = GraphTallyTokensCollected.load(id)
+    if(tokensCollected == null) {
+        tokensCollected = new GraphTallyTokensCollected(id)
+        tokensCollected.payer = payer
+        tokensCollected.receiver = receiver
+        tokensCollected.collectionId = collectionId
+        tokensCollected.tokens = BIGINT_ZERO
+        tokensCollected.save()
+    }
+    return tokensCollected
 }
