@@ -20,7 +20,8 @@ export function getDataFromEventLog(
   for (let i = 0; i < logs.length; i++) {
     let topics = logs[i].topics;
 
-    if (isEventLog(topics[0], eventSignature)) {
+    // Check if topics array has at least one element before accessing topics[0]
+    if (topics.length > 0 && isEventLog(topics[0], eventSignature)) {
       eventCount = eventCount + 1;
       eventData = logs[i].data;
     }
