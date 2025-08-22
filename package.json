@@ -42,6 +42,7 @@
     "prepare:test-l2": "yarn && yarn prep:addresses:test:l2 && mustache ./config/generatedAddresses.json subgraph.template.yaml > subgraph.yaml && graph codegen --output-dir src/types/"
   },
   "devDependencies": {
+    "@graphprotocol/address-book": "0.1.1-sepolia.0",
     "@graphprotocol/contracts": "6.2.0",
     "@graphprotocol/graph-cli": "0.97.0",
     "@graphprotocol/graph-ts": "0.36.0",

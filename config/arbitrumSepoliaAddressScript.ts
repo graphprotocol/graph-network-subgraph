@@ -1,12 +1,25 @@
 import * as fs from 'fs'
 import * as mustache from 'mustache'
-import * as networkAddresses from '@graphprotocol/contracts/addresses.json'
+import * as horizonAddresses from '@graphprotocol/address-book/horizon/addresses.json'
+import * as subgraphServiceAddresses from '@graphprotocol/address-book/subgraph-service/addresses.json'
 import { Addresses } from './addresses.template'
 
 // mustache doesn't like numbered object keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let renameAddresses: any = networkAddresses
-renameAddresses['arbsep'] = networkAddresses['421614']
+let renameHorizonAddresses: any = horizonAddresses
+renameHorizonAddresses['arbsep'] = horizonAddresses['421614']
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let renameSubgraphServiceAddresses: any = subgraphServiceAddresses
+renameSubgraphServiceAddresses['arbsep'] = subgraphServiceAddresses['421614']
+
+// Combine both address sources for mustache
+const combinedAddresses = {
+  arbsep: {
+    ...renameHorizonAddresses['arbsep'],
+    ...renameSubgraphServiceAddresses['arbsep']
+  }
+}
 
 export let addresses: Addresses = {
   controller: '{{arbsep.Controller.address}}',
@@ -14,11 +27,11 @@ export let addresses: Addresses = {
   epochManager: '{{arbsep.EpochManager.address}}',
   disputeManager: '{{arbsep.DisputeManager.address}}',
   horizonDisputeManager: '{{arbsep.HorizonDisputeManager.address}}',
-  staking: '{{arbsep.L2Staking.address}}',
-  stakingExtension: '{{arbsep.StakingExtension.address}}',
+  staking: '{{arbsep.HorizonStaking.address}}', // Changed from L2Staking
+  stakingExtension: '{{arbsep.HorizonStaking.address}}', // Using same as staking
   curation: '{{arbsep.L2Curation.address}}',
   rewardsManager: '{{arbsep.RewardsManager.address}}',
-  serviceRegistry: '{{arbsep.ServiceRegistry.address}}',
+  serviceRegistry: '{{arbsep.LegacyServiceRegistry.address}}', // Changed from ServiceRegistry
   gns: '{{arbsep.L2GNS.address}}',
   ens: '{{arbsep.IENS.address}}',
   ensPublicResolver: '{{arbsep.IPublicResolver.address}}',
@@ -39,7 +52,7 @@ export let addresses: Addresses = {
 
 const main = (): void => {
   try {
-    let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
+    let output = JSON.parse(mustache.render(JSON.stringify(addresses), combinedAddresses))
     output.blockNumber = '570450'
     output.bridgeBlockNumber = '570450'
     output.network = 'arbitrum-sepolia'
