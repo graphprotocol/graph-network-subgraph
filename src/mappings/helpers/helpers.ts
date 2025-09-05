@@ -673,7 +673,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.curationImplementations = []
     graphNetwork.staking = Address.fromString(addresses.staking)
     graphNetwork.stakingImplementations = []
-    graphNetwork.disputeManager = Address.fromString(addresses.disputeManager)
+    graphNetwork.disputeManager = Address.fromString(addresses.horizonDisputeManager)
     graphNetwork.gns = Address.fromString(addresses.gns)
     graphNetwork.serviceRegistry = Address.fromString(addresses.serviceRegistry)
     graphNetwork.rewardsManager = Address.fromString(addresses.rewardsManager)

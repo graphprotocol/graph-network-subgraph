@@ -1,12 +1,24 @@
 import * as fs from 'fs'
 import * as mustache from 'mustache'
-import * as networkAddresses from '@graphprotocol/contracts/addresses.json'
+import * as horizonAddresses from '@graphprotocol/address-book/horizon/addresses.json'
+import * as subgraphServiceAddresses from '@graphprotocol/address-book/subgraph-service/addresses.json'
 import { Addresses } from './addresses.template'
 
 // mustache doesn't like numbered object keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let renameAddresses: any = networkAddresses
-renameAddresses['mainnet'] = networkAddresses['1']
+let renameHorizonAddresses: any = horizonAddresses
+renameHorizonAddresses['mainnet'] = horizonAddresses['1'] || {}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let renameSubgraphServiceAddresses: any = subgraphServiceAddresses
+renameSubgraphServiceAddresses['mainnet'] = subgraphServiceAddresses['1'] || {}
+
+const combinedAddresses = {
+  mainnet: {
+    ...renameHorizonAddresses['mainnet'],
+    ...renameSubgraphServiceAddresses['mainnet']
+  }
+}
 
 export let addresses: Addresses = {
   controller: '0x0000000000000000000000000000000000000001',
@@ -39,7 +51,7 @@ export let addresses: Addresses = {
 
 const main = (): void => {
   try {
-    let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
+    let output = JSON.parse(mustache.render(JSON.stringify(addresses), combinedAddresses))
     output.blockNumber = '0' // Hardcoded a few thousand blocks before 1st contract deployed
     output.network = 'mainnet'
     output.bridgeBlockNumber = '0' // Bridge deployment block on L1
