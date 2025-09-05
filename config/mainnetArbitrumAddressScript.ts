@@ -1,8 +1,9 @@
 import * as fs from 'fs'
 import * as mustache from 'mustache'
-import * as horizonAddresses from '@graphprotocol/address-book/horizon/addresses.json'
-import * as subgraphServiceAddresses from '@graphprotocol/address-book/subgraph-service/addresses.json'
 import { Addresses } from './addresses.template'
+
+const horizonAddresses = require('@graphprotocol/address-book/horizon/addresses.json')
+const subgraphServiceAddresses = require('@graphprotocol/address-book/subgraph-service/addresses.json')
 
 // mustache doesn't like numbered object keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
