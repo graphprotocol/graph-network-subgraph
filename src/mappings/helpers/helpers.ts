@@ -748,12 +748,23 @@ export function createOrLoadGraphNetwork(
     graphNetwork.lastLengthUpdateEpoch = 0
     graphNetwork.lastLengthUpdateBlock = 0
     if (addresses.isL1) {
-      graphNetwork.lastLengthUpdateBlock = blockNumber.toI32() // Use chain native block
+      // L1 - Use chain native block
+      graphNetwork.lastLengthUpdateBlock = blockNumber.toI32()
+      graphNetwork.currentL1BlockNumber = blockNumber
     } else {
-      let contract = EpochManager.bind(changetype<Address>(graphNetwork.epochManager))
+      // L2 - Get L1 block number from EpochManager
+      let epochManagerAddress = Address.fromString(addresses.epochManager)
+      let contract = EpochManager.bind(epochManagerAddress)
       let response = contract.try_blockNum()
       if (!response.reverted) {
-        graphNetwork.lastLengthUpdateBlock = response.value.toI32() // Use L1 block
+        graphNetwork.lastLengthUpdateBlock = response.value.toI32() 
+        graphNetwork.currentL1BlockNumber = response.value
+      } else {
+        graphNetwork.lastLengthUpdateBlock = 0
+        graphNetwork.currentL1BlockNumber = BigInt.fromI32(0)
+        log.warning('Failed to query EpochManager to get L1 block number. Transaction reverted. Address used: {}', [
+          epochManagerAddress.toHexString(),
+        ])
       }
     }
     graphNetwork.currentEpoch = 0
@@ -793,13 +804,12 @@ export function createOrLoadGraphNetwork(
 
     graphNetwork.save()
   }
-  if (!addresses.isL1) {
-    graphNetwork = updateL1BlockNumber(graphNetwork)
-  }
 
-  // Update epoch
-  let epoch = createOrLoadEpoch(addresses.isL1 ? blockNumber : graphNetwork.currentL1BlockNumber!, graphNetwork)
-  epoch.save()
+  // Update epoch - only if we have a non zero L1 block number, which might be zero until contracts are deployed and the first epoch is run
+  if (!graphNetwork.currentL1BlockNumber!.equals(BigInt.fromI32(0))) {
+    let epoch = createOrLoadEpoch(addresses.isL1 ? blockNumber : graphNetwork.currentL1BlockNumber!, graphNetwork)
+    epoch.save()
+  }
 
   return graphNetwork as GraphNetwork
 }
@@ -1282,21 +1292,6 @@ export function getSubgraphID(graphAccount: Address, subgraphNumber: BigInt): Bi
   let hashedId = Bytes.fromByteArray(crypto.keccak256(ByteArray.fromHexString(unhashedSubgraphID)))
   let bigIntRepresentation = BigInt.fromUnsignedBytes(changetype<Bytes>(hashedId.reverse()))
   return bigIntRepresentation
-}
-
-export function updateL1BlockNumber(graphNetwork: GraphNetwork): GraphNetwork {
-  let epochManagerAddress = Address.fromString(addresses.epochManager)
-  let contract = EpochManager.bind(epochManagerAddress)
-  let response = contract.try_blockNum()
-  if (!response.reverted) {
-    graphNetwork.currentL1BlockNumber = response.value
-    graphNetwork.save()
-  } else {
-    log.warning('Failed to update L1BlockNumber. Transaction reverted. Address used: {}', [
-      epochManagerAddress.toHexString(),
-    ])
-  }
-  return graphNetwork
 }
 
 export function getAliasedL2SubgraphID(id: BigInt): BigInt {
