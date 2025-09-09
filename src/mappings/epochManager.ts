@@ -1,4 +1,3 @@
-import { GraphNetwork } from '../types/schema'
 import { EpochRun, EpochLengthUpdate } from '../types/EpochManager/EpochManager'
 import { createOrLoadEpoch, createEpoch, createOrLoadGraphNetwork } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
@@ -37,7 +36,8 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
   }
 
   // This returns a new epoch, or current epoch, with the old epoch length
-  let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))
+  let epoch = createOrLoadEpoch(addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!, graphNetwork)
+  epoch.save()
 
   // Check that the endBlock for the current epoch match what it should based on the
   // changed epoch length
@@ -47,9 +47,6 @@ export function handleEpochLengthUpdate(event: EpochLengthUpdate): void {
     epoch.save()
   }
 
-  // Now it is safe to update graphNetwork, since the past epoch is completed
-  // But we must reload it, since its currentEpoch may have been updated in createOrLoadEpoch
-  graphNetwork = GraphNetwork.load('1')!
   graphNetwork.epochLength = event.params.epochLength.toI32()
   graphNetwork.currentEpoch = event.params.epoch.toI32()
   graphNetwork.lastLengthUpdateEpoch = event.params.epoch.toI32()

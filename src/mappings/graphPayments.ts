@@ -8,6 +8,7 @@ export function handleGraphPaymentCollected(event: GraphPaymentCollected): void 
     // Update epoch
     let epoch = createOrLoadEpoch(
         addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+        graphNetwork
     )
     epoch.taxedQueryFees = epoch.taxedQueryFees.plus(event.params.tokensProtocol)
     epoch.save()

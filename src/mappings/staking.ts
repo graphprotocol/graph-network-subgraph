@@ -90,6 +90,7 @@ export function handleStakeDeposited(event: StakeDeposited): void {
   // Update epoch
   let epoch = createOrLoadEpoch(
     addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+    graphNetwork
   )
   epoch.stakeDeposited = epoch.stakeDeposited.plus(event.params.tokens)
   epoch.save()
@@ -429,6 +430,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   // Update epoch
   let epoch = createOrLoadEpoch(
     addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+    graphNetwork
   )
   epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokens)
   epoch.taxedQueryFees = epoch.taxedQueryFees.plus(taxedFees)
@@ -537,14 +539,6 @@ export function handleAllocationClosed(event: AllocationClosed): void {
   allocation.queryFeeEffectiveCutAtClose = indexer.legacyQueryFeeEffectiveCut
   allocation.save()
 
-  // update epoch - We do it here to have more epochs created, instead of seeing none created
-  // Likely this problem would go away with a live network with long epochs
-  // But we keep it here anyway. We might think of adding data in the future, like epoch.tokensClosed
-  let epoch = createOrLoadEpoch(
-    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
-  )
-  epoch.save()
-
   // update subgraph deployment. Pretty sure this should be done here, if not
   // it would be done in handleRebateClaimed
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
@@ -609,13 +603,6 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   allocation.queryFeeEffectiveCutAtClose = indexer.legacyQueryFeeEffectiveCut
   allocation.save()
 
-  // update epoch - We do it here to have more epochs created, instead of seeing none created
-  // Likely this problem would go away with a live network with long epochs
-  // But we keep it here anyway. We might think of adding data in the future, like epoch.tokensClosed
-  let epoch = createOrLoadEpoch(
-    addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
-  )
-  epoch.save()
   // update pool
   let pool = createOrLoadPool(event.params.epoch)
   // effective allocation is the value stored in contracts, so we use it here
@@ -677,6 +664,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
   // Update epoch
   let epoch = createOrLoadEpoch(
     addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+    graphNetwork
   )
   epoch.queryFeeRebates = epoch.queryFeeRebates.plus(event.params.tokens)
   epoch.save()
@@ -753,6 +741,7 @@ export function handleRebateCollected(event: RebateCollected): void {
   // Update epoch
   let epoch = createOrLoadEpoch(
     addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+    graphNetwork
   )
   epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokens)
   epoch.taxedQueryFees = epoch.taxedQueryFees.plus(event.params.protocolTax)

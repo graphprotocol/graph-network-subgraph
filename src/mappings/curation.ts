@@ -111,7 +111,7 @@ export function handleSignalled(event: Signalled): void {
   batchUpdateSubgraphSignalledTokens(deployment as SubgraphDeployment)
 
   // Update epoch
-  let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))
+  let epoch = createOrLoadEpoch(addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!, graphNetwork)
   epoch.signalledTokens = epoch.signalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
   )

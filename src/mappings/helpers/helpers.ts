@@ -600,11 +600,7 @@ export function createOrLoadPool(id: BigInt): Pool {
   return pool as Pool
 }
 
-export function createOrLoadEpoch(blockNumber: BigInt): Epoch {
-  let graphNetwork = createOrLoadGraphNetwork(
-    blockNumber,
-    Bytes.fromHexString(addresses.controller) as Bytes,
-  ) // Random address since at this point it's already initialized
+export function createOrLoadEpoch(blockNumber: BigInt, graphNetwork: GraphNetwork): Epoch {
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
@@ -800,6 +796,11 @@ export function createOrLoadGraphNetwork(
   if (!addresses.isL1) {
     graphNetwork = updateL1BlockNumber(graphNetwork)
   }
+
+  // Update epoch
+  let epoch = createOrLoadEpoch(addresses.isL1 ? blockNumber : graphNetwork.currentL1BlockNumber!, graphNetwork)
+  epoch.save()
+
   return graphNetwork as GraphNetwork
 }
 

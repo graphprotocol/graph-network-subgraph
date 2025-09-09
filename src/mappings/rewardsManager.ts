@@ -54,7 +54,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   allocation.save()
 
   // Update epoch
-  let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))
+  let epoch = createOrLoadEpoch(addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!, graphNetwork)
   epoch.totalRewards = epoch.totalRewards.plus(event.params.amount)
   epoch.totalIndexerRewards = epoch.totalIndexerRewards.plus(indexerIndexingRewards)
   epoch.totalDelegatorRewards = epoch.totalDelegatorRewards.plus(delegatorIndexingRewards)

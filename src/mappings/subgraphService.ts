@@ -1,6 +1,6 @@
 import { BigDecimal, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts"
 import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
-import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadEpoch, createOrLoadGraphNetwork, createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
+import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
 import { Allocation, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 import { tuplePrefixBytes } from "./helpers/decoder"
@@ -165,13 +165,6 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     allocation.queryFeeEffectiveCutAtClose = provision.queryFeeEffectiveCut
     allocation.save()
 
-    // update epoch - We do it here to have more epochs created, instead of seeing none created
-    // Likely this problem would go away with a live network with long epochs
-    let epoch = createOrLoadEpoch(
-        addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
-    )
-    epoch.save()
-
     let subgraphDeploymentID = event.params.subgraphDeploymentId.toHexString()
     let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
     deployment.stakedTokens = deployment.stakedTokens.minus(event.params.tokens)
@@ -295,7 +288,7 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
     allocation.save()
 
     // Update epoch
-    let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))
+    let epoch = createOrLoadEpoch(addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!, graphNetwork)
     epoch.totalRewards = epoch.totalRewards.plus(event.params.tokensRewards)
     epoch.totalIndexerRewards = epoch.totalIndexerRewards.plus(event.params.tokensIndexerRewards)
     epoch.totalDelegatorRewards = epoch.totalDelegatorRewards.plus(event.params.tokensDelegationRewards)
@@ -379,6 +372,7 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     // Update epoch
     let epoch = createOrLoadEpoch(
         addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!,
+        graphNetwork
     )
     epoch.totalQueryFees = epoch.totalQueryFees.plus(event.params.tokensCollected).plus(event.params.tokensCurators)
     epoch.queryFeesCollected = epoch.queryFeesCollected.plus(event.params.tokensCollected)
