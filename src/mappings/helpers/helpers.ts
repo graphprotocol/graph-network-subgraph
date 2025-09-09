@@ -796,9 +796,7 @@ export function createOrLoadGraphNetwork(
   }
 
   if (!addresses.isL1) {
-    let l1BlockNumber = getL1BlockNumber()
-    graphNetwork.lastLengthUpdateBlock = l1BlockNumber.toI32()
-    graphNetwork.currentL1BlockNumber = l1BlockNumber
+    graphNetwork.currentL1BlockNumber = getL1BlockNumber()
   }
 
   if (
