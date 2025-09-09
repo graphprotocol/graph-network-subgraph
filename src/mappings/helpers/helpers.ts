@@ -753,19 +753,9 @@ export function createOrLoadGraphNetwork(
       graphNetwork.currentL1BlockNumber = blockNumber
     } else {
       // L2 - Get L1 block number from EpochManager
-      let epochManagerAddress = Address.fromString(addresses.epochManager)
-      let contract = EpochManager.bind(epochManagerAddress)
-      let response = contract.try_blockNum()
-      if (!response.reverted) {
-        graphNetwork.lastLengthUpdateBlock = response.value.toI32() 
-        graphNetwork.currentL1BlockNumber = response.value
-      } else {
-        graphNetwork.lastLengthUpdateBlock = 0
-        graphNetwork.currentL1BlockNumber = BigInt.fromI32(0)
-        log.warning('Failed to query EpochManager to get L1 block number. Transaction reverted. Address used: {}', [
-          epochManagerAddress.toHexString(),
-        ])
-      }
+      let l1BlockNumber = getL1BlockNumber()
+      graphNetwork.lastLengthUpdateBlock = l1BlockNumber.toI32()
+      graphNetwork.currentL1BlockNumber = l1BlockNumber
     }
     graphNetwork.currentEpoch = 0
     graphNetwork.epochCount = 0
@@ -805,13 +795,36 @@ export function createOrLoadGraphNetwork(
     graphNetwork.save()
   }
 
-  // Update epoch - only if we have a non zero L1 block number, which might be zero until contracts are deployed and the first epoch is run
-  if (!graphNetwork.currentL1BlockNumber!.equals(BigInt.fromI32(0))) {
+  if (!addresses.isL1) {
+    let l1BlockNumber = getL1BlockNumber()
+    graphNetwork.lastLengthUpdateBlock = l1BlockNumber.toI32()
+    graphNetwork.currentL1BlockNumber = l1BlockNumber
+  }
+
+  if (
+    !graphNetwork.currentL1BlockNumber!.equals(BigInt.fromI32(0)) &&
+    graphNetwork.epochLength !== 0
+  ) {
+    // these might be zero until contracts are deployed and the first epoch is run
     let epoch = createOrLoadEpoch(addresses.isL1 ? blockNumber : graphNetwork.currentL1BlockNumber!, graphNetwork)
     epoch.save()
   }
 
   return graphNetwork as GraphNetwork
+}
+
+export function getL1BlockNumber(): BigInt {
+  let epochManagerAddress = Address.fromString(addresses.epochManager)
+  let contract = EpochManager.bind(epochManagerAddress)
+  let response = contract.try_blockNum()
+  if (!response.reverted) {
+    return response.value
+  } else {
+    log.warning('Failed to query EpochManager to get L1 block number. Transaction reverted. Address used: {}', [
+      epochManagerAddress.toHexString(),
+    ])
+    return BigInt.fromI32(0)
+  }
 }
 
 export function addQm(a: ByteArray): ByteArray {
