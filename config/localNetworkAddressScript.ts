@@ -22,7 +22,7 @@ export let addresses: Addresses = {
   stakingExtension: '{{horizon.HorizonStaking.address}}',
   curation: '{{horizon.L2Curation.address}}',
   rewardsManager: '{{horizon.RewardsManager.address}}',
-  serviceRegistry: '0x0000000000000000000000000000000000000000',
+  serviceRegistry: '{{subgraphService.LegacyServiceRegistry.address}}',
   gns: '{{horizon.L2GNS.address}}',
   ens: '{{horizon.IENS.address}}',
   ensPublicResolver: '{{horizon.IPublicResolver.address}}',
@@ -53,15 +53,6 @@ const main = (): void => {
     }
     if(output.ethereumDIDRegistry == '') {
       output.ethereumDIDRegistry = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
-    }
-    if(output.disputeManager == '') {
-      output.disputeManager = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
-    }
-    if(output.paymentsEscrow == '') {
-      output.paymentsEscrow = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
-    }
-    if(output.graphTallyCollector == '') {
-      output.graphTallyCollector = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
