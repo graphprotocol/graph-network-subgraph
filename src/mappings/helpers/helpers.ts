@@ -604,14 +604,14 @@ export function createOrLoadEpoch(blockNumber: BigInt, graphNetwork: GraphNetwor
   let epochsSinceLastUpdate = blockNumber
     .minus(BigInt.fromI32(graphNetwork.lastLengthUpdateBlock))
     .div(BigInt.fromI32(graphNetwork.epochLength))
-  let epoch: Epoch
+  let epoch: Epoch | null = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString());
 
   // true if we need to create
   // it is checking if at least 1 epoch has passed since the last creation
   let needsCreating =
     epochsSinceLastUpdate.toI32() > graphNetwork.currentEpoch - graphNetwork.lastLengthUpdateEpoch
 
-  if (needsCreating) {
+  if (needsCreating || epoch == null) {
     let newEpoch = graphNetwork.lastLengthUpdateEpoch + epochsSinceLastUpdate.toI32()
 
     // Need to get the start block according to the contracts, not just the start block this
@@ -622,11 +622,9 @@ export function createOrLoadEpoch(blockNumber: BigInt, graphNetwork: GraphNetwor
     graphNetwork.epochCount = graphNetwork.epochCount + 1
     graphNetwork.currentEpoch = newEpoch
     graphNetwork.save()
-
-    // If there is no need to create a new epoch, just return the current one
-  } else {
-    epoch = Epoch.load(BigInt.fromI32(graphNetwork.currentEpoch).toString()) as Epoch
   }
+
+  // If there is no need to create a new epoch, we just return the current one
   return epoch
 }
 
