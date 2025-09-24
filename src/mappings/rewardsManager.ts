@@ -9,7 +9,7 @@ import {
 import {
   createOrLoadSubgraphDeployment,
   createOrLoadEpoch,
-  updateAdvancedIndexerMetrics,
+  updateLegacyAdvancedIndexerMetrics,
   updateDelegationExchangeRate,
   createOrLoadGraphNetwork
 } from './helpers/helpers'
@@ -28,7 +28,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
     indexer.delegatedTokens == BigInt.fromI32(0)
       ? event.params.amount
       : event.params.amount
-          .times(BigInt.fromI32(indexer.indexingRewardCut))
+          .times(BigInt.fromI32(indexer.legacyIndexingRewardCut))
           .div(BigInt.fromI32(1000000))
 
   let delegatorIndexingRewards = event.params.amount.minus(indexerIndexingRewards)
@@ -40,7 +40,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   if (indexer.delegatorShares != BigInt.fromI32(0)) {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
-  indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer.save()
 
   // update allocation
@@ -54,7 +54,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   allocation.save()
 
   // Update epoch
-  let epoch = createOrLoadEpoch((addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!))
+  let epoch = createOrLoadEpoch(addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!, graphNetwork)
   epoch.totalRewards = epoch.totalRewards.plus(event.params.amount)
   epoch.totalIndexerRewards = epoch.totalIndexerRewards.plus(indexerIndexingRewards)
   epoch.totalDelegatorRewards = epoch.totalDelegatorRewards.plus(delegatorIndexingRewards)

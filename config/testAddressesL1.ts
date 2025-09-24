@@ -1,18 +1,32 @@
 import * as fs from 'fs'
 import * as mustache from 'mustache'
-import * as networkAddresses from '@graphprotocol/contracts/addresses.json'
 import { Addresses } from './addresses.template'
+
+const horizonAddresses = require('@graphprotocol/address-book/horizon/addresses.json')
+const subgraphServiceAddresses = require('@graphprotocol/address-book/subgraph-service/addresses.json')
 
 // mustache doesn't like numbered object keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let renameAddresses: any = networkAddresses
-renameAddresses['mainnet'] = networkAddresses['1']
+let renameHorizonAddresses: any = horizonAddresses
+renameHorizonAddresses['mainnet'] = horizonAddresses['1'] || {}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let renameSubgraphServiceAddresses: any = subgraphServiceAddresses
+renameSubgraphServiceAddresses['mainnet'] = subgraphServiceAddresses['1'] || {}
+
+const combinedAddresses = {
+  mainnet: {
+    ...renameHorizonAddresses['mainnet'],
+    ...renameSubgraphServiceAddresses['mainnet']
+  }
+}
 
 export let addresses: Addresses = {
   controller: '0x0000000000000000000000000000000000000001',
   graphToken: '0x0000000000000000000000000000000000000000',
   epochManager: '0x0000000000000000000000000000000000000000',
   disputeManager: '0x0000000000000000000000000000000000000000',
+  horizonDisputeManager: '0x0000000000000000000000000000000000000000',
   staking: '0x0000000000000000000000000000000000000000',
   stakingExtension: '0x0000000000000000000000000000000000000000',
   curation: '0x0000000000000000000000000000000000000000',
@@ -29,12 +43,16 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '0x0000000000000000000000000000000000000000',
   l2GraphTokenGateway: '',
   ethereumDIDRegistry: '0x0000000000000000000000000000000000000000',
+  subgraphService: '0x0000000000000000000000000000000000000000',
+  graphPayments: '0x0000000000000000000000000000000000000000',
+  paymentsEscrow: '0x0000000000000000000000000000000000000000',
+  graphTallyCollector: '0x0000000000000000000000000000000000000000',
   isL1: true,
 }
 
 const main = (): void => {
   try {
-    let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
+    let output = JSON.parse(mustache.render(JSON.stringify(addresses), combinedAddresses))
     output.blockNumber = '0' // Hardcoded a few thousand blocks before 1st contract deployed
     output.network = 'mainnet'
     output.bridgeBlockNumber = '0' // Bridge deployment block on L1

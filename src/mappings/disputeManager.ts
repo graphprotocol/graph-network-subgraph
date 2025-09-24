@@ -13,6 +13,8 @@ import {
 import { DisputeManagerStitched } from '../types/DisputeManager/DisputeManagerStitched'
 import { createOrLoadGraphNetwork } from './helpers/helpers'
 
+const BIGINT_ZERO = BigInt.fromI32(0)
+
 // This handles  Single query and Conflicting disputes
 export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   let id = event.params.disputeID.toHexString()
@@ -20,7 +22,9 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   dispute.subgraphDeployment = event.params.subgraphDeploymentID.toHexString()
   dispute.fisherman = event.params.fisherman.toHexString()
   dispute.deposit = event.params.tokens
+  dispute.isLegacy = true
   dispute.createdAt = event.block.timestamp.toI32()
+  dispute.cancellableAt = BIGINT_ZERO // Legacy disputes are not cancellable
   dispute.status = 'Undecided'
   dispute.tokensSlashed = BigDecimal.fromString('0')
   dispute.tokensBurned = BigDecimal.fromString('0')
@@ -34,9 +38,9 @@ export function handleQueryDisputeCreated(event: QueryDisputeCreated): void {
   let request = '0x'.concat(attestationData.slice(2, 66))
   let response = '0x'.concat(attestationData.slice(66, 130))
   let attestation = new Attestation(request.concat('-').concat(response))
-  let v = attestationData.slice(194, 196)
-  let r = attestationData.slice(196, 260)
-  let s = attestationData.slice(260, 324)
+  let r = attestationData.slice(194, 258)
+  let s = attestationData.slice(258, 322)
+  let v = attestationData.slice(322, 324)
   attestation.responseCID = response
   attestation.requestCID = request
   attestation.subgraphDeployment = dispute.subgraphDeployment
@@ -57,7 +61,9 @@ export function handleIndexingDisputeCreated(event: IndexingDisputeCreated): voi
   dispute.subgraphDeployment = allocation.subgraphDeployment
   dispute.fisherman = event.params.fisherman.toHexString()
   dispute.deposit = event.params.tokens
+  dispute.isLegacy = true
   dispute.createdAt = event.block.timestamp.toI32()
+  dispute.cancellableAt = BIGINT_ZERO // Legacy disputes are not cancellable
   dispute.status = 'Undecided'
   dispute.tokensSlashed = BigDecimal.fromString('0')
   dispute.tokensBurned = BigDecimal.fromString('0')

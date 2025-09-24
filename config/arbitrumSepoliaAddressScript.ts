@@ -1,23 +1,37 @@
 import * as fs from 'fs'
 import * as mustache from 'mustache'
-import * as networkAddresses from '@graphprotocol/contracts/addresses.json'
 import { Addresses } from './addresses.template'
+
+const horizonAddresses = require('@graphprotocol/address-book/horizon/addresses.json')
+const subgraphServiceAddresses = require('@graphprotocol/address-book/subgraph-service/addresses.json')
 
 // mustache doesn't like numbered object keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let renameAddresses: any = networkAddresses
-renameAddresses['arbsep'] = networkAddresses['421614']
+let renameHorizonAddresses: any = horizonAddresses
+renameHorizonAddresses['arbsep'] = horizonAddresses['421614']
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let renameSubgraphServiceAddresses: any = subgraphServiceAddresses
+renameSubgraphServiceAddresses['arbsep'] = subgraphServiceAddresses['421614']
+
+const combinedAddresses = {
+  arbsep: {
+    ...renameHorizonAddresses['arbsep'],
+    ...renameSubgraphServiceAddresses['arbsep']
+  }
+}
 
 export let addresses: Addresses = {
   controller: '{{arbsep.Controller.address}}',
   graphToken: '{{arbsep.L2GraphToken.address}}',
   epochManager: '{{arbsep.EpochManager.address}}',
-  disputeManager: '{{arbsep.DisputeManager.address}}',
-  staking: '{{arbsep.L2Staking.address}}',
-  stakingExtension: '{{arbsep.StakingExtension.address}}',
+  disputeManager: '{{arbsep.LegacyDisputeManager.address}}',
+  horizonDisputeManager: '{{arbsep.DisputeManager.address}}',
+  staking: '{{arbsep.HorizonStaking.address}}',
+  stakingExtension: '{{arbsep.HorizonStaking.address}}',
   curation: '{{arbsep.L2Curation.address}}',
   rewardsManager: '{{arbsep.RewardsManager.address}}',
-  serviceRegistry: '{{arbsep.ServiceRegistry.address}}',
+  serviceRegistry: '{{arbsep.LegacyServiceRegistry.address}}',
   gns: '{{arbsep.L2GNS.address}}',
   ens: '{{arbsep.IENS.address}}',
   ensPublicResolver: '{{arbsep.IPublicResolver.address}}',
@@ -29,12 +43,16 @@ export let addresses: Addresses = {
   l1GraphTokenGateway: '',
   l2GraphTokenGateway: '{{arbsep.L2GraphTokenGateway.address}}',
   ethereumDIDRegistry: '{{arbsep.EthereumDIDRegistry.address}}',
+  subgraphService: '{{arbsep.SubgraphService.address}}',
+  graphPayments: '{{arbsep.GraphPayments.address}}',
+  paymentsEscrow: '{{arbsep.PaymentsEscrow.address}}',
+  graphTallyCollector: '{{arbsep.GraphTallyCollector.address}}',
   isL1: false,
 }
 
 const main = (): void => {
   try {
-    let output = JSON.parse(mustache.render(JSON.stringify(addresses), renameAddresses))
+    let output = JSON.parse(mustache.render(JSON.stringify(addresses), combinedAddresses))
     output.blockNumber = '570450'
     output.bridgeBlockNumber = '570450'
     output.network = 'arbitrum-sepolia'

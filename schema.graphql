@@ -1,7 +1,7 @@
 """
 Graph Network global parameters and contract addresses
 """
-type GraphNetwork @entity {
+type GraphNetwork @entity(immutable: false) {
   "ID is set to 1"
   id: ID!
   "Controller address"
@@ -50,7 +50,7 @@ type GraphNetwork @entity {
   channelDisputeEpochs: Int!
   "Epochs to wait before delegators can settle"
   maxAllocationEpochs: Int!
-  "Time in blocks needed to wait to unstake"
+  "Time in blocks needed to wait to unstake. Set to 0 to signal Graph Horizon's transition period end."
   thawingPeriod: Int!
   "Minimum time an Indexer must use for resetting their Delegation parameters"
   delegationParametersCooldown: Int!
@@ -70,6 +70,10 @@ type GraphNetwork @entity {
   delegationTaxPercentage: Int!
   "Asset holder for the protocol"
   assetHolders: [Bytes!]
+  "Maximum allowed thawing period for provisions, in seconds"
+  maxThawingPeriod: BigInt!
+  "True if delegation slashing is enabled"
+  delegationSlashingEnabled: Boolean!
 
   # Transfers to L2 totals
   "Total amount of indexer stake transferred to L2"
@@ -86,6 +90,10 @@ type GraphNetwork @entity {
   totalTokensClaimable: BigInt! # TODO - see https://github.com/graphprotocol/graph-network-subgraph/issues/89
   "Total tokens that are currently locked or withdrawable in the network from unstaking"
   totalUnstakedTokensLocked: BigInt!
+  "Total GRT currently in provisions"
+  totalTokensProvisioned: BigInt!
+  "Total GRT currently thawing from provisions"
+  totalTokensThawing: BigInt!
   "Total GRT currently in allocation"
   totalTokensAllocated: BigInt!
   "Total delegated tokens in the protocol"
@@ -211,8 +219,14 @@ type GraphNetwork @entity {
   slashingPercentage: Int!
   "Minimum deposit to create a dispute"
   minimumDisputeDeposit: BigInt!
-  "Reward to Fisherman on successful disputes. In parts per million"
+  "[LEGACY] Reward to Fisherman on successful disputes. In parts per million"
   fishermanRewardPercentage: Int!
+  "[HORIZON]Reward to Fisherman on successful disputes. In parts per million"
+  fishermanRewardCut: Int!
+  "Maximum Penalty to Indexer on successful disputes for indexing disputes. Percentage of the indexer's stake snapshot (own stake plus delegated). In parts per million"
+  maxSlashingCut: Int!
+  "Dispute period in seconds"
+  disputePeriod: BigInt!
 
   # Bridge totals (Only available on L1 networks)
   "Total amount of GRT deposited to the L1 gateway. Note that the actual amount claimed in L2 might be lower due to tickets not redeemed."
@@ -231,11 +245,55 @@ type GraphNetwork @entity {
   currentL1BlockNumber: BigInt
 }
 
+type DataService @entity(immutable: false) {
+  "Data Service address"
+  id: ID!
+
+  "Total GRT currently in provisions for this DataService"
+  totalTokensProvisioned: BigInt!
+  "Total GRT currently thawing from provisions for this DataService"
+  totalTokensThawing: BigInt!
+  "Total GRT currently in allocations for this DataService"
+  totalTokensAllocated: BigInt!
+  "Total GRT currently delegated to this DataService"
+  totalTokensDelegated: BigInt!
+
+  "Minimum provision tokens for this DataService"
+  minimumProvisionTokens: BigInt!
+  "Maximum provision tokens for this DataService"
+  maximumProvisionTokens: BigInt!
+
+  "Minimum verifier cut for this DataService"
+  minimumVerifierCut: BigInt!
+  "Maximum verifier cut for this DataService"
+  maximumVerifierCut: BigInt!
+
+  "Minimum thawing period for this DataService"
+  minimumThawingPeriod: BigInt!
+  "Maximum thawing period for this DataService"
+  maximumThawingPeriod: BigInt!
+
+  "Ratio of max staked delegation tokens to indexers stake that earns rewards"
+  delegationRatio: Int
+
+  provisions: [Provision!]! @derivedFrom(field: "dataService")
+
+  "True if allowed for usage with token lock wallets"
+  allowedWithTokenLockWallets: Boolean!
+
+  "[SubgraphService] Curation cut for this DataService"
+  curationCut: BigInt!
+  "[SubgraphService] Max POI staleness"
+  maxPOIStaleness: BigInt!
+  "[SubgraphService] Stake to fees ratio"
+  stakeToFeesRatio: BigInt!
+}
+
 """
 An account within the graph network. Contains metadata and all relevant data for this accounts
 delegating, curating, and indexing.
 """
-type GraphAccount @entity {
+type GraphAccount @entity(immutable: false) {
   "Graph account ID"
   id: ID!
   "All names this graph account has claimed from all name systems"
@@ -253,8 +311,10 @@ type GraphAccount @entity {
   # Operator info
   "Operator of other Graph Accounts"
   operatorOf: [GraphAccount!]! @derivedFrom(field: "operators")
-  "Operators of this Graph Accounts"
+  "Operators of this Graph Account"
   operators: [GraphAccount!]!
+  "Horizon Operators of this Graph Account"
+  horizonOperators: [HorizonOperator!]!
 
   # GRT info
   "Graph token balance"
@@ -326,7 +386,7 @@ type GraphAccountMeta @entity(immutable:true) {
 A name chosen by a Graph Account from a Name System such as ENS. This allows Graph Accounts to be
 recognized by name, rather than just an Ethereum address
 """
-type GraphAccountName @entity {
+type GraphAccountName @entity(immutable: false) {
   "Name system concatenated with the unique ID of the name system"
   id: ID!
   "Name system for this name"
@@ -349,7 +409,7 @@ name chosen a unique combination. When a Curator singals on a Subgraph, they rec
 "Name Signal" resolves into the underlying "Signal" of the SubgraphDeployment. The metadata of the
 subgraph is stored on IPFS.
 """
-type Subgraph @entity {
+type Subgraph @entity(immutable: false) {
   "Subgraph ID - which is derived from the Organization/Individual graph accountID"
   id: ID!
   "Graph account that owns this subgraph"
@@ -466,7 +526,7 @@ type SubgraphMeta @entity(immutable:true) {
   categories: [String!]
 }
 
-type CurrentSubgraphDeploymentRelation @entity {
+type CurrentSubgraphDeploymentRelation @entity(immutable: false) {
   "Auxiliary entity used to batch update Subgraph entities when signalling on the deployment changes. ID replicates the deployment ID and adds a counter, to make it easy to reproduce."
   id: ID!
 
@@ -487,7 +547,7 @@ deployment, while keeping the same endpoint. The metadata and label are stored o
 is for the developer to provide a semantic version. This is different from the version, which is
 just a counter than increases each time a new SubgraphVersion is created for a Subgraph.
 """
-type SubgraphVersion @entity {
+type SubgraphVersion @entity(immutable: false) {
   "Concatenation of subgraph, subgraph deployment, and version ID"
   id: ID!
   "Subgraph of this version"
@@ -528,7 +588,7 @@ what to index. The entity stores relevant data for the SubgraphDeployment on how
 staked on and signaled on in the contracts, as well as how it is performing in query fees. It is
 related to a SubgraphVersion.
 """
-type SubgraphDeployment @entity {
+type SubgraphDeployment @entity(immutable: false) {
   "Subgraph Deployment ID. The IPFS hash with Qm removed to fit into 32 bytes"
   id: ID!
   "IPFS hash of the subgraph manifest"
@@ -555,11 +615,12 @@ type SubgraphDeployment @entity {
   indexingDelegatorRewardAmount: BigInt!
   "Total query fees earned by this Subgraph Deployment, without curator query fees"
   queryFeesAmount: BigInt!
-  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include delegation fees"
+  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include delegation query fees"
   queryFeeRebates: BigInt!
   "Total curator rewards from fees"
   curatorFeeRewards: BigInt!
-  # TODO - We can add a field here for delegation fees earned when calling claim()
+  "Total query fee rebates earned from the protocol, through the rebates formula. Does not include indexer query fees"
+  delegatorsQueryFeeRebates: BigInt!
 
   # Subgraph deployment curation bonding curve
   "CURRENT signalled tokens in the bonding curve"
@@ -658,7 +719,7 @@ type SubgraphDeploymentManifest @entity(immutable:true) {
 """
 Meta for the Indexer along with parameters and staking data
 """
-type Indexer @entity {
+type Indexer @entity(immutable: false) {
   "Eth address of Indexer"
   id: ID!
   "Time this indexer was created"
@@ -669,12 +730,21 @@ type Indexer @entity {
   url: String
   "Geohash of the indexer. Shows where their indexer is located in the world"
   geoHash: String
+  "Address that receives the rewards from the indexer"
+  rewardsDestination: Bytes
   "Default display name is the current default name. Used for filtered queries"
   defaultDisplayName: String
+
+  "Whether the indexer is a legacy indexer. This is true for all indexers registered before the Horizon upgrade"
+  isLegacy: Boolean!
 
   # Staking data
   "CURRENT tokens staked in the protocol. Decreases on withdraw, not on lock"
   stakedTokens: BigInt!
+  "CURRENT tokens provisioned to data services in the protocol. In the V1 protocol, all staked tokens were always provisioned to an implicit 'subgraph data service'"
+  provisionedTokens: BigInt!
+  "CURRENT tokens thawing from provisions to data services in the protocol. Only for Horizon"
+  thawingTokens: BigInt!
   "CURRENT  tokens allocated on all subgraphs"
   allocatedTokens: BigInt!
   "NOT IMPLEMENTED - Tokens that have been unstaked and withdrawn"
@@ -683,6 +753,10 @@ type Indexer @entity {
   lockedTokens: BigInt!
   "The block when the Indexers tokens unlock"
   tokensLockedUntil: Int!
+  "[Legacy only] CURRENT tokens locked"
+  legacyLockedTokens: BigInt!
+  "[Legacy only] The block when the Indexers tokens unlock"
+  legacyTokensLockedUntil: Int!
   "Active allocations of stake for this Indexer"
   allocations: [Allocation!]! @derivedFrom(field: "activeForIndexer")
   "All allocations of stake for this Indexer (i.e. closed and active)"
@@ -701,8 +775,10 @@ type Indexer @entity {
   indexerIndexingRewards: BigInt!
   "The total amount of indexing rewards given to delegators"
   delegatorIndexingRewards: BigInt!
-  "Percentage of indexers' own rewards received in relation to its own stake. 1 (100%) means that the indexer is receiving the exact amount that is generated by his own stake"
+  "[Horizon only] Percentage of indexers' own rewards received in relation to its own stake. 1 (100%) means that the indexer is receiving the exact amount that is generated by his own stake"
   indexerRewardsOwnGenerationRatio: BigDecimal!
+  "Percentage of indexers' own rewards received in relation to its own stake. 1 (100%) means that the indexer is receiving the exact amount that is generated by his own stake. This is the indexerRewardsOwnGenerationRatio before Horizon"
+  legacyIndexerRewardsOwnGenerationRatio: BigDecimal!
   "Whether the indexer has been transferred from L1 to L2 partially or fully"
   transferredToL2: Boolean!
   "Timestamp for the FIRST L1 -> L2 Transfer"
@@ -745,38 +821,40 @@ type Indexer @entity {
   delegatorShares: BigInt!
   "Exchange rate of of tokens received for each share"
   delegationExchangeRate: BigDecimal!
-  "The percent of indexing rewards generated by the total stake that the Indexer keeps for itself. In parts per million"
+  "[Horizon only] The percent of indexing rewards generated by the total stake that the Indexer keeps for itself. In parts per million"
   indexingRewardCut: Int!
-  "The percent of indexing rewards generated by the delegated stake that the Indexer keeps for itself"
+  "The percent of indexing rewards generated by the total stake that the Indexer keeps for itself. In parts per million. This is the indexingRewardCut before Horizon"
+  legacyIndexingRewardCut: Int!
+  "[Horizon only] The percent of indexing rewards generated by the delegated stake that the Indexer keeps for itself"
   indexingRewardEffectiveCut: BigDecimal!
+  "The percent of indexing rewards generated by the delegated stake that the Indexer keeps for itself. This is the indexingRewardEffectiveCut before Horizon"
+  legacyIndexingRewardEffectiveCut: BigDecimal!
   "The percent of reward dilution delegators experience because of overdelegation. Overdelegated stake can't be used to generate rewards but still gets accounted while distributing the generated rewards. This causes dilution of the rewards for the rest of the pool."
   overDelegationDilution: BigDecimal!
   "The total amount of query fees given to delegators"
   delegatorQueryFees: BigInt!
-  "The percent of query rebate rewards the Indexer keeps for itself. In parts per million"
+  "[Horizon only] The percent of query rebate rewards generated by the total stake that the Indexer keeps for itself. In parts per million"
   queryFeeCut: Int!
-  "The percent of query rebate rewards generated by the delegated stake that the Indexer keeps for itself"
+  "The percent of query rebate rewards generated by the total stake that the Indexer keeps for itself. In parts per million. This is the queryFeeCut before Horizon"
+  legacyQueryFeeCut: Int!
+  "[Horizon only] The percent of query rebate rewards generated by the delegated stake that the Indexer keeps for itself"
   queryFeeEffectiveCut: BigDecimal!
+  "The percent of query rebate rewards generated by the delegated stake that the Indexer keeps for itself. This is the queryFeeEffectiveCut before Horizon"
+  legacyQueryFeeEffectiveCut: BigDecimal!
   "Amount of blocks a delegator chooses for the waiting period for changing their params"
   delegatorParameterCooldown: Int!
   "Block number for the last time the delegator updated their parameters"
   lastDelegationParameterUpdate: Int!
   "Count of how many times this indexer has been forced to close an allocation"
   forcedClosures: Int!
+  "[Horizon only] Latest value for thaw request thawingUntil"
+  thawingUntil: BigInt!
 
-  # Metrics
-  "NOT IMPLEMENTED - Total return this indexer has earned"
-  totalReturn: BigDecimal!
-  "NOT IMPLEMENTED - Annualized rate of return for the indexer"
-  annualizedReturn: BigDecimal! # You must multiple by 100 to get percentage
-  "NOT IMPLEMENTED - Staking efficiency of the indexer"
-  stakingEfficiency: BigDecimal!
-
-  # Query fees breakdown by payment address
-
+  # Provisioning
+  provisions: [Provision!]! @derivedFrom(field: "indexer")
 }
 
-type PaymentSource @entity {
+type PaymentSource @entity(immutable: false) {
   "Address used on the payment"
   id: ID!
 
@@ -799,7 +877,7 @@ type PaymentSource @entity {
   graphNetwork: GraphNetwork! # to make a derived list on GraphNetwork
 }
 
-type IndexerQueryFeePaymentAggregation @entity {
+type IndexerQueryFeePaymentAggregation @entity(immutable: false) {
   "Join ID of indexer address and PaymentSource address"
   id: ID!
 
@@ -815,18 +893,175 @@ type IndexerQueryFeePaymentAggregation @entity {
   paymentSource: PaymentSource!
 }
 
+type HorizonOperator @entity(immutable: false) {
+  "Joint address of all 3 parties involved (Operator, Indexer, DataService)"
+  id: ID!
+
+  operatorOf: [GraphAccount!]! @derivedFrom(field: "horizonOperators")
+
+  operator: GraphAccount!
+
+  indexer: Indexer!
+
+  dataService: DataService!
+
+  allowed: Boolean!
+}
+
+
 """
-A state channel Allocation representing a single Indexer-SubgraphDeployment stake
+  For the Horizon Stage 1 subgraph, the Provision entity will be mimicking the Indexer entity as closely as possible.
+  That means that the Provision entity will contain some fields that are particular for the Subgraph Service, even if in Horizon
+  a Provision could be for a different Data Service from the Subgraph Service.
+  This is to make the data closer to the legacy protocol, given that the Subgraph Service will be the first Data Service to be supported
+
+  Once the Stage 2 subgraph is implemented, the Provision entity will have to be more generic, and particular data service fields will need to be restructured.
 """
-type Allocation @entity {
+type Provision @entity(immutable: false) {
+  "Join ID of indexer address (service provider) and DataService address"
+  id: ID!
+
+  indexer: Indexer!
+
+  dataService: DataService!
+
+  tokensProvisioned: BigInt!
+
+  tokensAllocated: BigInt!
+
+  tokensSlashedServiceProvider: BigInt!
+  
+  tokensSlashedDelegationPool: BigInt!
+
+  totalAllocationCount: BigInt!
+
+  allocationCount: Int!
+
+  "Active allocations of stake for this Provision"
+  allocations: [Allocation!]! @derivedFrom(field: "activeForProvision")
+
+  "Timestamp when the provision was created"
+  createdAt: BigInt!
+
+  "Service provider tokens that are being thawed (and will stop being slashable soon)"
+  tokensThawing: BigInt!
+
+  "Max amount that can be taken by the verifier when slashing, expressed in parts-per-million of the amount slashed"
+  maxVerifierCut: BigInt!
+
+  "Pending value for maxVerifierCut. Verifier needs to accept it before it becomes active"
+  maxVerifierCutPending: BigInt!
+
+  "Time, in seconds, tokens must thaw before being withdrawn"
+  thawingPeriod: BigInt!
+
+  "Pending value for thawingPeriod. Verifier needs to accept it before it becomes active"
+  thawingPeriodPending: BigInt!
+
+  # Percentage of rewards/fees that the delegation pool receives
+  "Raw query fee cut. In Horizon this is amount of query fees that the delegation pool receives in PPM"
+  queryFeeCut: BigInt!
+
+  "Raw indexing fee cut. In Horizon this is amount of indexing fees that the delegation pool receives in PPM"
+  indexingFeeCut: BigInt!
+
+  "Raw indexing rewards cut. In Horizon this is amount of indexing rewards that the delegation pool receives in PPM"
+  indexingRewardsCut: BigInt!
+
+  "The percent of indexing rewards generated by the delegated stake that the Indexer keeps for itself"
+  indexingRewardEffectiveCut: BigDecimal!
+  "The percent of query fees generated by the delegated stake that the Indexer keeps for itself"
+  queryFeeEffectiveCut: BigDecimal!
+  "The percent of reward dilution delegators experience because of overdelegation. Overdelegated stake can't be used to generate rewards but still gets accounted while distributing the generated rewards. This causes dilution of the rewards for the rest of the pool."
+  overDelegationDilution: BigDecimal!
+
+  # Might want to add polymorphic handling of different fee cuts through a generic hashmap in the future
+
+  # Indexing rewards. Keeping the same naming from Indexer entity to make it easier to understand
+  "Total indexing rewards earned by this indexer. Including delegation rewards"
+  rewardsEarned: BigInt!
+  "The total amount of indexing rewards the indexer kept"
+  indexerIndexingRewards: BigInt!
+  "The total amount of indexing rewards given to delegators"
+  delegatorIndexingRewards: BigInt!
+
+  # Query fees
+  "Total query fees collected. Includes the portion given to delegators"
+  queryFeesCollected: BigInt!
+  "Query fee amount collected from the protocol. Does not include portion given to delegators"
+  indexerQueryFees: BigInt!
+  "Query fee amount collected from the protocol for Delegators. Does not include portion taken by the indexer"
+  delegatorQueryFees: BigInt!
+
+  # Delegation
+  "Tokens delegated to the provision"
+  delegatedTokens: BigInt!
+  "Total shares of the delegator pool"
+  delegatorShares: BigInt!
+  "Exchange rate of tokens received for each share"
+  delegationExchangeRate: BigDecimal!
+  "Ratio between the amount of the indexers own stake over the total usable stake (capped by the delegationRatio)."
+  ownStakeRatio: BigDecimal!
+  "Ratio between the amount of delegated stake over the total usable stake (capped by the delegationRatio)."
+  delegatedStakeRatio: BigDecimal!
+  "Percentage of indexers' own rewards received in relation to its own stake. 1 (100%) means that the indexer is receiving the exact amount that is generated by his own stake, the value can be over 100% or below depending on the amount of delegation and cuts set"
+  indexerRewardsOwnGenerationRatio: BigDecimal!
+  "Latest value for thaw request thawingUntil"
+  thawingUntil: BigInt!
+
+  "Service registry URL for the indexer"
+  url: String
+  "Geohash of the indexer. Shows where their indexer is located in the world"
+  geoHash: String
+  "Address set as rewards destination for payments to the service provider"
+  rewardsDestination: Bytes
+}
+
+enum ThawRequestType {
+  Provision
+  Delegation
+}
+
+type ThawRequest @entity(immutable: false) {
+  id: ID!
+
+  type: ThawRequestType!
+
+  indexer: Indexer!
+
+  dataService: DataService!
+
+  owner: GraphAccount!
+
+  "Shares representing the thawing tokens"
+  shares: BigInt!
+
+  "Tokens thawed"
+  tokens: BigInt!
+
+  thawingUntil: BigInt!
+
+  fulfilledAsValid: Boolean
+
+  fulfilled: Boolean!
+}
+
+"""
+A state channel Allocation representing a single Indexer/Provision-SubgraphDeployment stake
+"""
+type Allocation @entity(immutable: false) {
   "Channel Address"
   id: ID!
   "Indexer of this allocation"
   indexer: Indexer!
+  "Provision of this allocation (for Horizon allocations only)"
+  provision: Provision
   "Creator of the allocation - can be the operator or the indexer"
   creator: Bytes!
   "If the Allocation is active it shows the indexer. If closed, it is null"
   activeForIndexer: Indexer
+  "If the Allocation is active it shows the provision. If closed, it is null"
+  activeForProvision: Provision
   "Subgraph deployment that is being allocated to"
   subgraphDeployment: SubgraphDeployment!
   "Tokens allocation in this allocation"
@@ -869,10 +1104,20 @@ type Allocation @entity {
   createdAt: Int!
   "Timestamp this allocation was closed at"
   closedAt: Int
-  "POI submitted with a closed allocation"
+  "POI submitted when closing allocations in the legacy protocol. Also reflects the latest POI submitted for a Horizon payment collection"
   poi: Bytes
+  "POIs submitted when collecting payments in Horizon"
+  pois: [PoiSubmission!]! @derivedFrom(field: "allocation")
+  "Number of POIs submitted for this allocation. Only available for Horizon allocations"
+  poiCount: BigInt
+  "Timestamp for the latest POI presentation"
+  latestPoiPresentedAt: Int
+  "Whether this allocation was created in the legacy protocol. If true, the allocation will not have a provision since it's not a Horizon allocation"
+  isLegacy: Boolean!
+  "Whether this allocation was forced closed. Force closures in Horizon can happen when the latest PoI is stale, compared to the legacy protocol, where force closures can happen when the allocation hasn't been closed within the max amount of epochs"
+  forceClosed: Boolean
 
-  # Indexer cut settings at start and close
+  # Indexer/Provision cut settings at start and close
   indexingRewardCutAtStart: Int!
   indexingRewardEffectiveCutAtStart: BigDecimal!
   queryFeeCutAtStart: Int!
@@ -890,6 +1135,18 @@ type Allocation @entity {
   annualizedReturn: BigDecimal!
 }
 
+type PoiSubmission @entity(immutable: true) {
+  id: ID!
+  allocation: Allocation!
+  poi: Bytes!
+  publicPoi: Bytes!
+  submittedAtEpoch: Int!
+  presentedAtTimestamp: Int!
+  indexingStatus: Int!
+  blockNumber: Int!
+  metadataDecoded: Boolean!
+}
+
 enum AllocationStatus {
   Null # == indexer == address(0)
   Active # == not Null && tokens > 0 #
@@ -902,7 +1159,7 @@ enum AllocationStatus {
 [DEPRECATED] Global pool of query fees for closed state channels. Each Epoch has a single pool,
 hence why they share the same IDs.
 """
-type Pool @entity {
+type Pool @entity(immutable: false) {
   "Epoch number of the pool"
   id: ID!
   "Total effective allocation tokens from all allocations closed in this epoch"
@@ -920,7 +1177,7 @@ type Pool @entity {
 """
 Delegator with all their delegated stakes towards Indexers
 """
-type Delegator @entity {
+type Delegator @entity(immutable: false) {
   "Delegator address"
   id: ID!
   "Graph account of the delegator"
@@ -948,11 +1205,15 @@ type Delegator @entity {
 """
 Delegator stake for a single Indexer
 """
-type DelegatedStake @entity {
+type DelegatedStake @entity(immutable: false) {
   "Concatenation of Delegator address and Indexer address"
   id: ID!
-  "Index the stake is delegated to"
+  "Indexer the stake is delegated to"
   indexer: Indexer!
+  "DataService the stake is delegated to. Only for Horizon delegations"
+  dataService: DataService
+  "Provision the stake is delegated to. Only for Horizon delegations"
+  provision: Provision
   "Delegator"
   delegator: Delegator!
   "CUMULATIVE tokens delegated"
@@ -963,6 +1224,10 @@ type DelegatedStake @entity {
   lockedTokens: BigInt!
   "Epoch the locked tokens get unlocked"
   lockedUntil: Int!
+  "[Legacy only] CURRENT tokens locked"
+  legacyLockedTokens: BigInt!
+  "[Legacy only] Epoch the locked tokens get unlocked"
+  legacyLockedUntil: Int!
   "Shares owned in the delegator pool. Used to calculate total amount delegated"
   shareAmount: BigInt!
   "The rate this delegator paid for their shares (calculated using average cost basis). Used for rewards calculations"
@@ -994,7 +1259,7 @@ type DelegatedStake @entity {
 """
 Curator with all Signals and metrics
 """
-type Curator @entity {
+type Curator @entity(immutable: false) {
   "Eth address of the Curator"
   id: ID!
   "Time this curator was created"
@@ -1060,7 +1325,7 @@ type Curator @entity {
 """
 Curator Signal for a single SubgraphDeployment
 """
-type Signal @entity {
+type Signal @entity(immutable: false) {
   "Eth address + subgraph deployment ID"
   id: ID!
   "Eth address of the curator"
@@ -1099,7 +1364,7 @@ type Signal @entity {
 """
 Curator Name Signal for a single Subgraph
 """
-type NameSignal @entity {
+type NameSignal @entity(immutable: false) {
   "Eth address + subgraph ID"
   id: ID!
   "Eth address of the curator"
@@ -1164,7 +1429,7 @@ type NameSignal @entity {
 """
 Auxiliary entity to be able to batch update NameSignal entities
 """
-type NameSignalSubgraphRelation @entity {
+type NameSignalSubgraphRelation @entity(immutable: false) {
   "Subgraph ID + index"
   id: ID!
 
@@ -1176,7 +1441,7 @@ type NameSignalSubgraphRelation @entity {
 """
 Dispute of a query. Includes single query, conflicting attestation, and indexing disputes
 """
-type Dispute @entity {
+type Dispute @entity(immutable: false) {
   "Dispute ID"
   id: ID!
   "Subgraph deployment being disputed"
@@ -1185,11 +1450,15 @@ type Dispute @entity {
   fisherman: GraphAccount!
   "Fisherman deposit"
   deposit: BigInt!
+  "Whether this dispute was created in the legacy protocol"
+  isLegacy: Boolean!
 
   "Time dispute was created"
   createdAt: Int!
   "Time dispute was closed at"
   closedAt: Int!
+  "Time dispute becomes cancellable by the fisherman"
+  cancellableAt: BigInt!
   "Status of the dispute. Accepted means the Indexer was slashed"
   status: DisputeStatus!
   "Total amount of tokens slashed on the dispute"
@@ -1215,7 +1484,7 @@ type Dispute @entity {
 """
 Attestation of a dispute
 """
-type Attestation @entity {
+type Attestation @entity(immutable: false) {
   "Concatenation of the requestCID and responseCID"
   id: ID!
   "Subgraph deployment being disputed"
@@ -1252,7 +1521,7 @@ enum DisputeStatus {
 """
 Epoch aggregate data for network statistics on signaling, rewards, and query fees
 """
-type Epoch @entity {
+type Epoch @entity(immutable: false) {
   "Epoch number"
   id: ID!
   "Start block of the epoch"
@@ -1301,7 +1570,7 @@ interface Transaction {
 """
 All relevant data for a Name Signal Transaction in The Graph Network
 """
-type NameSignalTransaction implements Transaction @entity {
+type NameSignalTransaction implements Transaction @entity(immutable: false) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1320,7 +1589,7 @@ type NameSignalTransaction implements Transaction @entity {
 """
 All relevant data for a Signal Transaction in The Graph Network
 """
-type SignalTransaction implements Transaction @entity {
+type SignalTransaction implements Transaction @entity(immutable: false) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1339,7 +1608,7 @@ type SignalTransaction implements Transaction @entity {
 """
 All relevant data for a bridge withdrawal Transaction in The Graph Network
 """
-type BridgeWithdrawalTransaction implements Transaction @entity {
+type BridgeWithdrawalTransaction implements Transaction @entity(immutable: false) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1358,7 +1627,7 @@ type BridgeWithdrawalTransaction implements Transaction @entity {
 """
 All relevant data for a bridge deposit Transaction in The Graph Network
 """
-type BridgeDepositTransaction implements Transaction @entity {
+type BridgeDepositTransaction implements Transaction @entity(immutable: false) {
   id: ID!
   blockNumber: Int!
   timestamp: Int!
@@ -1379,7 +1648,7 @@ type BridgeDepositTransaction implements Transaction @entity {
 """
 All relevant data for arbitrum retryable tickets
 """
-type RetryableTicket @entity {
+type RetryableTicket @entity(immutable: false) {
   id: ID!
   "hash of the retryable ticket creation transaction"
   txHash: Bytes
@@ -1388,7 +1657,7 @@ type RetryableTicket @entity {
   redeemCount: Int
 }
 
-type RetryableTicketRedeemAttempt @entity {
+type RetryableTicketRedeemAttempt @entity(immutable: false) {
   id: ID!
   ticketId: RetryableTicket!
   txHash: Bytes
@@ -1409,7 +1678,7 @@ enum TransactionType {
 """
 The Token manager data
 """
-type TokenManager @entity {
+type TokenManager @entity(immutable: false) {
   "Token manager address"
   id: ID!
   "Master copy address"
@@ -1427,7 +1696,7 @@ type TokenManager @entity {
 """
 Authorized functions for the Manager
 """
-type AuthorizedFunction @entity {
+type AuthorizedFunction @entity(immutable: false) {
   "Function signature (string)"
   id: ID!
   "The contract address that is authorized to have this function called on itself"
@@ -1440,7 +1709,7 @@ type AuthorizedFunction @entity {
 """
 Token Lock Wallets which hold locked GRT
 """
-type TokenLockWallet @entity {
+type TokenLockWallet @entity(immutable: false) {
   "The address of the token lock wallet"
   id: ID!
   "The Manager address"
@@ -1510,3 +1779,107 @@ type _Schema_
     algorithm: rank
     include: [{ entity: "Delegator", fields: [{ name: "defaultDisplayName" }, { name: "id" }] }]
   )
+
+"""
+Revelant data for a PaymentsEscrow accounts
+"""
+type PaymentsEscrowAccount @entity(immutable: false) {
+  "The payer, collector and receiver concatenated"
+  id: Bytes!
+  "The payer address of the account"
+  payer: Payer!
+  "The collector address of the account"
+  collector: Bytes!
+  "The receiver address of the account"
+  receiver: Receiver!
+  "The balance of the account"
+  balance: BigInt!
+  "The amount of tokens thawing on the account"
+  totalAmountThawing: BigInt!
+  "The thaw end timestamp"
+  thawEndTimestamp: BigInt!
+  "The transactions for the escrow account"
+  transactions: [PaymentsEscrowTransaction!]! @derivedFrom(field: "escrowAccount")
+}
+
+"""
+Payer of a PaymentsEscrow account
+"""
+type Payer @entity(immutable: false) {
+  "The address of the payer"
+  id: Bytes!
+  "The account of the payer"
+  escrowAccounts: [PaymentsEscrowAccount!]! @derivedFrom(field: "payer")
+  "The transactions for the payer"
+  transactions: [PaymentsEscrowTransaction!]! @derivedFrom(field: "payer")
+  "The signers for the payer"
+  signers: [Signer!]! @derivedFrom(field: "payer")
+}
+
+"""
+Receiver of a PaymentsEscrow account
+"""
+type Receiver @entity(immutable: false) {
+  "The address of the receiver"
+  id: Bytes!
+  "The account of the receiver"
+  escrowAccounts: [PaymentsEscrowAccount!]! @derivedFrom(field: "receiver")
+  "The transactions for the receiver"
+  transactions: [PaymentsEscrowTransaction!]! @derivedFrom(field: "receiver")
+}
+
+"""
+Transactions for a PaymentsEscrow account
+"""
+type PaymentsEscrowTransaction @entity(immutable: false) {
+  "The transaction hash concatenated with event log index"
+  id: Bytes!
+  "The transaction group id"
+  transactionGroupId: Bytes
+  "The transaction type"
+  type: String!
+  "The payer"
+  payer: Payer!
+  "The collector"
+  collector: Bytes!
+  "The receiver"
+  receiver: Receiver!
+  "The allocation id"
+  allocationId: Bytes
+  "The amount of tokens"
+  amount: BigInt!
+  "The escrow account"
+  escrowAccount: PaymentsEscrowAccount!
+  "The transaction timestamp"
+  timestamp: BigInt!
+}
+
+"""
+The tokens collected by the GraphTallyCollector
+"""
+type GraphTallyTokensCollected @entity(immutable: false) {
+  "The payer, receiver and collection id concatenated"
+  id: Bytes!
+  "The payer address of the account"
+  payer: Payer!
+  "The receiver address of the account"
+  receiver: Receiver!
+  "The collection id"
+  collectionId: Bytes!
+  "The tokens already collected"
+  tokens: BigInt!
+}
+
+"""
+The signer of a PaymentsEscrow account
+"""
+type Signer @entity(immutable: false) {
+  "The address of the signer"
+  id: Bytes!
+  "Whether the signer is authorized"
+  isAuthorized: Boolean!
+  "The payer that authorized the signer"
+  payer: Payer!
+  "The thaw end timestamp for revoking the signer"
+  thawEndTimestamp: BigInt!
+}
