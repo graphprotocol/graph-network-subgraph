@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import * as fs from 'fs'
 import * as mustache from 'mustache'
 import { Addresses } from './addresses.template'
@@ -58,10 +59,10 @@ const main = (): void => {
     output.network = 'arbitrum-sepolia'
     output.useTokenLockManager = false
     if(output.ens == '') {
-      output.ens = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+      output.ens = '0x0000000000000000000000000000000000000000'
     }
     if(output.ethereumDIDRegistry == '') {
-      output.ethereumDIDRegistry = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
+      output.ethereumDIDRegistry = '0xF5f4cA61481558709AFa94AdEDa7B5F180f4AD59'
     }
     fs.writeFileSync(__dirname + '/generatedAddresses.json', JSON.stringify(output, null, 2))
   } catch (e) {
