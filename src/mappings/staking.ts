@@ -163,7 +163,7 @@ export function handleStakeSlashed(event: StakeSlashed): void {
 
   // When tokens are slashed, locked tokens might need to be unlocked if indexer overallocated
   if (slashedTokens.gt(BigInt.fromI32(0))) {
-    let tokensUsed = indexer.allocatedTokens.plus(indexer.legacyLockedTokens)
+    let tokensUsed = indexer.legacyAllocatedTokens.plus(indexer.legacyLockedTokens)
     let tokensAvailable = tokensUsed.gt(indexer.stakedTokens)
       ? BigInt.fromI32(0)
       : indexer.stakedTokens.minus(tokensUsed)
@@ -349,6 +349,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
 
   // update indexer
   let indexer = Indexer.load(indexerID)!
+  indexer.legacyAllocatedTokens = indexer.legacyAllocatedTokens.plus(event.params.tokens)
   indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
   indexer.totalAllocationCount = indexer.totalAllocationCount.plus(BigInt.fromI32(1))
   indexer.allocationCount = indexer.allocationCount + 1
@@ -529,6 +530,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     allocation.forceClosed = false
   }
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
+  indexer.legacyAllocatedTokens = indexer.legacyAllocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
   indexer = calculateCapacities(indexer as Indexer)
@@ -591,6 +593,7 @@ export function handleAllocationClosedCobbDouglas(event: AllocationClosed1): voi
   } else {
     allocation.forceClosed = false
   }
+  indexer.legacyAllocatedTokens = indexer.legacyAllocatedTokens.minus(event.params.tokens)
   indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
   indexer.allocationCount = indexer.allocationCount - 1
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
