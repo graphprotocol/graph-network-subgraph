@@ -108,6 +108,8 @@ export function handleStakeLocked(event: StakeLocked): void {
   // update indexer
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)!
+  indexer.lockedTokens = event.params.tokens
+  indexer.tokensLockedUntil = event.params.until.toI32()
   indexer.legacyLockedTokens = event.params.tokens
   indexer.legacyTokensLockedUntil = event.params.until.toI32()
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
@@ -118,7 +120,7 @@ export function handleStakeLocked(event: StakeLocked): void {
   graphNetwork.totalUnstakedTokensLocked = graphNetwork.totalUnstakedTokensLocked.plus(
     event.params.tokens,
   )
-  if (indexer.stakedTokens == indexer.lockedTokens.plus(indexer.legacyLockedTokens)) {
+  if (indexer.stakedTokens == indexer.lockedTokens) {
     graphNetwork.stakedIndexersCount = graphNetwork.stakedIndexersCount - 1
   }
   graphNetwork.save()
@@ -136,6 +138,8 @@ export function handleStakeWithdrawn(event: StakeWithdrawn): void {
   let id = event.params.indexer.toHexString()
   let indexer = Indexer.load(id)!
   indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
+  indexer.lockedTokens = indexer.lockedTokens.minus(event.params.tokens)
+  indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
   indexer.legacyLockedTokens = indexer.legacyLockedTokens.minus(event.params.tokens)
   indexer.legacyTokensLockedUntil = 0 // always set to 0 when withdrawn
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
@@ -176,9 +180,12 @@ export function handleStakeSlashed(event: StakeSlashed): void {
         : indexer.legacyLockedTokens
 
       indexer.legacyLockedTokens = indexer.legacyLockedTokens.minus(tokensToUnlock)
+      indexer.lockedTokens = indexer.lockedTokens.minus(tokensToUnlock)
 
       if (indexer.legacyLockedTokens.equals(BigInt.fromI32(0))) {
         indexer.legacyTokensLockedUntil = 0
+      }
+      if (indexer.lockedTokens.equals(BigInt.fromI32(0))) {
         indexer.tokensLockedUntil = 0
       }
     }
@@ -289,7 +296,9 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
 
   delegatedStake.unstakedTokens = delegatedStake.unstakedTokens.plus(event.params.tokens)
   delegatedStake.shareAmount = delegatedStake.shareAmount.minus(event.params.shares)
+  delegatedStake.lockedTokens = delegatedStake.lockedTokens.plus(event.params.tokens)
   delegatedStake.legacyLockedTokens = delegatedStake.legacyLockedTokens.plus(event.params.tokens)
+  delegatedStake.lockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
   delegatedStake.legacyLockedUntil = event.params.until.toI32() // until always updates and overwrites the past lockedUntil time
   delegatedStake.lastUndelegatedAt = event.block.timestamp.toI32()
 
@@ -327,7 +336,9 @@ export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): v
   let delegatorID = event.params.delegator.toHexString()
   let id = joinID([delegatorID, indexerID])
   let delegatedStake = DelegatedStake.load(id)!
+  delegatedStake.lockedTokens = BigInt.fromI32(0)
   delegatedStake.legacyLockedTokens = BigInt.fromI32(0)
+  delegatedStake.lockedUntil = 0
   delegatedStake.legacyLockedUntil = 0
   delegatedStake.save()
 }
