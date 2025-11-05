@@ -466,7 +466,6 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
 
     let beforeUpdateDelegationExchangeRate = provision.delegationExchangeRate
 
-    provision.delegatedTokens = provision.delegatedTokens.minus(event.params.tokens)
     provision.delegatorShares = provision.delegatorShares.minus(event.params.shares)
     if (provision.delegatorShares != BigInt.fromI32(0)) {
         provision = updateDelegationExchangeRateForProvision(provision as Provision)
@@ -477,7 +476,6 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
     // update indexer
     let indexerID = event.params.serviceProvider.toHexString()
     let indexer = Indexer.load(indexerID)!
-    indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
     indexer.delegatorShares = indexer.delegatorShares.minus(event.params.shares)
     if (indexer.delegatorShares != BigInt.fromI32(0)) {
         indexer = updateDelegationExchangeRate(indexer as Indexer)
@@ -534,7 +532,14 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
 export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
     // might want to track locked/thawing tokens in provision too
+    provision.delegatedTokens = provision.delegatedTokens.minus(event.params.tokens)
     provision.save()
+
+    let indexerID = event.params.serviceProvider.toHexString()
+    let indexer = Indexer.load(indexerID)!
+
+    indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
+    indexer.save()
 
     // update delegated stake
     let delegatorID = event.params.delegator.toHexString()

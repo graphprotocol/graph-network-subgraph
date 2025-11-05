@@ -163,6 +163,7 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.availableStake = BigInt.fromI32(0)
 
     indexer.delegatedTokens = BigInt.fromI32(0)
+    indexer.delegatedThawingTokens = BigInt.fromI32(0)
     indexer.ownStakeRatio = BigDecimal.fromString('0')
     indexer.delegatedStakeRatio = BigDecimal.fromString('0')
     indexer.delegatorShares = BigInt.fromI32(0)
@@ -244,6 +245,7 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.indexerQueryFees = BigInt.fromI32(0)
     provision.delegatorQueryFees = BigInt.fromI32(0)
     provision.delegatedTokens = BigInt.fromI32(0)
+    provision.delegatedThawingTokens = BigInt.fromI32(0)
     provision.delegatorShares = BigInt.fromI32(0)
     provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
     provision.thawingUntil = BigInt.fromI32(0)
