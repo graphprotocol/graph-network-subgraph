@@ -146,6 +146,7 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.provisionedTokens = BigInt.fromI32(0)
     indexer.thawingTokens = BigInt.fromI32(0)
     indexer.allocatedTokens = BigInt.fromI32(0)
+    indexer.legacyAllocatedTokens = BigInt.fromI32(0)
     indexer.lockedTokens = BigInt.fromI32(0)
     indexer.legacyLockedTokens = BigInt.fromI32(0)
     indexer.unstakedTokens = BigInt.fromI32(0)

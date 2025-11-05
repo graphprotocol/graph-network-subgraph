@@ -745,8 +745,10 @@ type Indexer @entity(immutable: false) {
   provisionedTokens: BigInt!
   "CURRENT tokens thawing from provisions to data services in the protocol. Only for Horizon"
   thawingTokens: BigInt!
-  "CURRENT  tokens allocated on all subgraphs"
+  "CURRENT  tokens allocated on all subgraphs - including legacy and horizon allocations"
   allocatedTokens: BigInt!
+  "[Legacy only] CURRENT  tokens allocated on all subgraphs ONLY for legacy allocations"
+  legacyAllocatedTokens: BigInt!
   "NOT IMPLEMENTED - Tokens that have been unstaked and withdrawn"
   unstakedTokens: BigInt! # will be used for return % calcs
   "CURRENT tokens locked"
@@ -1509,6 +1511,7 @@ enum DisputeType {
   SingleQuery
   Conflicting
   Indexing
+  Legacy
 }
 
 enum DisputeStatus {
