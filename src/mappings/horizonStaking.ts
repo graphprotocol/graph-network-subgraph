@@ -2,7 +2,7 @@ import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { AllowedLockedVerifierSet, DelegatedTokensWithdrawn, DelegationFeeCutSet, DelegationSlashed, DelegationSlashingEnabled, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, MaxThawingPeriodSet, OperatorSet, StakeDelegatedWithdrawn, ThawingPeriodCleared, TokensDelegated, TokensDeprovisioned, TokensToDelegationPoolAdded, TokensUndelegated } from '../types/HorizonStaking/HorizonStaking'
 import { DelegatedStake, Delegator, Indexer, Provision, ThawRequest } from '../types/schema'
-import { createOrLoadDataService, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadHorizonOperator, createOrLoadIndexer, createOrLoadProvision, joinID, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
+import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadHorizonOperator, createOrLoadIndexer, createOrLoadProvision, joinID, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -126,6 +126,7 @@ export function handleProvisionThawed(event: ProvisionThawed): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
 
     indexer.thawingTokens = indexer.thawingTokens.plus(event.params.tokens)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     dataService.totalTokensThawing = dataService.totalTokensThawing.plus(event.params.tokens)
@@ -146,6 +147,7 @@ export function handleTokensDeprovisioned(event: TokensDeprovisioned): void {
 
     indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
     indexer.thawingTokens = indexer.thawingTokens.minus(event.params.tokens)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.minus(event.params.tokens)

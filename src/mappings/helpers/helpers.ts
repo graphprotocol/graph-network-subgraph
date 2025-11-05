@@ -1155,16 +1155,18 @@ export function updateDelegationExchangeRateForProvision(provision: Provision): 
 // Need to remove, or find a fix
 export function calculateCapacities(indexer: Indexer): Indexer {
   let graphNetwork = GraphNetwork.load('1')!
-  let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
+  let tokensDelegatedMax = indexer.provisionedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
 
   // Eligible to add to the capacity
+  let delegatedTokens = indexer.delegatedTokens.minus(indexer.delegatedThawingTokens)
   indexer.delegatedCapacity =
-    indexer.delegatedTokens < tokensDelegatedMax ? indexer.delegatedTokens : tokensDelegatedMax
+    delegatedTokens < tokensDelegatedMax ? delegatedTokens : tokensDelegatedMax
 
-  indexer.tokenCapacity = indexer.stakedTokens.plus(indexer.delegatedCapacity)
+  indexer.tokenCapacity = indexer.provisionedTokens
+    .minus(indexer.thawingTokens)
+    .plus(indexer.delegatedCapacity)
   indexer.availableStake = indexer.tokenCapacity
     .minus(indexer.allocatedTokens)
-    .minus(indexer.lockedTokens)
   return indexer
 }
 

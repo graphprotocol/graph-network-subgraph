@@ -1,6 +1,6 @@
 import { BigDecimal, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts"
 import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
-import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate } from "./helpers/helpers"
+import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate, calculateCapacities } from "./helpers/helpers"
 import { Allocation, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 import { tuplePrefixBytes } from "./helpers/decoder"
@@ -64,6 +64,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
     indexer.allocatedTokens = indexer.allocatedTokens.plus(event.params.tokens)
     indexer.totalAllocationCount = indexer.totalAllocationCount.plus(BigInt.fromI32(1))
     indexer.allocationCount = indexer.allocationCount + 1
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // update provision
@@ -140,6 +141,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 
     indexer.allocatedTokens = indexer.allocatedTokens.minus(event.params.tokens)
     indexer.allocationCount = indexer.allocationCount - 1
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // update provision
@@ -189,6 +191,7 @@ export function handleAllocationResized(event: AllocationResized): void {
     // update indexer
     let indexer = Indexer.load(indexerID)!
     indexer.allocatedTokens = indexer.allocatedTokens.plus(diffTokens)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // update provision
