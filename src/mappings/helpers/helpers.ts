@@ -1175,7 +1175,8 @@ export function calculateCapacitiesHorizon(indexer: Indexer): Indexer {
     .minus(indexer.thawingTokens)
     .plus(indexer.delegatedCapacity)
   indexer.availableStake = indexer.tokenCapacity
-    .minus(indexer.allocatedTokens)
+    .minus(indexer.allocatedTokens) // this includes both legacy and horizon allos
+    .plus(indexer.legacyAllocatedTokens) // so we add the legacy tokens back
   return indexer
 }
 
