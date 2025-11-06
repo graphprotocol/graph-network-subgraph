@@ -604,7 +604,7 @@ dataSources:
       eventHandlers:
         - event: QueryDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,bytes32,bytes,uint256,uint256)
           handler: handleQueryDisputeCreated
-        - event: IndexingDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,address,bytes32,uint256,uint256)
+        - event: IndexingDisputeCreated(indexed bytes32,indexed address,indexed address,uint256,address,bytes32,uint256,uint256,uint256)
           handler: handleIndexingDisputeCreated
         - event: LegacyDisputeCreated(indexed bytes32,indexed address,indexed address,address,uint256,uint256)
           handler: handleLegacyDisputeCreated
