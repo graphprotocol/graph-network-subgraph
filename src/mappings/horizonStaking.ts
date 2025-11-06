@@ -84,6 +84,7 @@ export function handleProvisionCreated(event: ProvisionCreated): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
 
     indexer.provisionedTokens = indexer.provisionedTokens.plus(event.params.tokens)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.plus(event.params.tokens)
@@ -107,6 +108,7 @@ export function handleProvisionIncreased(event: ProvisionIncreased): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
 
     indexer.provisionedTokens = indexer.provisionedTokens.plus(event.params.tokens)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.plus(event.params.tokens)
@@ -247,6 +249,7 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
     // Due to thawing tokens potentially getting cancelled, we will need to figure the thawing situation
     indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
     indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.minus(event.params.tokens)
@@ -302,6 +305,7 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
         event.params.thawingUntil > indexer.thawingUntil
           ? event.params.thawingUntil
           : indexer.thawingUntil
+      indexer = calculateCapacities(indexer as Indexer)
       indexer.save()
     } else {
       // update delegated stake for delegation thaw request
@@ -347,6 +351,7 @@ export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolA
         indexer = updateDelegationExchangeRate(indexer as Indexer)
     }
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     let dataService = createOrLoadDataService(event.params.verifier)
@@ -380,6 +385,7 @@ export function handleTokensDelegated(event: TokensDelegated): void {
         indexer = updateDelegationExchangeRate(indexer as Indexer)
     }
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // update delegator
@@ -454,6 +460,7 @@ export function handleDelegationSlashed(event: DelegationSlashed): void {
     let indexerID = event.params.serviceProvider.toHexString()
     let indexer = Indexer.load(indexerID)!
     indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // upgrade graph network
@@ -483,6 +490,7 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
         indexer = updateDelegationExchangeRate(indexer as Indexer)
     }
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // update delegated stake
@@ -541,6 +549,7 @@ export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn):
     let indexer = Indexer.load(indexerID)!
 
     indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
+    indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     // update delegated stake

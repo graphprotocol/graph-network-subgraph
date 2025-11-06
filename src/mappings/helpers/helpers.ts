@@ -1154,7 +1154,8 @@ export function updateDelegationExchangeRateForProvision(provision: Provision): 
 // TODO - this is broken if we change the delegatio ratio
 // Need to remove, or find a fix
 export function calculateCapacities(indexer: Indexer): Indexer {
-  if (indexer.provisionedTokens.gt(BigInt.fromI32(0))) {
+  let graphNetwork = GraphNetwork.load('1')!
+  if (graphNetwork.maxThawingPeriod.gt(BigInt.fromI32(0))) {
     return calculateCapacitiesHorizon(indexer)
   } else {
     return calculateCapacitiesLegacy(indexer)
