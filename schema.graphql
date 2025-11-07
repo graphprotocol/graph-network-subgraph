@@ -1523,6 +1523,7 @@ enum DisputeStatus {
   Accepted
   Rejected
   Draw
+  Cancelled
 }
 
 """
