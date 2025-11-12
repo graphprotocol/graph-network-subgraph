@@ -1,12 +1,13 @@
 import { BigDecimal, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts"
 import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
-import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate, calculateCapacities } from "./helpers/helpers"
+import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate, calculateCapacities, loadGraphNetwork } from "./helpers/helpers"
 import { Allocation, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 import { tuplePrefixBytes } from "./helpers/decoder"
 import { createOrLoadIndexer } from "./helpers/helpers"
 
 export function handleServiceProviderRegistered(event: ServiceProviderRegistered): void {
+    let graphNetwork = loadGraphNetwork()
     let decodedCalldata = ethereum.decode('(string,string,address)', tuplePrefixBytes(event.params.data))
     if (decodedCalldata != null && decodedCalldata.kind == ethereum.ValueKind.TUPLE) {
         let tupleData = decodedCalldata.toTuple()
@@ -22,7 +23,7 @@ export function handleServiceProviderRegistered(event: ServiceProviderRegistered
         provision.save()
 
         // Update indexer
-        let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp)
+        let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp, graphNetwork)
         indexer.url = url
         indexer.geoHash = geoHash
         indexer.rewardsDestination = rewardsDestination
@@ -36,13 +37,14 @@ export function handleServiceProviderRegistered(event: ServiceProviderRegistered
 }
 
 export function handleRewardsDestinationSet(event: RewardsDestinationSet): void {
+    let graphNetwork = loadGraphNetwork()
     // Update provision
     let provision = createOrLoadProvision(event.params.indexer, event.address, event.block.timestamp)
     provision.rewardsDestination = event.params.rewardsDestination
     provision.save()
 
     // Update indexer
-    let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp)
+    let indexer = createOrLoadIndexer(event.params.indexer, event.block.timestamp, graphNetwork)
     indexer.rewardsDestination = event.params.rewardsDestination
     indexer.save()
 }
@@ -86,7 +88,7 @@ export function handleAllocationCreated(event: AllocationCreated): void {
     dataService.save()
 
     // update subgraph deployment
-    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp, graphNetwork)
     deployment.stakedTokens = deployment.stakedTokens.plus(event.params.tokens)
     deployment.save()
 
@@ -168,7 +170,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
     allocation.save()
 
     let subgraphDeploymentID = event.params.subgraphDeploymentId.toHexString()
-    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp, graphNetwork)
     deployment.stakedTokens = deployment.stakedTokens.minus(event.params.tokens)
     deployment.save()
 
@@ -184,6 +186,7 @@ export function handleAllocationClosed(event: AllocationClosed): void {
 }
 
 export function handleAllocationResized(event: AllocationResized): void {
+    let graphNetwork = loadGraphNetwork()
     let allocationID = event.params.allocationId.toHexString()
     let indexerID = event.params.indexer.toHexString()
     let diffTokens = event.params.newTokens.minus(event.params.oldTokens)
@@ -211,12 +214,11 @@ export function handleAllocationResized(event: AllocationResized): void {
 
     // update subgraph deployment
     let subgraphDeploymentID = allocation.subgraphDeployment
-    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp, graphNetwork)
     deployment.stakedTokens = deployment.stakedTokens.plus(diffTokens)
     deployment.save()
 
     // update graph network
-    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
     graphNetwork.totalTokensAllocated = graphNetwork.totalTokensAllocated.plus(diffTokens)
     graphNetwork.save()
 }
@@ -302,6 +304,7 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
     let subgraphDeployment = createOrLoadSubgraphDeployment(
         subgraphDeploymentID,
         event.block.timestamp,
+        graphNetwork,
     )
     subgraphDeployment.indexingRewardAmount = subgraphDeployment.indexingRewardAmount.plus(
         event.params.tokensRewards,

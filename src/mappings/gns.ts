@@ -56,7 +56,8 @@ import {
   updateCurrentDeploymentLinks,
   getSubgraphID,
   convertBigIntSubgraphIDToBase58,
-  createOrLoadGraphNetwork
+  createOrLoadGraphNetwork,
+  loadGraphNetwork,
 } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
@@ -172,10 +173,11 @@ function addDefaultNameTokenLockWallets(graphAccount: GraphAccount): void {
 }
 
 export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): void {
+  let graphNetwork = loadGraphNetwork()
   let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
 
   // Create subgraph
-  let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp)
+  let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp, graphNetwork)
 
   let hexHash = changetype<Bytes>(addQm(event.params.subgraphMetadata))
   let base58Hash = hexHash.toBase58()
@@ -200,12 +202,13 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
  * - creates graph account, if needed
  */
 export function handleSubgraphPublished(event: SubgraphPublished): void {
+  let graphNetwork = GraphNetwork.load('1')!
   let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
   let versionNumber: BigInt
 
   // Update subgraph
   // Create subgraph
-  let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp)
+  let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp, graphNetwork)
   let oldVersionID = subgraph.currentVersion
 
   versionNumber = subgraph.versionCount
@@ -227,7 +230,7 @@ export function handleSubgraphPublished(event: SubgraphPublished): void {
 
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp, graphNetwork)
 
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
@@ -306,7 +309,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   subgraph.save()
 
   // Update the curator
-  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp, graphNetwork)
   // nSignal
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
@@ -339,7 +342,7 @@ export function handleNSignalMinted(event: NSignalMinted): void {
   }
   curator.save()
 
-  let nameSignal = createOrLoadNameSignal(event.params.nameCurator, subgraphID, event.block.timestamp)
+  let nameSignal = createOrLoadNameSignal(event.params.nameCurator, subgraphID, event.block.timestamp, graphNetwork)
 
   let isNameSignalBecomingActive =
     nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
@@ -421,6 +424,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
     event.params.nameCurator,
     subgraphID,
     event.block.timestamp,
+    graphNetwork,
   )
 
   let isNameSignalBecomingInactive =
@@ -446,7 +450,7 @@ export function handleNSignalBurned(event: NSignalBurned): void {
   }
 
   // update curator
-  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp, graphNetwork)
   curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
     event.params.tokensReceived,
   )
@@ -586,6 +590,7 @@ export function handleNameSignalDisabled(event: NameSignalDisabled): void {
 }
 
 export function handleGRTWithdrawn(event: GRTWithdrawn): void {
+  let graphNetwork = loadGraphNetwork()
   let bigIntID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
@@ -598,6 +603,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
     event.params.nameCurator,
     subgraphID,
     event.block.timestamp,
+    graphNetwork,
   )
   nameSignal.withdrawnTokens = event.params.withdrawnGRT
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
@@ -614,7 +620,7 @@ export function handleGRTWithdrawn(event: GRTWithdrawn): void {
   nameSignal.signalAverageCostBasisPerSignal = BigDecimal.fromString('0')
   nameSignal.save()
 
-  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.nameCurator, event.block.timestamp, graphNetwork)
   curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
   curator.save()
 }
@@ -639,6 +645,7 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
 //   handler: handleSubgraphPublishedV2
 
 export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
+  let graphNetwork = loadGraphNetwork()
   let bigIntID = event.params.subgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let versionID: string
@@ -649,6 +656,7 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
     event.params.subgraphID,
     event.transaction.from,
     event.block.timestamp,
+    graphNetwork,
   )
   let oldVersionID = subgraph.currentVersion
 
@@ -665,7 +673,7 @@ export function handleSubgraphPublishedV2(event: SubgraphPublished1): void {
 
   // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
   let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp, graphNetwork)
 
   // Create subgraph version
   let subgraphVersion = new SubgraphVersion(versionID)
@@ -751,7 +759,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   subgraph.save()
 
   // Update the curator
-  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp, graphNetwork)
   // nSignal
   curator.totalNameSignalledTokens = curator.totalNameSignalledTokens.plus(
     event.params.tokensDeposited,
@@ -784,7 +792,7 @@ export function handleNSignalMintedV2(event: SignalMinted): void {
   }
   curator.save()
 
-  let nameSignal = createOrLoadNameSignal(event.params.curator, subgraphID, event.block.timestamp)
+  let nameSignal = createOrLoadNameSignal(event.params.curator, subgraphID, event.block.timestamp, graphNetwork)
 
   let isNameSignalBecomingActive =
     nameSignal.nameSignal.isZero() && !event.params.nSignalCreated.isZero()
@@ -868,6 +876,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
     event.params.curator,
     subgraphID,
     event.block.timestamp,
+    graphNetwork,
   )
 
   let isNameSignalBecomingInactive =
@@ -893,7 +902,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
   }
 
   // update curator
-  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp, graphNetwork)
   curator.totalNameUnsignalledTokens = curator.totalNameUnsignalledTokens.plus(
     event.params.tokensReceived,
   )
@@ -1111,7 +1120,7 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
 
     // Create subgraph deployment, if needed. Can happen if the deployment has never been staked on
     let subgraphDeploymentID = event.params.subgraphDeploymentID.toHexString()
-    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+    let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp, graphNetwork)
 
     // Create subgraph version
     let subgraphVersion = new SubgraphVersion(versionID)
@@ -1146,10 +1155,11 @@ export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): voi
 //   handler: handleLegacySubgraphClaimed
 
 export function handleLegacySubgraphClaimed(event: LegacySubgraphClaimed): void {
+  let graphNetwork = loadGraphNetwork()
   let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
 
   // Update subgraph v2
-  let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp)
+  let subgraph = createOrLoadSubgraph(subgraphID, event.params.graphAccount, event.block.timestamp, graphNetwork)
   subgraph.migrated = true
   subgraph.save()
 }
@@ -1160,11 +1170,13 @@ export function handleLegacySubgraphClaimed(event: LegacySubgraphClaimed): void 
 export function handleTransfer(event: Transfer): void {
   let newOwner = createOrLoadGraphAccount(event.params.to, event.block.timestamp)
 
+  let graphNetwork = loadGraphNetwork()
   // Update subgraph v2
   let subgraph = createOrLoadSubgraph(
     event.params.tokenId,
     event.transaction.from,
     event.block.timestamp,
+    graphNetwork,
   )
   subgraph.updatedAt = event.block.timestamp.toI32()
   subgraph.owner = newOwner.id

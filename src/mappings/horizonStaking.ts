@@ -2,7 +2,7 @@ import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { AllowedLockedVerifierSet, DelegatedTokensWithdrawn, DelegationFeeCutSet, DelegationSlashed, DelegationSlashingEnabled, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, MaxThawingPeriodSet, OperatorSet, StakeDelegatedWithdrawn, ThawingPeriodCleared, TokensDelegated, TokensDeprovisioned, TokensToDelegationPoolAdded, TokensUndelegated } from '../types/HorizonStaking/HorizonStaking'
 import { DelegatedStake, Delegator, Indexer, Provision, ThawRequest } from '../types/schema'
-import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadHorizonOperator, createOrLoadIndexer, createOrLoadProvision, joinID, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
+import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadHorizonOperator, createOrLoadIndexer, createOrLoadProvision, joinID, loadGraphNetwork, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -17,7 +17,7 @@ import {
 export function handleHorizonStakeDeposited(event: HorizonStakeDeposited): void {
     let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
     // update indexer
-    let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp)
+    let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp, graphNetwork)
     let previousStake = indexer.stakedTokens
     indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
     indexer.save()
@@ -266,6 +266,7 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
 }
 
 export function handleThawRequestCreated(event: ThawRequestCreated): void {
+    let graphNetwork = loadGraphNetwork()
     let dataService = createOrLoadDataService(event.params.verifier)
     let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
     let owner = createOrLoadGraphAccount(event.params.owner, event.block.timestamp)
@@ -314,6 +315,7 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
         indexer.id,
         dataService.id,
         event.block.timestamp.toI32(),
+        graphNetwork,
       )
 
       delegatedStake.lockedUntil =
@@ -362,6 +364,7 @@ export function handleTokensToDelegationPoolAdded(event: TokensToDelegationPoolA
 // Delegation
 
 export function handleTokensDelegated(event: TokensDelegated): void {
+    let graphNetwork = loadGraphNetwork()
     let zeroShares = event.params.shares.equals(BigInt.fromI32(0))
 
     let dataService = createOrLoadDataService(event.params.verifier)
@@ -378,7 +381,7 @@ export function handleTokensDelegated(event: TokensDelegated): void {
     provision.save()
 
     // update indexer
-    let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp)
+    let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp, graphNetwork)
     indexer.delegatedTokens = indexer.delegatedTokens.plus(event.params.tokens)
     indexer.delegatorShares = indexer.delegatorShares.plus(event.params.shares)
     if (indexer.delegatorShares != BigInt.fromI32(0)) {
@@ -390,7 +393,7 @@ export function handleTokensDelegated(event: TokensDelegated): void {
 
     // update delegator
     let delegatorID = event.params.delegator.toHexString()
-    let delegator = createOrLoadDelegator(event.params.delegator, event.block.timestamp)
+    let delegator = createOrLoadDelegator(event.params.delegator, event.block.timestamp, graphNetwork)
     delegator.totalStakedTokens = delegator.totalStakedTokens.plus(event.params.tokens)
     delegator.save()
 
@@ -400,6 +403,7 @@ export function handleTokensDelegated(event: TokensDelegated): void {
         indexer.id,
         dataService.id,
         event.block.timestamp.toI32(),
+        graphNetwork,
     )
 
     if (!zeroShares) {
@@ -427,7 +431,6 @@ export function handleTokensDelegated(event: TokensDelegated): void {
     delegator = Delegator.load(delegatorID) as Delegator
 
     // upgrade graph network
-    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
     graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.plus(event.params.tokens)
 
     if (isStakeBecomingActive) {
