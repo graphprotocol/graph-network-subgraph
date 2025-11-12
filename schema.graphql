@@ -815,6 +815,8 @@ type Indexer @entity(immutable: false) {
   delegators: [DelegatedStake!]! @derivedFrom(field: "indexer")
   "CURRENT tokens delegated to the indexer"
   delegatedTokens: BigInt!
+  "Tokens delegated that are thawing from the provision"
+  delegatedThawingTokens: BigInt!
   "Ratio between the amount of the indexers own stake over the total usable stake."
   ownStakeRatio: BigDecimal!
   "Ratio between the amount of delegated stake over the total usable stake."
@@ -998,6 +1000,8 @@ type Provision @entity(immutable: false) {
   # Delegation
   "Tokens delegated to the provision"
   delegatedTokens: BigInt!
+  "Tokens delegated that are thawing from the provision"
+  delegatedThawingTokens: BigInt!
   "Total shares of the delegator pool"
   delegatorShares: BigInt!
   "Exchange rate of tokens received for each share"
@@ -1519,6 +1523,7 @@ enum DisputeStatus {
   Accepted
   Rejected
   Draw
+  Cancelled
 }
 
 """

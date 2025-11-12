@@ -16,6 +16,7 @@ import {
   joinID,
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
+  loadGraphNetwork,
 } from './helpers/helpers'
 import { zeroBD } from './utils'
 import { addresses } from '../../config/addresses'
@@ -27,11 +28,11 @@ import { addresses } from '../../config/addresses'
  * - updates subgraph deployment, creates if needed
  */
 export function handleSignalled(event: Signalled): void {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = loadGraphNetwork()
   // Create curator and update most of the parameters
   let id = event.params.curator.toHexString()
   let gnsID = graphNetwork.gns.toHexString()
-  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp, graphNetwork)
   curator.totalSignalledTokens = curator.totalSignalledTokens.plus(
     event.params.tokens.minus(event.params.curationTax),
   )
@@ -98,7 +99,7 @@ export function handleSignalled(event: Signalled): void {
   curator.save()
 
   // Update subgraph deployment
-  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp)
+  let deployment = createOrLoadSubgraphDeployment(subgraphDeploymentID, event.block.timestamp, graphNetwork)
   let oldSignalAmount = deployment.signalAmount
   let oldSignalledTokens = deployment.signalledTokens
   deployment.signalledTokens = deployment.signalledTokens.plus(
@@ -165,7 +166,7 @@ export function handleSignalled(event: Signalled): void {
  * - updates subgraph
  */
 export function handleBurned(event: Burned): void {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = loadGraphNetwork()
   let id = event.params.curator.toHexString()
   let gnsID = graphNetwork.gns.toHexString()
   // Update signal
@@ -215,7 +216,7 @@ export function handleBurned(event: Burned): void {
   // Assuming curator is created since it's a burn can't be done, as signals can be transferred and
   // we currently can't track transfers, thus this might be the first curation interaction of this
   // account
-  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp, graphNetwork)
   curator.totalUnsignalledTokens = curator.totalUnsignalledTokens.plus(event.params.tokens)
   curator.totalSignal = curator.totalSignal.minus(event.params.signal.toBigDecimal())
   curator.totalSignalAverageCostBasis = curator.totalSignalAverageCostBasis.minus(diffACB)
@@ -298,7 +299,7 @@ export function handleBurned(event: Burned): void {
  */
 export function handleParameterUpdated(event: ParameterUpdated): void {
   let parameter = event.params.param
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = loadGraphNetwork()
   let curation = Curation.bind(event.address)
 
   if (parameter == 'defaultReserveRatio') {

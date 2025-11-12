@@ -43,6 +43,7 @@ export function createOrLoadSubgraph(
   bigIntID: BigInt,
   owner: Address,
   timestamp: BigInt,
+  graphNetwork: GraphNetwork,
 ): Subgraph {
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)
@@ -76,7 +77,6 @@ export function createOrLoadSubgraph(
 
     subgraph.save()
 
-    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.subgraphCount = graphNetwork.subgraphCount + 1
     graphNetwork.activeSubgraphCount = graphNetwork.activeSubgraphCount + 1
     graphNetwork.save()
@@ -87,10 +87,10 @@ export function createOrLoadSubgraph(
 export function createOrLoadSubgraphDeployment(
   subgraphID: string,
   timestamp: BigInt,
+  graphNetwork: GraphNetwork,
 ): SubgraphDeployment {
   let deployment = SubgraphDeployment.load(subgraphID)
   if (deployment == null) {
-    let graphNetwork = GraphNetwork.load('1')!
     let prefix = '1220'
     deployment = new SubgraphDeployment(subgraphID)
     deployment.ipfsHash = Bytes.fromHexString(prefix.concat(subgraphID.slice(2))).toBase58()
@@ -129,7 +129,7 @@ export function createOrLoadSubgraphDeployment(
   return deployment as SubgraphDeployment
 }
 
-export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): Indexer {
+export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt, graphNetwork: GraphNetwork): Indexer {
   let id = indexerAddress.toHexString()
   let indexer = Indexer.load(id)
   if (indexer == null) {
@@ -163,6 +163,7 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
     indexer.availableStake = BigInt.fromI32(0)
 
     indexer.delegatedTokens = BigInt.fromI32(0)
+    indexer.delegatedThawingTokens = BigInt.fromI32(0)
     indexer.ownStakeRatio = BigDecimal.fromString('0')
     indexer.delegatedStakeRatio = BigDecimal.fromString('0')
     indexer.delegatorShares = BigInt.fromI32(0)
@@ -196,7 +197,6 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
 
     indexer.defaultDisplayName = graphAccount.defaultDisplayName
 
-    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.indexerCount = graphNetwork.indexerCount + 1
     graphNetwork.save()
 
@@ -205,8 +205,8 @@ export function createOrLoadIndexer(indexerAddress: Bytes, timestamp: BigInt ): 
   return indexer as Indexer
 }
 
-export function createOrLoadLegacyIndexer(indexerAddress: Bytes, timestamp: BigInt): Indexer {
-  let indexer = createOrLoadIndexer(indexerAddress, timestamp)
+export function createOrLoadLegacyIndexer(indexerAddress: Bytes, timestamp: BigInt, graphNetwork: GraphNetwork): Indexer {
+  let indexer = createOrLoadIndexer(indexerAddress, timestamp, graphNetwork)
   indexer.isLegacy = true
   indexer.save()
   return indexer
@@ -244,6 +244,7 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.indexerQueryFees = BigInt.fromI32(0)
     provision.delegatorQueryFees = BigInt.fromI32(0)
     provision.delegatedTokens = BigInt.fromI32(0)
+    provision.delegatedThawingTokens = BigInt.fromI32(0)
     provision.delegatorShares = BigInt.fromI32(0)
     provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
     provision.thawingUntil = BigInt.fromI32(0)
@@ -337,7 +338,7 @@ export function createOrLoadIndexerQueryFeePaymentAggregation(paymentAddress: By
 }
 
 
-export function createOrLoadDelegator(delegatorAddress: Bytes, timestamp: BigInt): Delegator {
+export function createOrLoadDelegator(delegatorAddress: Bytes, timestamp: BigInt, graphNetwork: GraphNetwork): Delegator {
   let id = delegatorAddress.toHexString()
   let delegator = Delegator.load(id)
   if (delegator == null) {
@@ -355,7 +356,6 @@ export function createOrLoadDelegator(delegatorAddress: Bytes, timestamp: BigInt
     graphAccount.delegator = id
     graphAccount.save()
 
-    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.delegatorCount = graphNetwork.delegatorCount + 1
     graphNetwork.save()
   }
@@ -366,6 +366,7 @@ export function createOrLoadDelegatedStake(
   delegator: string,
   indexer: string,
   timestamp: i32,
+  graphNetwork: GraphNetwork,
 ): DelegatedStake {
   let id = joinID([delegator, indexer])
   let delegatedStake = DelegatedStake.load(id)
@@ -392,7 +393,6 @@ export function createOrLoadDelegatedStake(
     delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1
     delegatorEntity.save()
 
-    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.delegationCount = graphNetwork.delegationCount + 1
     graphNetwork.save()
   }
@@ -404,6 +404,7 @@ export function createOrLoadDelegatedStakeForProvision(
   indexer: string,
   dataService: string,
   timestamp: i32,
+  graphNetwork: GraphNetwork,
 ): DelegatedStake {
   let provisionId = joinID([indexer, dataService])
   let id = joinID([delegator, provisionId])
@@ -433,14 +434,13 @@ export function createOrLoadDelegatedStakeForProvision(
     delegatorEntity.stakesCount = delegatorEntity.stakesCount + 1
     delegatorEntity.save()
 
-    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.delegationCount = graphNetwork.delegationCount + 1
     graphNetwork.save()
   }
   return delegatedStake as DelegatedStake
 }
 
-export function createOrLoadCurator(curatorAddress: Bytes, timestamp: BigInt): Curator {
+export function createOrLoadCurator(curatorAddress: Bytes, timestamp: BigInt, graphNetwork: GraphNetwork): Curator {
   let id = curatorAddress.toHexString()
   let curator = Curator.load(id)
   if (curator == null) {
@@ -477,7 +477,6 @@ export function createOrLoadCurator(curatorAddress: Bytes, timestamp: BigInt): C
     graphAccount.curator = id
     graphAccount.save()
 
-    let graphNetwork = GraphNetwork.load('1')!
     graphNetwork.curatorCount = graphNetwork.curatorCount + 1
     graphNetwork.save()
   }
@@ -521,12 +520,13 @@ export function createOrLoadNameSignal(
   curatorAddress: Bytes,
   subgraphID: string,
   timestamp: BigInt,
+  graphNetwork: GraphNetwork,
 ): NameSignal {
   let nameSignalID = joinID([curatorAddress.toHexString(), subgraphID])
   let nameSignal = NameSignal.load(nameSignalID)
   if (nameSignal == null) {
     nameSignal = new NameSignal(nameSignalID)
-    let underlyingCurator = createOrLoadCurator(curatorAddress, timestamp)
+    let underlyingCurator = createOrLoadCurator(curatorAddress, timestamp, graphNetwork)
     nameSignal.entityVersion = 2
     nameSignal.curator = underlyingCurator.id
     nameSignal.subgraph = subgraphID
@@ -548,10 +548,9 @@ export function createOrLoadNameSignal(
     nameSignal.signalAverageCostBasisPerSignal = BigDecimal.fromString('0')
     nameSignal.save()
 
-    let curatorEntity = Curator.load(curatorAddress.toHexString())!
-    curatorEntity.nameSignalCount = curatorEntity.nameSignalCount + 1
-    curatorEntity.combinedSignalCount = curatorEntity.combinedSignalCount + 1
-    curatorEntity.save()
+    underlyingCurator.nameSignalCount = underlyingCurator.nameSignalCount + 1
+    underlyingCurator.combinedSignalCount = underlyingCurator.combinedSignalCount + 1
+    underlyingCurator.save()
 
     let subgraphEntity = Subgraph.load(subgraphID)!
     let relation = new NameSignalSubgraphRelation(
@@ -645,6 +644,12 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
   epoch.taxedQueryFees = BigInt.fromI32(0)
   epoch.save()
   return epoch
+}
+
+export function loadGraphNetwork(): GraphNetwork {
+  // Should only be called whenever we are sure a GraphNetwork entity exists.
+  // This is only made to centralize the load statements that are everywhere
+  return GraphNetwork.load('1')!
 }
 
 export function createOrLoadGraphNetwork(
@@ -967,7 +972,7 @@ function max(a: BigDecimal, b: BigDecimal): BigDecimal {
 export function calculateOwnStakeRatio(indexer: Indexer): BigDecimal {
   let stakedTokensBD = indexer.stakedTokens.minus(indexer.lockedTokens).toBigDecimal()
   let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = loadGraphNetwork()
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
   let maxPossibleTotalUsable = stakedTokensBD + stakedTokensBD * delegationRatioBD
   let currentTotalStake = stakedTokensBD + delegatedTokensBD
@@ -1033,7 +1038,7 @@ export function calculateLegacyIndexerRewardOwnGenerationRatio(indexer: Indexer)
 export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
   let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
   let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = loadGraphNetwork()
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
   let maxDelegatedStake = stakedTokensBD * delegationRatioBD
   let maxDelegatedStakeBD = max(maxDelegatedStake, delegatedTokensBD)
@@ -1152,7 +1157,34 @@ export function updateDelegationExchangeRateForProvision(provision: Provision): 
 // TODO - this is broken if we change the delegatio ratio
 // Need to remove, or find a fix
 export function calculateCapacities(indexer: Indexer): Indexer {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = loadGraphNetwork()
+  if (graphNetwork.maxThawingPeriod.gt(BigInt.fromI32(0))) {
+    return calculateCapacitiesHorizon(indexer)
+  } else {
+    return calculateCapacitiesLegacy(indexer)
+  }
+}
+
+export function calculateCapacitiesHorizon(indexer: Indexer): Indexer {
+  let graphNetwork = loadGraphNetwork()
+  let tokensDelegatedMax = indexer.provisionedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
+
+  // Eligible to add to the capacity
+  let delegatedTokens = indexer.delegatedTokens.minus(indexer.delegatedThawingTokens)
+  indexer.delegatedCapacity =
+    delegatedTokens < tokensDelegatedMax ? delegatedTokens : tokensDelegatedMax
+
+  indexer.tokenCapacity = indexer.provisionedTokens
+    .minus(indexer.thawingTokens)
+    .plus(indexer.delegatedCapacity)
+  indexer.availableStake = indexer.tokenCapacity
+    .minus(indexer.allocatedTokens) // this includes both legacy and horizon allos
+    .plus(indexer.legacyAllocatedTokens) // so we add the legacy tokens back
+  return indexer
+}
+
+export function calculateCapacitiesLegacy(indexer: Indexer): Indexer {
+  let graphNetwork = loadGraphNetwork()
   let tokensDelegatedMax = indexer.stakedTokens.times(BigInt.fromI32(graphNetwork.delegationRatio))
 
   // Eligible to add to the capacity

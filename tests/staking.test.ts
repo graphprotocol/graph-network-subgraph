@@ -41,7 +41,7 @@ import {
   mockSlasherUpdate,
   mockAssetHolderUpdate,
 } from './factories/staking'
-import { createOrLoadGraphNetwork } from '../src/mappings/helpers/helpers'
+import { createOrLoadGraphNetwork, loadGraphNetwork } from '../src/mappings/helpers/helpers'
 import { mockTransfer } from './factories/graphToken'
 import { GraphNetwork, GraphAccount } from '../src/types/schema'
 
@@ -919,7 +919,7 @@ describe('NETWORK SETS AND UPDATES', () => {
       let slasher = mockSlasherUpdate(indexerAddress, slasherAddress, true)
       handleSlasherUpdate(slasher)
 
-      let graphNetwork = GraphNetwork.load('1')!
+      let graphNetwork = loadGraphNetwork()
       let slashers = graphNetwork.slashers
 
       if (slashers !== null) {
@@ -943,7 +943,7 @@ describe('NETWORK SETS AND UPDATES', () => {
       let assetHolder = mockAssetHolderUpdate(indexerAddress, assetHolderAddress, true)
       handleAssetHolderUpdate(assetHolder)
 
-      let graphNetwork = GraphNetwork.load('1')!
+      let graphNetwork = loadGraphNetwork()
       let assetHolders = graphNetwork.assetHolders
 
       if (assetHolders !== null) {

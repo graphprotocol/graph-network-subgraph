@@ -65,6 +65,7 @@ export function handleRewardsAssigned(event: RewardsAssigned): void {
   let subgraphDeployment = createOrLoadSubgraphDeployment(
     subgraphDeploymentID,
     event.block.timestamp,
+    graphNetwork,
   )
   subgraphDeployment.indexingRewardAmount = subgraphDeployment.indexingRewardAmount.plus(
     event.params.amount,

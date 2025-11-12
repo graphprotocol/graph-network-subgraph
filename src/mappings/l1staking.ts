@@ -6,7 +6,7 @@ import {
 } from '../types/L1Staking/L1Staking'
 
 import { Indexer, DelegatedStake, GraphNetwork } from '../types/schema'
-import { calculateCapacities, createOrLoadGraphNetwork, joinID, updateLegacyAdvancedIndexerMetrics, updateDelegationExchangeRate } from './helpers/helpers'
+import { calculateCapacities, createOrLoadGraphNetwork, joinID, updateLegacyAdvancedIndexerMetrics, updateDelegationExchangeRate, loadGraphNetwork } from './helpers/helpers'
 
 /*
     /// @dev Emitted when an indexer transfers their stake to L2.
@@ -103,7 +103,7 @@ export function handleDelegationTransferredToL2(event: DelegationTransferredToL2
 export function handleStakeDelegatedUnlockedDueToL2Transfer(
   event: StakeDelegatedUnlockedDueToL2Transfer,
 ): void {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = loadGraphNetwork()
   let delegationID = joinID([
     event.params.delegator.toHexString(),
     event.params.indexer.toHexString(),

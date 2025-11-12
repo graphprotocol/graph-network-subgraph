@@ -12,6 +12,7 @@ import {
   createOrLoadNameSignal,
   createOrLoadGraphAccount,
   convertBigIntSubgraphIDToBase58,
+  loadGraphNetwork,
 } from './helpers/helpers'
 
 /*
@@ -25,12 +26,14 @@ import {
 export function handleSubgraphReceivedFromL1(event: SubgraphReceivedFromL1): void {
   let bigIntID = event.params._l2SubgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
+  let graphNetwork = loadGraphNetwork()
 
   // Create subgraph if needed
   let subgraph = createOrLoadSubgraph(
     event.params._l2SubgraphID,
     event.params._owner,
     event.block.timestamp,
+    graphNetwork,
   )
   subgraph.startedTransferToL2 = true
   subgraph.startedTransferToL2At = event.block.timestamp
@@ -47,6 +50,7 @@ export function handleSubgraphReceivedFromL1(event: SubgraphReceivedFromL1): voi
     event.params._owner,
     subgraphID,
     event.block.timestamp,
+    graphNetwork,
   )
   nameSignal.transferredToL2 = true
   nameSignal.transferredToL2At = event.block.timestamp
@@ -88,11 +92,13 @@ export function handleSubgraphL2TransferFinalized(event: SubgraphL2TransferFinal
 export function handleCuratorBalanceReceived(event: CuratorBalanceReceived): void {
   let bigIntID = event.params._l2SubgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
+  let graphNetwork = loadGraphNetwork()
 
   let nameSignal = createOrLoadNameSignal(
     event.params._l2Curator,
     subgraphID,
     event.block.timestamp,
+    graphNetwork,
   )
   nameSignal.transferredToL2 = true
   nameSignal.transferredToL2At = event.block.timestamp
