@@ -59,7 +59,7 @@ const main = (): void => {
     output.tokenLockManager = '0xFCf78AC094288D7200cfdB367A8CD07108dFa128'
     output.useTokenLockManager = false
     if(output.ethereumDIDRegistry == '') {
-      output.ethereumDIDRegistry = '0xdCa7EF03e98e0DC2B855bE647C39ABe984fcF21B' // since the package doesn't have it yet
+      output.ethereumDIDRegistry = '0xa9AEb1c6f14f4244547B9a0946C485DA99047638' // since the package doesn't have it yet
     }
     if(output.ens == '') {
       output.ens = '0x0000000000000000000000000000000000000000' // to avoid crashes due to bad config
