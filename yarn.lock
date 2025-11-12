@@ -832,10 +832,10 @@
     graphql-import-node "^0.0.5"
     js-yaml "^4.1.0"
 
-"@graphprotocol/address-book@1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/address-book/-/address-book-1.0.1.tgz#6ce2fbd2f3d9b0b9b671d41b2cc40250634d6796"
-  integrity sha512-hI2OjEXAEiaGGS9Geb/HQyUmek0RVISwFL63U7ojmEa6mbtD7ZT4PAdWMp3KT5Q8s1OMY4WiE+ehUsJtkwVleA==
+"@graphprotocol/address-book@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/address-book/-/address-book-1.1.0.tgz#935dc7a58f426e5b838059fbc778fe208b234d78"
+  integrity sha512-38NiutGOWdDIYgB/3kGp/7LxPRCNomipjo1hGlaj6RvyydySooVSmb3A+j84faUso+uhYxt8+9y1EFN7XVnT7Q==
 
 "@graphprotocol/common-ts@^2.0.7":
   version "2.0.11"
