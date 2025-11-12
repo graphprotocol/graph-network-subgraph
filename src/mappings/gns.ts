@@ -202,7 +202,7 @@ export function handleSubgraphMetadataUpdated(event: SubgraphMetadataUpdated): v
  * - creates graph account, if needed
  */
 export function handleSubgraphPublished(event: SubgraphPublished): void {
-  let graphNetwork = GraphNetwork.load('1')!
+  let graphNetwork = loadGraphNetwork()
   let subgraphID = getSubgraphID(event.params.graphAccount, event.params.subgraphNumber)
   let versionNumber: BigInt
 
@@ -974,6 +974,7 @@ export function handleNSignalBurnedV2(event: SignalBurned): void {
 //   handler: handleGRTWithdrawnV2
 
 export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
+  let graphNetwork = loadGraphNetwork()
   let bigIntID = event.params.subgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let subgraph = Subgraph.load(subgraphID)!
@@ -986,6 +987,7 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
     event.params.curator,
     subgraphID,
     event.block.timestamp,
+    graphNetwork,
   )
   nameSignal.withdrawnTokens = event.params.withdrawnGRT
   nameSignal.nameSignal = nameSignal.nameSignal.minus(event.params.nSignalBurnt)
@@ -1003,7 +1005,7 @@ export function handleGRTWithdrawnV2(event: GRTWithdrawn1): void {
 
   nameSignal.save()
 
-  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp)
+  let curator = createOrLoadCurator(event.params.curator, event.block.timestamp, graphNetwork)
   curator.totalWithdrawnTokens = curator.totalWithdrawnTokens.plus(event.params.withdrawnGRT)
   curator.save()
 }
@@ -1082,6 +1084,7 @@ export function handleSubgraphUpgraded(event: SubgraphUpgraded): void {
 // don't create bugs (like double counting/creating versions)
 
 export function handleSubgraphVersionUpdated(event: SubgraphVersionUpdated): void {
+  let graphNetwork = loadGraphNetwork()
   let bigIntID = event.params.subgraphID
   let subgraphID = convertBigIntSubgraphIDToBase58(bigIntID)
   let versionID: string
