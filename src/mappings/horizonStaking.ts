@@ -233,7 +233,8 @@ export function handleDelegationFeeCutSet(event: DelegationFeeCutSet): void {
     provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 
-    let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
+    let graphNetwork = loadGraphNetwork()
+    let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp, graphNetwork)
     indexer.indexingRewardCut = event.params.paymentType == 2 ? invertedCut.toI32() : indexer.indexingRewardCut
     indexer.queryFeeCut = event.params.paymentType == 0 ? invertedCut.toI32() : indexer.queryFeeCut
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
