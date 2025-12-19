@@ -341,7 +341,7 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
 
     let delegationPoolQueryFees =
         provision.delegatedTokens == BigInt.fromI32(0)
-            ? event.params.tokensCollected
+            ? BigInt.fromI32(0)
             : event.params.tokensCollected
                 .times(provision.queryFeeCut)
                 .div(BigInt.fromI32(1000000))
