@@ -756,6 +756,8 @@ dataSources:
       eventHandlers:
         - event: RewardsAssigned(indexed address,indexed address,uint256,uint256)
           handler: handleRewardsAssigned
+        - event: HorizonRewardsAssigned(indexed address,indexed address,uint256)
+          handler: handleHorizonRewardsAssigned
         - event: RewardsDenylistUpdated(indexed bytes32,uint256)
           handler: handleRewardsDenyListUpdated
         # - event: ImplementationUpdated(address,address)
