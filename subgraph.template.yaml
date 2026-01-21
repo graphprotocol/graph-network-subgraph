@@ -1,4 +1,4 @@
-specVersion: 1.0.0
+specVersion: 1.2.0
 description: Core Graph Network subgraph ({{network}} NO PRUNING)
 repository: https://github.com/graphprotocol/graph-network-subgraph
 schema:
@@ -15,7 +15,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/controller.ts
       entities:
@@ -28,14 +28,24 @@ dataSources:
       eventHandlers:
         - event: SetContractProxy(indexed bytes32,address)
           handler: handleSetContractProxy
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: NewOwnership(indexed address,indexed address)
           handler: handleNewOwnership
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: PartialPauseChanged(bool)
           handler: handlePartialPauseChanged
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: PauseChanged(bool)
           handler: handlePauseChanged
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: NewPauseGuardian(indexed address,indexed address)
           handler: handleNewPauseGuardian
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
   - kind: ethereum/contract
     name: GNS
     network: {{network}}
@@ -45,7 +55,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/gns.ts
       entities:
@@ -69,18 +79,28 @@ dataSources:
           handler: handleSubgraphPublished
         - event: SubgraphDeprecated(indexed address,indexed uint256)
           handler: handleSubgraphDeprecated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: SetDefaultName(indexed address,uint256,bytes32,string)
           handler: handleSetDefaultName
+          calls:
+            ENS.owner: ENS[{{ens}}].owner(event.params.nameIdentifier)
         - event: SubgraphMetadataUpdated(indexed address,indexed uint256,bytes32)
           handler: handleSubgraphMetadataUpdated
         - event: NameSignalEnabled(indexed address,indexed uint256,indexed bytes32,uint32)
           handler: handleNameSignalEnabled
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: NameSignalUpgrade(indexed address,indexed uint256,uint256,uint256,indexed bytes32)
           handler: handleNameSignalUpgrade
         - event: NSignalMinted(indexed address,indexed uint256,indexed address,uint256,uint256,uint256)
           handler: handleNSignalMinted
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: NSignalBurned(indexed address,indexed uint256,indexed address,uint256,uint256,uint256)
           handler: handleNSignalBurned
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: NameSignalDisabled(indexed address,indexed uint256,uint256)
           handler: handleNameSignalDisabled
         - event: GRTWithdrawn(indexed address,indexed uint256,indexed address,uint256,uint256)
@@ -92,12 +112,18 @@ dataSources:
           handler: handleSubgraphPublishedV2
         - event: SubgraphDeprecated(indexed uint256,uint256)
           handler: handleSubgraphDeprecatedV2
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: SubgraphMetadataUpdated(indexed uint256,bytes32)
           handler: handleSubgraphMetadataUpdatedV2
         - event: SignalMinted(indexed uint256,indexed address,uint256,uint256,uint256)
           handler: handleNSignalMintedV2
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: SignalBurned(indexed uint256,indexed address,uint256,uint256,uint256)
           handler: handleNSignalBurnedV2
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: GRTWithdrawn(indexed uint256,indexed address,uint256,uint256)
           handler: handleGRTWithdrawnV2
         - event: SubgraphUpgraded(indexed uint256,uint256,uint256,indexed bytes32)
@@ -116,7 +142,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/l1gns.ts
       entities:
@@ -144,7 +170,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/l2gns.ts
       entities:
@@ -175,7 +201,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/gns.ts
       entities:
@@ -201,7 +227,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/serviceRegistry.ts
       entities:
@@ -228,7 +254,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/l1staking.ts
       entities:
@@ -265,7 +291,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/l2staking.ts
       entities:
@@ -297,7 +323,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/staking.ts
       entities:
@@ -319,38 +345,66 @@ dataSources:
       eventHandlers:
         - event: DelegationParametersUpdated(indexed address,uint32,uint32,uint32)
           handler: handleDelegationParametersUpdated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: StakeDeposited(indexed address,uint256)
           handler: handleStakeDeposited
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: StakeLocked(indexed address,uint256,uint256)
           handler: handleStakeLocked
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: StakeWithdrawn(indexed address,uint256)
           handler: handleStakeWithdrawn
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: StakeSlashed(indexed address,uint256,uint256,address)
           handler: handleStakeSlashed
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: StakeDelegated(indexed address,indexed address,uint256,uint256)
           handler: handleStakeDelegated
         - event: StakeDelegatedLocked(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleStakeDelegatedLocked
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: StakeDelegatedWithdrawn(indexed address,indexed address,uint256)
           handler: handleStakeDelegatedWithdrawn
         - event: AllocationCreated(indexed address,indexed bytes32,uint256,uint256,indexed address,bytes32)
           handler: handleAllocationCreated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: AllocationCollected(indexed address,indexed bytes32,uint256,uint256,indexed address,address,uint256,uint256)
           handler: handleAllocationCollected
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: AllocationClosed(indexed address,indexed bytes32,uint256,uint256,indexed address,uint256,address,bytes32,bool)
           handler: handleAllocationClosedCobbDouglas
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: AllocationClosed(indexed address,indexed bytes32,uint256,uint256,indexed address,address,bytes32,bool)
           handler: handleAllocationClosed
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: RebateClaimed(indexed address,indexed bytes32,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateClaimed
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: RebateCollected(address,indexed address,indexed bytes32,indexed address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleRebateCollected
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: SetOperator(indexed address,indexed address,bool)
           handler: handleSetOperator
         - event: SlasherUpdate(indexed address,indexed address,bool)
           handler: handleSlasherUpdate
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: AssetHolderUpdate(indexed address,indexed address,bool)
           handler: handleAssetHolderUpdate
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
   - kind: ethereum/contract
@@ -362,7 +416,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/staking.ts
       entities:
@@ -377,6 +431,8 @@ dataSources:
       eventHandlers:
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
   - kind: ethereum/contract
     name: HorizonStaking
     network: {{network}}
@@ -386,7 +442,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/horizonStaking.ts
       entities:
@@ -401,24 +457,40 @@ dataSources:
       eventHandlers:
         - event: HorizonStakeDeposited(indexed address,uint256)
           handler: handleHorizonStakeDeposited
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: HorizonStakeLocked(indexed address,uint256,uint256)
           handler: handleHorizonStakeLocked
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: HorizonStakeWithdrawn(indexed address,uint256)
           handler: handleHorizonStakeWithdrawn
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: ProvisionCreated(indexed address,indexed address,uint256,uint32,uint64)
           handler: handleProvisionCreated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: ProvisionIncreased(indexed address,indexed address,uint256)
           handler: handleProvisionIncreased
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: TokensDeprovisioned(indexed address,indexed address,uint256)
           handler: handleTokensDeprovisioned
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: ProvisionParametersSet(indexed address,indexed address,uint32,uint64)
           handler: handleProvisionParametersSet
         - event: ProvisionParametersStaged(indexed address,indexed address,uint32,uint64)
           handler: handleProvisionParametersStaged
         - event: ProvisionSlashed(indexed address,indexed address,uint256)
           handler: handleProvisionSlashed
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: ProvisionThawed(indexed address,indexed address,uint256)
           handler: handleProvisionThawed
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: ThawRequestCreated(indexed uint8,indexed address,indexed address,address,uint256,uint64,bytes32,uint256)
           handler: handleThawRequestCreated
         - event: ThawRequestFulfilled(indexed uint8,indexed bytes32,uint256,uint256,uint64,bool)
@@ -429,20 +501,32 @@ dataSources:
           handler: handleDelegationFeeCutSet
         - event: TokensToDelegationPoolAdded(indexed address,indexed address,uint256)
           handler: handleTokensToDelegationPoolAdded
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: TokensDelegated(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleTokensDelegated
         - event: DelegationSlashed(indexed address,indexed address,uint256)
           handler: handleDelegationSlashed
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: TokensUndelegated(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleTokensUndelegated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: DelegatedTokensWithdrawn(indexed address,indexed address,indexed address,uint256)
           handler: handleDelegatedTokensWithdrawn
         - event: MaxThawingPeriodSet(uint64)
           handler: handleMaxThawingPeriodSet
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: ThawingPeriodCleared()
           handler: handleThawingPeriodCleared
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: DelegationSlashingEnabled()
           handler: handleDelegationSlashingEnabled
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: AllowedLockedVerifierSet(indexed address,bool)
           handler: handleAllowedLockedVerifierSet
   - kind: ethereum/contract
@@ -454,7 +538,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/subgraphService.ts
       entities:
@@ -473,14 +557,22 @@ dataSources:
           handler: handleRewardsDestinationSet
         - event: AllocationCreated(indexed address,indexed address,indexed bytes32,uint256,uint256)
           handler: handleAllocationCreated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: AllocationResized(indexed address,indexed address,indexed bytes32,uint256,uint256)
           handler: handleAllocationResized
         - event: AllocationClosed(indexed address,indexed address,indexed bytes32,uint256,bool)
           handler: handleAllocationClosed
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: IndexingRewardsCollected(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256,bytes32,bytes,uint256)
           handler: handleIndexingRewardsCollected
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: QueryFeesCollected(indexed address,indexed address,indexed address,bytes32,uint256,uint256)
           handler: handleQueryFeesCollected
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: DelegationRatioSet(uint32)
           handler: handleDelegationRatioSet
         - event: CurationCutSet(uint256)
@@ -504,7 +596,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/graphPayments.ts
       entities:
@@ -519,6 +611,8 @@ dataSources:
       eventHandlers:
         - event: GraphPaymentCollected(indexed uint8,indexed address,address,indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleGraphPaymentCollected
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
   - kind: ethereum/contract
     name: PaymentsEscrow
     network: {{network}}
@@ -528,7 +622,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/paymentsEscrow.ts
       entities:
@@ -558,7 +652,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/graphTallyCollector.ts
       entities:
@@ -588,7 +682,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/horizonDisputeManager.ts
       entities:
@@ -610,6 +704,8 @@ dataSources:
           handler: handleLegacyDisputeCreated
         - event: DisputeAccepted(indexed bytes32,indexed address,indexed address,uint256)
           handler: handleDisputeAccepted
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: DisputeRejected(indexed bytes32,indexed address,indexed address,uint256)
           handler: handleDisputeRejected
         - event: DisputeCancelled(indexed bytes32,indexed address,indexed address,uint256)
@@ -620,12 +716,20 @@ dataSources:
           handler: handleDisputeLinked
         - event: ArbitratorSet(indexed address)
           handler: handleArbitratorSet
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: FishermanRewardCutSet(uint32)
           handler: handleFishermanRewardCutSet
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: MaxSlashingCutSet(uint32)
           handler: handleMaxSlashingCutSet
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: DisputePeriodSet(uint64)
           handler: handleDisputePeriodSet
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
   - kind: ethereum/contract
     name: Curation
     network: {{network}}
@@ -635,7 +739,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/curation.ts
       entities:
@@ -669,7 +773,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/graphToken.ts
       entities:
@@ -683,8 +787,12 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
   - kind: ethereum/contract
     name: EthereumDIDRegistry
     network: {{network}}
@@ -694,7 +802,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ethereumDIDRegistry.ts
       entities:
@@ -714,7 +822,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/epochManager.ts
       entities:
@@ -726,8 +834,12 @@ dataSources:
       eventHandlers:
         - event: EpochRun(indexed uint256,address)
           handler: handleEpochRun
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: EpochLengthUpdate(indexed uint256,uint256)
           handler: handleEpochLengthUpdate
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
   - kind: ethereum/contract
@@ -739,7 +851,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/rewardsManager.ts
       entities:
@@ -756,12 +868,20 @@ dataSources:
       eventHandlers:
         - event: RewardsAssigned(indexed address,indexed address,uint256,uint256)
           handler: handleRewardsAssigned
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
+        - event: HorizonRewardsAssigned(indexed address,indexed address,uint256)
+          handler: handleHorizonRewardsAssigned
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: RewardsDenylistUpdated(indexed bytes32,uint256)
           handler: handleRewardsDenyListUpdated
         # - event: ImplementationUpdated(address,address)
         #   handler: handleImplementationUpdated
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
   - kind: ethereum/contract
     name: DisputeManager
     network: {{network}}
@@ -771,7 +891,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/disputeManager.ts
       entities:
@@ -798,6 +918,8 @@ dataSources:
           handler: handleDisputeLinked
         - event: ParameterUpdated(string)
           handler: handleParameterUpdated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
   {{#useTokenLockManager}}
   - kind: ethereum/contract
     name: GraphTokenLockManager
@@ -808,7 +930,7 @@ dataSources:
       startBlock: {{blockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/tokenLockWallets/manager.ts
       entities:
@@ -844,7 +966,7 @@ dataSources:
       startBlock: {{bridgeBlockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/l1Gateway.ts
       entities:
@@ -874,7 +996,7 @@ dataSources:
       startBlock: {{bridgeBlockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/l2Gateway.ts
       entities:
@@ -887,9 +1009,13 @@ dataSources:
       eventHandlers:
         - event: WithdrawalInitiated(address,indexed address,indexed address,indexed uint256,uint256,uint256)
           handler: handleWithdrawalInitiated
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
           receipt: true
         - event: DepositFinalized(indexed address,indexed address,indexed address,uint256)
           handler: handleDepositFinalized
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
           receipt: true
   - kind: ethereum/contract
     name: ArbRetryableTx
@@ -900,7 +1026,7 @@ dataSources:
       startBlock: {{bridgeBlockNumber}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/arbRetryableTx.ts
       entities:
@@ -920,7 +1046,7 @@ templates:
       abi: GraphTokenLockWallet
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/tokenLockWallets/tokenLockWallet.ts
       entities:
@@ -946,7 +1072,7 @@ templates:
   - name: SubgraphDeploymentManifest
     kind: file/ipfs
     mapping:
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ipfs.ts
       handler: handleSubgraphDeploymentManifest
@@ -958,7 +1084,7 @@ templates:
   - name: SubgraphDeploymentSchema
     kind: file/ipfs
     mapping:
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ipfs.ts
       handler: handleSubgraphDeploymentSchema
@@ -970,7 +1096,7 @@ templates:
   - name: SubgraphMetadata
     kind: file/ipfs
     mapping:
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ipfs.ts
       handler: handleSubgraphMetadata
@@ -982,7 +1108,7 @@ templates:
   - name: SubgraphVersionMetadata
     kind: file/ipfs
     mapping:
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ipfs.ts
       handler: handleSubgraphVersionMetadata
@@ -994,7 +1120,7 @@ templates:
   - name: GraphAccountMetadata
     kind: file/ipfs
     mapping:
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ./src/mappings/ipfs.ts
       handler: handleGraphAccountMetadata
