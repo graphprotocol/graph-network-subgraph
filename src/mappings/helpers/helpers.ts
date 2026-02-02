@@ -367,7 +367,7 @@ export function getHorizonDelegatedStakeID(delegator: string, indexer: string, d
 }
 
 export function getHorizonDelegatedStakeIDFromLegacy(delegator: string, indexer: string): string {
-  return joinID([delegator, indexer, addresses.subgraphService])
+  return joinID([delegator, indexer, addresses.subgraphService.toLowerCase()])
 }
 
 export function getHorizonDelegatedStake(delegator: string, indexer: string, dataService: string): DelegatedStake {
