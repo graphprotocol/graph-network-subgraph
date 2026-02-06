@@ -243,9 +243,17 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.queryFeesCollected = BigInt.fromI32(0)
     provision.indexerQueryFees = BigInt.fromI32(0)
     provision.delegatorQueryFees = BigInt.fromI32(0)
-    provision.delegatedTokens = BigInt.fromI32(0)
-    provision.delegatedThawingTokens = BigInt.fromI32(0)
-    provision.delegatorShares = BigInt.fromI32(0)
+    // Initialize from indexer if verifier == Subgraph Service
+    if(verifierAddress.toHexString() == addresses.subgraphService.toLowerCase()) {
+      let indexer = Indexer.load(indexerAddress.toHexString())
+      provision.delegatedTokens = indexer != null ? indexer.delegatedTokens : BigInt.fromI32(0)
+      provision.delegatedThawingTokens = indexer != null ? indexer.delegatedThawingTokens : BigInt.fromI32(0)
+      provision.delegatorShares = indexer != null ? indexer.delegatorShares : BigInt.fromI32(0)
+    } else {
+      provision.delegatedTokens = BigInt.fromI32(0)
+      provision.delegatedThawingTokens = BigInt.fromI32(0)
+      provision.delegatorShares = BigInt.fromI32(0)
+    }
     provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
     provision.thawingUntil = BigInt.fromI32(0)
     provision.ownStakeRatio = BigInt.fromI32(0).toBigDecimal()
