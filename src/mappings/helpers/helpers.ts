@@ -249,12 +249,13 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
       provision.delegatedTokens = indexer != null ? indexer.delegatedTokens : BigInt.fromI32(0)
       provision.delegatedThawingTokens = indexer != null ? indexer.delegatedThawingTokens : BigInt.fromI32(0)
       provision.delegatorShares = indexer != null ? indexer.delegatorShares : BigInt.fromI32(0)
+      provision.delegationExchangeRate = indexer != null ? indexer.delegationExchangeRate : BigInt.fromI32(0).toBigDecimal()
     } else {
       provision.delegatedTokens = BigInt.fromI32(0)
       provision.delegatedThawingTokens = BigInt.fromI32(0)
       provision.delegatorShares = BigInt.fromI32(0)
+      provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
     }
-    provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
     provision.thawingUntil = BigInt.fromI32(0)
     provision.ownStakeRatio = BigInt.fromI32(0).toBigDecimal()
     provision.delegatedStakeRatio = BigInt.fromI32(0).toBigDecimal()
