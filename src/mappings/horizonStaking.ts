@@ -480,10 +480,10 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
     let beforeUpdateDelegationExchangeRate = provision.delegationExchangeRate
 
     provision.delegatorShares = provision.delegatorShares.minus(event.params.shares)
+    provision.delegatedThawingTokens = provision.delegatedThawingTokens.plus(event.params.tokens)
     if (provision.delegatorShares != BigInt.fromI32(0)) {
         provision = updateDelegationExchangeRateForProvision(provision as Provision)
     }
-    provision.delegatedThawingTokens = provision.delegatedThawingTokens.plus(event.params.tokens)
     provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 
