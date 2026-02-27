@@ -1,0 +1,238 @@
+# New Amp Version
+
+import sys
+import os
+# Add the daily_nozzle_part_1 directory to Python path so we import from the correct nozzle module
+try:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    # Fallback if __file__ is not defined
+    script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+project_root = os.path.abspath(os.path.join(script_dir, '..', '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from nozzle.client import Client
+from nozzle.util import to_hex
+import os.path
+from nozzle.util import process_query, convert_bigint_subgraph_id_to_base58
+from nozzle.util import save_or_upload_parquet
+import pandas as pd
+client_url = "grpc+tls://gateway.amp.staging.thegraph.com:443"
+client = Client(client_url)
+pd.set_option('display.max_rows', None) 
+pd.set_option('display.max_columns', None) 
+
+
+
+
+part_one = process_query(client, f''' 
+WITH last_delegation_events AS (
+    SELECT 
+        delegator_id,
+        indexer_id
+    FROM "delegators/event_arbitrum_staking_stake_delegated@0.0.1"."event_arbitrum_staking_stake_delegated" a
+    INNER JOIN  
+    (
+        SELECT 
+            delegator_id,
+            MAX(timestamp) AS last_delegated_at
+        FROM "delegators/event_arbitrum_staking_stake_delegated@0.0.1"."event_arbitrum_staking_stake_delegated" e
+        GROUP BY 1
+    ) latest 
+    ON a.delegator_id = latest.delegator_id
+    AND a.timestamp = latest.last_delegated_at
+),
+created_at AS (
+    SELECT 
+        delegator_id AS delegator_wallet,
+        MIN(timestamp) AS created_at
+    FROM "delegators/event_arbitrum_staking_stake_delegated@0.0.1"."event_arbitrum_staking_stake_delegated"
+    GROUP BY 1
+)
+SELECT 
+    delegator_id AS delegator_wallet,
+    delegator_id AS last_delegation_delegator_id,
+    indexer_id AS last_delegation_indexer_id,
+    created_at
+    FROM last_delegation_events
+    LEFT JOIN created_at ON last_delegation_events.delegator_id = created_at.delegator_wallet
+              ''')
+
+
+# In[3]:
+
+
+part_two = process_query(client, f''' 
+WITH 
+delegator_update_1 AS (
+    SELECT 
+        delegator_id,
+        SUM(tokens) AS total_staked_tokens,
+        SUM(tokens) AS staked_tokens,
+        COUNT(CASE WHEN shares > 0 THEN 1 ELSE NULL END) AS active_stakes_count,
+        COUNT(*) AS stakes_count,
+        MAX(e.timestamp) AS last_delegated_at,
+        MIN(e.timestamp) AS delegator_created_at
+    FROM "delegators/event_arbitrum_staking_stake_delegated@0.0.1"."event_arbitrum_staking_stake_delegated" e
+    GROUP BY delegator_id
+),
+ 
+delegator_update_2 AS (
+    SELECT 
+         delegator_id,
+        SUM(tokens) AS total_unstaked_tokens,
+        SUM(tokens) AS locked_tokens,
+        -SUM(tokens) AS staked_tokens,
+        MAX(timestamp) AS last_undelegated_at
+    FROM "data_science/event_arbitrum_stake_delegated_locked@0.0.2"."event_arbitrum_stake_delegated_locked" e
+    GROUP BY delegator_id
+),
+ 
+delegator_update_3 AS (
+    SELECT 
+        a.graph_account as delegator_id,
+        a.name AS default_display_name,
+        a.name_identifier as name_identifier
+    FROM "delegators/event_arbitrum_gns_set_default_name@0.0.2"."event_arbitrum_gns_set_default_name"  a
+    INNER JOIN 
+    (SELECT 
+        graph_account AS id,
+        MAX(block_num) AS latest_block
+    FROM "delegators/event_arbitrum_gns_set_default_name@0.0.1"."event_arbitrum_gns_set_default_name"
+    GROUP BY 1) b ON a.graph_account = b.id
+    AND a.block_num = b.latest_block
+),
+delegator_update_4 AS (
+    SELECT 
+        delegator_id,
+        SUM(-tokens) AS locked_tokens
+    FROM "data_science/event_arbitrum_stake_delegated_withdrawn@0.0.2"."event_arbitrum_stake_delegated_withdrawn"
+    GROUP BY 1
+),
+ 
+combined_data_1 AS (
+    SELECT 
+        delegator_id,
+        total_staked_tokens,
+        staked_tokens,
+        stakes_count,
+        0 AS total_unstaked_tokens,
+        0 AS locked_tokens,
+        active_stakes_count,
+        NULL AS default_display_name,
+        last_delegated_at,
+        NULL AS last_undelegated_at,
+        delegator_created_at
+    FROM delegator_update_1
+
+    UNION ALL
+
+    SELECT 
+        delegator_id,
+        0 AS total_staked_tokens,
+        staked_tokens,
+        0 AS stakes_count,
+        total_unstaked_tokens,
+        locked_tokens,
+        0 AS active_stakes_count,
+        NULL AS default_display_name,
+        NULL AS last_delegated_at,
+        last_undelegated_at,
+        NULL AS delegator_created_at
+    FROM delegator_update_2),
+
+combined_data_2 AS (
+
+    SELECT 
+        * 
+    FROM combined_data_1
+
+    UNION ALL
+
+    SELECT 
+        delegator_id,
+        0 AS total_staked_tokens,
+        0 AS staked_tokens,
+        0 AS stakes_count,
+        0 AS total_unstaked_tokens,
+        0 AS locked_tokens,
+        0 AS active_stakes_count,
+        default_display_name,
+        NULL AS last_delegated_at,
+        NULL AS last_undelegated_at,
+        NULL AS delegator_created_at
+    FROM delegator_update_3
+    UNION ALL
+    SELECT 
+        delegator_id,
+        0 AS total_staked_tokens,
+        0 AS staked_tokens,
+        0 AS stakes_count,
+        0 AS total_unstaked_tokens,
+        locked_tokens,
+        0 AS active_stakes_count,
+        NULL AS default_display_name,
+        NULL AS last_delegated_at,
+        NULL AS last_undelegated_at,
+        NULL AS delegator_created_at
+    FROM delegator_update_4
+)
+
+SELECT
+    delegator_id AS delegator_wallet,
+    MAX(default_display_name) AS default_display_name,
+    MIN(delegator_created_at) AS delegator_created_at,
+    SUM(staked_tokens)/POWER(10,18) AS staked_tokens,
+    SUM(locked_tokens)/POWER(10,18) AS locked_tokens,
+
+    SUM(total_staked_tokens)/POWER(10,18) AS total_staked_tokens,
+    SUM(total_unstaked_tokens)/POWER(10,18)AS total_unstaked_tokens,
+    SUM(stakes_count) AS stakes_count,
+    MAX(active_stakes_count) AS active_stakes_count,
+    MAX(last_delegated_at) AS last_delegated_at,
+    MAX(last_undelegated_at) AS last_undelegated_at
+FROM
+    combined_data_2
+GROUP BY
+    delegator_id
+''' )
+
+
+# In[4]:
+
+
+part_one['last_delegation'] = part_one['last_delegation_delegator_id'] + '-' + part_one['last_delegation_indexer_id']
+part_one_modified = part_one.drop(columns=['last_delegation_delegator_id', 'last_delegation_indexer_id'])
+
+
+# In[5]:
+
+
+part_one_modified.columns
+
+
+# In[6]:
+
+
+import pandas as pd
+bucket_name='nozzle-data-science'
+result = part_one_modified.merge(part_two, on='delegator_wallet', how='left')
+
+
+# In[7]:
+
+
+from google.cloud import bigquery, storage
+bq_client = bigquery.Client(project="graph-mainnet")
+bucket_name = 'nozzle-data-science'
+check_and_delete_table(bq_client, 'graph-mainnet.nozzle.delegator_arbitrum')
+
+save_or_upload_parquet(
+    result,
+    destination_blob_name = 'path/in/bucket/delegator_arbitrum.parquet', 
+    action = "upload", 
+    table_id = 'delegator_arbitrum', 
+    bucket_name='nozzle-data-science',
+    project_id='graph-mainnet')
+
