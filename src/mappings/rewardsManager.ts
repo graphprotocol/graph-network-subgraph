@@ -1,5 +1,5 @@
 import { Address, BigInt } from '@graphprotocol/graph-ts'
-import { Indexer, Allocation, SubgraphDeployment } from '../types/schema'
+import { Indexer, Allocation, SubgraphDeployment, Provision } from '../types/schema'
 import {
   RewardsAssigned,
   HorizonRewardsAssigned,
@@ -12,7 +12,11 @@ import {
   createOrLoadEpoch,
   updateLegacyAdvancedIndexerMetrics,
   updateDelegationExchangeRate,
-  createOrLoadGraphNetwork
+  createOrLoadGraphNetwork,
+  calculateCapacities,
+  joinID,
+  updateDelegationExchangeRateForProvision,
+  updateAdvancedProvisionMetrics
 } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
@@ -129,7 +133,23 @@ function processRewardsAssigned(
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
+
+  // update provision manually only if it exists
+  let provisionId = joinID([indexerID, addresses.subgraphService.toLowerCase()])
+  let provision = Provision.load(provisionId)
+  if (provision != null) {
+    provision.delegatorIndexingRewards = provision.delegatorIndexingRewards.plus(delegatorIndexingRewards)
+    provision.indexerIndexingRewards = provision.indexerIndexingRewards.plus(indexerIndexingRewards)
+    provision.delegatedTokens = provision.delegatedTokens.plus(delegatorIndexingRewards)
+
+    if (provision.delegatorShares != BigInt.fromI32(0)) {
+      provision = updateDelegationExchangeRateForProvision(provision as Provision)
+    }
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
+    provision.save()
+  }
 
   // update allocation
   // no status updated, Claimed happens when RebateClaimed, and it is done

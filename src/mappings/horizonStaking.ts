@@ -2,7 +2,7 @@ import { BigInt } from '@graphprotocol/graph-ts'
 import { addresses } from '../../config/addresses'
 import { AllowedLockedVerifierSet, DelegatedTokensWithdrawn, DelegationFeeCutSet, DelegationSlashed, DelegationSlashingEnabled, HorizonStakeDeposited, HorizonStakeLocked, HorizonStakeWithdrawn, MaxThawingPeriodSet, OperatorSet, StakeDelegatedWithdrawn, ThawingPeriodCleared, TokensDelegated, TokensDeprovisioned, TokensToDelegationPoolAdded, TokensUndelegated } from '../types/HorizonStaking/HorizonStaking'
 import { DelegatedStake, Delegator, Indexer, Provision, ThawRequest } from '../types/schema'
-import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadHorizonOperator, createOrLoadIndexer, createOrLoadProvision, joinID, loadGraphNetwork, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
+import { calculateCapacities, createOrLoadDataService, createOrLoadDelegatedStakeForProvision, createOrLoadDelegator, createOrLoadEpoch, createOrLoadGraphAccount, createOrLoadGraphNetwork, createOrLoadHorizonOperator, createOrLoadIndexer, createOrLoadProvision, getHorizonDelegatedStake, getHorizonDelegatedStakeID, loadGraphNetwork, updateAdvancedIndexerMetrics, updateAdvancedProvisionMetrics, updateDelegationExchangeRate, updateDelegationExchangeRateForProvision } from './helpers/helpers'
 import {
     ProvisionCreated,
     ProvisionIncreased,
@@ -223,7 +223,7 @@ export function handleOperatorSet(event: OperatorSet): void {
 
 export function handleDelegationFeeCutSet(event: DelegationFeeCutSet): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
-    
+
     // Before horizon the cuts represented how much the indexer took home. After horizon they now represent how much the delegators get
     // To avoid confusion and more changes on explorer we invert the meaning here to keep it consistent.
     let invertedCut = BigInt.fromI32(1_000_000).minus(event.params.feeCut)
@@ -291,39 +291,39 @@ export function handleThawRequestCreated(event: ThawRequestCreated): void {
     request.save()
 
     if (request.type == 'Provision') {
-      // update latest thawingUntil for provision and indexer
-      let provision = createOrLoadProvision(
-        event.params.serviceProvider,
-        event.params.verifier,
-        event.block.timestamp,
-      )
-      provision.thawingUntil =
-        event.params.thawingUntil > provision.thawingUntil
-          ? event.params.thawingUntil
-          : provision.thawingUntil
-      provision.save()
+        // update latest thawingUntil for provision and indexer
+        let provision = createOrLoadProvision(
+            event.params.serviceProvider,
+            event.params.verifier,
+            event.block.timestamp,
+        )
+        provision.thawingUntil =
+            event.params.thawingUntil > provision.thawingUntil
+                ? event.params.thawingUntil
+                : provision.thawingUntil
+        provision.save()
 
-      indexer.thawingUntil =
-        event.params.thawingUntil > indexer.thawingUntil
-          ? event.params.thawingUntil
-          : indexer.thawingUntil
-      indexer = calculateCapacities(indexer as Indexer)
-      indexer.save()
+        indexer.thawingUntil =
+            event.params.thawingUntil > indexer.thawingUntil
+                ? event.params.thawingUntil
+                : indexer.thawingUntil
+        indexer = calculateCapacities(indexer as Indexer)
+        indexer.save()
     } else {
-      // update delegated stake for delegation thaw request
-      let delegatedStake = createOrLoadDelegatedStakeForProvision(
-        owner.id,
-        indexer.id,
-        dataService.id,
-        event.block.timestamp.toI32(),
-        graphNetwork,
-      )
+        // update delegated stake for delegation thaw request
+        let delegatedStake = createOrLoadDelegatedStakeForProvision(
+            owner.id,
+            indexer.id,
+            dataService.id,
+            event.block.timestamp.toI32(),
+            graphNetwork,
+        )
 
-      delegatedStake.lockedUntil =
-        event.params.thawingUntil.toI32() > delegatedStake.lockedUntil
-          ? event.params.thawingUntil.toI32()
-          : delegatedStake.lockedUntil
-      delegatedStake.save()
+        delegatedStake.lockedUntil =
+            event.params.thawingUntil.toI32() > delegatedStake.lockedUntil
+                ? event.params.thawingUntil.toI32()
+                : delegatedStake.lockedUntil
+        delegatedStake.save()
     }
 }
 
@@ -480,10 +480,10 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
     let beforeUpdateDelegationExchangeRate = provision.delegationExchangeRate
 
     provision.delegatorShares = provision.delegatorShares.minus(event.params.shares)
+    provision.delegatedThawingTokens = provision.delegatedThawingTokens.plus(event.params.tokens)
     if (provision.delegatorShares != BigInt.fromI32(0)) {
         provision = updateDelegationExchangeRateForProvision(provision as Provision)
     }
-    provision.delegatedThawingTokens = provision.delegatedThawingTokens.plus(event.params.tokens)
     provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 
@@ -501,8 +501,11 @@ export function handleTokensUndelegated(event: TokensUndelegated): void {
 
     // update delegated stake
     let delegatorID = event.params.delegator.toHexString()
-    let id = joinID([delegatorID, provision.id])
-    let delegatedStake = DelegatedStake.load(id)!
+    let delegatedStake = getHorizonDelegatedStake(
+        event.params.delegator.toHexString(),
+        event.params.serviceProvider.toHexString(),
+        event.params.verifier.toHexString()
+    )
 
     let isStakeBecomingInactive =
         !delegatedStake.shareAmount.isZero() && delegatedStake.shareAmount == event.params.shares
@@ -562,8 +565,11 @@ export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn):
 
     // update delegated stake
     let delegatorID = event.params.delegator.toHexString()
-    let id = joinID([delegatorID, provision.id])
-    let delegatedStake = DelegatedStake.load(id)!
+    let delegatedStake = getHorizonDelegatedStake(
+        event.params.delegator.toHexString(),
+        event.params.serviceProvider.toHexString(),
+        event.params.verifier.toHexString()
+    )
     delegatedStake.lockedTokens = delegatedStake.lockedTokens.minus(event.params.tokens)
     delegatedStake.save()
 }
