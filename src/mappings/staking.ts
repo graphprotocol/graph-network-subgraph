@@ -36,7 +36,6 @@ import {
   createOrLoadLegacyIndexer,
   createOrLoadPool,
   createOrLoadEpoch,
-  joinID,
   createOrLoadDelegator,
   createOrLoadDelegatedStake,
   createOrLoadGraphAccount,
@@ -49,6 +48,7 @@ import {
   createOrLoadIndexerQueryFeePaymentAggregation,
   createOrLoadPaymentSource,
   loadGraphNetwork,
+  getHorizonDelegatedStakeIDFromLegacy,
 } from './helpers/helpers'
 import { addresses } from '../../config/addresses'
 
@@ -290,7 +290,10 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
 
   // update delegated stake
   let delegatorID = event.params.delegator.toHexString()
-  let id = joinID([delegatorID, indexerID])
+  let id = getHorizonDelegatedStakeIDFromLegacy(
+    event.params.delegator.toHexString(),
+    event.params.indexer.toHexString()
+  )
   let delegatedStake = DelegatedStake.load(id)!
 
   let isStakeBecomingInactive =
@@ -334,9 +337,10 @@ export function handleStakeDelegatedLocked(event: StakeDelegatedLocked): void {
 }
 
 export function handleStakeDelegatedWithdrawn(event: StakeDelegatedWithdrawn): void {
-  let indexerID = event.params.indexer.toHexString()
-  let delegatorID = event.params.delegator.toHexString()
-  let id = joinID([delegatorID, indexerID])
+  let id = getHorizonDelegatedStakeIDFromLegacy(
+    event.params.delegator.toHexString(),
+    event.params.indexer.toHexString()
+  )
   let delegatedStake = DelegatedStake.load(id)!
   delegatedStake.lockedTokens = BigInt.fromI32(0)
   delegatedStake.legacyLockedTokens = BigInt.fromI32(0)
@@ -681,6 +685,7 @@ export function handleRebateClaimed(event: RebateClaimed): void {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
   // update allocation
   let allocation = Allocation.load(allocationID)!
@@ -747,6 +752,7 @@ export function handleRebateCollected(event: RebateCollected): void {
     indexer = updateDelegationExchangeRate(indexer as Indexer)
   }
   indexer = updateLegacyAdvancedIndexerMetrics(indexer as Indexer)
+  indexer = calculateCapacities(indexer as Indexer)
   indexer.save()
 
   // Replicate for payment source specific aggregation

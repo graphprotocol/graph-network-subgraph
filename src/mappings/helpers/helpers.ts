@@ -243,10 +243,19 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
     provision.queryFeesCollected = BigInt.fromI32(0)
     provision.indexerQueryFees = BigInt.fromI32(0)
     provision.delegatorQueryFees = BigInt.fromI32(0)
-    provision.delegatedTokens = BigInt.fromI32(0)
-    provision.delegatedThawingTokens = BigInt.fromI32(0)
-    provision.delegatorShares = BigInt.fromI32(0)
-    provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
+    // Initialize from indexer if verifier == Subgraph Service
+    if(verifierAddress.toHexString() == addresses.subgraphService.toLowerCase()) {
+      let indexer = Indexer.load(indexerAddress.toHexString())
+      provision.delegatedTokens = indexer != null ? indexer.delegatedTokens : BigInt.fromI32(0)
+      provision.delegatedThawingTokens = indexer != null ? indexer.delegatedThawingTokens : BigInt.fromI32(0)
+      provision.delegatorShares = indexer != null ? indexer.delegatorShares : BigInt.fromI32(0)
+      provision.delegationExchangeRate = indexer != null ? indexer.delegationExchangeRate : BigInt.fromI32(0).toBigDecimal()
+    } else {
+      provision.delegatedTokens = BigInt.fromI32(0)
+      provision.delegatedThawingTokens = BigInt.fromI32(0)
+      provision.delegatorShares = BigInt.fromI32(0)
+      provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
+    }
     provision.thawingUntil = BigInt.fromI32(0)
     provision.ownStakeRatio = BigInt.fromI32(0).toBigDecimal()
     provision.delegatedStakeRatio = BigInt.fromI32(0).toBigDecimal()
@@ -362,13 +371,36 @@ export function createOrLoadDelegator(delegatorAddress: Bytes, timestamp: BigInt
   return delegator as Delegator
 }
 
+export function getHorizonDelegatedStakeID(delegator: string, indexer: string, dataService: string): string {
+  return joinID([delegator, indexer, dataService])
+}
+
+export function getHorizonDelegatedStakeIDFromLegacy(delegator: string, indexer: string): string {
+  return joinID([delegator, indexer, addresses.subgraphService.toLowerCase()])
+}
+
+export function getHorizonDelegatedStake(delegator: string, indexer: string, dataService: string): DelegatedStake {
+  let provisionId = joinID([indexer, dataService])
+  let id = getHorizonDelegatedStakeID(delegator, indexer, dataService)
+  let delegatedStake = DelegatedStake.load(id)!
+  // In case the delegation was created before Horizon, once it's get loaded on a Horizon event, we add the missing fields.
+  // This can happen due to keeping IDs compatible across
+  if (delegatedStake.dataService == null) {
+    delegatedStake.dataService = dataService
+    delegatedStake.provision = provisionId
+    delegatedStake.isLegacy = false
+  }
+  return delegatedStake as DelegatedStake
+}
+
 export function createOrLoadDelegatedStake(
   delegator: string,
   indexer: string,
   timestamp: i32,
   graphNetwork: GraphNetwork,
 ): DelegatedStake {
-  let id = joinID([delegator, indexer])
+  // Hardcoding the subgraph service to the id, so that legacy and Horizon delegatedStake entities share the same id.
+  let id = getHorizonDelegatedStakeIDFromLegacy(delegator, indexer)
   let delegatedStake = DelegatedStake.load(id)
   if (delegatedStake == null) {
     delegatedStake = new DelegatedStake(id)
@@ -386,6 +418,7 @@ export function createOrLoadDelegatedStake(
     delegatedStake.personalExchangeRate = BigDecimal.fromString('1')
     delegatedStake.realizedRewards = BigDecimal.fromString('0')
     delegatedStake.createdAt = timestamp
+    delegatedStake.isLegacy = true
 
     delegatedStake.save()
 
@@ -407,7 +440,7 @@ export function createOrLoadDelegatedStakeForProvision(
   graphNetwork: GraphNetwork,
 ): DelegatedStake {
   let provisionId = joinID([indexer, dataService])
-  let id = joinID([delegator, provisionId])
+  let id = getHorizonDelegatedStakeID(delegator, indexer, dataService)
   let delegatedStake = DelegatedStake.load(id)
   if (delegatedStake == null) {
     delegatedStake = new DelegatedStake(id)
@@ -427,6 +460,7 @@ export function createOrLoadDelegatedStakeForProvision(
     delegatedStake.personalExchangeRate = BigDecimal.fromString('1')
     delegatedStake.realizedRewards = BigDecimal.fromString('0')
     delegatedStake.createdAt = timestamp
+    delegatedStake.isLegacy = false
 
     delegatedStake.save()
 
@@ -436,6 +470,13 @@ export function createOrLoadDelegatedStakeForProvision(
 
     graphNetwork.delegationCount = graphNetwork.delegationCount + 1
     graphNetwork.save()
+  }
+  // In case the delegation was created before Horizon, once it's get loaded on a Horizon event, we add the missing fields.
+  // This can happen due to keeping IDs compatible across
+  if (delegatedStake.dataService == null) {
+    delegatedStake.dataService = dataService
+    delegatedStake.provision = provisionId
+    delegatedStake.isLegacy = false
   }
   return delegatedStake as DelegatedStake
 }
@@ -992,14 +1033,14 @@ export function calculateDelegatedStakeRatio(indexer: Indexer): BigDecimal {
 }
 
 export function calculateIndexingRewardEffectiveCut(indexer: Indexer): BigDecimal {
-  let delegatorCut = BigInt.fromI32(indexer.indexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
+  let delegatorCut = BigInt.fromI32(1000000 - indexer.indexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : BigDecimal.fromString('1') - delegatorCut / indexer.delegatedStakeRatio
 }
 
 export function calculateQueryFeeEffectiveCut(indexer: Indexer): BigDecimal {
-  let delegatorCut = BigInt.fromI32(indexer.queryFeeCut).toBigDecimal() / BigDecimal.fromString('1000000')
+  let delegatorCut = BigInt.fromI32(1000000 - indexer.queryFeeCut).toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : BigDecimal.fromString('1') - delegatorCut / indexer.delegatedStakeRatio
@@ -1007,21 +1048,21 @@ export function calculateQueryFeeEffectiveCut(indexer: Indexer): BigDecimal {
 
 export function calculateIndexerRewardOwnGenerationRatio(indexer: Indexer): BigDecimal {
   let rewardCut =
-    BigInt.fromI32(1000000 -indexer.indexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
+    BigInt.fromI32(indexer.indexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.ownStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : rewardCut / indexer.ownStakeRatio
 }
 
 export function calculateLegacyIndexingRewardEffectiveCut(indexer: Indexer): BigDecimal {
-  let delegatorCut = BigInt.fromI32(indexer.legacyIndexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
+  let delegatorCut = BigInt.fromI32(1000000 - indexer.legacyIndexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : BigDecimal.fromString('1') - delegatorCut / indexer.delegatedStakeRatio
 }
 
 export function calculateLegacyQueryFeeEffectiveCut(indexer: Indexer): BigDecimal {
-  let delegatorCut = BigInt.fromI32(indexer.legacyQueryFeeCut).toBigDecimal() / BigDecimal.fromString('1000000')
+  let delegatorCut = BigInt.fromI32(1000000 - indexer.legacyQueryFeeCut).toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.delegatedStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : BigDecimal.fromString('1') - delegatorCut / indexer.delegatedStakeRatio
@@ -1029,7 +1070,7 @@ export function calculateLegacyQueryFeeEffectiveCut(indexer: Indexer): BigDecima
 
 export function calculateLegacyIndexerRewardOwnGenerationRatio(indexer: Indexer): BigDecimal {
   let rewardCut =
-    BigInt.fromI32(1000000 - indexer.legacyIndexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
+    BigInt.fromI32(indexer.legacyIndexingRewardCut).toBigDecimal() / BigDecimal.fromString('1000000')
   return indexer.ownStakeRatio == BigDecimal.fromString('0')
     ? BigDecimal.fromString('0')
     : rewardCut / indexer.ownStakeRatio
@@ -1140,6 +1181,7 @@ export function updateAdvancedProvisionMetrics(provision: Provision): Provision 
 
 export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
   indexer.delegationExchangeRate = indexer.delegatedTokens
+    .minus(indexer.delegatedThawingTokens)
     .toBigDecimal()
     .div(indexer.delegatorShares.toBigDecimal())
     .truncate(18)
@@ -1148,6 +1190,7 @@ export function updateDelegationExchangeRate(indexer: Indexer): Indexer {
 
 export function updateDelegationExchangeRateForProvision(provision: Provision): Provision {
   provision.delegationExchangeRate = provision.delegatedTokens
+    .minus(provision.delegatedThawingTokens)
     .toBigDecimal()
     .div(provision.delegatorShares.toBigDecimal())
     .truncate(18)
