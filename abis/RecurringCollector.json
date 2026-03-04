@@ -1,0 +1,1745 @@
+[
+  {
+    "inputs": [],
+    "name": "AuthorizableInvalidSignerProof",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "proofDeadline",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuthorizableInvalidSignerProofDeadline",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "authorizer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "revoked",
+        "type": "bool"
+      }
+    ],
+    "name": "AuthorizableSignerAlreadyAuthorized",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "authorizer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "AuthorizableSignerNotAuthorized",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "AuthorizableSignerNotThawing",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "currentTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "thawEndTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuthorizableSignerStillThawing",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RecurringCollectorAgreementAddressNotSet",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "currentTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint64",
+        "name": "deadline",
+        "type": "uint64"
+      }
+    ],
+    "name": "RecurringCollectorAgreementDeadlineElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "currentTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint64",
+        "name": "endsAt",
+        "type": "uint64"
+      }
+    ],
+    "name": "RecurringCollectorAgreementElapsedEndsAt",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RecurringCollectorAgreementIdZero",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "enum IRecurringCollector.AgreementState",
+        "name": "incorrectState",
+        "type": "uint8"
+      }
+    ],
+    "name": "RecurringCollectorAgreementIncorrectState",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "allowedMinCollectionWindow",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "minSecondsPerCollection",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "maxSecondsPerCollection",
+        "type": "uint32"
+      }
+    ],
+    "name": "RecurringCollectorAgreementInvalidCollectionWindow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "requiredMinDuration",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "invalidDuration",
+        "type": "uint256"
+      }
+    ],
+    "name": "RecurringCollectorAgreementInvalidDuration",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "enum IRecurringCollector.AgreementNotCollectableReason",
+        "name": "reason",
+        "type": "uint8"
+      }
+    ],
+    "name": "RecurringCollectorAgreementNotCollectable",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "approver",
+        "type": "address"
+      }
+    ],
+    "name": "RecurringCollectorApproverNotContract",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint64",
+        "name": "secondsSinceLast",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint32",
+        "name": "maxSeconds",
+        "type": "uint32"
+      }
+    ],
+    "name": "RecurringCollectorCollectionTooLate",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint32",
+        "name": "secondsSinceLast",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "minSeconds",
+        "type": "uint32"
+      }
+    ],
+    "name": "RecurringCollectorCollectionTooSoon",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "address",
+        "name": "unauthorizedDataService",
+        "type": "address"
+      }
+    ],
+    "name": "RecurringCollectorDataServiceNotAuthorized",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "requested",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "actual",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxSlippage",
+        "type": "uint256"
+      }
+    ],
+    "name": "RecurringCollectorExcessiveSlippage",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "invalidData",
+        "type": "bytes"
+      }
+    ],
+    "name": "RecurringCollectorInvalidCollectData",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum IGraphPayments.PaymentTypes",
+        "name": "invalidPaymentType",
+        "type": "uint8"
+      }
+    ],
+    "name": "RecurringCollectorInvalidPaymentType",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RecurringCollectorInvalidSigner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint32",
+        "name": "expected",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "provided",
+        "type": "uint32"
+      }
+    ],
+    "name": "RecurringCollectorInvalidUpdateNonce",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "unauthorizedCaller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "dataService",
+        "type": "address"
+      }
+    ],
+    "name": "RecurringCollectorUnauthorizedCaller",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "dataService",
+        "type": "address"
+      }
+    ],
+    "name": "RecurringCollectorUnauthorizedDataService",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint64",
+        "name": "lastCollectionAt",
+        "type": "uint64"
+      }
+    ],
+    "name": "RecurringCollectorZeroCollectionSeconds",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "dataService",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "payer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "serviceProvider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "acceptedAt",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "endsAt",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxInitialTokens",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxOngoingTokensPerSecond",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "minSecondsPerCollection",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "maxSecondsPerCollection",
+        "type": "uint32"
+      }
+    ],
+    "name": "AgreementAccepted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "dataService",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "payer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "serviceProvider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "canceledAt",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IRecurringCollector.CancelAgreementBy",
+        "name": "canceledBy",
+        "type": "uint8"
+      }
+    ],
+    "name": "AgreementCanceled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "dataService",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "payer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "serviceProvider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "updatedAt",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "endsAt",
+        "type": "uint64"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxInitialTokens",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxOngoingTokensPerSecond",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "minSecondsPerCollection",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "maxSecondsPerCollection",
+        "type": "uint32"
+      }
+    ],
+    "name": "AgreementUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "enum IGraphPayments.PaymentTypes",
+        "name": "paymentType",
+        "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "collectionId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "payer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "dataService",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "PaymentCollected",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "dataService",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "payer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "serviceProvider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "collectionId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokens",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "dataServiceCut",
+        "type": "uint256"
+      }
+    ],
+    "name": "RCACollected",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "authorizer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "SignerAuthorized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "authorizer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "SignerRevoked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "authorizer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "thawEndTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "SignerThawCanceled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "authorizer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "thawEndTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "SignerThawing",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "REVOKE_AUTHORIZATION_THAWING_PERIOD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "deadline",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "endsAt",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "payer",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "dataService",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "serviceProvider",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxInitialTokens",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxOngoingTokensPerSecond",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint32",
+                "name": "minSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "maxSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes",
+                "name": "metadata",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct IRecurringCollector.RecurringCollectionAgreement",
+            "name": "rca",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.SignedRCA",
+        "name": "signedRCA",
+        "type": "tuple"
+      }
+    ],
+    "name": "accept",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "deadline",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "endsAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "dataService",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "serviceProvider",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxInitialTokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxOngoingTokensPerSecond",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "minSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "maxSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "metadata",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.RecurringCollectionAgreement",
+        "name": "rca",
+        "type": "tuple"
+      }
+    ],
+    "name": "acceptUnsigned",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "proofDeadline",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "proof",
+        "type": "bytes"
+      }
+    ],
+    "name": "authorizeSigner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "enum IRecurringCollector.CancelAgreementBy",
+        "name": "by",
+        "type": "uint8"
+      }
+    ],
+    "name": "cancel",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "cancelThawSigner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum IGraphPayments.PaymentTypes",
+        "name": "paymentType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "collect",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "payer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "dataService",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "serviceProvider",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "deadline",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      }
+    ],
+    "name": "generateAgreementId",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      }
+    ],
+    "name": "getAgreement",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "dataService",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "serviceProvider",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "acceptedAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "lastCollectionAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "endsAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxInitialTokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxOngoingTokensPerSecond",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "minSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "maxSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "updateNonce",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "canceledAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum IRecurringCollector.AgreementState",
+            "name": "state",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.AgreementData",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "dataService",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "serviceProvider",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "acceptedAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "lastCollectionAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "endsAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxInitialTokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxOngoingTokensPerSecond",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "minSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "maxSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "updateNonce",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "canceledAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum IRecurringCollector.AgreementState",
+            "name": "state",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.AgreementData",
+        "name": "agreement",
+        "type": "tuple"
+      }
+    ],
+    "name": "getCollectionInfo",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "isCollectable",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collectionSeconds",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum IRecurringCollector.AgreementNotCollectableReason",
+        "name": "reason",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      }
+    ],
+    "name": "getMaxNextClaim",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "getThawEnd",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "deadline",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "endsAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "dataService",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "serviceProvider",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxInitialTokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxOngoingTokensPerSecond",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "minSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "maxSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "metadata",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.RecurringCollectionAgreement",
+        "name": "rca",
+        "type": "tuple"
+      }
+    ],
+    "name": "hashRCA",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes16",
+            "name": "agreementId",
+            "type": "bytes16"
+          },
+          {
+            "internalType": "uint64",
+            "name": "deadline",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "endsAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxInitialTokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxOngoingTokensPerSecond",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "minSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "maxSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "nonce",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes",
+            "name": "metadata",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.RecurringCollectionAgreementUpdate",
+        "name": "rcau",
+        "type": "tuple"
+      }
+    ],
+    "name": "hashRCAU",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "authorizer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "isAuthorized",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "deadline",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "endsAt",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "payer",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "dataService",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "serviceProvider",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxInitialTokens",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxOngoingTokensPerSecond",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint32",
+                "name": "minSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "maxSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes",
+                "name": "metadata",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct IRecurringCollector.RecurringCollectionAgreement",
+            "name": "rca",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.SignedRCA",
+        "name": "signedRCA",
+        "type": "tuple"
+      }
+    ],
+    "name": "recoverRCASigner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes16",
+                "name": "agreementId",
+                "type": "bytes16"
+              },
+              {
+                "internalType": "uint64",
+                "name": "deadline",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "endsAt",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxInitialTokens",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxOngoingTokensPerSecond",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint32",
+                "name": "minSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "maxSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "nonce",
+                "type": "uint32"
+              },
+              {
+                "internalType": "bytes",
+                "name": "metadata",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct IRecurringCollector.RecurringCollectionAgreementUpdate",
+            "name": "rcau",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.SignedRCAU",
+        "name": "signedRCAU",
+        "type": "tuple"
+      }
+    ],
+    "name": "recoverRCAUSigner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "revokeAuthorizedSigner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      }
+    ],
+    "name": "thawSigner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes16",
+                "name": "agreementId",
+                "type": "bytes16"
+              },
+              {
+                "internalType": "uint64",
+                "name": "deadline",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "endsAt",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxInitialTokens",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxOngoingTokensPerSecond",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint32",
+                "name": "minSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "maxSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "nonce",
+                "type": "uint32"
+              },
+              {
+                "internalType": "bytes",
+                "name": "metadata",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct IRecurringCollector.RecurringCollectionAgreementUpdate",
+            "name": "rcau",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.SignedRCAU",
+        "name": "signedRCAU",
+        "type": "tuple"
+      }
+    ],
+    "name": "update",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes16",
+            "name": "agreementId",
+            "type": "bytes16"
+          },
+          {
+            "internalType": "uint64",
+            "name": "deadline",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "endsAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxInitialTokens",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxOngoingTokensPerSecond",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "minSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "maxSecondsPerCollection",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "nonce",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes",
+            "name": "metadata",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IRecurringCollector.RecurringCollectionAgreementUpdate",
+        "name": "rcau",
+        "type": "tuple"
+      }
+    ],
+    "name": "updateUnsigned",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

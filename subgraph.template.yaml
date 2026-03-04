@@ -674,6 +674,34 @@ dataSources:
         - event: PaymentCollected(uint8,indexed bytes32,indexed address,address,indexed address,uint256)
           handler: handlePaymentCollected
   - kind: ethereum/contract
+    name: RecurringCollector
+    network: {{network}}
+    source:
+      address: "{{recurringCollector}}"
+      abi: RecurringCollector
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mappings/recurringCollector.ts
+      entities:
+        - IndexingAgreement
+      abis:
+        - name: RecurringCollector
+          file: ./abis/RecurringCollector.json
+        - name: SubgraphService
+          file: ./abis/SubgraphService.json
+      eventHandlers:
+        - event: AgreementAccepted(indexed address,indexed address,indexed address,bytes16,uint64,uint64,uint256,uint256,uint32,uint32)
+          handler: handleAgreementAccepted
+        - event: AgreementCanceled(indexed address,indexed address,indexed address,bytes16,uint64,uint8)
+          handler: handleAgreementCanceled
+        - event: AgreementUpdated(indexed address,indexed address,indexed address,bytes16,uint64,uint64,uint256,uint256,uint32,uint32)
+          handler: handleAgreementUpdated
+        - event: RCACollected(indexed address,indexed address,indexed address,bytes16,bytes32,uint256,uint256)
+          handler: handleRCACollected
+  - kind: ethereum/contract
     name: HorizonDisputeManager
     network: {{network}}
     source:
