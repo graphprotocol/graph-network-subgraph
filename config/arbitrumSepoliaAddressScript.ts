@@ -48,6 +48,7 @@ export let addresses: Addresses = {
   graphPayments: '{{arbsep.GraphPayments.address}}',
   paymentsEscrow: '{{arbsep.PaymentsEscrow.address}}',
   graphTallyCollector: '{{arbsep.GraphTallyCollector.address}}',
+  recurringCollector: '{{arbsep.RecurringCollector.address}}',
   isL1: false,
 }
 

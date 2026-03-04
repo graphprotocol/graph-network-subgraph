@@ -38,6 +38,7 @@ export let addresses: Addresses = {
   graphPayments: '{{horizon.GraphPayments.address}}',
   paymentsEscrow: '{{horizon.PaymentsEscrow.address}}',
   graphTallyCollector: '{{horizon.GraphTallyCollector.address}}',
+  recurringCollector: '{{horizon.RecurringCollector.address}}',
   isL1: false,
 }
 

@@ -47,6 +47,7 @@ export let addresses: Addresses = {
   graphPayments: '{{arbitrum.GraphPayments.address}}',
   paymentsEscrow: '{{arbitrum.PaymentsEscrow.address}}',
   graphTallyCollector: '{{arbitrum.GraphTallyCollector.address}}',
+  recurringCollector: '{{arbitrum.RecurringCollector.address}}',
   isL1: false,
 }
 

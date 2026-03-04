@@ -2250,5 +2250,115 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "agreementId",
+        "type": "bytes16"
+      }
+    ],
+    "name": "getIndexingAgreement",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "allocationId",
+                "type": "address"
+              },
+              {
+                "internalType": "enum IIndexingAgreement.IndexingAgreementVersion",
+                "name": "version",
+                "type": "uint8"
+              }
+            ],
+            "internalType": "struct IIndexingAgreement.State",
+            "name": "agreement",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "dataService",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "payer",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "serviceProvider",
+                "type": "address"
+              },
+              {
+                "internalType": "uint64",
+                "name": "acceptedAt",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "lastCollectionAt",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint64",
+                "name": "endsAt",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxInitialTokens",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "maxOngoingTokensPerSecond",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint32",
+                "name": "minSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "maxSecondsPerCollection",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "updateNonce",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint64",
+                "name": "canceledAt",
+                "type": "uint64"
+              },
+              {
+                "internalType": "enum IRecurringCollector.AgreementState",
+                "name": "state",
+                "type": "uint8"
+              }
+            ],
+            "internalType": "struct IRecurringCollector.AgreementData",
+            "name": "collectorAgreement",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct IIndexingAgreement.AgreementWrapper",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ]
