@@ -1,7 +1,7 @@
 import { BigDecimal, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts"
-import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
+import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingAgreementAccepted, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
 import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate, calculateCapacities, loadGraphNetwork } from "./helpers/helpers"
-import { Allocation, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
+import { Allocation, IndexingAgreement, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 import { tuplePrefixBytes } from "./helpers/decoder"
 import { createOrLoadIndexer } from "./helpers/helpers"
@@ -474,4 +474,29 @@ export function handleThawingPeriodRangeSet(event: ThawingPeriodRangeSet): void 
     dataService.minimumThawingPeriod = event.params.min
     dataService.maximumThawingPeriod = event.params.max
     dataService.save()
+}
+
+export function handleIndexingAgreementAccepted(event: IndexingAgreementAccepted): void {
+    let agreement = IndexingAgreement.load(event.params.agreementId)
+    if (agreement == null) {
+        // Agreement entity should already exist from RecurringCollector.AgreementAccepted handler.
+        // If not, log and skip — the RecurringCollector handler creates the entity.
+        log.warning('IndexingAgreementAccepted: agreement {} not found, skipping terms update', [
+            event.params.agreementId.toHexString(),
+        ])
+        return
+    }
+
+    // Decode IndexingAgreementTermsV1 from versionTerms: (uint256 tokensPerSecond, uint256 tokensPerEntityPerSecond)
+    let decoded = ethereum.decode('(uint256,uint256)', event.params.versionTerms)
+    if (decoded != null) {
+        let terms = decoded.toTuple()
+        agreement.tokensPerSecond = terms[0].toBigInt()
+        agreement.tokensPerEntityPerSecond = terms[1].toBigInt()
+        agreement.save()
+    } else {
+        log.warning('IndexingAgreementAccepted: failed to decode versionTerms for agreement {}', [
+            event.params.agreementId.toHexString(),
+        ])
+    }
 }

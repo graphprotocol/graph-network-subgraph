@@ -543,6 +543,7 @@ dataSources:
       file: ./src/mappings/subgraphService.ts
       entities:
         - GraphNetwork
+        - IndexingAgreement
       abis:
         - name: SubgraphService
           file: ./abis/SubgraphService.json
@@ -579,6 +580,8 @@ dataSources:
           handler: handleCurationCutSet
         - event: MaxPOIStalenessSet(uint256)
           handler: handleMaxPOIStalenessSet
+        - event: IndexingAgreementAccepted(indexed address,indexed address,indexed bytes16,address,bytes32,uint8,bytes)
+          handler: handleIndexingAgreementAccepted
         - event: StakeToFeesRatioSet(uint256)
           handler: handleStakeToFeesRatioSet
         - event: ProvisionTokensRangeSet(uint256,uint256)
