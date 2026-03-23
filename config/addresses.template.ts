@@ -25,6 +25,7 @@ export class Addresses {
   graphPayments: string
   paymentsEscrow: string
   graphTallyCollector: string
+  recurringCollector: string
   isL1: boolean
 }
 
@@ -55,5 +56,6 @@ export let addresses: Addresses = {
   graphPayments: '{{graphPayments}}',
   paymentsEscrow: '{{paymentsEscrow}}',
   graphTallyCollector: '{{graphTallyCollector}}',
+  recurringCollector: '{{recurringCollector}}',
   isL1: {{isL1}},
 }

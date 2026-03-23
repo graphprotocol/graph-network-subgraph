@@ -1893,3 +1893,42 @@ type Signer @entity(immutable: false) {
   "The thaw end timestamp for revoking the signer"
   thawEndTimestamp: BigInt!
 }
+
+type IndexingAgreement @entity(immutable: false) {
+  "The agreement ID (bytes16)"
+  id: Bytes!
+  "The data service address (SubgraphService)"
+  dataService: Bytes!
+  "The payer address"
+  payer: Bytes!
+  "The service provider (indexer) address"
+  serviceProvider: Bytes!
+  "The allocation linked to this agreement"
+  allocationId: Bytes!
+  "The subgraph deployment ID"
+  subgraphDeploymentId: Bytes!
+  "Agreement state: 0=NotAccepted, 1=Accepted, 2=CanceledByServiceProvider, 3=CanceledByPayer"
+  state: Int!
+  "Timestamp when the agreement was accepted"
+  acceptedAt: BigInt!
+  "Timestamp of last collection"
+  lastCollectionAt: BigInt!
+  "Timestamp when the agreement ends"
+  endsAt: BigInt!
+  "Maximum tokens for first collection"
+  maxInitialTokens: BigInt!
+  "Maximum tokens per second for ongoing collections"
+  maxOngoingTokensPerSecond: BigInt!
+  "Tokens per second from agreement terms"
+  tokensPerSecond: BigInt!
+  "Tokens per entity per second from agreement terms"
+  tokensPerEntityPerSecond: BigInt!
+  "Minimum seconds between collections"
+  minSecondsPerCollection: Int!
+  "Maximum seconds between collections"
+  maxSecondsPerCollection: Int!
+  "Timestamp when agreement was canceled (0 if not canceled)"
+  canceledAt: BigInt!
+  "Total tokens collected over lifetime"
+  tokensCollected: BigInt!
+}
