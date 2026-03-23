@@ -13,7 +13,16 @@ const BIGINT_ZERO = BigInt.fromI32(0)
 const BYTES_ZERO = Bytes.fromI32(0)
 
 export function handleAgreementAccepted(event: AgreementAccepted): void {
-  let agreement = new IndexingAgreement(event.params.agreementId)
+  // Load existing entity (may have been created by SubgraphService.IndexingAgreementAccepted
+  // handler which fires first in the same tx and sets the terms)
+  let agreement = IndexingAgreement.load(event.params.agreementId)
+  if (agreement == null) {
+    agreement = new IndexingAgreement(event.params.agreementId)
+    agreement.tokensPerSecond = BIGINT_ZERO
+    agreement.tokensPerEntityPerSecond = BIGINT_ZERO
+    agreement.allocationId = BYTES_ZERO
+    agreement.subgraphDeploymentId = BYTES_ZERO
+  }
 
   agreement.dataService = event.params.dataService
   agreement.payer = event.params.payer
@@ -39,18 +48,8 @@ export function handleAgreementAccepted(event: AgreementAccepted): void {
     let allocResult = subgraphService.try_getAllocation(allocationId)
     if (!allocResult.reverted) {
       agreement.subgraphDeploymentId = allocResult.value.subgraphDeploymentId
-    } else {
-      agreement.subgraphDeploymentId = BYTES_ZERO
     }
-  } else {
-    agreement.allocationId = BYTES_ZERO
-    agreement.subgraphDeploymentId = BYTES_ZERO
   }
-
-  // Terms: tokensPerSecond and tokensPerEntityPerSecond come from decoded metadata.
-  // Set to zero for now — will be populated when we add metadata decoding.
-  agreement.tokensPerSecond = BIGINT_ZERO
-  agreement.tokensPerEntityPerSecond = BIGINT_ZERO
 
   agreement.save()
 }

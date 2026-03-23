@@ -477,14 +477,29 @@ export function handleThawingPeriodRangeSet(event: ThawingPeriodRangeSet): void 
 }
 
 export function handleIndexingAgreementAccepted(event: IndexingAgreementAccepted): void {
+    // This handler fires BEFORE RecurringCollector.AgreementAccepted (lower log index).
+    // Create the entity here so the RecurringCollector handler can load and update it.
     let agreement = IndexingAgreement.load(event.params.agreementId)
     if (agreement == null) {
-        // Agreement entity should already exist from RecurringCollector.AgreementAccepted handler.
-        // If not, log and skip — the RecurringCollector handler creates the entity.
-        log.warning('IndexingAgreementAccepted: agreement {} not found, skipping terms update', [
-            event.params.agreementId.toHexString(),
-        ])
-        return
+        agreement = new IndexingAgreement(event.params.agreementId)
+        // Initialize required fields with defaults; RecurringCollector handler fills them in
+        agreement.dataService = Bytes.empty()
+        agreement.payer = Bytes.empty()
+        agreement.serviceProvider = Bytes.empty()
+        agreement.state = 0
+        agreement.acceptedAt = BigInt.zero()
+        agreement.lastCollectionAt = BigInt.zero()
+        agreement.endsAt = BigInt.zero()
+        agreement.maxInitialTokens = BigInt.zero()
+        agreement.maxOngoingTokensPerSecond = BigInt.zero()
+        agreement.minSecondsPerCollection = 0
+        agreement.maxSecondsPerCollection = 0
+        agreement.canceledAt = BigInt.zero()
+        agreement.tokensCollected = BigInt.zero()
+        agreement.tokensPerSecond = BigInt.zero()
+        agreement.tokensPerEntityPerSecond = BigInt.zero()
+        agreement.allocationId = Bytes.empty()
+        agreement.subgraphDeploymentId = Bytes.empty()
     }
 
     // Decode IndexingAgreementTermsV1 from versionTerms: (uint256 tokensPerSecond, uint256 tokensPerEntityPerSecond)
@@ -493,10 +508,11 @@ export function handleIndexingAgreementAccepted(event: IndexingAgreementAccepted
         let terms = decoded.toTuple()
         agreement.tokensPerSecond = terms[0].toBigInt()
         agreement.tokensPerEntityPerSecond = terms[1].toBigInt()
-        agreement.save()
     } else {
         log.warning('IndexingAgreementAccepted: failed to decode versionTerms for agreement {}', [
             event.params.agreementId.toHexString(),
         ])
     }
+
+    agreement.save()
 }
