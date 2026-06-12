@@ -256,6 +256,7 @@ export function createOrLoadProvision(indexerAddress: Bytes, verifierAddress: By
       provision.delegatorShares = BigInt.fromI32(0)
       provision.delegationExchangeRate = BigInt.fromI32(0).toBigDecimal()
     }
+    provision.delegatedTokensActive = provision.delegatedTokens.minus(provision.delegatedThawingTokens)
     provision.thawingUntil = BigInt.fromI32(0)
     provision.ownStakeRatio = BigInt.fromI32(0).toBigDecimal()
     provision.delegatedStakeRatio = BigInt.fromI32(0).toBigDecimal()
@@ -1168,6 +1169,7 @@ export function calculateOverdelegationDilutionForProvision(provision: Provision
 }
 
 export function updateAdvancedProvisionMetrics(provision: Provision): Provision {
+  provision.delegatedTokensActive = provision.delegatedTokens.minus(provision.delegatedThawingTokens)
   provision.ownStakeRatio = calculateOwnStakeRatioForProvision(provision as Provision)
   provision.delegatedStakeRatio = calculateDelegatedStakeRatioForProvision(provision as Provision)
   provision.indexingRewardEffectiveCut = calculateIndexingRewardEffectiveCutForProvision(provision as Provision)

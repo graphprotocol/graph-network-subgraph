@@ -1002,6 +1002,8 @@ type Provision @entity(immutable: false) {
   delegatedTokens: BigInt!
   "Tokens delegated that are thawing from the provision"
   delegatedThawingTokens: BigInt!
+  "Actively-earning delegated tokens: delegatedTokens minus delegatedThawingTokens. This is the correct denominator for delegation APR/APY: it excludes both in-period thawing and completed-but-not-yet-withdrawn delegation, since thawed-but-unwithdrawn tokens remain counted in delegatedThawingTokens until withdrawal. Prefer this over delegatedTokens when computing returns."
+  delegatedTokensActive: BigInt!
   "Total shares of the delegator pool"
   delegatorShares: BigInt!
   "Exchange rate of tokens received for each share"
