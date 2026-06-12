@@ -553,6 +553,9 @@ export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn):
     // might want to track locked/thawing tokens in provision too
     provision.delegatedTokens = provision.delegatedTokens.minus(event.params.tokens)
     provision.delegatedThawingTokens = provision.delegatedThawingTokens.minus(event.params.tokens)
+    // Withdrawal removes equal amounts from both totals, so the actively-earning base is unchanged;
+    // recompute explicitly to keep the field consistent (this handler bypasses updateAdvancedProvisionMetrics).
+    provision.delegatedTokensActive = provision.delegatedTokens.minus(provision.delegatedThawingTokens)
     provision.save()
 
     let indexerID = event.params.serviceProvider.toHexString()
