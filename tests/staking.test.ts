@@ -41,7 +41,7 @@ import {
   mockSlasherUpdate,
   mockAssetHolderUpdate,
 } from './factories/staking'
-import { createOrLoadGraphNetwork, loadGraphNetwork } from '../src/mappings/helpers/helpers'
+import { createOrLoadGraphNetwork, loadGraphNetwork, getHorizonDelegatedStakeIDFromLegacy } from '../src/mappings/helpers/helpers'
 import { mockTransfer } from './factories/graphToken'
 import { GraphNetwork, GraphAccount } from '../src/types/schema'
 
@@ -58,7 +58,9 @@ const slahserID = '0x0000000000000000000000000000000000000005'
 const slasherAddress = Address.fromString(slahserID)
 const delegatorID = '0x0000000000000000000000000000000000000006'
 const delegatorAddress = Address.fromString(delegatorID)
-const delegatedStakeID = delegatorID.concat('-').concat(indexerID)
+// Legacy and Horizon DelegatedStake entities share an id that includes the subgraph service address
+// (see getHorizonDelegatedStakeIDFromLegacy), so build the expected id the same way the mappings do.
+const delegatedStakeID = getHorizonDelegatedStakeIDFromLegacy(delegatorID, indexerID)
 const subgraphDeploymentID = '0x0000000000000000000000000000000000000007'
 const subgraphDeploymentAddress = Address.fromString(subgraphDeploymentID)
 const allocationID = '0x0000000000000000000000000000000000000008'
