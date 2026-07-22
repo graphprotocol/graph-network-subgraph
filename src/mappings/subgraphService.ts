@@ -1,5 +1,5 @@
-import { BigDecimal, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts"
-import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
+import { BigDecimal, BigInt, ByteArray, Bytes, crypto, ethereum, log } from "@graphprotocol/graph-ts"
+import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, POIPresented, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
 import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate, calculateCapacities, loadGraphNetwork } from "./helpers/helpers"
 import { Allocation, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
@@ -14,7 +14,7 @@ export function handleServiceProviderRegistered(event: ServiceProviderRegistered
         let url = tupleData[0].toString()
         let geoHash = tupleData[1].toString()
         let rewardsDestination = tupleData[2].toAddress()
-        
+
         // Update provision
         let provision = createOrLoadProvision(event.params.serviceProvider, event.address, event.block.timestamp)
         provision.url = url
@@ -243,54 +243,39 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
     // No need to update delegated tokens, as that happens in handleTokensToDelegationPoolAdded
     provision.save()
 
-    // update allocation
+    // update allocation rewards
     let allocation = Allocation.load(allocationID)!
     allocation.indexingRewards = allocation.indexingRewards.plus(event.params.tokensRewards)
     allocation.indexingIndexerRewards = allocation.indexingIndexerRewards.plus(event.params.tokensIndexerRewards)
     allocation.indexingDelegatorRewards = allocation.indexingDelegatorRewards.plus(
         event.params.tokensDelegationRewards,
     )
-    allocation.poiCount = allocation.poiCount!.plus(BigInt.fromI32(1))
-    allocation.save()
 
-    // Decode poi metadata
-    let poiBlockNumber = 0
-    let poiIndexingStatus = 0 // 0 is unknown, 1 is healthy, 2 is unhealthy, 3 is failed
-    let publicPoi = Bytes.fromHexString('0x')
-    let poiMetadataDecoded = false
-    
-    let poiMetadata = ethereum.decode('(uint256,bytes32,uint8,uint8,uint256)', event.params.poiMetadata)
-    if (poiMetadata != null && poiMetadata.kind == ethereum.ValueKind.TUPLE) {
-        poiMetadataDecoded = true
-
-        let tupleData = poiMetadata.toTuple()
-        poiBlockNumber = tupleData[0].toI32()
-        publicPoi = tupleData[1].toBytes()
-        poiIndexingStatus = tupleData[2].toI32()
-        
-        // TODO: implement error code handling
-        // let errorCode = tupleData[3].toBigInt()
-        // let errorBlockNumber = tupleData[4].toBigInt()
-    } else {
-        log.error("IndexingRewardsCollected failed to decode poi metadata: {}", [event.params.poiMetadata.toHexString()])
+    // REO upgrade, the POIPresented event fires first (same tx) and owns the presentation bookkeeping
+    // (poiCount, latest POI, rewards condition). Pre-upgrade there is no POIPresented event, so this
+    // handler owns it. We detect the post-upgrade case by the condition already being set on the allocation.
+    let presentedByPoiHandler = allocation.latestPoiCondition != null
+    if (!presentedByPoiHandler) {
+        allocation.poiCount = (allocation.poiCount === null ? BigInt.fromI32(0) : allocation.poiCount!).plus(
+            BigInt.fromI32(1),
+        )
+        allocation.poi = event.params.poi
+        allocation.latestPoiPresentedAt = event.block.timestamp.toI32()
     }
-
-    // Create PoI submission
-    let poiSubmission = new PoiSubmission(joinID([event.transaction.hash.toHexString(), event.logIndex.toString()]))
-    poiSubmission.allocation = allocation.id
-    poiSubmission.poi = event.params.poi
-    poiSubmission.publicPoi = publicPoi
-    poiSubmission.submittedAtEpoch = event.params.currentEpoch.toI32()
-    poiSubmission.presentedAtTimestamp = event.block.timestamp.toI32()
-    poiSubmission.indexingStatus = poiIndexingStatus
-    poiSubmission.blockNumber = poiBlockNumber
-    poiSubmission.metadataDecoded = poiMetadataDecoded
-    poiSubmission.save()
-
-    // Update latest POI in allocation
-    allocation.poi = event.params.poi
-    allocation.latestPoiPresentedAt = event.block.timestamp.toI32()
     allocation.save()
+
+    // Create PoI submission. The rewards condition is relayed from the POIPresented handler (post-upgrade)
+    // via the allocation; it is null for submissions indexed before the POIPresented upgrade.
+    createPoiSubmission(
+        joinID([event.transaction.hash.toHexString(), event.logIndex.toString()]),
+        allocation.id,
+        event.params.poi,
+        event.params.poiMetadata,
+        event.params.currentEpoch.toI32(),
+        event.block.timestamp.toI32(),
+        allocation.latestPoiCondition,
+        allocation.latestPoiConditionRaw,
+    )
 
     // Update epoch
     let epoch = createOrLoadEpoch(addresses.isL1 ? event.block.number : graphNetwork.currentL1BlockNumber!, graphNetwork)
@@ -327,6 +312,120 @@ export function handleIndexingRewardsCollected(event: IndexingRewardsCollected):
     )
     // No need to update delegated tokens, as that happens in handleTokensToDelegationPoolAdded
     graphNetwork.save()
+}
+
+/**
+ * @dev handlePOIPresented
+ * Emitted for every POI presentation (SubgraphService, post-upgrade), before IndexingRewardsCollected in
+ * the same transaction. It carries the rewards `condition` determining whether/how rewards were collected.
+ * This handler owns the presentation bookkeeping (poiCount, latest POI, condition) so that deferred
+ * conditions - which emit no IndexingRewardsCollected - are still reflected and staleness stays in sync.
+ * For deferred conditions it also creates the PoiSubmission, since no IndexingRewardsCollected follows.
+ */
+export function handlePOIPresented(event: POIPresented): void {
+    let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
+    let allocationID = event.params.allocationId.toHexString()
+    let allocation = Allocation.load(allocationID)!
+
+    let condition = decodePoiCondition(event.params.condition)
+
+    // Always record the presentation - the contract resets its staleness clock on every presentation,
+    // including the deferred conditions that emit no IndexingRewardsCollected.
+    allocation.poiCount = (allocation.poiCount === null ? BigInt.fromI32(0) : allocation.poiCount!).plus(
+        BigInt.fromI32(1),
+    )
+    allocation.poi = event.params.poi
+    allocation.latestPoiPresentedAt = event.block.timestamp.toI32()
+    allocation.latestPoiCondition = condition
+    allocation.latestPoiConditionRaw = event.params.condition
+    allocation.save()
+
+    // Deferred conditions (ALLOCATION_TOO_YOUNG, SUBGRAPH_DENIED) emit no IndexingRewardsCollected, so the
+    // PoiSubmission would otherwise be missed - create it here. All other conditions are recorded by
+    // handleIndexingRewardsCollected, which relays the condition via the allocation.
+    if (condition == 'AllocationTooYoung' || condition == 'SubgraphDenied') {
+        createPoiSubmission(
+            joinID([event.transaction.hash.toHexString(), event.logIndex.toString()]),
+            allocation.id,
+            event.params.poi,
+            event.params.poiMetadata,
+            graphNetwork.currentEpoch,
+            event.block.timestamp.toI32(),
+            condition,
+            event.params.condition,
+        )
+    }
+}
+
+/**
+ * @dev Decodes the on-chain bytes32 rewards condition into a PoiRewardsCondition enum value.
+ * bytes32(0) is NONE; every other known value is keccak256 of its label (see RewardsCondition.sol).
+ * Only the values reachable from presentPOI are decoded; anything else maps to Unknown (conditionRaw
+ * preserves the exact value).
+ */
+function decodePoiCondition(condition: Bytes): string {
+    if (condition.equals(Bytes.fromHexString('0x0000000000000000000000000000000000000000000000000000000000000000')))
+        return 'None'
+    if (condition.equals(keccakLabel('STALE_POI'))) return 'StalePoi'
+    if (condition.equals(keccakLabel('ZERO_POI'))) return 'ZeroPoi'
+    if (condition.equals(keccakLabel('ALLOCATION_TOO_YOUNG'))) return 'AllocationTooYoung'
+    if (condition.equals(keccakLabel('SUBGRAPH_DENIED'))) return 'SubgraphDenied'
+    return 'Unknown'
+}
+
+function keccakLabel(label: string): Bytes {
+    return Bytes.fromByteArray(crypto.keccak256(ByteArray.fromUTF8(label)))
+}
+
+/**
+ * @dev Decodes the POI metadata blob and creates an (immutable) PoiSubmission entity. Shared by
+ * handleIndexingRewardsCollected and handlePOIPresented. `condition`/`conditionRaw` are null for
+ * submissions indexed before the POIPresented upgrade.
+ */
+function createPoiSubmission(
+    id: string,
+    allocationId: string,
+    poi: Bytes,
+    metadata: Bytes,
+    submittedAtEpoch: i32,
+    presentedAtTimestamp: i32,
+    condition: string | null,
+    conditionRaw: Bytes | null,
+): void {
+    // Decode poi metadata
+    let poiBlockNumber = 0
+    let poiIndexingStatus = 0 // 0 is unknown, 1 is healthy, 2 is unhealthy, 3 is failed
+    let publicPoi = Bytes.fromHexString('0x')
+    let poiMetadataDecoded = false
+
+    let poiMetadata = ethereum.decode('(uint256,bytes32,uint8,uint8,uint256)', metadata)
+    if (poiMetadata != null && poiMetadata.kind == ethereum.ValueKind.TUPLE) {
+        poiMetadataDecoded = true
+
+        let tupleData = poiMetadata.toTuple()
+        poiBlockNumber = tupleData[0].toI32()
+        publicPoi = tupleData[1].toBytes()
+        poiIndexingStatus = tupleData[2].toI32()
+
+        // TODO: implement error code handling
+        // let errorCode = tupleData[3].toBigInt()
+        // let errorBlockNumber = tupleData[4].toBigInt()
+    } else {
+        log.error("failed to decode poi metadata: {}", [metadata.toHexString()])
+    }
+
+    let poiSubmission = new PoiSubmission(id)
+    poiSubmission.allocation = allocationId
+    poiSubmission.poi = poi
+    poiSubmission.publicPoi = publicPoi
+    poiSubmission.submittedAtEpoch = submittedAtEpoch
+    poiSubmission.presentedAtTimestamp = presentedAtTimestamp
+    poiSubmission.indexingStatus = poiIndexingStatus
+    poiSubmission.blockNumber = poiBlockNumber
+    poiSubmission.metadataDecoded = poiMetadataDecoded
+    poiSubmission.condition = condition
+    poiSubmission.conditionRaw = conditionRaw
+    poiSubmission.save()
 }
 
 export function handleQueryFeesCollected(event: QueryFeesCollected): void {
