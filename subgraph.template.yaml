@@ -569,6 +569,10 @@ dataSources:
           handler: handleIndexingRewardsCollected
           calls:
             EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
+        - event: POIPresented(indexed address,indexed address,indexed bytes32,bytes32,bytes,bytes32)
+          handler: handlePOIPresented
+          calls:
+            EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: QueryFeesCollected(indexed address,indexed address,indexed address,bytes32,uint256,uint256)
           handler: handleQueryFeesCollected
           calls:

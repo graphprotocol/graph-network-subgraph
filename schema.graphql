@@ -934,7 +934,7 @@ type Provision @entity(immutable: false) {
   tokensAllocated: BigInt!
 
   tokensSlashedServiceProvider: BigInt!
-  
+
   tokensSlashedDelegationPool: BigInt!
 
   totalAllocationCount: BigInt!
@@ -1118,6 +1118,10 @@ type Allocation @entity(immutable: false) {
   poiCount: BigInt
   "Timestamp for the latest POI presentation"
   latestPoiPresentedAt: Int
+  "Rewards condition determined for the latest POI presented. Only available for Horizon allocations after the POIPresented upgrade"
+  latestPoiCondition: PoiRewardsCondition
+  "Raw bytes32 rewards condition emitted by the contract for the latest POI presented"
+  latestPoiConditionRaw: Bytes
   "Whether this allocation was created in the legacy protocol. If true, the allocation will not have a provision since it's not a Horizon allocation"
   isLegacy: Boolean!
   "Whether this allocation was forced closed. Force closures in Horizon can happen when the latest PoI is stale, compared to the legacy protocol, where force closures can happen when the allocation hasn't been closed within the max amount of epochs"
@@ -1151,6 +1155,26 @@ type PoiSubmission @entity(immutable: true) {
   indexingStatus: Int!
   blockNumber: Int!
   metadataDecoded: Boolean!
+  "Rewards condition determined for this POI (Horizon only). Null for submissions indexed before the REO upgrade"
+  condition: PoiRewardsCondition
+  "Raw bytes32 rewards condition as emitted by the contract (Horizon only)"
+  conditionRaw: Bytes
+}
+
+"Rewards condition determined by the SubgraphService when a POI is presented. Mirrors the on-chain RewardsCondition identifiers"
+enum PoiRewardsCondition {
+  "Rewards claimable normally (bytes32(0))"
+  None
+  "POI submitted after the staleness deadline"
+  StalePoi
+  "POI is bytes32(0)"
+  ZeroPoi
+  "Allocation created in the current epoch - rewards deferred"
+  AllocationTooYoung
+  "Subgraph is on the denylist - rewards deferred"
+  SubgraphDenied
+  "Condition value not recognized by the mapping - see conditionRaw"
+  Unknown
 }
 
 enum AllocationStatus {
