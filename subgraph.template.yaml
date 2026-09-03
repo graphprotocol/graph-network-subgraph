@@ -529,6 +529,31 @@ dataSources:
             EpochManager.blockNum: EpochManager[{{epochManager}}].blockNum()
         - event: AllowedLockedVerifierSet(indexed address,bool)
           handler: handleAllowedLockedVerifierSet
+  # The IssuanceAllocator owns the split of protocol issuance across targets
+  # (GIP-0076, deployed by GIP-0088). The RewardsManager is one target and mints
+  # only its own allocation, so this is the only place a change to the indexing
+  # reward rate is observable — the RewardsManager itself emits nothing when the
+  # split moves. Arbitrum only; the address resolves empty elsewhere.
+  - kind: ethereum/contract
+    name: IssuanceAllocator
+    network: {{network}}
+    source:
+      address: "{{issuanceAllocator}}"
+      abi: IssuanceAllocator
+      startBlock: {{blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/mappings/issuanceAllocator.ts
+      entities:
+        - GraphNetwork
+      abis:
+        - name: IssuanceAllocator
+          file: ./abis/IssuanceAllocator.json
+      eventHandlers:
+        - event: TargetAllocationUpdated(indexed address,uint256,uint256)
+          handler: handleTargetAllocationUpdated
   - kind: ethereum/contract
     name: SubgraphService
     network: {{network}}

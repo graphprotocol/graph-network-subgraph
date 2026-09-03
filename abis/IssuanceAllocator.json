@@ -1,0 +1,46 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "target", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "newAllocatorMintingRate", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "newSelfMintingRate", "type": "uint256" }
+    ],
+    "name": "TargetAllocationUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "oldIssuancePerBlock", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "newIssuancePerBlock", "type": "uint256" }
+    ],
+    "name": "IssuancePerBlockUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "getIssuancePerBlock",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "target", "type": "address" }],
+    "name": "getTargetAllocation",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "totalAllocationRate", "type": "uint256" },
+          { "internalType": "uint256", "name": "allocatorMintingRate", "type": "uint256" },
+          { "internalType": "uint256", "name": "selfMintingRate", "type": "uint256" }
+        ],
+        "internalType": "struct IIssuanceAllocationStatus.Allocation",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
