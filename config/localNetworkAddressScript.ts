@@ -10,6 +10,7 @@ import { Addresses } from './addresses.template'
 let renameAddresses: any = {
   horizon: horizonAddresses['1337'],
   subgraphService: subgraphServiceAddresses['1337'],
+  issuanceAllocator: '',   // IssuanceAllocator is only deployed on Arbitrum
 }
 
 export let addresses: Addresses = {
