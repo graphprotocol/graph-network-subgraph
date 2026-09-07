@@ -551,6 +551,8 @@ dataSources:
       abis:
         - name: IssuanceAllocator
           file: ./abis/IssuanceAllocator.json
+        - name: EpochManager
+          file: ./node_modules/@graphprotocol/contracts/dist/abis/EpochManager.json
       eventHandlers:
         - event: TargetAllocationUpdated(indexed address,uint256,uint256)
           handler: handleTargetAllocationUpdated
