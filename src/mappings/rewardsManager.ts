@@ -69,7 +69,16 @@ export function handleParameterUpdated(event: ParameterUpdated): void {
   if (parameter == 'issuanceRate') {
     graphNetwork.networkGRTIssuance = rewardsManager.issuanceRate()
   } else if (parameter == 'issuancePerBlock') {
-    graphNetwork.networkGRTIssuancePerBlock = rewardsManager.issuancePerBlock()
+    // Read the allocator-aware rate, not the legacy `issuancePerBlock` slot.
+    // Since the IssuanceAllocator was wired up (GIP-0088) the RewardsManager
+    // issues only its own allocation, and the legacy slot is no longer that
+    // number — on Arbitrum it still reads 120.73 while the allocated rate is
+    // 96.584. try_ so the call is safe on deployments predating the upgrade,
+    // where the getter does not exist.
+    let allocated = rewardsManager.try_getAllocatedIssuancePerBlock()
+    graphNetwork.networkGRTIssuancePerBlock = allocated.reverted
+      ? rewardsManager.issuancePerBlock()
+      : allocated.value
   } else if (parameter == 'subgraphAvailabilityOracle') {
     graphNetwork.subgraphAvailabilityOracle = rewardsManager.subgraphAvailabilityOracle()
   }
