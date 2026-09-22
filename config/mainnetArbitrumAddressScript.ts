@@ -4,6 +4,7 @@ import { Addresses } from './addresses.template'
 
 const horizonAddresses = require('@graphprotocol/address-book/horizon/addresses.json')
 const subgraphServiceAddresses = require('@graphprotocol/address-book/subgraph-service/addresses.json')
+const issuanceAddresses = require('@graphprotocol/address-book/issuance/addresses.json')
 
 // mustache doesn't like numbered object keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,10 +15,15 @@ renameHorizonAddresses['arbitrum'] = horizonAddresses['42161'] || {}
 let renameSubgraphServiceAddresses: any = subgraphServiceAddresses
 renameSubgraphServiceAddresses['arbitrum'] = subgraphServiceAddresses['42161'] || {}
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let renameIssuanceAddresses: any = issuanceAddresses
+renameIssuanceAddresses['arbitrum'] = issuanceAddresses['42161'] || {}
+
 const combinedAddresses = {
   arbitrum: {
     ...renameHorizonAddresses['arbitrum'],
-    ...renameSubgraphServiceAddresses['arbitrum']
+    ...renameSubgraphServiceAddresses['arbitrum'],
+    ...renameIssuanceAddresses['arbitrum']
   }
 }
 
@@ -44,6 +50,7 @@ export let addresses: Addresses = {
   l2GraphTokenGateway: '{{arbitrum.L2GraphTokenGateway.address}}',
   ethereumDIDRegistry: '{{arbitrum.IEthereumDIDRegistry.address}}',
   subgraphService: '{{arbitrum.SubgraphService.address}}',
+  issuanceAllocator: '{{arbitrum.IssuanceAllocator.address}}',
   graphPayments: '{{arbitrum.GraphPayments.address}}',
   paymentsEscrow: '{{arbitrum.PaymentsEscrow.address}}',
   graphTallyCollector: '{{arbitrum.GraphTallyCollector.address}}',

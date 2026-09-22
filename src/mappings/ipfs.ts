@@ -1,4 +1,4 @@
-import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext, BigInt } from '@graphprotocol/graph-ts'
+import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext, BigInt, yaml, YAMLValue } from '@graphprotocol/graph-ts'
 import {
   SubgraphMeta,
   SubgraphVersionMeta,
@@ -10,6 +10,7 @@ import {
   SubgraphDeploymentSchema as SubgraphDeploymentSchemaTemplate
 } from '../types/templates'
 import { jsonToString } from './utils'
+import { yamlField, yamlString, manifestStartBlock, manifestSchemaPath } from './helpers/manifest'
 
 export function handleSubgraphMetadata(content: Bytes): void {
   let id = dataSource.context().getString("id")
@@ -80,78 +81,111 @@ export function handleSubgraphDeploymentSchema(content: Bytes): void {
   subgraphDeploymentSchema.save()
 }
 
-export function handleSubgraphDeploymentManifest(content: Bytes): void {
-  // Shouldn't need ID since the handler isn't gonna be called more than once, given that it's only on deployment creation.
-  let subgraphDeploymentManifest = new SubgraphDeploymentManifest(dataSource.stringParam())
-  if (content !== null) {
-    subgraphDeploymentManifest.manifest = content.toString()
+function manifestWarning(id: string, field: string): void {
+  log.warning('[MANIFEST PARSING FAIL] deployment: {}, invalid or unsupported {}', [id, field])
+}
 
-    let manifest = subgraphDeploymentManifest.manifest!
-    // we take the right side of the split, since it's the one which will have the schema ipfs hash
-    let schemaSplitTry = manifest.split('schema:\n', 2)
-    if (schemaSplitTry.length == 2) {
-      let schemaSplit = schemaSplitTry[1]
+function readManifestSchema(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {
+  let path = manifestSchemaPath(yamlField(yamlField(root, 'schema'), 'file'))
+  if (path === null) {
+    manifestWarning(manifest.id, 'schema.file')
+    return
+  }
+  let schemaId = manifest.id.concat('-').concat(path)
+  manifest.schema = schemaId
+  manifest.schemaIpfsHash = path
+  let context = new DataSourceContext()
+  context.setString('id', schemaId)
+  SubgraphDeploymentSchemaTemplate.createWithContext(path, context)
+}
 
-      let schemaFileSplitTry = schemaSplit.split('/ipfs/', 2)
-      if (schemaFileSplitTry.length == 2) {
-        let schemaFileSplit = schemaFileSplitTry[1]
-
-        let schemaIpfsHashTry = schemaFileSplit.split('\n', 2)
-        if (schemaIpfsHashTry.length == 2) {
-          let schemaIpfsHash = schemaIpfsHashTry[0]
-          let schemaId = subgraphDeploymentManifest.id.concat('-').concat(schemaIpfsHash)
-          subgraphDeploymentManifest.schema = schemaId
-          subgraphDeploymentManifest.schemaIpfsHash = schemaIpfsHash
-
-          let context = new DataSourceContext()
-          context.setString('id', schemaId)
-          SubgraphDeploymentSchemaTemplate.createWithContext(schemaIpfsHash, context)
-        } else {
-          log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, schema file hash can't be retrieved. Error: schemaIpfsHashTry.length isn't 2, actual length: {}", [dataSource.stringParam(), schemaIpfsHashTry.length.toString()])
-        }
-      } else {
-        log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, schema file hash can't be retrieved. Error: schemaFileSplitTry.length isn't 2, actual length: {}", [dataSource.stringParam(), schemaFileSplitTry.length.toString()])
+function readManifestNetwork(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {
+  // Keep the first usable network, falling back to templates when necessary.
+  let sections = ['dataSources', 'templates']
+  for (let section = 0; section < sections.length; section++) {
+    let entries = yamlField(root, sections[section])
+    if (entries === null || !entries.isArray()) continue
+    let sources = entries.toArray()
+    for (let i = 0; i < sources.length; i++) {
+      let network = yamlString(yamlField(sources[i], 'network'))
+      if (network !== null && validManifestNetwork(network)) {
+        manifest.network = network
+        return
       }
-    } else {
-      log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, schema file hash can't be retrieved. Error: schemaSplitTry.length isn't 2, actual length: {}", [dataSource.stringParam(), schemaSplitTry.length.toString()])
-    }
-
-    // We get the first occurrence of `network` since subgraphs can only have data sources for the same network
-    let networkSplitTry = manifest.split('network: ', 2)
-    if (networkSplitTry.length == 2) {
-      let networkSplit = networkSplitTry[1]
-      let networkTry = networkSplit.split('\n', 2)
-      if (networkTry.length == 2) {
-        let network = networkTry[0]
-
-        subgraphDeploymentManifest.network = network
-      } else {
-        log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, network can't be parsed. Error: networkTry.length isn't 2, actual length: {}", [dataSource.stringParam(), networkTry.length.toString()])
-      }
-    } else {
-      log.warning("[MANIFEST PARSING FAIL] subgraphDeploymentManifest: {}, network can't be parsed. Error: networkSplitTry.length isn't 2, actual length: {}", [dataSource.stringParam(), networkSplitTry.length.toString()])
-    }
-    let substreamsSplitTry = manifest.split('- kind: substreams', 2)
-    subgraphDeploymentManifest.poweredBySubstreams = substreamsSplitTry.length > 1
-
-    // startBlock calculation
-    let templatesSplit = manifest.split("templates:")
-    let nonTemplateManifestSplit = templatesSplit[0] // we take the left as we want to remove the templates for the source checks.
-    let sourcesSplit = nonTemplateManifestSplit.split("source:") // We want to know how many source definitions we have
-    let startBlockSplit = nonTemplateManifestSplit.split("startBlock: ") // And how many startBlock definitions we have to know if we should set startBlock to 0
-    
-    if (sourcesSplit.length > startBlockSplit.length) {
-      subgraphDeploymentManifest.startBlock = BigInt.fromI32(0)
-    } else {
-      // need to figure the minimum startBlock defined, we skip i = 0 as we know it's not gonna contain a start block num, since it's before the first appearance of "startBlock:"
-      let min = BigInt.fromI32(0)
-      for(let i = 1; i < startBlockSplit.length; i++) {
-        let numString = startBlockSplit[i].split("\n", 1)[0].toString()
-        let num = BigInt.fromString(numString)
-        min = min == BigInt.fromI32(0) ? num : min <= num ? min : num
-      }
-      subgraphDeploymentManifest.startBlock = min
     }
   }
-  subgraphDeploymentManifest.save()
+  manifestWarning(manifest.id, 'network')
+}
+
+function validManifestNetwork(network: string): bool {
+  if (network.length > 256) return false
+  for (let i = 0; i < network.length; i++) {
+    let code = network.charCodeAt(i)
+    if (code <= 32 || code == 127) return false
+  }
+  return true
+}
+
+function readManifestDataSources(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {
+  let sources = yamlField(root, 'dataSources')
+  if (sources === null || !sources.isArray() || sources.toArray().length == 0) {
+    manifestWarning(manifest.id, 'dataSources')
+    return
+  }
+
+  let dataSources = sources.toArray()
+  let minimum: BigInt | null = null
+  let validStartBlocks = true
+  let validKinds = true
+  let poweredBySubstreams = false
+  // Only inspect actual dataSources. Templates, comments and context values
+  // must not affect the minimum start block or the deployment's source kind.
+  for (let i = 0; i < dataSources.length; i++) {
+    let dataSource = dataSources[i]
+    let kind = yamlString(yamlField(dataSource, 'kind'))
+    if (kind === null) validKinds = false
+    else if (kind == 'substreams') poweredBySubstreams = true
+
+    let source = yamlField(dataSource, 'source')
+    if (source === null || !source.isObject()) {
+      validStartBlocks = false
+      continue
+    }
+    let startBlockValue = yamlField(source, 'startBlock')
+    // A missing startBlock defaults to zero. An explicit null or malformed
+    // value is unknown, so we cannot reliably report a minimum.
+    let startBlock = startBlockValue === null ? BigInt.fromI32(0) : manifestStartBlock(startBlockValue)
+    if (startBlock === null) {
+      validStartBlocks = false
+    } else if (minimum === null || startBlock < minimum) {
+      minimum = startBlock
+    }
+  }
+
+  if (poweredBySubstreams || validKinds) manifest.poweredBySubstreams = poweredBySubstreams
+  else manifestWarning(manifest.id, 'dataSources.kind')
+  if (validStartBlocks && minimum !== null) manifest.startBlock = minimum
+  else manifestWarning(manifest.id, 'dataSources.source.startBlock')
+}
+
+export function handleSubgraphDeploymentManifest(content: Bytes): void {
+  let manifest = new SubgraphDeploymentManifest(dataSource.stringParam())
+  manifest.manifest = content.toString()
+  // Match the native parser's input limit; retain the raw manifest on failure.
+  if (content.length > 10000000) {
+    manifestWarning(manifest.id, 'manifest size')
+    manifest.save()
+    return
+  }
+  let parsed = yaml.try_fromBytes(content)
+  if (!parsed.isOk) {
+    manifestWarning(manifest.id, 'YAML')
+  } else if (!parsed.value.isObject()) {
+    manifestWarning(manifest.id, 'manifest root')
+  } else {
+    readManifestSchema(manifest, parsed.value)
+    readManifestNetwork(manifest, parsed.value)
+    readManifestDataSources(manifest, parsed.value)
+  }
+  manifest.save()
 }

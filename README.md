@@ -56,6 +56,12 @@ Everytime a new release is merged into `master` there will be a new github relea
 
 # Deploying the subgraph
 
+The deployment manifest IPFS handler uses the native YAML API from `graph-ts` 0.38.2
+and requires **Graph Node 0.37.0 or newer**. Malformed manifests retain their raw
+content; derived fields that cannot be safely extracted remain unset and produce
+warnings. Schema links support CIDv0 and CIDv1 in base32 or base58btc, optionally
+with an IPFS file path. Unsupported links are skipped without creating a file data source.
+
 The npm scripts are set up to deploy the subgraphs in one command. Mainnet is connected to a hook
 where it will be deployed automatically when the `master` branch is updated. Therefore, we never
 have to use npm scripts to directly deploy to `graph-network-mainnet`.

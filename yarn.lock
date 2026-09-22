@@ -818,10 +818,10 @@
     graphql-import-node "^0.0.5"
     js-yaml "^4.1.0"
 
-"@graphprotocol/address-book@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/@graphprotocol/address-book/-/address-book-1.1.0.tgz"
-  integrity sha512-38NiutGOWdDIYgB/3kGp/7LxPRCNomipjo1hGlaj6RvyydySooVSmb3A+j84faUso+uhYxt8+9y1EFN7XVnT7Q==
+"@graphprotocol/address-book@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/address-book/-/address-book-1.3.0.tgz#234de18cd3931c309cf0385d46f88cc6d3a14355"
+  integrity sha512-rkrgBOOxM5WLNsoVrr6Gvg6DYvDes+P13vL5k1/QYWc5/z/G6pt4DBgzR/7wJV5xhIMevCumpg6L7ZuVQwS0ug==
 
 "@graphprotocol/common-ts@^2.0.7":
   version "2.0.11"
@@ -898,12 +898,12 @@
     web3-eth-abi "4.4.1"
     yaml "2.7.0"
 
-"@graphprotocol/graph-ts@0.36.0":
-  version "0.36.0"
-  resolved "https://registry.npmjs.org/@graphprotocol/graph-ts/-/graph-ts-0.36.0.tgz"
-  integrity sha512-yJNQK5YZWEThuawSboQQ+U4Fb2C78KBjmaoeOK7Nn0CFoChmHc+woRvW3yj+IKVSPc7JNHt4JSUHxVDJfUZbTA==
+"@graphprotocol/graph-ts@0.38.2":
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-ts/-/graph-ts-0.38.2.tgz#e99bdb6e0e50485084c442d7a02409082a836ff8"
+  integrity sha512-87KIFSFs2+Te+mnmb7Y+M57oqzlLy20cIyPIRbn9qJfpZFSZHTKtBLT6KQmcsK0YkoWis9Ur3c3M2c9mmaaEHQ==
   dependencies:
-    assemblyscript "0.19.10"
+    assemblyscript "0.27.31"
 
 "@graphprotocol/pino-sentry-simple@0.7.1":
   version "0.7.1"
@@ -2164,14 +2164,6 @@ array-union@^2.1.0:
   resolved "https://registry.npmjs.org/array-union/-/array-union-2.1.0.tgz"
   integrity sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==
 
-assemblyscript@0.19.10:
-  version "0.19.10"
-  resolved "https://registry.npmjs.org/assemblyscript/-/assemblyscript-0.19.10.tgz"
-  integrity sha512-HavcUBXB3mBTRGJcpvaQjmnmaqKHBGREjSPNsIvnAk2f9dj78y4BkMaSSdvBQYWcDDzsHQjyUC8stICFkD1Odg==
-  dependencies:
-    binaryen "101.0.0-nightly.20210723"
-    long "^4.0.0"
-
 assemblyscript@0.19.23:
   version "0.19.23"
   resolved "https://registry.npmjs.org/assemblyscript/-/assemblyscript-0.19.23.tgz"
@@ -2180,6 +2172,14 @@ assemblyscript@0.19.23:
     binaryen "102.0.0-nightly.20211028"
     long "^5.2.0"
     source-map-support "^0.5.20"
+
+assemblyscript@0.27.31:
+  version "0.27.31"
+  resolved "https://registry.yarnpkg.com/assemblyscript/-/assemblyscript-0.27.31.tgz#07412b1bc42c67f78080dbaddca030ab74d3b9b2"
+  integrity sha512-Ra8kiGhgJQGZcBxjtMcyVRxOEJZX64kd+XGpjWzjcjgxWJVv+CAQO0aDBk4GQVhjYbOkATarC83mHjAVGtwPBQ==
+  dependencies:
+    binaryen "116.0.0-nightly.20240114"
+    long "^5.2.1"
 
 astral-regex@^2.0.0:
   version "2.0.0"
@@ -2261,15 +2261,15 @@ binary-extensions@^2.0.0:
   resolved "https://registry.npmjs.org/binary-extensions/-/binary-extensions-2.3.0.tgz"
   integrity sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==
 
-binaryen@101.0.0-nightly.20210723:
-  version "101.0.0-nightly.20210723"
-  resolved "https://registry.npmjs.org/binaryen/-/binaryen-101.0.0-nightly.20210723.tgz"
-  integrity sha512-eioJNqhHlkguVSbblHOtLqlhtC882SOEPKmNFZaDuz1hzQjolxZ+eu3/kaS10n3sGPONsIZsO7R9fR00UyhEUA==
-
 binaryen@102.0.0-nightly.20211028:
   version "102.0.0-nightly.20211028"
   resolved "https://registry.npmjs.org/binaryen/-/binaryen-102.0.0-nightly.20211028.tgz"
   integrity sha512-GCJBVB5exbxzzvyt8MGDv/MeUjs6gkXDvf4xOIItRBptYl0Tz5sm1o/uG95YK0L0VeG5ajDu3hRtkBP2kzqC5w==
+
+binaryen@116.0.0-nightly.20240114:
+  version "116.0.0-nightly.20240114"
+  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-116.0.0-nightly.20240114.tgz#ad8bfbde77d4cb4715b93997114eefc30f45155b"
+  integrity sha512-0GZrojJnuhoe+hiwji7QFaL3tBlJoA+KFUN7ouYSDGZLSo9CKM8swQX8n/UcbR0d1VuZKU+nhogNzv423JEu5A==
 
 bintrees@1.0.2:
   version "1.0.2"
@@ -4811,12 +4811,7 @@ log-symbols@^4.1.0:
     chalk "^4.1.0"
     is-unicode-supported "^0.1.0"
 
-long@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/long/-/long-4.0.0.tgz"
-  integrity sha512-XsP+KhQif4bjX1kbuSiySJFNAehNxgLb6hPRGJ9QsUr8ajHkuXGdrHmFUTUUXhDwVX2R5bY4JNZEwbUiMhV+MA==
-
-long@^5.2.0:
+long@^5.2.0, long@^5.2.1:
   version "5.3.2"
   resolved "https://registry.npmjs.org/long/-/long-5.3.2.tgz"
   integrity sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==

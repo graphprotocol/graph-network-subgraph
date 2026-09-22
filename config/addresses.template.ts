@@ -22,6 +22,7 @@ export class Addresses {
   l2GraphTokenGateway: string
   ethereumDIDRegistry: string
   subgraphService: string
+  issuanceAllocator: string
   graphPayments: string
   paymentsEscrow: string
   graphTallyCollector: string
@@ -52,6 +53,7 @@ export let addresses: Addresses = {
   l2GraphTokenGateway: '{{l2GraphTokenGateway}}',
   ethereumDIDRegistry: '{{ethereumDIDRegistry}}',
   subgraphService: '{{subgraphService}}',
+  issuanceAllocator: '{{issuanceAllocator}}',
   graphPayments: '{{graphPayments}}',
   paymentsEscrow: '{{paymentsEscrow}}',
   graphTallyCollector: '{{graphTallyCollector}}',
