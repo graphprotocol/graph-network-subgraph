@@ -76,6 +76,14 @@ export function handleCancelThaw(event: CancelThaw): void {
 export function handleEscrowCollected(event: EscrowCollected): void {
     let escrow = createOrLoadEscrowAccount(event.params.payer, event.params.collector, event.params.receiver)
     escrow.balance = escrow.balance.minus(event.params.tokens)
+
+    if (escrow.totalAmountThawing.gt(escrow.balance)) {
+        escrow.totalAmountThawing = escrow.balance
+        if (escrow.totalAmountThawing.equals(BIGINT_ZERO)) {
+            escrow.thawEndTimestamp = BIGINT_ZERO
+        }
+    }
+
     escrow.save()
 }
 
