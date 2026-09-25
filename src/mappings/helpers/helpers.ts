@@ -690,7 +690,20 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
 export function loadGraphNetwork(): GraphNetwork {
   // Should only be called whenever we are sure a GraphNetwork entity exists.
   // This is only made to centralize the load statements that are everywhere
-  return GraphNetwork.load('1')!
+  let graphNetwork = GraphNetwork.load('1')!
+  countPastCurationFeesInSignal(graphNetwork)
+  return graphNetwork
+}
+
+// Versions that left curation fees out of totalTokensSignalled fell short by exactly the fees
+// paid, and a deployment grafted from one inherits that, so add them back once. How those fees
+// split between auto-migrating and direct signal cannot be rebuilt, so the split stays as it was.
+function countPastCurationFeesInSignal(graphNetwork: GraphNetwork): void {
+  if (graphNetwork.curationFeesInSignalTotal) return
+  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(
+    graphNetwork.totalCuratorQueryFees,
+  )
+  graphNetwork.curationFeesInSignalTotal = true
 }
 
 export function createOrLoadGraphNetwork(
@@ -756,6 +769,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
     graphNetwork.totalTokensSignalledAutoMigrate = BigDecimal.fromString('0')
     graphNetwork.totalTokensSignalledDirectly = BigDecimal.fromString('0')
+    graphNetwork.curationFeesInSignalTotal = true
 
     graphNetwork.totalQueryFees = BigInt.fromI32(0)
     graphNetwork.totalIndexerQueryFeesCollected = BigInt.fromI32(0)
@@ -839,6 +853,7 @@ export function createOrLoadGraphNetwork(
 
     graphNetwork.save()
   }
+  countPastCurationFeesInSignal(graphNetwork)
 
   if (!addresses.isL1) {
     graphNetwork.currentL1BlockNumber = getL1BlockNumber()

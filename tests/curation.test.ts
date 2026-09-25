@@ -26,6 +26,7 @@ import { mockSignalled, mockBurned, mockParameterUpdated } from './factories/cur
 import {
   addCurationFeesToNetworkSignal,
   createOrLoadGraphNetwork,
+  loadGraphNetwork,
 } from '../src/mappings/helpers/helpers'
 
 import { GraphNetwork, SubgraphDeployment } from '../src/types/schema'
@@ -349,6 +350,40 @@ describe('Curation fees', () => {
     assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', totalAfter)
     assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledAutoMigrate', autoMigrateAfter)
     assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', directlyAfter)
+  })
+})
+
+describe('Curation fees paid before they were counted', () => {
+  afterAll(() => {
+    clearStore()
+  })
+
+  test('are added to the signal total once on a deployment grafted without them', () => {
+    // A grafted base: 100 GRT in the curation contract, 30 of it fees the total left out
+    let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
+    graphNetwork.totalTokensSignalled = BigInt.fromI32(70)
+    graphNetwork.totalCuratorQueryFees = BigInt.fromI32(30)
+    graphNetwork.unset('curationFeesInSignalTotal')
+    graphNetwork.save()
+
+    loadGraphNetwork().save()
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '100')
+    assert.fieldEquals('GraphNetwork', '1', 'curationFeesInSignalTotal', 'true')
+
+    loadGraphNetwork().save()
+    createOrLoadGraphNetwork(blockNumber, controllerAddress).save()
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '100')
+  })
+
+  test('are not added again on a network indexed from the start', () => {
+    clearStore()
+    let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
+    graphNetwork.totalCuratorQueryFees = BigInt.fromI32(30)
+    graphNetwork.save()
+
+    loadGraphNetwork().save()
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '0')
+    assert.fieldEquals('GraphNetwork', '1', 'curationFeesInSignalTotal', 'true')
   })
 })
 
