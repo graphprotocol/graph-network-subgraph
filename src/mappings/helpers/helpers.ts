@@ -1342,6 +1342,31 @@ export function updateCurrentDeploymentLinks(
   }
 }
 
+// Curation fees raise a pool's signalled tokens without minting signal, so count them here.
+// Every share gains the same value: the GNS contract's shares take their part as
+// auto-migrating signal and the rest counts as signalled directly.
+export function addCurationFeesToNetworkSignal(
+  graphNetwork: GraphNetwork,
+  deployment: SubgraphDeployment,
+  fees: BigInt,
+): void {
+  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(fees)
+  let toGns = BigDecimal.fromString('0')
+  let gnsSignal = Signal.load(joinID([graphNetwork.gns.toHexString(), deployment.id]))
+  if (gnsSignal != null && !deployment.signalAmount.isZero()) {
+    toGns = fees
+      .toBigDecimal()
+      .times(gnsSignal.signal.toBigDecimal())
+      .div(deployment.signalAmount.toBigDecimal())
+  }
+  graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate
+    .plus(toGns)
+    .truncate(18)
+  graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalledDirectly
+    .plus(fees.toBigDecimal().minus(toGns))
+    .truncate(18)
+}
+
 export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeployment): void {
   for (let i = 0; i < deployment.subgraphCount; i++) {
     let id = deployment.id.concat('-').concat(BigInt.fromI32(i).toString())

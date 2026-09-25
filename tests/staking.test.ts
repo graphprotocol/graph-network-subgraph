@@ -777,6 +777,9 @@ describe('ALLOCATION LIFE CYCLE', () => {
         rebateFees.toString(),
       )
       assert.fieldEquals('GraphNetwork', '1', 'totalCuratorQueryFees', curationFees.toString())
+      // Curation fees are paid into the curation pool, so they are signal too
+      assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', curationFees.toString())
+      assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', curationFees.toString())
       assert.fieldEquals(
         'GraphNetwork',
         '1',
