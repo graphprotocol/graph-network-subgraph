@@ -43,7 +43,7 @@ import {
 } from './factories/staking'
 import { createOrLoadGraphNetwork, loadGraphNetwork, getHorizonDelegatedStakeIDFromLegacy } from '../src/mappings/helpers/helpers'
 import { mockTransfer } from './factories/graphToken'
-import { GraphNetwork, GraphAccount } from '../src/types/schema'
+import { GraphAccount } from '../src/types/schema'
 
 // CONSTANT ADDRESS OR IDS
 const graphID = '0x0000000000000000000000000000000000000000'

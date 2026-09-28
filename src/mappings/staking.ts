@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -28,7 +28,6 @@ import {
   GraphAccount,
   Delegator,
   DelegatedStake,
-  IndexerQueryFeePaymentAggregation,
 } from '../types/schema'
 
 import {
