@@ -704,8 +704,12 @@ function countPastCurationFeesInSignal(graphNetwork: GraphNetwork): void {
     graphNetwork.totalCuratorQueryFees,
   )
   graphNetwork.curationFeesInSignalTotal = true
-  if (addresses.isL1) return
+  if (!addresses.isL1) splitSignalByGnsShareValue(graphNetwork)
+  // Save now so later loads in this block see the flag instead of walking every GNS signal again
+  graphNetwork.save()
+}
 
+function splitSignalByGnsShareValue(graphNetwork: GraphNetwork): void {
   let autoMigrate = BigDecimal.fromString('0')
   let gnsCurator = Curator.load(graphNetwork.gns.toHexString())
   if (gnsCurator != null) {
