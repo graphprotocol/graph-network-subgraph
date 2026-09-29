@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, BigDecimal } from '@graphprotocol/graph-ts'
 import {
   StakeDeposited,
   StakeWithdrawn,
@@ -28,7 +28,6 @@ import {
   GraphAccount,
   Delegator,
   DelegatedStake,
-  IndexerQueryFeePaymentAggregation,
 } from '../types/schema'
 
 import {
@@ -43,6 +42,7 @@ import {
   updateDelegationExchangeRate,
   calculatePricePerShare,
   batchUpdateSubgraphSignalledTokens,
+  addCurationFeesToNetworkSignal,
   createOrLoadGraphNetwork,
   calculateCapacities,
   createOrLoadIndexerQueryFeePaymentAggregation,
@@ -499,6 +499,7 @@ export function handleAllocationCollected(event: AllocationCollected): void {
   graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(
     event.params.curationFees,
   )
+  addCurationFeesToNetworkSignal(graphNetwork, deployment, event.params.curationFees)
   graphNetwork.totalTaxedQueryFees = graphNetwork.totalTaxedQueryFees.plus(taxedFees)
   graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.plus(
     event.params.rebateFees,
@@ -804,6 +805,7 @@ export function handleRebateCollected(event: RebateCollected): void {
   graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(
     event.params.curationFees,
   )
+  addCurationFeesToNetworkSignal(graphNetwork, deployment, event.params.curationFees)
   graphNetwork.totalTaxedQueryFees = graphNetwork.totalTaxedQueryFees.plus(event.params.protocolTax)
   graphNetwork.totalUnclaimedQueryFeeRebates = graphNetwork.totalUnclaimedQueryFeeRebates.plus(
     event.params.queryFees,

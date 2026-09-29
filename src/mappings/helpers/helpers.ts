@@ -690,7 +690,49 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
 export function loadGraphNetwork(): GraphNetwork {
   // Should only be called whenever we are sure a GraphNetwork entity exists.
   // This is only made to centralize the load statements that are everywhere
-  return GraphNetwork.load('1')!
+  let graphNetwork = GraphNetwork.load('1')!
+  countPastCurationFeesInSignal(graphNetwork)
+  return graphNetwork
+}
+
+// Versions that left curation fees out of totalTokensSignalled fell short by exactly the fees paid,
+// and a graft inherits that, so add them back once and re-split the total by the value of the GNS
+// contract's shares. Not on L1, which subtracts signal sent to L2 twice, so this would not match.
+function countPastCurationFeesInSignal(graphNetwork: GraphNetwork): void {
+  if (graphNetwork.curationFeesInSignalTotal) return
+  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(
+    graphNetwork.totalCuratorQueryFees,
+  )
+  graphNetwork.curationFeesInSignalTotal = true
+  if (!addresses.isL1) splitSignalByGnsShareValue(graphNetwork)
+  // Save now so later loads in this block see the flag instead of walking every GNS signal again
+  graphNetwork.save()
+}
+
+function splitSignalByGnsShareValue(graphNetwork: GraphNetwork): void {
+  let autoMigrate = BigDecimal.fromString('0')
+  let gnsCurator = Curator.load(graphNetwork.gns.toHexString())
+  if (gnsCurator != null) {
+    let gnsSignals = gnsCurator.signals.load()
+    for (let i = 0; i < gnsSignals.length; i++) {
+      let gnsSignal = gnsSignals[i]
+      if (gnsSignal.signal.isZero()) continue
+      let deployment = SubgraphDeployment.load(gnsSignal.subgraphDeployment)!
+      if (deployment.signalAmount.isZero()) continue
+      autoMigrate = autoMigrate
+        .plus(
+          gnsSignal.signal
+            .toBigDecimal()
+            .times(deployment.signalledTokens.toBigDecimal())
+            .div(deployment.signalAmount.toBigDecimal()),
+        )
+        .truncate(18)
+    }
+  }
+  graphNetwork.totalTokensSignalledAutoMigrate = autoMigrate
+  graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalled
+    .toBigDecimal()
+    .minus(autoMigrate)
 }
 
 export function createOrLoadGraphNetwork(
@@ -756,6 +798,7 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
     graphNetwork.totalTokensSignalledAutoMigrate = BigDecimal.fromString('0')
     graphNetwork.totalTokensSignalledDirectly = BigDecimal.fromString('0')
+    graphNetwork.curationFeesInSignalTotal = true
 
     graphNetwork.totalQueryFees = BigInt.fromI32(0)
     graphNetwork.totalIndexerQueryFeesCollected = BigInt.fromI32(0)
@@ -839,6 +882,7 @@ export function createOrLoadGraphNetwork(
 
     graphNetwork.save()
   }
+  countPastCurationFeesInSignal(graphNetwork)
 
   if (!addresses.isL1) {
     graphNetwork.currentL1BlockNumber = getL1BlockNumber()
@@ -983,9 +1027,9 @@ function createGraphAccountName(
     graphAccountName.graphAccount = graphAccount
     graphAccountName.save()
     // check that this name is not already used by another graph account (changing ownership)
-    // If so, remove the old owner, and set the new one
+    // If so, move the name from its former owner to the new one
   } else if (graphAccountName.graphAccount != graphAccount) {
-    // Only update the old graph account if it exists
+    // Only update the former owner's graph account if it exists
     if (graphAccountName.graphAccount != null) {
       // Set defaultDisplayName to null if they lost ownership of this name
       let oldGraphAccount = GraphAccount.load(graphAccountName.graphAccount!)!
@@ -1242,13 +1286,8 @@ export function calculateCapacitiesLegacy(indexer: Indexer): Indexer {
 }
 
 export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecimal {
-  // TODO check why there's a deviation from the values of the bancor formula
-  // Ideally this would be a 1 to 1 recreation of the share sell formula, but due to
-  // implementation issues for that formula on AssemblyScript (mainly BigDecimal missing pow implementation)
-  // I decided to use an approximation derived from testing.
-
-  // This value could be wrong unfortunately, so we should ideally find a workaround later
-  // to implement the actual sell share formula for 1 share.
+  // TODO: implement the bancor sell formula for 1 share exactly. This is an approximation found
+  // by testing, because AssemblyScript's BigDecimal has no pow, so it can deviate from the formula.
 
   // reserve ratio multiplier = MAX_WEIGHT / reserveRatio = 1M (ppm) / reserveRatio
   // HOTFIX for now, if deployment.reserveRatio -> 0, use a known previous default
@@ -1263,42 +1302,6 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
         .truncate(18)
   return pricePerShare
 }
-
-// export function createOrLoadNetwork(id: string): Network {
-//   let network = Network.load(id)
-//   if (network == null) {
-//     network = new Network(id)
-
-//     network.save()
-//   }
-//   return network as Network
-// }
-
-// export function createOrLoadSubgraphCategory(id: string): SubgraphCategory {
-//   let category = SubgraphCategory.load(id)
-//   if (category == null) {
-//     category = new SubgraphCategory(id)
-
-//     category.save()
-//   }
-//   return category as SubgraphCategory
-// }
-
-// export function createOrLoadSubgraphCategoryRelation(
-//   categoryId: string,
-//   subgraphMetadataId: string,
-// ): SubgraphCategoryRelation {
-//   let id = joinID([categoryId, subgraphMetadataId])
-//   let relation = SubgraphCategoryRelation.load(id)
-//   if (relation == null) {
-//     relation = new SubgraphCategoryRelation(id)
-//     relation.metadata = subgraphMetadataId
-//     relation.category = categoryId
-
-//     relation.save()
-//   }
-//   return relation as SubgraphCategoryRelation
-// }
 
 export function updateCurrentDeploymentLinks(
   oldDeployment: SubgraphDeployment | null,
@@ -1340,6 +1343,31 @@ export function updateCurrentDeploymentLinks(
     subgraph.currentSignalledTokens = newDeployment.signalledTokens
     subgraph.save()
   }
+}
+
+// Curation fees raise a pool's signalled tokens without minting signal, so count them here.
+// Every share gains the same value: the GNS contract's shares take their part as
+// auto-migrating signal and the rest counts as signalled directly.
+export function addCurationFeesToNetworkSignal(
+  graphNetwork: GraphNetwork,
+  deployment: SubgraphDeployment,
+  fees: BigInt,
+): void {
+  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(fees)
+  let toGns = BigDecimal.fromString('0')
+  let gnsSignal = Signal.load(joinID([graphNetwork.gns.toHexString(), deployment.id]))
+  if (gnsSignal != null && !deployment.signalAmount.isZero()) {
+    toGns = fees
+      .toBigDecimal()
+      .times(gnsSignal.signal.toBigDecimal())
+      .div(deployment.signalAmount.toBigDecimal())
+  }
+  graphNetwork.totalTokensSignalledAutoMigrate = graphNetwork.totalTokensSignalledAutoMigrate
+    .plus(toGns)
+    .truncate(18)
+  graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalledDirectly
+    .plus(fees.toBigDecimal().minus(toGns))
+    .truncate(18)
 }
 
 export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeployment): void {

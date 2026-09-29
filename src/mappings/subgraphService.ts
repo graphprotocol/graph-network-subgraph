@@ -1,6 +1,6 @@
 import { BigDecimal, BigInt, ByteArray, Bytes, crypto, ethereum, log } from "@graphprotocol/graph-ts"
 import { AllocationClosed, AllocationCreated, AllocationResized, CurationCutSet, DelegationRatioSet, IndexingRewardsCollected, MaxPOIStalenessSet, POIPresented, ProvisionTokensRangeSet, QueryFeesCollected, RewardsDestinationSet, ServiceProviderRegistered, StakeToFeesRatioSet, ThawingPeriodRangeSet, VerifierCutRangeSet } from "../types/SubgraphService/SubgraphService"
-import { batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, updateDelegationExchangeRate, calculateCapacities, loadGraphNetwork } from "./helpers/helpers"
+import { addCurationFeesToNetworkSignal, batchUpdateSubgraphSignalledTokens, calculatePricePerShare, createOrLoadDataService, createOrLoadGraphNetwork, createOrLoadEpoch,createOrLoadIndexerQueryFeePaymentAggregation, createOrLoadPaymentSource, createOrLoadProvision, createOrLoadSubgraphDeployment, joinID, calculateCapacities, loadGraphNetwork } from "./helpers/helpers"
 import { Allocation, Indexer, PoiSubmission, SubgraphDeployment } from "../types/schema"
 import { addresses } from "../../config/addresses"
 import { tuplePrefixBytes } from "./helpers/decoder"
@@ -510,6 +510,7 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(
         event.params.tokensCurators,
     )
+    addCurationFeesToNetworkSignal(graphNetwork, deployment, event.params.tokensCurators)
     graphNetwork.totalIndexerQueryFeeRebates = graphNetwork.totalIndexerQueryFeeRebates.plus(
         indexerQueryFees,
     )

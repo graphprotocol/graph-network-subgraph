@@ -43,7 +43,7 @@ import {
 } from './factories/staking'
 import { createOrLoadGraphNetwork, loadGraphNetwork, getHorizonDelegatedStakeIDFromLegacy } from '../src/mappings/helpers/helpers'
 import { mockTransfer } from './factories/graphToken'
-import { GraphNetwork, GraphAccount } from '../src/types/schema'
+import { GraphAccount } from '../src/types/schema'
 
 // CONSTANT ADDRESS OR IDS
 const graphID = '0x0000000000000000000000000000000000000000'
@@ -777,6 +777,9 @@ describe('ALLOCATION LIFE CYCLE', () => {
         rebateFees.toString(),
       )
       assert.fieldEquals('GraphNetwork', '1', 'totalCuratorQueryFees', curationFees.toString())
+      // Curation fees are paid into the curation pool, so they are signal too
+      assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', curationFees.toString())
+      assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', curationFees.toString())
       assert.fieldEquals(
         'GraphNetwork',
         '1',
