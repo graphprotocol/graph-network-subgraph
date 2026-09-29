@@ -695,15 +695,40 @@ export function loadGraphNetwork(): GraphNetwork {
   return graphNetwork
 }
 
-// Versions that left curation fees out of totalTokensSignalled fell short by exactly the fees
-// paid, and a deployment grafted from one inherits that, so add them back once. How those fees
-// split between auto-migrating and direct signal cannot be rebuilt, so the split stays as it was.
+// Versions that left curation fees out of totalTokensSignalled fell short by exactly the fees paid,
+// and a graft inherits that, so add them back once and re-split the total by the value of the GNS
+// contract's shares. Not on L1, which subtracts signal sent to L2 twice, so this would not match.
 function countPastCurationFeesInSignal(graphNetwork: GraphNetwork): void {
   if (graphNetwork.curationFeesInSignalTotal) return
   graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(
     graphNetwork.totalCuratorQueryFees,
   )
   graphNetwork.curationFeesInSignalTotal = true
+  if (addresses.isL1) return
+
+  let autoMigrate = BigDecimal.fromString('0')
+  let gnsCurator = Curator.load(graphNetwork.gns.toHexString())
+  if (gnsCurator != null) {
+    let gnsSignals = gnsCurator.signals.load()
+    for (let i = 0; i < gnsSignals.length; i++) {
+      let gnsSignal = gnsSignals[i]
+      if (gnsSignal.signal.isZero()) continue
+      let deployment = SubgraphDeployment.load(gnsSignal.subgraphDeployment)!
+      if (deployment.signalAmount.isZero()) continue
+      autoMigrate = autoMigrate
+        .plus(
+          gnsSignal.signal
+            .toBigDecimal()
+            .times(deployment.signalledTokens.toBigDecimal())
+            .div(deployment.signalAmount.toBigDecimal()),
+        )
+        .truncate(18)
+    }
+  }
+  graphNetwork.totalTokensSignalledAutoMigrate = autoMigrate
+  graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalled
+    .toBigDecimal()
+    .minus(autoMigrate)
 }
 
 export function createOrLoadGraphNetwork(

@@ -106,7 +106,7 @@ type GraphNetwork @entity(immutable: false) {
   totalTokensSignalledAutoMigrate: BigDecimal!
   "Total GRT currently curating to a specific version"
   totalTokensSignalledDirectly: BigDecimal!
-  "Whether totalTokensSignalled includes every curator query fee paid into curation pools. Unset only on a deployment grafted from a version that left them out, until its next update adds them"
+  "Whether totalTokensSignalled, and on Arbitrum its auto-migrating and direct parts, include every curator query fee paid into curation pools. Unset only on a deployment grafted from a version that left them out, until its next update adds them"
   curationFeesInSignalTotal: Boolean
 
   # Query fees globals

@@ -33,6 +33,8 @@ import { GraphNetwork, SubgraphDeployment } from '../src/types/schema'
 
 import { mockTransfer } from './factories/graphToken'
 
+import { addresses } from '../config/addresses'
+
 // CONSTANT ADDRESS OR IDS
 const graphID = '0x0000000000000000000000000000000000000000'
 const graphAddress = Address.fromString(graphID)
@@ -353,6 +355,34 @@ describe('Curation fees', () => {
   })
 })
 
+// The GNS contract signals 100 GRT for 1 share and a curator 300 GRT for 3, 100 GRT of fees go
+// into the pool, then the curator burns 1 share. countFee says if the fee counts in signal totals.
+function curateAndPayFee(countFee: boolean): void {
+  let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
+  graphNetwork.epochLength = epochLength
+  graphNetwork.lastLengthUpdateBlock = 1
+  graphNetwork.save()
+  handleTransfer(mockTransfer(graphAddress, curatorAddress, value))
+
+  let gns = Address.fromBytes(graphNetwork.gns)
+  let pool = subgraphDeploymentAddress
+  let zero = BigInt.fromI32(0)
+  handleSignalled(mockSignalled(gns, pool, BigInt.fromI32(100), BigInt.fromI32(1), zero))
+  handleSignalled(mockSignalled(curatorAddress, pool, BigInt.fromI32(300), BigInt.fromI32(3), zero))
+
+  // What a fee handler does to the pool and the network
+  let fee = BigInt.fromI32(100)
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)!
+  deployment.signalledTokens = deployment.signalledTokens.plus(fee)
+  deployment.save()
+  graphNetwork = loadGraphNetwork()
+  graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(fee)
+  if (countFee) addCurationFeesToNetworkSignal(graphNetwork, deployment, fee)
+  graphNetwork.save()
+
+  handleBurned(mockBurned(curatorAddress, pool, BigInt.fromI32(125), BigInt.fromI32(1)))
+}
+
 describe('Curation fees paid before they were counted', () => {
   afterAll(() => {
     clearStore()
@@ -384,6 +414,36 @@ describe('Curation fees paid before they were counted', () => {
     loadGraphNetwork().save()
     assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '0')
     assert.fieldEquals('GraphNetwork', '1', 'curationFeesInSignalTotal', 'true')
+  })
+
+  test('are split as a full sync would on Arbitrum, while L1 keeps its old split', () => {
+    clearStore()
+    curateAndPayFee(true)
+    let fullSync = GraphNetwork.load('1')!
+
+    // A base grafted from a version that left the fee out of all 3 totals
+    clearStore()
+    curateAndPayFee(false)
+    let graphNetwork = loadGraphNetwork()
+    let autoMigrateBefore = graphNetwork.totalTokensSignalledAutoMigrate
+    let directlyBefore = graphNetwork.totalTokensSignalledDirectly
+    assert.assertTrue(autoMigrateBefore < fullSync.totalTokensSignalledAutoMigrate)
+    assert.assertTrue(directlyBefore < fullSync.totalTokensSignalledDirectly)
+    graphNetwork.unset('curationFeesInSignalTotal')
+    graphNetwork.save()
+
+    loadGraphNetwork().save()
+    let total = fullSync.totalTokensSignalled
+    let autoMigrate = addresses.isL1 ? autoMigrateBefore : fullSync.totalTokensSignalledAutoMigrate
+    let directly = addresses.isL1 ? directlyBefore : fullSync.totalTokensSignalledDirectly
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', total.toString())
+    assert.fieldEquals(
+      'GraphNetwork',
+      '1',
+      'totalTokensSignalledAutoMigrate',
+      autoMigrate.toString(),
+    )
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', directly.toString())
   })
 })
 
