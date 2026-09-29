@@ -328,8 +328,9 @@ describe('Curation fees', () => {
     // The GNS contract holds 1 of the pool's 4 shares and a curator holds the other 3
     let gnsAddress = Address.fromBytes(graphNetwork.gns)
     let zero = BigInt.fromI32(0)
-    handleSignalled(mockSignalled(gnsAddress, subgraphDeploymentAddress, value, BigInt.fromI32(1), zero))
-    handleSignalled(mockSignalled(curatorAddress, subgraphDeploymentAddress, value, BigInt.fromI32(3), zero))
+    let deployment = subgraphDeploymentAddress
+    handleSignalled(mockSignalled(gnsAddress, deployment, value, BigInt.fromI32(1), zero))
+    handleSignalled(mockSignalled(curatorAddress, deployment, value, BigInt.fromI32(3), zero))
   })
 
   afterAll(() => {

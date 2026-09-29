@@ -1027,9 +1027,9 @@ function createGraphAccountName(
     graphAccountName.graphAccount = graphAccount
     graphAccountName.save()
     // check that this name is not already used by another graph account (changing ownership)
-    // If so, remove the old owner, and set the new one
+    // If so, move the name from its former owner to the new one
   } else if (graphAccountName.graphAccount != graphAccount) {
-    // Only update the old graph account if it exists
+    // Only update the former owner's graph account if it exists
     if (graphAccountName.graphAccount != null) {
       // Set defaultDisplayName to null if they lost ownership of this name
       let oldGraphAccount = GraphAccount.load(graphAccountName.graphAccount!)!
@@ -1286,13 +1286,8 @@ export function calculateCapacitiesLegacy(indexer: Indexer): Indexer {
 }
 
 export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecimal {
-  // TODO check why there's a deviation from the values of the bancor formula
-  // Ideally this would be a 1 to 1 recreation of the share sell formula, but due to
-  // implementation issues for that formula on AssemblyScript (mainly BigDecimal missing pow implementation)
-  // I decided to use an approximation derived from testing.
-
-  // This value could be wrong unfortunately, so we should ideally find a workaround later
-  // to implement the actual sell share formula for 1 share.
+  // TODO: implement the bancor sell formula for 1 share exactly. This is an approximation found
+  // by testing, because AssemblyScript's BigDecimal has no pow, so it can deviate from the formula.
 
   // reserve ratio multiplier = MAX_WEIGHT / reserveRatio = 1M (ppm) / reserveRatio
   // HOTFIX for now, if deployment.reserveRatio -> 0, use a known previous default
@@ -1307,42 +1302,6 @@ export function calculatePricePerShare(deployment: SubgraphDeployment): BigDecim
         .truncate(18)
   return pricePerShare
 }
-
-// export function createOrLoadNetwork(id: string): Network {
-//   let network = Network.load(id)
-//   if (network == null) {
-//     network = new Network(id)
-
-//     network.save()
-//   }
-//   return network as Network
-// }
-
-// export function createOrLoadSubgraphCategory(id: string): SubgraphCategory {
-//   let category = SubgraphCategory.load(id)
-//   if (category == null) {
-//     category = new SubgraphCategory(id)
-
-//     category.save()
-//   }
-//   return category as SubgraphCategory
-// }
-
-// export function createOrLoadSubgraphCategoryRelation(
-//   categoryId: string,
-//   subgraphMetadataId: string,
-// ): SubgraphCategoryRelation {
-//   let id = joinID([categoryId, subgraphMetadataId])
-//   let relation = SubgraphCategoryRelation.load(id)
-//   if (relation == null) {
-//     relation = new SubgraphCategoryRelation(id)
-//     relation.metadata = subgraphMetadataId
-//     relation.category = categoryId
-
-//     relation.save()
-//   }
-//   return relation as SubgraphCategoryRelation
-// }
 
 export function updateCurrentDeploymentLinks(
   oldDeployment: SubgraphDeployment | null,
