@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, ethereum } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, Bytes, ethereum } from '@graphprotocol/graph-ts'
 
 import {
   assert,
@@ -23,7 +23,13 @@ import { mockStakeDeposited, mockAllocationCreated, mockStakeDelegated } from '.
 
 import { mockSignalled, mockBurned, mockParameterUpdated } from './factories/curation'
 
-import { createOrLoadGraphNetwork } from '../src/mappings/helpers/helpers'
+import {
+  addCurationFeesToNetworkSignal,
+  createOrLoadGraphNetwork,
+  loadGraphNetwork,
+} from '../src/mappings/helpers/helpers'
+
+import { GraphNetwork, SubgraphDeployment } from '../src/types/schema'
 
 import { mockTransfer } from './factories/graphToken'
 
@@ -306,6 +312,93 @@ describe('Burned', () => {
 
   test('decreases graphNetwork.activeCuratorCount if signal drops to zero', () => {
     assert.fieldEquals('GraphNetwork', '1', 'activeCuratorCount', '0')
+  })
+})
+
+describe('Curation fees', () => {
+  beforeAll(() => {
+    let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
+    graphNetwork.epochLength = epochLength
+    graphNetwork.lastLengthUpdateBlock = 1
+    graphNetwork.save()
+    handleTransfer(mockTransfer(graphAddress, curatorAddress, value))
+
+    // The GNS contract holds 1 of the pool's 4 shares and a curator holds the other 3
+    let gnsAddress = Address.fromBytes(graphNetwork.gns)
+    let zero = BigInt.fromI32(0)
+    let deployment = subgraphDeploymentAddress
+    handleSignalled(mockSignalled(gnsAddress, deployment, value, BigInt.fromI32(1), zero))
+    handleSignalled(mockSignalled(curatorAddress, deployment, value, BigInt.fromI32(3), zero))
+  })
+
+  afterAll(() => {
+    clearStore()
+  })
+
+  test('splits fees between auto-migrating and direct signal by share of the pool', () => {
+    let graphNetwork = GraphNetwork.load('1')!
+    let total = graphNetwork.totalTokensSignalled
+    let autoMigrate = graphNetwork.totalTokensSignalledAutoMigrate
+    let directly = graphNetwork.totalTokensSignalledDirectly
+
+    let deployment = SubgraphDeployment.load(subgraphDeploymentID)!
+    graphNetwork = addCurationFeesToNetworkSignal(graphNetwork, deployment, BigInt.fromI32(100))
+    graphNetwork.save()
+
+    let totalAfter = total.plus(BigInt.fromI32(100)).toString()
+    let autoMigrateAfter = autoMigrate.plus(BigDecimal.fromString('25')).toString()
+    let directlyAfter = directly.plus(BigDecimal.fromString('75')).toString()
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', totalAfter)
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledAutoMigrate', autoMigrateAfter)
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', directlyAfter)
+  })
+})
+
+// The GNS contract signals 100 GRT for 1 share and a curator 300 GRT for 3, 100 GRT of fees go
+// into the pool, then the curator burns 1 share.
+function curateAndPayFee(): void {
+  let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
+  graphNetwork.epochLength = epochLength
+  graphNetwork.lastLengthUpdateBlock = 1
+  graphNetwork.save()
+  handleTransfer(mockTransfer(graphAddress, curatorAddress, value))
+
+  let gns = Address.fromBytes(graphNetwork.gns)
+  let pool = subgraphDeploymentAddress
+  let zero = BigInt.fromI32(0)
+  handleSignalled(mockSignalled(gns, pool, BigInt.fromI32(100), BigInt.fromI32(1), zero))
+  handleSignalled(mockSignalled(curatorAddress, pool, BigInt.fromI32(300), BigInt.fromI32(3), zero))
+
+  // What a fee handler does to the pool and the network
+  let fee = BigInt.fromI32(100)
+  let deployment = SubgraphDeployment.load(subgraphDeploymentID)!
+  deployment.signalledTokens = deployment.signalledTokens.plus(fee)
+  deployment.save()
+  graphNetwork = loadGraphNetwork()
+  graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(fee)
+  graphNetwork = addCurationFeesToNetworkSignal(graphNetwork, deployment, fee)
+  graphNetwork.save()
+
+  handleBurned(mockBurned(curatorAddress, pool, BigInt.fromI32(125), BigInt.fromI32(1)))
+}
+
+describe('Curation fees indexed from the start', () => {
+  afterAll(() => {
+    clearStore()
+  })
+
+  test('preserves the fee-inclusive totals after a curator burns shares', () => {
+    curateAndPayFee()
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '375')
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledAutoMigrate', '125')
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', '250')
+
+    // Loading the network again must not change totals or count its past fees again.
+    loadGraphNetwork().save()
+    createOrLoadGraphNetwork(blockNumber, controllerAddress).save()
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '375')
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledAutoMigrate', '125')
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', '250')
   })
 })
 
