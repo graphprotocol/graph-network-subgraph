@@ -35,17 +35,23 @@ export function manifestStartBlock(value: YAMLValue): BigInt | null {
 // Decode the CID encodings normally used in published manifests. Unsupported
 // encodings are skipped rather than passed to a host function that can abort.
 function decodeCid(text: string): Uint8Array | null {
-  if (text.length == 0 || text.length > 128) return null
+  // Four u64 varints and a 64-byte digest also fit when encoded as hex.
+  if (text.length == 0 || text.length > 209) return null
   let base58 = text.startsWith('Qm') || text.startsWith('z')
-  if (base58) {
-    let encoded = text.startsWith('z') ? text.slice(1) : text
-    let alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+  let base36 = text.startsWith('k') || text.startsWith('K')
+  if (base58 || base36) {
+    let encoded = text.startsWith('Qm') ? text : text.slice(1)
+    let alphabet = base58
+      ? '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+      : text.startsWith('k')
+      ? '0123456789abcdefghijklmnopqrstuvwxyz'
+      : '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     let bytes = new Array<u8>()
     for (let i = 0; i < encoded.length; i++) {
       let carry = alphabet.indexOf(encoded.charAt(i))
       if (carry < 0) return null
       for (let j = 0; j < bytes.length; j++) {
-        carry += i32(bytes[j]) * 58
+        carry += i32(bytes[j]) * alphabet.length
         bytes[j] = u8(carry & 255)
         carry >>= 8
       }
@@ -54,29 +60,38 @@ function decodeCid(text: string): Uint8Array | null {
         carry >>= 8
       }
     }
-    for (let i = 0; i < encoded.length && encoded.charAt(i) == '1'; i++) bytes.push(0)
+    for (let i = 0; i < encoded.length && encoded.charAt(i) == alphabet.charAt(0); i++)
+      bytes.push(0)
     let result = new Uint8Array(bytes.length)
     for (let i = 0; i < bytes.length; i++) result[i] = bytes[bytes.length - i - 1]
     return result
   }
-  if (!text.startsWith('b') && !text.startsWith('B')) return null
-  let alphabet = text.startsWith('b') ? 'abcdefghijklmnopqrstuvwxyz234567' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
-  let result = new Uint8Array((text.length - 1) * 5 / 8)
+  let base16 = text.startsWith('f') || text.startsWith('F')
+  if (!base16 && !text.startsWith('b') && !text.startsWith('B')) return null
+  let alphabet = base16
+    ? text.startsWith('f')
+      ? '0123456789abcdef'
+      : '0123456789ABCDEF'
+    : text.startsWith('b')
+    ? 'abcdefghijklmnopqrstuvwxyz234567'
+    : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+  let bitsPerDigit = base16 ? 4 : 5
+  let result = new Uint8Array(((text.length - 1) * bitsPerDigit) / 8)
   let bits = 0
   let buffer = 0
   let offset = 0
   for (let i = 1; i < text.length; i++) {
     let digit = alphabet.indexOf(text.charAt(i))
     if (digit < 0) return null
-    buffer = (buffer << 5) | digit
-    bits += 5
+    buffer = (buffer << bitsPerDigit) | digit
+    bits += bitsPerDigit
     if (bits >= 8) {
       bits -= 8
       result[offset++] = u8(buffer >> bits)
       buffer &= (1 << bits) - 1
     }
   }
-  return bits < 5 && buffer == 0 ? result : null
+  return bits < bitsPerDigit && buffer == 0 ? result : null
 }
 
 function validCid(text: string): bool {
@@ -113,16 +128,36 @@ export function manifestSchemaPath(value: YAMLValue | null): string | null {
   if (value !== null && value.isObject()) value = yamlField(value, '/')
   let path = yamlString(value)
   if (path === null || path.length > 2048) return null
+  // Validate the complete decoded string before stripping a gateway URL, so
+  // query/fragment text cannot be mistaken for an IPFS path.
+  for (let i = 0; i < path.length; i++) {
+    let code = path.charCodeAt(i)
+    if (
+      code <= 32 ||
+      code == 127 ||
+      path.charAt(i) == '?' ||
+      path.charAt(i) == '#' ||
+      path.charAt(i) == '%' ||
+      path.charAt(i) == '\\'
+    )
+      return null
+  }
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    let authorityStart = path.startsWith('https://') ? 8 : 7
+    let pathStart = path.indexOf('/', authorityStart)
+    if (pathStart <= authorityStart) return null
+    let ipfsStart = path.indexOf('/ipfs/', pathStart)
+    if (ipfsStart < 0) return null
+    path = path.slice(ipfsStart + 6)
+  }
   if (path.startsWith('/ipfs/')) path = path.slice(6)
   else if (path.startsWith('ipfs://')) path = path.slice(7)
+  // Graph Node strips trailing slashes before interpreting CID/path links.
+  while (path.endsWith('/')) path = path.slice(0, path.length - 1)
   let segments = path.split('/')
   if (!validCid(segments[0])) return null
   for (let i = 1; i < segments.length; i++) {
     if (segments[i].length == 0 || segments[i] == '.' || segments[i] == '..') return null
-  }
-  for (let i = 0; i < path.length; i++) {
-    let code = path.charCodeAt(i)
-    if (code <= 32 || code == 127 || path.charAt(i) == '?' || path.charAt(i) == '#' || path.charAt(i) == '%' || path.charAt(i) == '\\') return null
   }
   return path
 }

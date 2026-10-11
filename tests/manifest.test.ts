@@ -1,6 +1,7 @@
 import { json, JSONValue, JSONValueKind, TypedMap, YAMLValue } from '@graphprotocol/graph-ts'
 import { afterEach, assert, clearStore, test } from 'matchstick-as/assembly/index'
 import { parseSubgraphDeploymentManifest } from '../src/mappings/ipfs'
+import { manifestSchemaPath } from '../src/mappings/helpers/manifest'
 
 const manifestID = 'manifest'
 const schemaCID = 'QmNVavEGcPsZ651fcvnRJNuLim3HFJxx1vmE9iALRPywBm'
@@ -215,4 +216,104 @@ test('absent network and schema are not replaced with invented strings', () => {
   assert.assertNull(manifest.network)
   assert.assertNull(manifest.schemaIpfsHash)
   assert.assertNull(manifest.schema)
+})
+
+// Generated from schemaCID using multiformats; all identify the same content.
+const schemaCIDBase16 = 'f017012200249f0d875bbdcd83ca3e477cfc8363c7d9f1dadec3aafbf6f662b7c211a9968'
+const schemaCIDBase36 = 'k2jmtxrf5wu8a5vjq1gbchq8qpcfe9s1z4h3xsc3mi50yzb67ugc4go8'
+
+function assertSchemaPath(input: string, expected: string): void {
+  clearStore()
+  parse('{"schema":{"file":{"/":"' + input + '"}}}')
+  assert.fieldEquals('SubgraphDeploymentManifest', manifestID, 'schemaIpfsHash', expected)
+  assert.fieldEquals(
+    'SubgraphDeploymentManifest',
+    manifestID,
+    'schema',
+    manifestID + '-' + expected,
+  )
+  assert.dataSourceExists('SubgraphDeploymentSchema', expected)
+}
+
+test('CIDv1 base16 and base36 schemas are ingested in both letter cases', () => {
+  let cids = [
+    schemaCIDBase16,
+    schemaCIDBase16.toUpperCase(),
+    schemaCIDBase36,
+    schemaCIDBase36.toUpperCase(),
+  ]
+  for (let i = 0; i < cids.length; i++) assertSchemaPath('/ipfs/' + cids[i], cids[i])
+})
+
+test('CIDv1 base32 and base58 schemas remain supported', () => {
+  let cids = [
+    'bafybeiacjhynq5n33tmdzi7eo7h4qnr4pwpr3lpmhkx3633gfn6ccguzna',
+    'BAFYBEIACJHYNQ5N33TMDZI7EO7H4QNR4PWPR3LPMHKX3633GFN6CCGUZNA',
+    'zdj7WVaqHfLTsM9xnKbMfk3AkjuLyEixrP5tFAkpWZ1EqYqMh',
+  ]
+  for (let i = 0; i < cids.length; i++) assertSchemaPath('/ipfs/' + cids[i], cids[i])
+})
+
+test('base16 accepts a valid 64-byte digest longer than the old text limit', () => {
+  let cid =
+    'f0170134001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101'
+  assertSchemaPath('/ipfs/' + cid, cid)
+})
+
+test('gateway schema URLs normalize to CID and optional file path', () => {
+  let prefixes = [
+    'https://ipfs.io/ipfs/',
+    'http://localhost:8080/ipfs/',
+    'https://gateway.example/prefix/ipfs/',
+  ]
+  for (let i = 0; i < prefixes.length; i++) {
+    assertSchemaPath(prefixes[i] + schemaCID, schemaCID)
+    assertSchemaPath(
+      prefixes[i] + schemaCIDBase36 + '/schema.graphql',
+      schemaCIDBase36 + '/schema.graphql',
+    )
+  }
+})
+
+test('trailing slashes normalize for plain CIDs, IPFS links and gateway URLs', () => {
+  let prefixes = ['', '/ipfs/', 'ipfs://', 'https://ipfs.io/ipfs/']
+  for (let i = 0; i < prefixes.length; i++) {
+    assertSchemaPath(prefixes[i] + schemaCID + '/', schemaCID)
+    assertSchemaPath(prefixes[i] + schemaCID + '/schema.graphql///', schemaCID + '/schema.graphql')
+  }
+})
+
+test('new CID decoders still reject invalid characters, lengths and CID headers', () => {
+  let invalid = [
+    schemaCIDBase36 + '!',
+    schemaCIDBase16 + 'g',
+    schemaCIDBase16 + '0', // Incomplete byte.
+    schemaCIDBase16.slice(0, schemaCIDBase16.length - 2), // Truncated digest.
+    'f00' + schemaCIDBase16.slice(3), // Invalid version.
+    'f8100' + schemaCIDBase16.slice(3), // Non-canonical version varint.
+    'f01701221' + schemaCIDBase16.slice(9), // Wrong digest length.
+    'k0' + schemaCIDBase36.slice(1), // Leading zero byte is not a CID version.
+  ]
+  for (let i = 0; i < invalid.length; i++) {
+    assert.assertNull(manifestSchemaPath(YAMLValue.newString('/ipfs/' + invalid[i])))
+  }
+})
+
+test('gateway normalization preserves path validation and cannot extract from query text', () => {
+  let invalid = [
+    'https:///ipfs/' + schemaCID,
+    'https://gateway.example/?next=/ipfs/' + schemaCID,
+    'https://gateway.example/#/ipfs/' + schemaCID,
+    'https://gateway.example/ipfs/' + schemaCID + '/schema.graphql?x=1',
+    'https://gateway.example/ipfs/' + schemaCID + '/../schema.graphql',
+    'https://gateway.example/ipfs/' + schemaCID + '/%2e%2e/schema.graphql',
+    'https://gateway.example/ipfs/' + schemaCID + '//schema.graphql',
+    'https://gateway.example/ipfs/not-a-cid/',
+    'https://gateway.example/ipfs/',
+    '/ipfs/',
+    'ipfs://',
+  ]
+  for (let i = 0; i < invalid.length; i++) {
+    assert.assertNull(manifestSchemaPath(YAMLValue.newString(invalid[i])))
+  }
 })
