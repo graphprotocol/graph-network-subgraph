@@ -152,8 +152,8 @@ function readManifestDataSources(manifest: SubgraphDeploymentManifest, root: YAM
       continue
     }
     let startBlockValue = yamlField(source, 'startBlock')
-    // A missing startBlock defaults to zero. An explicit null or malformed
-    // value is unknown, so we cannot reliably report a minimum.
+    // A missing startBlock defaults to zero. If any source is invalid, keep
+    // the manifest's zero default rather than reporting a partial minimum.
     let startBlock = startBlockValue === null ? BigInt.fromI32(0) : manifestStartBlock(startBlockValue)
     if (startBlock === null) {
       validStartBlocks = false
@@ -168,24 +168,44 @@ function readManifestDataSources(manifest: SubgraphDeploymentManifest, root: YAM
   else manifestWarning(manifest.id, 'dataSources.source.startBlock')
 }
 
+// Keep field extraction independent of YAML decoding so defaults also apply
+// to undecodable documents.
+export function parseSubgraphDeploymentManifest(
+  id: string,
+  content: string,
+  root: YAMLValue | null,
+): SubgraphDeploymentManifest {
+  let manifest = new SubgraphDeploymentManifest(id)
+  manifest.manifest = content
+  // Preserve the defaults exposed by the original parser, including when
+  // malformed or incomplete manifests prevent further field extraction.
+  manifest.startBlock = BigInt.fromI32(0)
+  manifest.poweredBySubstreams = false
+  if (root !== null && root.isObject()) {
+    readManifestSchema(manifest, root)
+    readManifestNetwork(manifest, root)
+    readManifestDataSources(manifest, root)
+  }
+  return manifest
+}
+
 export function handleSubgraphDeploymentManifest(content: Bytes): void {
-  let manifest = new SubgraphDeploymentManifest(dataSource.stringParam())
-  manifest.manifest = content.toString()
-  // Match the native parser's input limit; retain the raw manifest on failure.
+  let id = dataSource.stringParam()
+  let root: YAMLValue | null = null
+  // Match the native parser's input limit; retain the raw document and defaults
+  // when it cannot be decoded.
   if (content.length > 10000000) {
-    manifestWarning(manifest.id, 'manifest size')
-    manifest.save()
-    return
-  }
-  let parsed = yaml.try_fromBytes(content)
-  if (!parsed.isOk) {
-    manifestWarning(manifest.id, 'YAML')
-  } else if (!parsed.value.isObject()) {
-    manifestWarning(manifest.id, 'manifest root')
+    manifestWarning(id, 'manifest size')
   } else {
-    readManifestSchema(manifest, parsed.value)
-    readManifestNetwork(manifest, parsed.value)
-    readManifestDataSources(manifest, parsed.value)
+    let parsed = yaml.try_fromBytes(content)
+    if (!parsed.isOk) {
+      manifestWarning(id, 'YAML')
+    } else if (!parsed.value.isObject()) {
+      manifestWarning(id, 'manifest root')
+    } else {
+      root = parsed.value
+    }
   }
+  let manifest = parseSubgraphDeploymentManifest(id, content.toString(), root)
   manifest.save()
 }
