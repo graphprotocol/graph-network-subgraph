@@ -1,4 +1,4 @@
-import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext, BigInt, yaml, YAMLValue } from '@graphprotocol/graph-ts'
+import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext, BigInt, yaml, YAMLValue, crypto } from '@graphprotocol/graph-ts'
 import {
   SubgraphMeta,
   SubgraphVersionMeta,
@@ -10,7 +10,7 @@ import {
   SubgraphDeploymentSchema as SubgraphDeploymentSchemaTemplate
 } from '../types/templates'
 import { jsonToString } from './utils'
-import { yamlField, yamlString, manifestStartBlock, manifestSchemaPath } from './helpers/manifest'
+import { yamlField, yamlString, manifestStartBlock, manifestMetadataString, manifestSchemaReference, manifestSchemaPath } from './helpers/manifest'
 
 export function handleSubgraphMetadata(content: Bytes): void {
   let id = dataSource.context().getString("id")
@@ -86,17 +86,23 @@ function manifestWarning(id: string, field: string): void {
 }
 
 function readManifestSchema(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {
-  let path = manifestSchemaPath(yamlField(yamlField(root, 'schema'), 'file'))
-  if (path === null) {
+  let reference = manifestSchemaReference(yamlField(yamlField(root, 'schema'), 'file'))
+  if (reference === null) {
     manifestWarning(manifest.id, 'schema.file')
     return
   }
+  let path = manifestSchemaPath(reference)
   let schemaId = manifest.id.concat('-').concat(path)
+  // Immutable entity IDs are indexed. Preserve ordinary IDs while bounding
+  // their UTF-8 size even when references contain multibyte characters.
+  let schemaIdBytes = Bytes.fromUTF8(schemaId)
+  if (schemaIdBytes.length > 2048) schemaId = crypto.keccak256(schemaIdBytes).toHexString()
   manifest.schema = schemaId
   manifest.schemaIpfsHash = path
   let context = new DataSourceContext()
   context.setString('id', schemaId)
-  SubgraphDeploymentSchemaTemplate.createWithContext(path, context)
+  // Graph Node validates the original reference and skips invalid IPFS sources.
+  SubgraphDeploymentSchemaTemplate.createWithContext(reference, context)
 }
 
 function readManifestNetwork(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {
@@ -107,23 +113,14 @@ function readManifestNetwork(manifest: SubgraphDeploymentManifest, root: YAMLVal
     if (entries === null || !entries.isArray()) continue
     let sources = entries.toArray()
     for (let i = 0; i < sources.length; i++) {
-      let network = yamlString(yamlField(sources[i], 'network'))
-      if (network !== null && validManifestNetwork(network)) {
+      let network = manifestMetadataString(yamlField(sources[i], 'network'), 256)
+      if (network !== null) {
         manifest.network = network
         return
       }
     }
   }
   manifestWarning(manifest.id, 'network')
-}
-
-function validManifestNetwork(network: string): bool {
-  if (network.length > 256) return false
-  for (let i = 0; i < network.length; i++) {
-    let code = network.charCodeAt(i)
-    if (code <= 32 || code == 127) return false
-  }
-  return true
 }
 
 function readManifestDataSources(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {

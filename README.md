@@ -57,10 +57,19 @@ Everytime a new release is merged into `master` there will be a new github relea
 # Deploying the subgraph
 
 The deployment manifest IPFS handler uses the native YAML API from `graph-ts` 0.38.2
-and requires **Graph Node 0.37.0 or newer**. Malformed manifests retain their raw
-content; derived fields that cannot be safely extracted remain unset and produce
-warnings. Schema links support CIDv0 and CIDv1 in base32 or base58btc, optionally
-with an IPFS file path. Unsupported links are skipped without creating a file data source.
+and requires **Graph Node 0.40.2 or newer** to resolve schema references directly,
+including IPFS URIs and gateway/RPC URLs. Malformed manifests retain their raw
+content. `startBlock` defaults to `0` and `poweredBySubstreams` to `false` when they
+cannot be determined; missing or invalidly typed network/schema fields remain unset.
+Extracted network and schema-reference strings are trimmed, bounded in length, and
+checked for embedded control characters. Schema references are otherwise treated as
+opaque metadata: Graph Node resolves the original reference and logs/skips invalid
+IPFS sources. Common IPFS prefixes and simple gateway paths are normalized only for
+metadata and entity IDs; URL query/fragment syntax is retained. A schema reference
+can be present even if the schema file cannot be resolved. Schema entity IDs over
+2048 UTF-8 bytes are hashed to stay within database index limits; reference metadata
+is retained. Consumers must escape
+metadata appropriately when displaying text or constructing links.
 
 The npm scripts are set up to deploy the subgraphs in one command. Mainnet is connected to a hook
 where it will be deployed automatically when the `master` branch is updated. Therefore, we never

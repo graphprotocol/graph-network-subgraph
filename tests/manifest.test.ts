@@ -1,7 +1,7 @@
-import { json, JSONValue, JSONValueKind, TypedMap, YAMLValue } from '@graphprotocol/graph-ts'
+import { Bytes, json, JSONValue, JSONValueKind, TypedMap, YAMLValue } from '@graphprotocol/graph-ts'
 import { afterEach, assert, clearStore, test } from 'matchstick-as/assembly/index'
 import { parseSubgraphDeploymentManifest } from '../src/mappings/ipfs'
-import { manifestSchemaPath } from '../src/mappings/helpers/manifest'
+import { manifestSchemaReference } from '../src/mappings/helpers/manifest'
 
 const manifestID = 'manifest'
 const schemaCID = 'QmNVavEGcPsZ651fcvnRJNuLim3HFJxx1vmE9iALRPywBm'
@@ -173,7 +173,7 @@ test('decoded schema reference takes precedence over text in comments', () => {
     'schema',
     manifestID + '-' + schemaCID,
   )
-  assert.dataSourceExists('SubgraphDeploymentSchema', schemaCID)
+  assert.dataSourceExists('SubgraphDeploymentSchema', '/ipfs/' + schemaCID)
 })
 
 test('string schema links and IPFS URI normalization remain supported', () => {
@@ -184,7 +184,7 @@ test('string schema links and IPFS URI normalization remain supported', () => {
     'schemaIpfsHash',
     schemaCID + '/schema.graphql',
   )
-  assert.dataSourceExists('SubgraphDeploymentSchema', schemaCID + '/schema.graphql')
+  assert.dataSourceExists('SubgraphDeploymentSchema', 'ipfs://' + schemaCID + '/schema.graphql')
 })
 
 test('comments and misplaced fields cannot supply network or schema metadata', () => {
@@ -200,15 +200,9 @@ test('comments and misplaced fields cannot supply network or schema metadata', (
   assert.assertNull(manifest.schema)
 })
 
-test('invalid schema links remain unset without creating a file source', () => {
-  let root = yamlValue(json.fromString('{"schema":{"file":"/ipfs/not-a-cid"}}'))
-  let manifest = parseSubgraphDeploymentManifest(
-    manifestID,
-    'schema:\n  file: /ipfs/not-a-cid\n',
-    root,
-  )
-  assert.assertNull(manifest.schemaIpfsHash)
-  assert.assertNull(manifest.schema)
+test('unrecognized schema references are retained for Graph Node to validate', () => {
+  // Matchstick records the request; Graph Node logs/skips invalid references.
+  assertSchemaPath('/ipfs/not-a-cid', 'not-a-cid')
 })
 
 test('absent network and schema are not replaced with invented strings', () => {
@@ -232,7 +226,7 @@ function assertSchemaPath(input: string, expected: string): void {
     'schema',
     manifestID + '-' + expected,
   )
-  assert.dataSourceExists('SubgraphDeploymentSchema', expected)
+  assert.dataSourceExists('SubgraphDeploymentSchema', input)
 }
 
 test('CIDv1 base16 and base36 schemas are ingested in both letter cases', () => {
@@ -283,37 +277,104 @@ test('trailing slashes normalize for plain CIDs, IPFS links and gateway URLs', (
   }
 })
 
-test('new CID decoders still reject invalid characters, lengths and CID headers', () => {
-  let invalid = [
-    schemaCIDBase36 + '!',
-    schemaCIDBase16 + 'g',
-    schemaCIDBase16 + '0', // Incomplete byte.
-    schemaCIDBase16.slice(0, schemaCIDBase16.length - 2), // Truncated digest.
-    'f00' + schemaCIDBase16.slice(3), // Invalid version.
-    'f8100' + schemaCIDBase16.slice(3), // Non-canonical version varint.
-    'f01701221' + schemaCIDBase16.slice(9), // Wrong digest length.
-    'k0' + schemaCIDBase36.slice(1), // Leading zero byte is not a CID version.
+test('all CID encodings are passed through without an encoding whitelist', () => {
+  let cids = [
+    'uAXASIAJJ8Nh1u9zYPKPkd8_INjx9nx2t7Dqvv29mK3whGplo',
+    'v05o1480297odgtdrrjc3p8v4ev7sgdhsfmfhrbfc7anrurr65du226kpd0',
+    'cafybeiacjhynq5n33tmdzi7eo7h4qnr4pwpr3lpmhkx3633gfn6ccguzna======',
   ]
-  for (let i = 0; i < invalid.length; i++) {
-    assert.assertNull(manifestSchemaPath(YAMLValue.newString('/ipfs/' + invalid[i])))
+  for (let i = 0; i < cids.length; i++) assertSchemaPath('/ipfs/' + cids[i], cids[i])
+})
+
+test('literal IPFS filenames retain spaces and URL-like characters', () => {
+  let names = [
+    'my schema.graphql',
+    'schema%20name.graphql',
+    'schema#v1.graphql',
+    'schema+name.graphql',
+  ]
+  for (let i = 0; i < names.length; i++) {
+    assertSchemaPath('/ipfs/' + schemaCID + '/' + names[i], schemaCID + '/' + names[i])
   }
 })
 
-test('gateway normalization preserves path validation and cannot extract from query text', () => {
-  let invalid = [
-    'https:///ipfs/' + schemaCID,
+test('RPC URLs and query or fragment syntax are delegated intact to Graph Node', () => {
+  let references = [
+    'https://ipfs.example/api/v0/cat?arg=/ipfs/' + schemaCID,
+    'https://ipfs.example/api/v0/cat?arg=%2Fipfs%2F' + schemaCID,
+    'https://gateway.example/ipfs/' + schemaCID + '/schema.graphql?download=true',
+    'https://gateway.example/ipfs/' + schemaCID + '#fragment',
     'https://gateway.example/?next=/ipfs/' + schemaCID,
     'https://gateway.example/#/ipfs/' + schemaCID,
-    'https://gateway.example/ipfs/' + schemaCID + '/schema.graphql?x=1',
-    'https://gateway.example/ipfs/' + schemaCID + '/../schema.graphql',
-    'https://gateway.example/ipfs/' + schemaCID + '/%2e%2e/schema.graphql',
-    'https://gateway.example/ipfs/' + schemaCID + '//schema.graphql',
-    'https://gateway.example/ipfs/not-a-cid/',
-    'https://gateway.example/ipfs/',
-    '/ipfs/',
-    'ipfs://',
   ]
+  for (let i = 0; i < references.length; i++) assertSchemaPath(references[i], references[i])
+})
+
+test('gateway URL encoding and path resolution use the original reference', () => {
+  // Normalized metadata must never replace the reference Graph Node resolves.
+  let input = 'https://gateway.example/ipfs/' + schemaCID + '/folder/../schema%20name.graphql'
+  assertSchemaPath(input, schemaCID + '/folder/../schema%20name.graphql')
+})
+
+test('empty normalized paths do not erase nonempty metadata', () => {
+  let references = ['/ipfs/', 'ipfs://', '/']
+  for (let i = 0; i < references.length; i++) assertSchemaPath(references[i], references[i])
+})
+
+test('multibyte references retain metadata without oversized schema entity IDs', () => {
+  let reference = 'https://gateway.example/ipfs/' + schemaCID + '#' + new Array<string>(1900).fill('界').join('')
+  let root = yamlValue(json.fromString('{"schema":{"file":"' + reference + '"}}'))
+  let manifest = parseSubgraphDeploymentManifest(manifestID, '', root)
+  assert.stringEquals(manifest.schemaIpfsHash!, reference)
+  assert.assertTrue(Bytes.fromUTF8(manifest.schema!).length <= 2048)
+  assert.dataSourceExists('SubgraphDeploymentSchema', reference)
+  let repeated = parseSubgraphDeploymentManifest(manifestID, '', root)
+  let other = parseSubgraphDeploymentManifest('other-manifest', '', root)
+  assert.stringEquals(manifest.schema!, repeated.schema!)
+  assert.assertTrue(manifest.schema! != other.schema!)
+})
+
+test('schema IDs preserve the UTF-8 byte boundary and hash only oversized IDs', () => {
+  let reference = new Array<string>(2048 - manifestID.length - 1).fill('a').join('')
+  assertSchemaPath(reference, reference)
+  let root = yamlValue(json.fromString('{"schema":{"file":"' + reference + 'a"}}'))
+  let manifest = parseSubgraphDeploymentManifest(manifestID, '', root)
+  assert.stringEquals(manifest.schemaIpfsHash!, reference + 'a')
+  assert.assertTrue(Bytes.fromUTF8(manifest.schema!).length <= 2048)
+  assert.dataSourceExists('SubgraphDeploymentSchema', reference + 'a')
+})
+
+test('schema references require a nonempty string of bounded size', () => {
+  let invalid = ['null', 'false', '12', '[]', '{}', '{"/":42}', '""', '"   "']
   for (let i = 0; i < invalid.length; i++) {
-    assert.assertNull(manifestSchemaPath(YAMLValue.newString(invalid[i])))
+    assert.assertNull(manifestSchemaReference(yamlValue(json.fromString(invalid[i]))))
   }
+  let boundary = new Array<string>(2048).fill('a').join('')
+  assert.stringEquals(manifestSchemaReference(YAMLValue.newString(boundary))!, boundary)
+  assert.assertNull(manifestSchemaReference(YAMLValue.newString(boundary + 'a')))
+})
+
+test('embedded control characters are rejected while ordinary whitespace is retained', () => {
+  let controls = ['\u0000', '\t', '\n', '\r', '\u001f', '\u007f', '\u0085', '\u009f']
+  for (let i = 0; i < controls.length; i++) {
+    assert.assertNull(
+      manifestSchemaReference(YAMLValue.newString('/ipfs/' + schemaCID + '/a' + controls[i] + 'b')),
+    )
+  }
+  assert.stringEquals(
+    manifestSchemaReference(YAMLValue.newString('  /ipfs/' + schemaCID + '/my schema.graphql  '))!,
+    '/ipfs/' + schemaCID + '/my schema.graphql',
+  )
+})
+
+test('network metadata uses basic string checks without a format whitelist', () => {
+  parse('{"dataSources":[{"network":" Example network "}]}')
+  assert.fieldEquals('SubgraphDeploymentManifest', manifestID, 'network', 'Example network')
+})
+
+test('unusable network fields still fall back to the first usable template network', () => {
+  parse(
+    '{"dataSources":[{"network":123},{"network":"bad\\u0000network"}],"templates":[{"network":"mainnet"}]}',
+  )
+  assert.fieldEquals('SubgraphDeploymentManifest', manifestID, 'network', 'mainnet')
 })
