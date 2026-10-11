@@ -5,6 +5,7 @@ import { Addresses } from './addresses.template'
 
 const horizonAddresses = require('@graphprotocol/address-book/horizon/addresses.json')
 const subgraphServiceAddresses = require('@graphprotocol/address-book/subgraph-service/addresses.json')
+const issuanceAddresses = require('@graphprotocol/address-book/issuance/addresses.json')
 
 // mustache doesn't like numbered object keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,10 +16,15 @@ renameHorizonAddresses['arbsep'] = horizonAddresses['421614']
 let renameSubgraphServiceAddresses: any = subgraphServiceAddresses
 renameSubgraphServiceAddresses['arbsep'] = subgraphServiceAddresses['421614']
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let renameIssuanceAddresses: any = issuanceAddresses
+renameIssuanceAddresses['arbsep'] = issuanceAddresses['421614'] || {}
+
 const combinedAddresses = {
   arbsep: {
     ...renameHorizonAddresses['arbsep'],
-    ...renameSubgraphServiceAddresses['arbsep']
+    ...renameSubgraphServiceAddresses['arbsep'],
+    ...renameIssuanceAddresses['arbsep']
   }
 }
 
@@ -45,6 +51,7 @@ export let addresses: Addresses = {
   l2GraphTokenGateway: '{{arbsep.L2GraphTokenGateway.address}}',
   ethereumDIDRegistry: '{{arbsep.EthereumDIDRegistry.address}}',
   subgraphService: '{{arbsep.SubgraphService.address}}',
+  issuanceAllocator: '{{arbsep.IssuanceAllocator.address}}',
   graphPayments: '{{arbsep.GraphPayments.address}}',
   paymentsEscrow: '{{arbsep.PaymentsEscrow.address}}',
   graphTallyCollector: '{{arbsep.GraphTallyCollector.address}}',
