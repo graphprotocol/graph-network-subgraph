@@ -33,8 +33,6 @@ import { GraphNetwork, SubgraphDeployment } from '../src/types/schema'
 
 import { mockTransfer } from './factories/graphToken'
 
-import { addresses } from '../config/addresses'
-
 // CONSTANT ADDRESS OR IDS
 const graphID = '0x0000000000000000000000000000000000000000'
 const graphAddress = Address.fromString(graphID)
@@ -344,7 +342,7 @@ describe('Curation fees', () => {
     let directly = graphNetwork.totalTokensSignalledDirectly
 
     let deployment = SubgraphDeployment.load(subgraphDeploymentID)!
-    addCurationFeesToNetworkSignal(graphNetwork, deployment, BigInt.fromI32(100))
+    graphNetwork = addCurationFeesToNetworkSignal(graphNetwork, deployment, BigInt.fromI32(100))
     graphNetwork.save()
 
     let totalAfter = total.plus(BigInt.fromI32(100)).toString()
@@ -357,8 +355,8 @@ describe('Curation fees', () => {
 })
 
 // The GNS contract signals 100 GRT for 1 share and a curator 300 GRT for 3, 100 GRT of fees go
-// into the pool, then the curator burns 1 share. countFee says if the fee counts in signal totals.
-function curateAndPayFee(countFee: boolean): void {
+// into the pool, then the curator burns 1 share.
+function curateAndPayFee(): void {
   let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
   graphNetwork.epochLength = epochLength
   graphNetwork.lastLengthUpdateBlock = 1
@@ -378,73 +376,29 @@ function curateAndPayFee(countFee: boolean): void {
   deployment.save()
   graphNetwork = loadGraphNetwork()
   graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(fee)
-  if (countFee) addCurationFeesToNetworkSignal(graphNetwork, deployment, fee)
+  graphNetwork = addCurationFeesToNetworkSignal(graphNetwork, deployment, fee)
   graphNetwork.save()
 
   handleBurned(mockBurned(curatorAddress, pool, BigInt.fromI32(125), BigInt.fromI32(1)))
 }
 
-describe('Curation fees paid before they were counted', () => {
+describe('Curation fees indexed from the start', () => {
   afterAll(() => {
     clearStore()
   })
 
-  test('are added to the signal total once on a deployment grafted without them', () => {
-    // A grafted base: 100 GRT in the curation contract, 30 of it fees the total left out
-    let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
-    graphNetwork.totalTokensSignalled = BigInt.fromI32(70)
-    graphNetwork.totalCuratorQueryFees = BigInt.fromI32(30)
-    graphNetwork.unset('curationFeesInSignalTotal')
-    graphNetwork.save()
+  test('preserves the fee-inclusive totals after a curator burns shares', () => {
+    curateAndPayFee()
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '375')
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledAutoMigrate', '125')
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', '250')
 
-    loadGraphNetwork().save()
-    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '100')
-    assert.fieldEquals('GraphNetwork', '1', 'curationFeesInSignalTotal', 'true')
-
+    // Loading the network again must not change totals or count its past fees again.
     loadGraphNetwork().save()
     createOrLoadGraphNetwork(blockNumber, controllerAddress).save()
-    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '100')
-  })
-
-  test('are not added again on a network indexed from the start', () => {
-    clearStore()
-    let graphNetwork = createOrLoadGraphNetwork(blockNumber, controllerAddress)
-    graphNetwork.totalCuratorQueryFees = BigInt.fromI32(30)
-    graphNetwork.save()
-
-    loadGraphNetwork().save()
-    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '0')
-    assert.fieldEquals('GraphNetwork', '1', 'curationFeesInSignalTotal', 'true')
-  })
-
-  test('are split as a full sync would on Arbitrum, while L1 keeps its old split', () => {
-    clearStore()
-    curateAndPayFee(true)
-    let fullSync = GraphNetwork.load('1')!
-
-    // A base grafted from a version that left the fee out of all 3 totals
-    clearStore()
-    curateAndPayFee(false)
-    let graphNetwork = loadGraphNetwork()
-    let autoMigrateBefore = graphNetwork.totalTokensSignalledAutoMigrate
-    let directlyBefore = graphNetwork.totalTokensSignalledDirectly
-    assert.assertTrue(autoMigrateBefore < fullSync.totalTokensSignalledAutoMigrate)
-    assert.assertTrue(directlyBefore < fullSync.totalTokensSignalledDirectly)
-    graphNetwork.unset('curationFeesInSignalTotal')
-    graphNetwork.save()
-
-    loadGraphNetwork().save()
-    let total = fullSync.totalTokensSignalled
-    let autoMigrate = addresses.isL1 ? autoMigrateBefore : fullSync.totalTokensSignalledAutoMigrate
-    let directly = addresses.isL1 ? directlyBefore : fullSync.totalTokensSignalledDirectly
-    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', total.toString())
-    assert.fieldEquals(
-      'GraphNetwork',
-      '1',
-      'totalTokensSignalledAutoMigrate',
-      autoMigrate.toString(),
-    )
-    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', directly.toString())
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalled', '375')
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledAutoMigrate', '125')
+    assert.fieldEquals('GraphNetwork', '1', 'totalTokensSignalledDirectly', '250')
   })
 })
 

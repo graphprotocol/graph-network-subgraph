@@ -690,49 +690,7 @@ export function createEpoch(startBlock: i32, epochLength: i32, epochNumber: i32)
 export function loadGraphNetwork(): GraphNetwork {
   // Should only be called whenever we are sure a GraphNetwork entity exists.
   // This is only made to centralize the load statements that are everywhere
-  let graphNetwork = GraphNetwork.load('1')!
-  countPastCurationFeesInSignal(graphNetwork)
-  return graphNetwork
-}
-
-// Versions that left curation fees out of totalTokensSignalled fell short by exactly the fees paid,
-// and a graft inherits that, so add them back once and re-split the total by the value of the GNS
-// contract's shares. Not on L1, which subtracts signal sent to L2 twice, so this would not match.
-function countPastCurationFeesInSignal(graphNetwork: GraphNetwork): void {
-  if (graphNetwork.curationFeesInSignalTotal) return
-  graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(
-    graphNetwork.totalCuratorQueryFees,
-  )
-  graphNetwork.curationFeesInSignalTotal = true
-  if (!addresses.isL1) splitSignalByGnsShareValue(graphNetwork)
-  // Save now so later loads in this block see the flag instead of walking every GNS signal again
-  graphNetwork.save()
-}
-
-function splitSignalByGnsShareValue(graphNetwork: GraphNetwork): void {
-  let autoMigrate = BigDecimal.fromString('0')
-  let gnsCurator = Curator.load(graphNetwork.gns.toHexString())
-  if (gnsCurator != null) {
-    let gnsSignals = gnsCurator.signals.load()
-    for (let i = 0; i < gnsSignals.length; i++) {
-      let gnsSignal = gnsSignals[i]
-      if (gnsSignal.signal.isZero()) continue
-      let deployment = SubgraphDeployment.load(gnsSignal.subgraphDeployment)!
-      if (deployment.signalAmount.isZero()) continue
-      autoMigrate = autoMigrate
-        .plus(
-          gnsSignal.signal
-            .toBigDecimal()
-            .times(deployment.signalledTokens.toBigDecimal())
-            .div(deployment.signalAmount.toBigDecimal()),
-        )
-        .truncate(18)
-    }
-  }
-  graphNetwork.totalTokensSignalledAutoMigrate = autoMigrate
-  graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalled
-    .toBigDecimal()
-    .minus(autoMigrate)
+  return GraphNetwork.load('1')!
 }
 
 export function createOrLoadGraphNetwork(
@@ -798,7 +756,6 @@ export function createOrLoadGraphNetwork(
     graphNetwork.totalTokensSignalled = BigInt.fromI32(0)
     graphNetwork.totalTokensSignalledAutoMigrate = BigDecimal.fromString('0')
     graphNetwork.totalTokensSignalledDirectly = BigDecimal.fromString('0')
-    graphNetwork.curationFeesInSignalTotal = true
 
     graphNetwork.totalQueryFees = BigInt.fromI32(0)
     graphNetwork.totalIndexerQueryFeesCollected = BigInt.fromI32(0)
@@ -882,7 +839,6 @@ export function createOrLoadGraphNetwork(
 
     graphNetwork.save()
   }
-  countPastCurationFeesInSignal(graphNetwork)
 
   if (!addresses.isL1) {
     graphNetwork.currentL1BlockNumber = getL1BlockNumber()
@@ -1352,7 +1308,7 @@ export function addCurationFeesToNetworkSignal(
   graphNetwork: GraphNetwork,
   deployment: SubgraphDeployment,
   fees: BigInt,
-): void {
+): GraphNetwork {
   graphNetwork.totalTokensSignalled = graphNetwork.totalTokensSignalled.plus(fees)
   let toGns = BigDecimal.fromString('0')
   let gnsSignal = Signal.load(joinID([graphNetwork.gns.toHexString(), deployment.id]))
@@ -1368,6 +1324,7 @@ export function addCurationFeesToNetworkSignal(
   graphNetwork.totalTokensSignalledDirectly = graphNetwork.totalTokensSignalledDirectly
     .plus(fees.toBigDecimal().minus(toGns))
     .truncate(18)
+  return graphNetwork
 }
 
 export function batchUpdateSubgraphSignalledTokens(deployment: SubgraphDeployment): void {

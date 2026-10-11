@@ -510,7 +510,7 @@ export function handleQueryFeesCollected(event: QueryFeesCollected): void {
     graphNetwork.totalCuratorQueryFees = graphNetwork.totalCuratorQueryFees.plus(
         event.params.tokensCurators,
     )
-    addCurationFeesToNetworkSignal(graphNetwork, deployment, event.params.tokensCurators)
+    graphNetwork = addCurationFeesToNetworkSignal(graphNetwork, deployment, event.params.tokensCurators)
     graphNetwork.totalIndexerQueryFeeRebates = graphNetwork.totalIndexerQueryFeeRebates.plus(
         indexerQueryFees,
     )
