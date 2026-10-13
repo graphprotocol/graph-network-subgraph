@@ -1,4 +1,4 @@
-import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext, BigInt, yaml, YAMLValue } from '@graphprotocol/graph-ts'
+import { json, Bytes, dataSource, JSONValueKind, log, DataSourceContext, BigInt, yaml, YAMLValue, crypto } from '@graphprotocol/graph-ts'
 import {
   SubgraphMeta,
   SubgraphVersionMeta,
@@ -10,7 +10,7 @@ import {
   SubgraphDeploymentSchema as SubgraphDeploymentSchemaTemplate
 } from '../types/templates'
 import { jsonToString } from './utils'
-import { yamlField, yamlString, manifestStartBlock, manifestSchemaPath } from './helpers/manifest'
+import { yamlField, yamlString, manifestStartBlock, manifestMetadataString, manifestSchemaReference, manifestSchemaPath } from './helpers/manifest'
 
 export function handleSubgraphMetadata(content: Bytes): void {
   let id = dataSource.context().getString("id")
@@ -86,17 +86,23 @@ function manifestWarning(id: string, field: string): void {
 }
 
 function readManifestSchema(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {
-  let path = manifestSchemaPath(yamlField(yamlField(root, 'schema'), 'file'))
-  if (path === null) {
+  let reference = manifestSchemaReference(yamlField(yamlField(root, 'schema'), 'file'))
+  if (reference === null) {
     manifestWarning(manifest.id, 'schema.file')
     return
   }
+  let path = manifestSchemaPath(reference)
   let schemaId = manifest.id.concat('-').concat(path)
+  // Immutable entity IDs are indexed. Preserve ordinary IDs while bounding
+  // their UTF-8 size even when references contain multibyte characters.
+  let schemaIdBytes = Bytes.fromUTF8(schemaId)
+  if (schemaIdBytes.length > 2048) schemaId = crypto.keccak256(schemaIdBytes).toHexString()
   manifest.schema = schemaId
   manifest.schemaIpfsHash = path
   let context = new DataSourceContext()
   context.setString('id', schemaId)
-  SubgraphDeploymentSchemaTemplate.createWithContext(path, context)
+  // Graph Node validates the original reference and skips invalid IPFS sources.
+  SubgraphDeploymentSchemaTemplate.createWithContext(reference, context)
 }
 
 function readManifestNetwork(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {
@@ -107,23 +113,14 @@ function readManifestNetwork(manifest: SubgraphDeploymentManifest, root: YAMLVal
     if (entries === null || !entries.isArray()) continue
     let sources = entries.toArray()
     for (let i = 0; i < sources.length; i++) {
-      let network = yamlString(yamlField(sources[i], 'network'))
-      if (network !== null && validManifestNetwork(network)) {
+      let network = manifestMetadataString(yamlField(sources[i], 'network'), 256)
+      if (network !== null) {
         manifest.network = network
         return
       }
     }
   }
   manifestWarning(manifest.id, 'network')
-}
-
-function validManifestNetwork(network: string): bool {
-  if (network.length > 256) return false
-  for (let i = 0; i < network.length; i++) {
-    let code = network.charCodeAt(i)
-    if (code <= 32 || code == 127) return false
-  }
-  return true
 }
 
 function readManifestDataSources(manifest: SubgraphDeploymentManifest, root: YAMLValue): void {
@@ -152,8 +149,8 @@ function readManifestDataSources(manifest: SubgraphDeploymentManifest, root: YAM
       continue
     }
     let startBlockValue = yamlField(source, 'startBlock')
-    // A missing startBlock defaults to zero. An explicit null or malformed
-    // value is unknown, so we cannot reliably report a minimum.
+    // A missing startBlock defaults to zero. If any source is invalid, keep
+    // the manifest's zero default rather than reporting a partial minimum.
     let startBlock = startBlockValue === null ? BigInt.fromI32(0) : manifestStartBlock(startBlockValue)
     if (startBlock === null) {
       validStartBlocks = false
@@ -168,24 +165,44 @@ function readManifestDataSources(manifest: SubgraphDeploymentManifest, root: YAM
   else manifestWarning(manifest.id, 'dataSources.source.startBlock')
 }
 
+// Keep field extraction independent of YAML decoding so defaults also apply
+// to undecodable documents.
+export function parseSubgraphDeploymentManifest(
+  id: string,
+  content: string,
+  root: YAMLValue | null,
+): SubgraphDeploymentManifest {
+  let manifest = new SubgraphDeploymentManifest(id)
+  manifest.manifest = content
+  // Preserve the defaults exposed by the original parser, including when
+  // malformed or incomplete manifests prevent further field extraction.
+  manifest.startBlock = BigInt.fromI32(0)
+  manifest.poweredBySubstreams = false
+  if (root !== null && root.isObject()) {
+    readManifestSchema(manifest, root)
+    readManifestNetwork(manifest, root)
+    readManifestDataSources(manifest, root)
+  }
+  return manifest
+}
+
 export function handleSubgraphDeploymentManifest(content: Bytes): void {
-  let manifest = new SubgraphDeploymentManifest(dataSource.stringParam())
-  manifest.manifest = content.toString()
-  // Match the native parser's input limit; retain the raw manifest on failure.
+  let id = dataSource.stringParam()
+  let root: YAMLValue | null = null
+  // Match the native parser's input limit; retain the raw document and defaults
+  // when it cannot be decoded.
   if (content.length > 10000000) {
-    manifestWarning(manifest.id, 'manifest size')
-    manifest.save()
-    return
-  }
-  let parsed = yaml.try_fromBytes(content)
-  if (!parsed.isOk) {
-    manifestWarning(manifest.id, 'YAML')
-  } else if (!parsed.value.isObject()) {
-    manifestWarning(manifest.id, 'manifest root')
+    manifestWarning(id, 'manifest size')
   } else {
-    readManifestSchema(manifest, parsed.value)
-    readManifestNetwork(manifest, parsed.value)
-    readManifestDataSources(manifest, parsed.value)
+    let parsed = yaml.try_fromBytes(content)
+    if (!parsed.isOk) {
+      manifestWarning(id, 'YAML')
+    } else if (!parsed.value.isObject()) {
+      manifestWarning(id, 'manifest root')
+    } else {
+      root = parsed.value
+    }
   }
+  let manifest = parseSubgraphDeploymentManifest(id, content.toString(), root)
   manifest.save()
 }
