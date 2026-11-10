@@ -258,22 +258,29 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
     let indexer = Indexer.load(event.params.serviceProvider.toHexString())!
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
 
-    // Due to thawing tokens potentially getting cancelled, we will need to figure the thawing situation
+    // The contract slashes active and thawing tokens proportionally, rounding thawing down.
+    let remainingTokens = provision.tokensProvisioned.minus(event.params.tokens)
+    let remainingThawing = provision.tokensThawing.times(remainingTokens).div(provision.tokensProvisioned)
+    let thawingSlashed = provision.tokensThawing.minus(remainingThawing)
+
     indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
     indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
+    indexer.thawingTokens = indexer.thawingTokens.minus(thawingSlashed)
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
     dataService.totalTokensProvisioned = dataService.totalTokensProvisioned.minus(event.params.tokens)
+    dataService.totalTokensThawing = dataService.totalTokensThawing.minus(thawingSlashed)
     dataService.save()
 
     graphNetwork.totalTokensProvisioned = graphNetwork.totalTokensProvisioned.minus(event.params.tokens)
     graphNetwork.totalTokensStaked = graphNetwork.totalTokensStaked.minus(event.params.tokens)
+    graphNetwork.totalTokensThawing = graphNetwork.totalTokensThawing.minus(thawingSlashed)
     graphNetwork.save()
 
-    provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
-    // To DO, update thawing tokens according to the accounting calculation from the contract
+    provision.tokensProvisioned = remainingTokens
+    provision.tokensThawing = remainingThawing
     provision.tokensSlashedServiceProvider = provision.tokensSlashedServiceProvider.plus(event.params.tokens)
     provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
@@ -465,7 +472,13 @@ export function handleDelegationSlashed(event: DelegationSlashed): void {
 
     // update provision
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
-    provision.delegatedTokens = provision.delegatedTokens.minus(event.params.tokens)
+    let remainingTokens = provision.delegatedTokens.minus(event.params.tokens)
+    let remainingThawing = provision.delegatedThawingTokens.times(remainingTokens).div(provision.delegatedTokens)
+    let thawingSlashed = provision.delegatedThawingTokens.minus(remainingThawing)
+    let activeSlashed = event.params.tokens.minus(thawingSlashed)
+
+    provision.delegatedTokens = remainingTokens
+    provision.delegatedThawingTokens = remainingThawing
     provision.tokensSlashedDelegationPool = provision.tokensSlashedDelegationPool.plus(event.params.tokens)
     if (provision.delegatorShares != BigInt.fromI32(0)) {
         provision = updateDelegationExchangeRateForProvision(provision as Provision)
@@ -477,14 +490,22 @@ export function handleDelegationSlashed(event: DelegationSlashed): void {
     let indexerID = event.params.serviceProvider.toHexString()
     let indexer = Indexer.load(indexerID)!
     indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
+    indexer.delegatedThawingTokens = indexer.delegatedThawingTokens.minus(thawingSlashed)
+    if (indexer.delegatorShares != BigInt.fromI32(0)) {
+        indexer = updateDelegationExchangeRate(indexer as Indexer)
+    }
     indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
-    // upgrade graph network
+    // These totals exclude thawing delegation, which was removed on TokensUndelegated.
     let graphNetwork = createOrLoadGraphNetwork(event.block.number, event.address)
-    graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(event.params.tokens)
+    graphNetwork.totalDelegatedTokens = graphNetwork.totalDelegatedTokens.minus(activeSlashed)
     graphNetwork.save()
+
+    let dataService = createOrLoadDataService(event.params.verifier)
+    dataService.totalTokensDelegated = dataService.totalTokensDelegated.minus(activeSlashed)
+    dataService.save()
 }
 
 export function handleTokensUndelegated(event: TokensUndelegated): void {
