@@ -20,6 +20,7 @@ export function handleHorizonStakeDeposited(event: HorizonStakeDeposited): void 
     let indexer = createOrLoadIndexer(event.params.serviceProvider, event.block.timestamp, graphNetwork)
     let previousStake = indexer.stakedTokens
     indexer.stakedTokens = indexer.stakedTokens.plus(event.params.tokens)
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer.save()
 
     // Update graph network
@@ -45,6 +46,7 @@ export function handleHorizonStakeLocked(event: HorizonStakeLocked): void {
     let indexer = Indexer.load(id)!
     indexer.lockedTokens = event.params.tokens
     indexer.tokensLockedUntil = event.params.until.toI32()
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer.save()
 
     // update graph network
@@ -62,6 +64,7 @@ export function handleHorizonStakeWithdrawn(event: HorizonStakeWithdrawn): void 
     indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
     indexer.lockedTokens = BigInt.fromI32(0) // set to 0 to prevent issues when Stage 2 comes
     indexer.tokensLockedUntil = 0 // always set to 0 when withdrawn
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer.save()
 
     // Update graph network
@@ -84,6 +87,7 @@ export function handleProvisionCreated(event: ProvisionCreated): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
 
     indexer.provisionedTokens = indexer.provisionedTokens.plus(event.params.tokens)
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
@@ -98,6 +102,7 @@ export function handleProvisionCreated(event: ProvisionCreated): void {
     provision.maxVerifierCutPending = event.params.maxVerifierCut
     provision.thawingPeriod = event.params.thawingPeriod
     provision.thawingPeriodPending = event.params.thawingPeriod
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 }
 
@@ -108,6 +113,7 @@ export function handleProvisionIncreased(event: ProvisionIncreased): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
 
     indexer.provisionedTokens = indexer.provisionedTokens.plus(event.params.tokens)
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
@@ -118,6 +124,7 @@ export function handleProvisionIncreased(event: ProvisionIncreased): void {
     graphNetwork.save()
 
     provision.tokensProvisioned = provision.tokensProvisioned.plus(event.params.tokens)
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 }
 
@@ -128,6 +135,7 @@ export function handleProvisionThawed(event: ProvisionThawed): void {
     let provision = createOrLoadProvision(event.params.serviceProvider, event.params.verifier, event.block.timestamp)
 
     indexer.thawingTokens = indexer.thawingTokens.plus(event.params.tokens)
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
@@ -138,6 +146,7 @@ export function handleProvisionThawed(event: ProvisionThawed): void {
     graphNetwork.save()
 
     provision.tokensThawing = provision.tokensThawing.plus(event.params.tokens)
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 }
 
@@ -149,6 +158,7 @@ export function handleTokensDeprovisioned(event: TokensDeprovisioned): void {
 
     indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
     indexer.thawingTokens = indexer.thawingTokens.minus(event.params.tokens)
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
@@ -162,6 +172,7 @@ export function handleTokensDeprovisioned(event: TokensDeprovisioned): void {
 
     provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
     provision.tokensThawing = provision.tokensThawing.minus(event.params.tokens)
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 }
 
@@ -250,6 +261,7 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
     // Due to thawing tokens potentially getting cancelled, we will need to figure the thawing situation
     indexer.provisionedTokens = indexer.provisionedTokens.minus(event.params.tokens)
     indexer.stakedTokens = indexer.stakedTokens.minus(event.params.tokens)
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
@@ -263,6 +275,7 @@ export function handleProvisionSlashed(event: ProvisionSlashed): void {
     provision.tokensProvisioned = provision.tokensProvisioned.minus(event.params.tokens)
     // To DO, update thawing tokens according to the accounting calculation from the contract
     provision.tokensSlashedServiceProvider = provision.tokensSlashedServiceProvider.plus(event.params.tokens)
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 }
 
@@ -464,6 +477,7 @@ export function handleDelegationSlashed(event: DelegationSlashed): void {
     let indexerID = event.params.serviceProvider.toHexString()
     let indexer = Indexer.load(indexerID)!
     indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 
@@ -553,6 +567,7 @@ export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn):
     // might want to track locked/thawing tokens in provision too
     provision.delegatedTokens = provision.delegatedTokens.minus(event.params.tokens)
     provision.delegatedThawingTokens = provision.delegatedThawingTokens.minus(event.params.tokens)
+    provision = updateAdvancedProvisionMetrics(provision as Provision)
     provision.save()
 
     let indexerID = event.params.serviceProvider.toHexString()
@@ -560,6 +575,7 @@ export function handleDelegatedTokensWithdrawn(event: DelegatedTokensWithdrawn):
 
     indexer.delegatedTokens = indexer.delegatedTokens.minus(event.params.tokens)
     indexer.delegatedThawingTokens = indexer.delegatedThawingTokens.minus(event.params.tokens)
+    indexer = updateAdvancedIndexerMetrics(indexer as Indexer)
     indexer = calculateCapacities(indexer as Indexer)
     indexer.save()
 

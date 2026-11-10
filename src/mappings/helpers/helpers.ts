@@ -1010,9 +1010,21 @@ function max(a: BigDecimal, b: BigDecimal): BigDecimal {
   return a > b ? a : b
 }
 
+// Own stake that still backs the indexer: excludes legacy locked (unstaking) tokens and
+// Horizon provision tokens that are thawing. Both are zero when they don't apply.
+export function getActiveIndexerStake(indexer: Indexer): BigInt {
+  return indexer.stakedTokens.minus(indexer.lockedTokens).minus(indexer.thawingTokens)
+}
+
+// Delegation that still earns rewards and fees. Horizon keeps undelegated tokens in the pool
+// (tracked in delegatedThawingTokens) until withdrawn, but new rewards only go to active shares.
+export function getActiveIndexerDelegation(indexer: Indexer): BigInt {
+  return indexer.delegatedTokens.minus(indexer.delegatedThawingTokens)
+}
+
 export function calculateOwnStakeRatio(indexer: Indexer): BigDecimal {
-  let stakedTokensBD = indexer.stakedTokens.minus(indexer.lockedTokens).toBigDecimal()
-  let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
+  let stakedTokensBD = getActiveIndexerStake(indexer).toBigDecimal()
+  let delegatedTokensBD = getActiveIndexerDelegation(indexer).toBigDecimal()
   let graphNetwork = loadGraphNetwork()
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
   let maxPossibleTotalUsable = stakedTokensBD + stakedTokensBD * delegationRatioBD
@@ -1077,8 +1089,8 @@ export function calculateLegacyIndexerRewardOwnGenerationRatio(indexer: Indexer)
 }
 
 export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
-  let stakedTokensBD = indexer.stakedTokens.toBigDecimal()
-  let delegatedTokensBD = indexer.delegatedTokens.toBigDecimal()
+  let stakedTokensBD = getActiveIndexerStake(indexer).toBigDecimal()
+  let delegatedTokensBD = getActiveIndexerDelegation(indexer).toBigDecimal()
   let graphNetwork = loadGraphNetwork()
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
   let maxDelegatedStake = stakedTokensBD * delegationRatioBD
@@ -1112,18 +1124,31 @@ export function updateLegacyAdvancedIndexerMetrics(indexer: Indexer): Indexer {
   return indexer as Indexer
 }
 
+// Provisioned tokens that are not thawing.
+export function getActiveProvisionTokens(provision: Provision): BigInt {
+  return provision.tokensProvisioned.minus(provision.tokensThawing)
+}
+
+// Delegated tokens that are not thawing. Thawing delegation stays in the pool until withdrawn,
+// but rewards and query fees added to the pool only accrue to active shares.
+export function getActiveProvisionDelegation(provision: Provision): BigInt {
+  return provision.delegatedTokens.minus(provision.delegatedThawingTokens)
+}
+
 export function calculateOwnStakeRatioForProvision(provision: Provision): BigDecimal {
-  let totalTokens = provision.tokensProvisioned.plus(provision.delegatedTokens)
+  let ownTokens = getActiveProvisionTokens(provision)
+  let totalTokens = ownTokens.plus(getActiveProvisionDelegation(provision))
   return totalTokens == BigInt.fromI32(0)
     ? BigDecimal.fromString('0')
-    : provision.tokensProvisioned.toBigDecimal().div(totalTokens.toBigDecimal())
+    : ownTokens.toBigDecimal().div(totalTokens.toBigDecimal())
 }
 
 export function calculateDelegatedStakeRatioForProvision(provision: Provision): BigDecimal {
-  let totalTokens = provision.tokensProvisioned.plus(provision.delegatedTokens)
+  let delegatedTokens = getActiveProvisionDelegation(provision)
+  let totalTokens = getActiveProvisionTokens(provision).plus(delegatedTokens)
   return totalTokens == BigInt.fromI32(0)
     ? BigDecimal.fromString('0')
-    : provision.delegatedTokens.toBigDecimal().div(totalTokens.toBigDecimal())
+    : delegatedTokens.toBigDecimal().div(totalTokens.toBigDecimal())
 }
 
 export function calculateIndexingRewardEffectiveCutForProvision(provision: Provision): BigDecimal {
@@ -1154,8 +1179,8 @@ export function calculateIndexerRewardOwnGenerationRatioForProvision(provision: 
 }
 
 export function calculateOverdelegationDilutionForProvision(provision: Provision): BigDecimal {
-  let provisionedTokensBD = provision.tokensProvisioned.toBigDecimal()
-  let delegatedTokensBD = provision.delegatedTokens.toBigDecimal()
+  let provisionedTokensBD = getActiveProvisionTokens(provision).toBigDecimal()
+  let delegatedTokensBD = getActiveProvisionDelegation(provision).toBigDecimal()
   let dataService = DataService.load(provision.dataService)!
   if (dataService.delegationRatio == null) {
     return BigDecimal.fromString('0')
