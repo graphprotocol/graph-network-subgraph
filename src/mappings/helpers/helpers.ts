@@ -1010,10 +1010,12 @@ function max(a: BigDecimal, b: BigDecimal): BigDecimal {
   return a > b ? a : b
 }
 
-// Own stake that still backs the indexer: excludes legacy locked (unstaking) tokens and
-// Horizon provision tokens that are thawing. Both are zero when they don't apply.
-export function getActiveIndexerStake(indexer: Indexer): BigInt {
-  return indexer.stakedTokens.minus(indexer.lockedTokens).minus(indexer.thawingTokens)
+// Horizon backing excludes idle stake. Legacy handlers retain their previous stake basis;
+// isLegacy cannot select it because migrated indexers can still carry that flag.
+export function getActiveIndexerStake(indexer: Indexer, useLegacyStake: boolean = false): BigInt {
+  return useLegacyStake
+    ? indexer.stakedTokens.minus(indexer.lockedTokens).minus(indexer.thawingTokens)
+    : indexer.provisionedTokens.minus(indexer.thawingTokens)
 }
 
 // Delegation that still earns rewards and fees. Horizon keeps undelegated tokens in the pool
@@ -1022,8 +1024,8 @@ export function getActiveIndexerDelegation(indexer: Indexer): BigInt {
   return indexer.delegatedTokens.minus(indexer.delegatedThawingTokens)
 }
 
-export function calculateOwnStakeRatio(indexer: Indexer): BigDecimal {
-  let stakedTokensBD = getActiveIndexerStake(indexer).toBigDecimal()
+export function calculateOwnStakeRatio(indexer: Indexer, useLegacyStake: boolean = false): BigDecimal {
+  let stakedTokensBD = getActiveIndexerStake(indexer, useLegacyStake).toBigDecimal()
   let delegatedTokensBD = getActiveIndexerDelegation(indexer).toBigDecimal()
   let graphNetwork = loadGraphNetwork()
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
@@ -1088,8 +1090,8 @@ export function calculateLegacyIndexerRewardOwnGenerationRatio(indexer: Indexer)
     : rewardCut / indexer.ownStakeRatio
 }
 
-export function calculateOverdelegationDilution(indexer: Indexer): BigDecimal {
-  let stakedTokensBD = getActiveIndexerStake(indexer).toBigDecimal()
+export function calculateOverdelegationDilution(indexer: Indexer, useLegacyStake: boolean = false): BigDecimal {
+  let stakedTokensBD = getActiveIndexerStake(indexer, useLegacyStake).toBigDecimal()
   let delegatedTokensBD = getActiveIndexerDelegation(indexer).toBigDecimal()
   let graphNetwork = loadGraphNetwork()
   let delegationRatioBD = BigInt.fromI32(graphNetwork.delegationRatio).toBigDecimal()
@@ -1113,14 +1115,14 @@ export function updateAdvancedIndexerMetrics(indexer: Indexer): Indexer {
 }
 
 export function updateLegacyAdvancedIndexerMetrics(indexer: Indexer): Indexer {
-  indexer.ownStakeRatio = calculateOwnStakeRatio(indexer as Indexer)
+  indexer.ownStakeRatio = calculateOwnStakeRatio(indexer as Indexer, true)
   indexer.delegatedStakeRatio = calculateDelegatedStakeRatio(indexer as Indexer)
   indexer.legacyIndexingRewardEffectiveCut = calculateLegacyIndexingRewardEffectiveCut(indexer as Indexer)
   indexer.legacyQueryFeeEffectiveCut = calculateLegacyQueryFeeEffectiveCut(indexer as Indexer)
   indexer.legacyIndexerRewardsOwnGenerationRatio = calculateLegacyIndexerRewardOwnGenerationRatio(
     indexer as Indexer,
   )
-  indexer.overDelegationDilution = calculateOverdelegationDilution(indexer as Indexer)
+  indexer.overDelegationDilution = calculateOverdelegationDilution(indexer as Indexer, true)
   return indexer as Indexer
 }
 

@@ -2,7 +2,12 @@ import { newMockEvent } from 'matchstick-as/assembly/index'
 import {
   DelegatedTokensWithdrawn,
   DelegationFeeCutSet,
+  DelegationSlashed,
+  HorizonStakeDeposited,
+  HorizonStakeWithdrawn,
   ProvisionCreated,
+  ProvisionIncreased,
+  ProvisionSlashed,
   ProvisionThawed,
   TokensDelegated,
   TokensDeprovisioned,
@@ -16,6 +21,67 @@ function addressParam(name: string, value: Address): ethereum.EventParam {
 
 function uintParam(name: string, value: BigInt): ethereum.EventParam {
   return new ethereum.EventParam(name, ethereum.Value.fromUnsignedBigInt(value))
+}
+
+export function mockProvisionSlashed(
+  serviceProvider: Address,
+  verifier: Address,
+  tokens: BigInt,
+): ProvisionSlashed {
+  let event = changetype<ProvisionSlashed>(newMockEvent())
+  event.parameters = [
+    addressParam('serviceProvider', serviceProvider),
+    addressParam('verifier', verifier),
+    uintParam('tokens', tokens),
+  ]
+  return event
+}
+
+export function mockDelegationSlashed(
+  serviceProvider: Address,
+  verifier: Address,
+  tokens: BigInt,
+): DelegationSlashed {
+  let event = changetype<DelegationSlashed>(newMockEvent())
+  event.parameters = [
+    addressParam('serviceProvider', serviceProvider),
+    addressParam('verifier', verifier),
+    uintParam('tokens', tokens),
+  ]
+  return event
+}
+
+export function mockProvisionIncreased(
+  serviceProvider: Address,
+  verifier: Address,
+  tokens: BigInt,
+): ProvisionIncreased {
+  let event = changetype<ProvisionIncreased>(newMockEvent())
+  event.parameters = [
+    addressParam('serviceProvider', serviceProvider),
+    addressParam('verifier', verifier),
+    uintParam('tokens', tokens),
+  ]
+  return event
+}
+
+export function mockHorizonStakeDeposited(
+  serviceProvider: Address,
+  tokens: BigInt,
+): HorizonStakeDeposited {
+  let event = changetype<HorizonStakeDeposited>(newMockEvent())
+  event.block.number = BigInt.fromI32(5)
+  event.parameters = [addressParam('serviceProvider', serviceProvider), uintParam('tokens', tokens)]
+  return event
+}
+
+export function mockHorizonStakeWithdrawn(
+  serviceProvider: Address,
+  tokens: BigInt,
+): HorizonStakeWithdrawn {
+  let event = changetype<HorizonStakeWithdrawn>(newMockEvent())
+  event.parameters = [addressParam('serviceProvider', serviceProvider), uintParam('tokens', tokens)]
+  return event
 }
 
 export function mockProvisionCreated(
